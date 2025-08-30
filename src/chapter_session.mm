@@ -70,7 +70,8 @@ ChapterSession::~ChapterSession()=default;
 void ChapterSession::tick(std::array<std::uint32_t,3>& command,SceneFade& fade,Animation& camera,
     FieldProjection& projection,RetiringSceneEffects* effects,BattleUiShared& ui,
     std::shared_ptr<const std::vector<Font>> fonts,const SineTable& sine,GameRandom& random,
-    std::uint32_t& image_frame_counter,const std::function<void(GameModeSelection)>& request) {
+    std::uint32_t& image_frame_counter,const std::function<void(GameModeSelection)>& request,
+    const std::function<void()>& updated) {
     check(resource_live(),"Dead chapter callback");
     unsigned submitted=0;
     chapter_update(impl_->task,{[&](const GameOverImageCall& call){
@@ -78,6 +79,8 @@ void ChapterSession::tick(std::array<std::uint32_t,3>& command,SceneFade& fade,A
             "Chapter unrecovered image transform");++submitted;
     },[&](float value){fade.request(value);},[&]{return fade.current!=fade.target;},[&]{command={};},request});
     check(submitted==1,"Chapter image queue ownership");
+    if(updated)updated();
+    //100f90 -> 100800 -> 1b5ee0 -> 1b3450: 1009e0 set resource+0x24 when CHP_01 loaded.
     ++image_frame_counter;
     impl_->resource.tick(camera,projection,effects,ui,std::move(fonts),sine,random);
     impl_->render();

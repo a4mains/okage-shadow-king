@@ -22,7 +22,9 @@ void GameModeParent::tick(const std::function<void()>& destroy_child,
         }
     } else if(phase_==1) {
         if(!requested_||dead_)throw std::runtime_error("Invalid game mode construction state");
-        current_=*requested_;
+        current_=*requested_; //124818: +40 = +3c, +44 = +48, +4c = +50
+        //1246b0 cases 9/10 write parent+4c = mode before 1151b8 runs the 124548 constructor (which reads it).
+        if(current_[0]==9||current_[0]==10)current_[2]=current_[0];
         construct_child(current_);
         requested_.reset();queue_words_[0]=0;child_=true;--phase_;
     } else throw std::runtime_error("Unrecovered game mode parent phase");

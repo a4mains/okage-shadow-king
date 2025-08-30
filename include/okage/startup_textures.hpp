@@ -41,6 +41,16 @@ enum class ResourceStage : std::uint8_t {
     RestoreManagerDead,
     RestoreResourcesRetired,// D+3: 101058 (releases nothing) then wrapper dtor 124448 -> 1cca30(wrapper+0x30)
     RestoreWrappersFreed,
+    NameEntryActive,            // 124548(mode 9) ran: 1243c8 -> 11fb78 bm_if atlas owned by wrapper+0x30, type-9 manager
+    NameEntryManagerDead,
+    NameEntryCommandPublished,
+    NameEntryResourcesRetired,  // D+3: 101058 (releases nothing) then 124628 -> 124448 -> 1cca30(wrapper+0x30)
+    NameEntryWrappersFreed,
+    ChapterActive,
+    ChapterModeRequested,
+    ChapterResourcesRetired,
+    ChapterWrappersFreed,       // resource node then mode-2 node freed
+    FieldConstructorEntry,
     Unmodeled,
 };
 const char* to_string(ResourceStage);
@@ -64,7 +74,8 @@ struct StartupTextureInputs {
 };
 
 enum class StartupRngPhase : std::uint8_t { Noise, EffectGrid, EffectTemplate, Session,
-                                            RestoreUiGlyph, RestoreUiIcon, RestoreUiSelect };
+                                            RestoreUiGlyph, RestoreUiIcon, RestoreUiSelect,
+                                            NameUiGlyph, NameUiIcon, NameUiSelect };
 const char* to_string(StartupRngPhase);
 struct StartupRandomDraw {
     StartupRngPhase phase{};
@@ -172,7 +183,7 @@ public:
     void note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site = 0);  // site: RngSite value
     const std::vector<std::uint32_t>& session_draw_frames() const noexcept { return session_draw_frames_; }
     int construct_restore(const std::vector<std::uint8_t>& atlas);
-    int restore_atlas() const noexcept { return restore_atlas_; }
+    int restore_atlas() const noexcept { return wrapper_atlas_; }
     // Restore resource child's first tick: 0x102218 frees the reclaim-pending water job (host only).
     void note_effect_reclaim(int slot);
     // D: 11e690 state -2, 1248d8(4,0,0), manager dead; window destroyed (fonts are not freed).
@@ -189,6 +200,30 @@ public:
     // D+4: resource node then wrapper node freed.
     void free_restore_wrappers();
     bool second_title() const noexcept { return second_title_; }
+    int construct_name_entry(const std::vector<std::uint8_t>& atlas);
+    int name_atlas() const noexcept { return wrapper_atlas_; }
+    // D: the native type-9 manager reached phase -3 (death flag); window destroyed in the same traversal.
+    void name_manager_death();
+    // 1248d8(a, b, c): the published game command (observed from the native Session's pending command).
+    void note_command(std::uint32_t a, std::uint32_t b, std::uint32_t c);
+    // D+2: 124630 phase 1 published {14,1,0} and requested {2,72,0} (rows from the native request).
+    void name_entry_requested(unsigned mode, unsigned selector, unsigned arg);
+    // D+3: 101058 of the mode-9 resource child, then entry of 124628/124448; release_name_atlas() is its
+    // 1cca30(wrapper+0x30) tail.
+    void retire_name_entry_resources();
+    void release_name_atlas();
+    void free_name_entry_resource_node();
+    void free_name_entry_wrappers();
+    int construct_chapter(unsigned chapter, const std::vector<std::uint8_t>& image);
+    // 133a98 phase 19 after the fade completed: 1248d8(0,0,0) then 124930(root, 2, scene, entrance).
+    void chapter_requested(unsigned mode, unsigned scene, unsigned entrance);
+    void retire_chapter_resources();
+    void destroy_chapter_mode();
+    void free_chapter_resource_node();
+    void free_chapter_wrappers();
+    // Entry of the second 133830 with command 0 (the Newgame stop). Its body (field loading) is not modeled.
+    void enter_field_constructor(unsigned scene, unsigned entrance);
+    unsigned chapter_scene() const noexcept { return chapter_scene_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
     void request_title_successor(unsigned mode);
     void retire_title_resources();
@@ -270,7 +305,8 @@ private:
     std::vector<OwnedBytes> model_slot_bytes_;
     std::string unmodeled_reason_;
     unsigned successor_mode_{};
-    int restore_atlas_{-1};
+    int wrapper_atlas_{-1};  // wrapper+0x30 of the live mode-9/10 wrapper (Restore or name entry)
+    unsigned chapter_scene_{};
     bool second_title_{};
     std::vector<std::uint32_t> session_draw_frames_;
     std::optional<EffectObservation> effect106_;
@@ -282,9 +318,10 @@ private:
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
+enum class CheckpointSchema : std::uint8_t { Retire, Restore, Newgame };
 void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
                                    const std::string& checkpoint, std::uint32_t session_rng_state,
-                                   bool restore_schema = false);
+                                   CheckpointSchema schema = CheckpointSchema::Retire);
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir);

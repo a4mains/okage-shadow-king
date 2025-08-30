@@ -82,6 +82,17 @@ int main() {
         require(replacement.queue_words()==okage::GameModeSelection{3,7,23});
         bool zero=false;try {replacement.request({0,1,2});}catch(const std::runtime_error&){zero=true;}
         require(zero);
+        for(unsigned mode:{9u,10u,2u}) {
+            okage::GameModeParent successor({8,1,0});
+            successor.request({mode,mode==2?72u:0u,0});
+            successor.tick([]{},[]{},[](auto){throw std::runtime_error("early construction");});
+            successor.tick([]{},[]{},[](auto){throw std::runtime_error("early construction");});
+            okage::GameModeSelection seen{};
+            successor.tick([]{},[]{},[&](auto s){seen=s;});
+            const okage::GameModeSelection expected{mode,mode==2?72u:0u,mode==2?0u:mode};
+            require(seen==expected&&successor.current()==expected);
+            require(successor.queue_words()==okage::GameModeSelection{0,mode==2?72u:0u,0});
+        }
         std::cout<<"Game mode lifecycle tests passed\n";
     } catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

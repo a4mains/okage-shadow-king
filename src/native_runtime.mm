@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #include "okage/input_log.hpp"
+#include "okage/sha256.hpp"
 #include "okage/dialogue.hpp"
 #include "okage/event.hpp"
 #include "okage/game_state.hpp"
@@ -171,13 +172,13 @@ struct Session {
     std::shared_ptr<const okage::StartupInputs> startup_inputs;
     std::shared_ptr<const okage::SceneRenderer::EffectTextureBytes> verified_effect_textures;
     std::string startup_textures_status="not initialized (no cold startup)";
-    fs::path startup_texture_report,resource_report,retirement_report,restore_report;
+    fs::path startup_texture_report,resource_report,retirement_report,restore_report,newgame_report;
     std::vector<std::pair<std::string,unsigned>> restore_checkpoint_frames;
     void restore_checkpoint(const char* name,bool marker=true) {
         if(marker)startup_textures->note_checkpoint(name);
         restore_checkpoint_frames.emplace_back(name,frame);
         if(restore_report.empty())return;
-        okage::write_title_checkpoint_report(*startup_textures,restore_report/name,name,random.state,true);
+        okage::write_title_checkpoint_report(*startup_textures,restore_report/name,name,random.state,okage::CheckpointSchema::Restore);
         if(std::string_view(name)!="second-title-return")return;
         std::ofstream out(restore_report/"route.json",std::ios::binary);
         out<<"{\"route\":\"restore-cancel\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
@@ -192,9 +193,101 @@ struct Session {
         for(std::size_t i=0;i<frames.size();++i)draws<<"{\"session_draw\":"<<i<<",\"frame\":"<<frames[i]<<"}\n";
         if(!out||!draws)throw std::runtime_error("Restore route report write failed");
     }
+    std::vector<std::pair<std::string,unsigned>> newgame_checkpoint_frames;
+    void newgame_checkpoint(const char* name,bool marker=true) {
+        if(marker)startup_textures->note_checkpoint(name);
+        newgame_checkpoint_frames.emplace_back(name,frame);
+        if(newgame_report.empty())return;
+        okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::Newgame);
+        write_newgame_session(newgame_report/name/"session.json");
+        if(std::string_view(name)=="field-constructor-entry")write_newgame_route();
+    }
+    static std::string fbits(float v){char b[11];std::snprintf(b,sizeof b,"0x%x",std::bit_cast<std::uint32_t>(v));return b;}
+    void write_newgame_session(const fs::path& path) {
+        if(variables.size()<0x854)throw std::runtime_error("New Game report variable extent");
+        static const char* hex="0123456789abcdef";
+        std::string name;for(unsigned i=0;i<16;++i){name+=hex[variables[0x844+i]>>4];name+=hex[variables[0x844+i]&15];}
+        const auto temp=okage::sha256_hex(std::span<const std::uint8_t>(variables.data()+0x10,0x100));
+        const auto& q=game_mode->queue_words();const auto& c=game_mode->current();
+        std::ofstream out(path,std::ios::binary);
+        out<<"{\"image_counter\":"<<game_over_shared.image_frame_counter<<",\"command\":["<<pending_game_command[0]<<","
+           <<pending_game_command[1]<<","<<pending_game_command[2]<<"],\"name_844\":\""<<name<<"\",\"temp_10_sha256\":\""<<temp
+           <<"\",\"fade\":{\"current\":\""<<fbits(scene_fade.current)<<"\",\"target\":\""<<fbits(scene_fade.target)
+           <<"\",\"rate\":\""<<fbits(scene_fade.step)<<"\",\"color\":\""<<[&]{char b[11];std::snprintf(b,sizeof b,"0x%x",scene_fade.color);return std::string(b);}()
+           <<"\"},\"mode_parent\":{\"phase\":"<<game_mode->phase()<<",\"queue\":["<<q[0]<<","<<q[1]<<","<<q[2]<<"],\"current\":["
+           <<c[0]<<","<<c[1]<<","<<c[2]<<"]}}\n";
+        if(!out)throw std::runtime_error("New Game session state write failed");
+    }
+    void write_newgame_route() {
+        std::ofstream out(newgame_report/"route.json",std::ios::binary);
+        out<<"{\"route\":\"newgame-chapter\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"construction_frame\":"
+           <<newgame_s_frame.value_or(0)<<",\"checkpoints\":{";
+        for(std::size_t i=0;i<newgame_checkpoint_frames.size();++i)
+            out<<(i?",":"")<<"\""<<newgame_checkpoint_frames[i].first<<"\":"<<newgame_checkpoint_frames[i].second;
+        out<<"},\"tails\":{\"theme_end_t\":"<<(theme_end_frame?std::to_string(*theme_end_frame-*newgame_s_frame):std::string("null"))<<"}}\n";
+        std::ofstream names(newgame_report/"name-frames.jsonl",std::ios::binary);
+        for(const auto& row:name_frames)names<<row<<'\n';
+        std::ofstream chapters(newgame_report/"chapter-frames.jsonl",std::ios::binary);
+        for(const auto& row:chapter_frames)chapters<<row<<'\n';
+        std::ofstream draws(newgame_report/"session-draw-frames.jsonl",std::ios::binary);
+        const auto& frames=startup_textures->session_draw_frames();
+        for(std::size_t i=0;i<frames.size();++i)draws<<"{\"session_draw\":"<<i<<",\"frame\":"<<frames[i]<<"}\n";
+        if(!out||!names||!chapters||!draws)throw std::runtime_error("New Game route report write failed");
+    }
+    //Per-traversal Newgame observation (t = 0 at the name-entry construction traversal S).
+    std::optional<unsigned> newgame_s_frame,theme_end_frame;
+    std::vector<std::string> name_frames,chapter_frames;
+    unsigned name_traversal=0;std::size_t newgame_draws_seen=0;int name_window=-1;bool name_manager_alive=false;
+    std::optional<unsigned> next_name_traversal() const {
+        return name_entry&&name_entry->resource_live()?std::optional<unsigned>(name_traversal):std::nullopt;
+    }
+    std::size_t newgame_draws_since_last() {
+        const auto n=startup_textures->session_draw_frames().size();const auto d=n-newgame_draws_seen;newgame_draws_seen=n;return d;
+    }
+    void observe_name_tick() {
+        auto& o=*startup_textures;const auto& f=name_entry->last_frame();
+        const auto draws=newgame_draws_since_last();
+        if(o.stage()==okage::ResourceStage::NameEntryActive&&name_traversal==0) {
+            //0x102218 in the name resource child's first tick frees the reclaim-pending water job.
+            if(retiring_effects)for(const unsigned slot:retiring_effects->last_reclaimed)o.note_effect_reclaim(int(slot));
+            newgame_checkpoint("first-layout"); //return of S's 0x100f90 (layout ran)
+        }
+        static const char* hex="0123456789abcdef";std::string name;
+        for(auto b:f.name){name+=hex[b>>4];name+=hex[b&15];}
+        name_frames.push_back("{\"t\":"+std::to_string(name_traversal)+",\"manager_ran\":"+(f.manager_ran?"true":"false")+
+            ",\"phase_in\":"+(f.manager_ran?std::to_string(f.phase_in):"null")+",\"phase_out\":"+(f.manager_ran?std::to_string(f.phase_out):"null")+
+            ",\"length_out\":"+(f.manager_ran?std::to_string(f.length_out):"null")+",\"selection_out\":"+(f.manager_ran?std::to_string(f.selection_out):"null")+
+            ",\"yes_no_out\":"+(f.manager_ran?std::to_string(f.yes_out):"null")+",\"pressed\":"+(f.manager_ran?std::to_string(f.pressed):"null")+
+            ",\"repeat\":"+(f.manager_ran?std::to_string(f.repeat):"null")+",\"draws\":"+std::to_string(draws)+",\"name_out\":"+(f.manager_ran?"\""+name+"\"":std::string("null"))+"}");
+        const auto taken=[this](std::string_view n){return std::any_of(newgame_checkpoint_frames.begin(),
+            newgame_checkpoint_frames.end(),[&](const auto& c){return c.first==n;});};
+        if(f.unlinked&&o.stage()==okage::ResourceStage::NameEntryManagerDead&&name_manager_alive) {
+            //D+1: the dead manager node is unlinked and freed (0x1bdaf0 from the scheduler).
+            newgame_checkpoint("manager-free"); //entry of that 0x1bdaf0, before its row
+            o.note_manager_free();name_manager_alive=false;
+        }
+        if(f.manager_ran&&o.stage()==okage::ResourceStage::NameEntryActive) {
+            //Return of the first 0x11a1c8 call that appended a character in phase 1 (the edit), and of the
+            //call that accepted Yes (phase -1 -> -2). Native manager words, as observed.
+            if(f.phase_in==1&&name_previous_length&&f.length_out==*name_previous_length+1&&!taken("name-edited"))
+                newgame_checkpoint("name-edited");
+            if(f.phase_in==-1&&f.phase_out==-2&&!taken("name-confirmed"))newgame_checkpoint("name-confirmed");
+            name_previous_length=f.length_out;
+            if(f.died) {
+                //D: 0x11a1c8 phase -3 set the death flag; 120b48 (manager-destroy), then 199458 window death.
+                o.name_manager_death();
+                newgame_checkpoint("name-death"); //entry of 120b48, before its rows
+                o.note_ui("manager-destroy",9);
+                o.note_ui("window-death",name_window);
+            }
+        }
+        if(f.finished&&o.stage()==okage::ResourceStage::NameEntryCommandPublished)newgame_checkpoint("command-published");
+        ++name_traversal;
+    }
+    std::optional<std::int32_t> name_previous_length;
     unsigned startup_selector=0,restore_storage_latency_ms=0;
     //0x1bdaf0 of the mode node: GameModeParent frees its dead allocation after release_child returns.
-    enum class PendingNodeFree{None,Startup,Title,Restore} pending_node_free=PendingNodeFree::None;
+    enum class PendingNodeFree{None,Startup,Title,Restore,NameEntry,Chapter} pending_node_free=PendingNodeFree::None;
     void observe_node_free(bool dead_before) {
         if(!dead_before||game_mode->has_dead_allocation()||pending_node_free==PendingNodeFree::None||!startup_textures)return;
         switch(pending_node_free) {
@@ -209,6 +302,18 @@ struct Session {
             if(title_modeled(okage::ResourceStage::RestoreResourcesRetired)) {
                 restore_checkpoint("wrapper-free");
                 startup_textures->free_restore_wrappers();
+            }
+            break;
+        case PendingNodeFree::NameEntry:
+            if(title_modeled(okage::ResourceStage::NameEntryResourcesRetired)) {
+                newgame_checkpoint("wrapper-free");
+                startup_textures->free_name_entry_wrappers();
+            }
+            break;
+        case PendingNodeFree::Chapter:
+            if(title_modeled(okage::ResourceStage::ChapterResourcesRetired)) {
+                newgame_checkpoint("chapter-wrapper-free");
+                startup_textures->free_chapter_wrappers();
             }
             break;
         default:break;
@@ -759,7 +864,7 @@ struct Session {
         const auto& owned=*owned_inputs;
         okage::StartupTextureInputs inputs;
         inputs.font_palette=owned.font_palette;inputs.fonts=owned.fonts;
-        inputs.record_observations=!startup_texture_report.empty()||!resource_report.empty()||!retirement_report.empty()||!restore_report.empty();
+        inputs.record_observations=!startup_texture_report.empty()||!resource_report.empty()||!retirement_report.empty()||!restore_report.empty()||!newgame_report.empty();
         const auto& names=okage::startup_effect_names();
         inputs.read_effect=[&owned,&names](const std::string& name)->std::optional<std::vector<std::uint8_t>> {
             for(unsigned i=0;i<names.size();++i)if(name==names[i])return owned.effects[i];
@@ -1286,6 +1391,12 @@ struct Session {
                 }
                 else if(chapter) {
                     chapter->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared,scene_fade);
+                    //101058 (1b5fd0 -> 1b2240 releases CHP_01), then 133a38 (flag 1: only the fade rate).
+                    if(title_modeled(okage::ResourceStage::ChapterModeRequested)) {
+                        startup_textures->retire_chapter_resources();
+                        newgame_checkpoint("chapter-resource-retirement"); //entry of 133a38, after 101058 returned
+                        startup_textures->destroy_chapter_mode();
+                    } else if(startup_textures)startup_textures->mark_unmodeled("chapter retired outside the modeled route");
                     std::cout<<"Native chapter retired frame="<<frame<<'\n';
                 }
                 else if(restore) {
@@ -1300,6 +1411,12 @@ struct Session {
                 }
                 else if(name_entry) {
                     name_entry->retire(*reset_camera,projection,retiring_effects?&*retiring_effects:nullptr,ui_shared);
+                    //D+3: 101058, then wrapper dtor 124628 -> 124448 -> 1cca30(wrapper+0x30).
+                    if(title_modeled(okage::ResourceStage::NameEntryCommandPublished)) {
+                        startup_textures->retire_name_entry_resources();
+                        newgame_checkpoint("resource-retirement"); //entry of 124628, after 101058 returned
+                        startup_textures->release_name_atlas();
+                    } else if(startup_textures)startup_textures->mark_unmodeled("name entry retired outside the modeled route");
                     std::cout<<"Native name entry retired frame="<<frame<<'\n';
                 }
                 else if(title) {
@@ -1345,10 +1462,18 @@ struct Session {
                 if(name_entry) {
                     if(name_entry->resource_live())throw std::runtime_error("Name entry free before retirement");
                     name_entry.reset();
+                    if(title_modeled(okage::ResourceStage::NameEntryResourcesRetired)) {
+                        startup_textures->free_name_entry_resource_node();
+                        pending_node_free=PendingNodeFree::NameEntry;
+                    }
                 }
                 if(chapter) {
                     if(chapter->resource_live())throw std::runtime_error("Chapter free before retirement");
                     chapter.reset();
+                    if(title_modeled(okage::ResourceStage::ChapterResourcesRetired)) {
+                        startup_textures->free_chapter_resource_node();
+                        pending_node_free=PendingNodeFree::Chapter;
+                    }
                 }
                 if(startup) {
                     if(startup->resource_live())throw std::runtime_error("Startup freed before resource retirement");
@@ -1378,24 +1503,36 @@ struct Session {
                 if(battle||field||field_return||defeat_return||game_over||title||name_entry||restore||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
                 if(title_modeled(okage::ResourceStage::TitleWrappersFreed)) {
-                    if(selection==okage::GameModeSelection{startup_textures->successor_mode(),0,0}) {
+                    if(selection==okage::GameModeSelection{startup_textures->successor_mode(),0,startup_textures->successor_mode()}) {
                         startup_textures->enter_successor(selection[0]);
                         title_checkpoint("successor-entry");
                         if(selection[0]==10)restore_checkpoint("retire-successor-entry",false); //same instant, Restore report
+                        else newgame_checkpoint("retire-successor-entry",false); //same instant, Newgame report
                         write_title_route();
-                        //Restore continues Restore (mode 10) on the same owner; New Game stays unmodeled.
-                        if(selection[0]!=10)startup_textures->mark_unmodeled("New Game constructor body (124548) is not modeled");
+                        //Restore continues Restore (mode 10) and New Game (mode 9) on the same owner.
                     } else startup_textures->mark_unmodeled("title successor differs from the requested mode");
                 }
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
+                if(selection[0]==2&&pending_game_command[0]==0&&title_modeled(okage::ResourceStage::ChapterWrappersFreed)) {
+                    startup_textures->enter_field_constructor(selection[1],selection[2]);
+                    newgame_checkpoint("field-constructor-entry");
+                    startup_textures->mark_unmodeled("ordinary field constructor body (133830 command 0) is not modeled");
+                }
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {
+                    const unsigned id=pending_game_command[1];
+                    if(id<1||id>7)throw std::runtime_error("Unrecovered chapter image selection");
+                    auto bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(field_root.parent_path()/"CMNDATA/2D"/(
+                        "CHP_0"+std::to_string(id)+".XIM")));
+                    const bool modeled=title_modeled(okage::ResourceStage::NameEntryWrappersFreed);
+                    if(modeled)startup_textures->construct_chapter(id,*bytes);
+                    else if(startup_textures)startup_textures->mark_unmodeled("chapter constructed outside the modeled route");
                     chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
-                        scene_clear,scene_fade,ui_shared,[this](unsigned id){
-                            if(id<1||id>7)throw std::runtime_error("Unrecovered chapter image selection");
-                            return readData(field_root.parent_path()/"CMNDATA/2D"/(
-                                "CHP_0"+std::to_string(id)+".XIM"));
+                        scene_clear,scene_fade,ui_shared,[bytes,id](unsigned requested){
+                            if(requested!=id)throw std::runtime_error("Chapter image selection changed");
+                            return *bytes;
                         });
+                    if(modeled)newgame_checkpoint("chapter-constructor-return");
                     std::cout<<"Native chapter constructed frame="<<frame<<'\n';return;
                 }
                 if(selection[0]==2&&pending_game_command[0]==2) {
@@ -1404,7 +1541,7 @@ struct Session {
                     std::cout<<"Native defeat return field constructed frame="<<frame<<'\n';
                     return;
                 }
-                if(selection==okage::GameModeSelection{10,0,0}) {
+                if(selection==okage::GameModeSelection{10,0,10}) { //1246b0: parent+4c = mode
                     okage::RestoreConstruction construction{field_root.parent_path()/"CMNDATA",battle_input,save_directory,ui_fonts,[this]{if(music)music->stop();}};
                     construction.storage_latency_ms=restore_storage_latency_ms;
                     if(title_modeled(okage::ResourceStage::SuccessorEntry)) {
@@ -1427,9 +1564,28 @@ struct Session {
                     }
                     std::cout<<"Native Restore constructed frame="<<frame<<'\n';return;
                 }
-                if(selection==okage::GameModeSelection{9,0,0}) {
-                    name_entry=std::make_unique<okage::NameEntrySession>(scene_clear,scene_fade,ui_shared,name_entry_shared,
-                        okage::NameEntryConstruction{field_root.parent_path()/"CMNDATA",battle_input,ui_fonts,[this]{if(music)music->stop();}});
+                if(selection==okage::GameModeSelection{9,0,9}) { //1246b0: parent+4c = mode
+                    okage::NameEntryConstruction construction{field_root.parent_path()/"CMNDATA",battle_input,ui_fonts,[this]{if(music)music->stop();}};
+                    if(title_modeled(okage::ResourceStage::SuccessorEntry)) {
+                        //1243c8 -> 11fb78: one read of bm_if.xim for the logical 18f7a8 load (wrapper+0x30)
+                        //and the host atlas decode.
+                        auto atlas=std::make_shared<const std::vector<std::uint8_t>>(
+                            readData(field_root.parent_path()/"CMNDATA/2D/MAIN.XPF/bm_if.xim"));
+                        startup_textures->construct_name_entry(*atlas);
+                        construction.atlas_bytes=atlas;
+                    } else if(startup_textures)startup_textures->mark_unmodeled("name entry constructed outside the modeled route");
+                    name_entry=std::make_unique<okage::NameEntrySession>(scene_clear,scene_fade,ui_shared,name_entry_shared,std::move(construction));
+                    name_traversal=0;name_previous_length.reset();
+                    if(title_modeled(okage::ResourceStage::NameEntryActive)) {
+                        //11f5f8 -> 11f668: the type-9 manager and its single window, then 124548 returns.
+                        startup_textures->note_ui("manager-create",9);
+                        name_window=name_entry->ui_window();
+                        startup_textures->note_ui("window-create",name_window);
+                        newgame_checkpoint("name-constructor-return");
+                        newgame_s_frame=frame;name_manager_alive=true;
+                        newgame_draws_seen=startup_textures->session_draw_frames().size();
+                        name_frames.clear();chapter_frames.clear();
+                    }
                     std::cout<<"Native name entry constructed frame="<<frame<<'\n';return;
                 }
                 if(selection==okage::GameModeSelection{8,3,0}||selection==okage::GameModeSelection{8,0,0}) {
@@ -1548,11 +1704,33 @@ struct Session {
                 storage[0],storage[1],storage[2],storage[3],game_over_shared.image_frame_counter,random.state});
         }
         if(chapter&&chapter->resource_live()) {
+            const bool chapter_modeled=title_modeled(okage::ResourceStage::ChapterActive);
+            const auto counter_in=game_over_shared.image_frame_counter;
+            const auto fade_current_in=scene_fade.current,fade_target_in=scene_fade.target;
+            bool requested=false;
             chapter->tick(pending_game_command,scene_fade,*reset_camera,projection,
                 retiring_effects?&*retiring_effects:nullptr,ui_shared,ui_fonts,battle_capture_sine,random,
-                game_over_shared.image_frame_counter,[this](auto selection){
-                    game_mode->request(selection);
+                game_over_shared.image_frame_counter,[&,this](auto selection){
+                    game_mode->request(selection);requested=true;
+                    if(chapter_modeled) {
+                        //133a98: 1248d8 cleared the command just before this 124930 (observed pending tuple).
+                        startup_textures->note_command(pending_game_command[0],pending_game_command[1],pending_game_command[2]);
+                        const auto r=*game_mode->requested();
+                        startup_textures->chapter_requested(r[0],r[1],r[2]);
+                    }
                     std::cout<<"Native chapter requests ordinary field frame="<<frame<<'\n';
+                },[&,this]{
+                    if(!chapter_modeled||!newgame_s_frame)return;
+                    //Return of 133a98 (before the resource child's 100f90 steps the image counter).
+                    const auto& c=chapter->state();
+                    chapter_frames.push_back("{\"t\":"+std::to_string(frame-*newgame_s_frame)+",\"counter_out\":"+std::to_string(c.counter)+
+                        ",\"phase_out\":"+std::to_string(c.phase)+",\"fade_current_in\":\""+fbits(fade_current_in)+"\",\"fade_target_in\":\""+
+                        fbits(fade_target_in)+"\",\"fade_target_out\":\""+fbits(scene_fade.target)+"\",\"command_out\":["+
+                        std::to_string(pending_game_command[0])+","+std::to_string(pending_game_command[1])+","+std::to_string(pending_game_command[2])+
+                        "],\"image_counter_in\":"+std::to_string(counter_in)+",\"draws\":"+std::to_string(newgame_draws_since_last())+"}");
+                    //The call that reached 240 (114cc0(0)), and the call that requested mode 2.
+                    if(c.counter==240)newgame_checkpoint("chapter-fade-request");
+                    if(requested)newgame_checkpoint("chapter-mode-request");
                 });
             const auto& s=chapter->state();
             chapter_trace.insert(chapter_trace.end(),{frame,s.counter,std::bit_cast<std::uint32_t>(scene_fade.current),
@@ -1620,8 +1798,16 @@ struct Session {
                     if(end==first+8)throw std::runtime_error("Confirmed player name lacks terminator");
                     player_name.assign(first,end);
                     pending_game_command={14,1,0};game_mode->request({2,72,0});
+                    if(title_modeled(okage::ResourceStage::NameEntryManagerDead)) {
+                        //124630 phase 1: 1248d8 then 124930 (rows from the native command and queued request).
+                        startup_textures->note_command(pending_game_command[0],pending_game_command[1],pending_game_command[2]);
+                        const auto r=*game_mode->requested();
+                        startup_textures->name_entry_requested(r[0],r[1],r[2]);
+                    } else if(startup_textures)startup_textures->mark_unmodeled("name-entry request outside the modeled route");
                     std::cout<<"Native name entry requests opening field frame="<<frame<<'\n';
                 });
+            if(startup_textures&&startup_textures->stage()>=okage::ResourceStage::NameEntryActive&&
+               startup_textures->stage()<=okage::ResourceStage::NameEntryCommandPublished)observe_name_tick();
             const auto observation=name_entry->observation();name_entry_trace.push_back(frame);
             name_entry_trace.insert(name_entry_trace.end(),observation.begin(),observation.end());
         }
@@ -1809,7 +1995,9 @@ struct Session {
             for(const auto* values:{&t.x,&t.y,&t.alpha,&t.visible})title_trace.insert(title_trace.end(),values->begin(),values->end());
             title_trace.insert(title_trace.end(),{t.pulse,t.pulse_rising,t.pulse_channel,t.water,t.texture});
         }
+        const bool theme_was_registered=title_stream.state().registered;
         title_stream.advance_main_loop();
+        if(newgame_s_frame&&!theme_end_frame&&theme_was_registered&&!title_stream.state().registered)theme_end_frame=frame;
         if(music||title_stream.state().registered){
             std::array<std::int16_t,1600> pcm{};if(music)music->render(pcm);
             title_stream.mix(pcm);
@@ -2815,11 +3003,11 @@ int main(int argc,const char** argv) {
     @autoreleasepool {
     std::unique_ptr<okage::InputJournal> inputJournal;
     try {
-        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--title-retirement-report FRESH_DIRECTORY (Retire title checkpoints)] [--restore-cancel-report FRESH_DIRECTORY (Restore checkpoints)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
+        if(argc<3)throw std::runtime_error("Usage: okage-native --game-data DIRECTORY [--save-directory DIRECTORY] OR okage-native FONT_DIRECTORY FIELD.PME [--frames N | --ui-test-frames M | --preview-at N [--ui-test-frames M>N]] [--press FRAME,FRAME --directions INPUT --buttons INPUT (held non-directional masks; bounded replay only) --capture FILE.png --capture-frames N,N,... --render-from FRAME --render-until FRAME --render-range FIRST:LAST (repeatable, inclusive, replay only)] [--scene MAP.xmp --event EVENT.xmt --actor ACTOR.xmd --actor-bind ALIAS=MODEL.xmd --player-name NAME] [--music-dry SEQUENCE.xsq --music-bank BANK.xv --sound-dir SOUND_DIRECTORY] [--effect-data TES.EFD --effect-textures ENV_TEX_DIRECTORY] [--battle-input OWNED_BATTLE_DIRECTORY] [--battle-live FRESH.jsonl (bounded replay with owned battle data)] [--load-observation FRESH.jsonl (bounded replay; host scheduling diagnostics)] [--battle-readback synchronous|deferred (replay policy; live always deferred)] [--replay-loading continuous|cooperative (cooperative requires deferred readback)] [--replay-display-from N (bounded cooperative replay; real host display callbacks and full rendering from N)] [--performance-report FRESH.jsonl (interactive/preview/UI test)] [--input-journal FRESH.jsonl] [--input-log FRESH.jsonl (path/sha256 of every asset read)] [--title-retirement-report FRESH_DIRECTORY (Retire title checkpoints)] [--restore-cancel-report FRESH_DIRECTORY (Restore checkpoints)] [--newgame-report FRESH_DIRECTORY (New Game checkpoints)] [--name-pad-script FILE (research: lines T MASK, held in name-entry traversal T)] [--pause-captures FRESH_DIRECTORY (interactive diagnostics, not saved games)] [--headless-control FRESH_DIRECTORY (stdin controller steps after --frames; no window)]");
         const bool coldStart=std::string_view(argv[1])=="--game-data";
-        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport;unsigned restoreStorageLatency=0;bool cancelAfterReady=false;
+        fs::path gameDataRoot,saveDirectory,startupTextureReport,titleResourceReport,titleRetirementReport,restoreCancelReport,newgameReport;unsigned restoreStorageLatency=0;bool cancelAfterReady=false;
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
-        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
+        unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript,nameScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
         fs::path uiUpdateReport,battleLivePath,loadObservationPath;
         bool deferredBattleReadback=false;
@@ -2838,6 +3026,19 @@ int main(int argc,const char** argv) {
             else if(arg=="--title-resource-report")titleResourceReport=argv[i];
             else if(arg=="--title-retirement-report")titleRetirementReport=argv[i];
             else if(arg=="--restore-cancel-report")restoreCancelReport=argv[i];
+            else if(arg=="--newgame-report")newgameReport=argv[i];
+            else if(arg=="--name-pad-script") {
+                if(!nameScript.entries.empty())throw std::runtime_error("Duplicate name pad script");
+                nameScript.load(argv[i],0xffffu);
+                std::vector<std::pair<unsigned,std::uint16_t>> pulses;
+                for(const auto& [t,mask]:nameScript.entries){pulses.push_back({t,mask});pulses.push_back({t+1,0});}
+                nameScript.entries.clear();
+                for(const auto& e:pulses){
+                    if(!nameScript.entries.empty()&&nameScript.entries.back().first>=e.first)
+                        throw std::runtime_error("Name pad script presses must be at least two traversals apart");
+                    nameScript.entries.push_back(e);
+                }
+            }
             else if(arg=="--restore-cancel-after-ready") {
                 const std::string v=argv[i];if(v!="1")throw std::runtime_error("--restore-cancel-after-ready takes 1");
                 cancelAfterReady=true;
@@ -3096,6 +3297,8 @@ int main(int argc,const char** argv) {
             session.save_directory=saveDirectory;
             session.startup_texture_report=startupTextureReport;session.resource_report=titleResourceReport;
             session.retirement_report=titleRetirementReport;session.restore_report=restoreCancelReport;
+            session.newgame_report=newgameReport;
+            if(!newgameReport.empty()&&fs::exists(newgameReport))throw std::runtime_error("New Game report directory must be fresh");
             session.restore_storage_latency_ms=restoreStorageLatency;
             if(!restoreCancelReport.empty()&&fs::exists(restoreCancelReport))throw std::runtime_error("Restore report directory must be fresh");
             if(!titleRetirementReport.empty()&&fs::exists(titleRetirementReport))throw std::runtime_error("Title retirement report directory must be fresh");
@@ -3112,6 +3315,7 @@ int main(int argc,const char** argv) {
                 const std::uint16_t mask=std::find(presses.begin(),presses.end(),i)!=presses.end()?0x40:0;
                 auto held=std::uint16_t(directions.held(i)|buttons.held(i));
                 if(const auto n=session.next_first_title_update())held|=titleScript.held(*n);
+                if(const auto t=session.next_name_traversal())held|=nameScript.held(*t);
                 //Research replay (the original observer's Restore rule): Cancel held for the one traversal
                 //after the first input-accepting 0x21c traversal, released after it is consumed.
                 if(cancelAfterReady&&session.restore_ready_frame&&*session.restore_ready_frame+1==i)held|=0x20;

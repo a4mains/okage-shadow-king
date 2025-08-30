@@ -204,6 +204,11 @@ if(BUILD_TESTING)
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
                 set_tests_properties(retire-title-routes PROPERTIES
                     ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
+                add_test(NAME newgame-routes
+                    COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_newgame_routes
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+                set_tests_properties(newgame-routes PROPERTIES
+                    ENVIRONMENT "OKAGE_NATIVE=$<TARGET_FILE:okage-native>;OKAGE_REQUIRE_STARTUP_TESTS=1")
             endif()
         endif()
     endif()

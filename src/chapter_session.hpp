@@ -13,7 +13,8 @@ public:
     void tick(std::array<std::uint32_t,3>& command,SceneFade&,Animation&,FieldProjection&,
         RetiringSceneEffects*,BattleUiShared&,std::shared_ptr<const std::vector<Font>>,
         const SineTable&,GameRandom&,std::uint32_t& image_frame_counter,
-        const std::function<void(GameModeSelection)>&);
+        const std::function<void(GameModeSelection)>&,
+        const std::function<void()>& updated={});
     void retire(Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&,SceneFade&);
     bool resource_live() const;
     const Texture* rendered_image() const;

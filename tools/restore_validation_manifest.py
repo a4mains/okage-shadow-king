@@ -38,6 +38,17 @@ def pair_results(path):
             out[cur] = line[8:]
     return out
 
+SCOPE = ("Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of "
+         "124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of "
+         "the second 12c350(selector=1). The scripted native Sessions compare IDENTICAL (strict) with the light original "
+         "reference at eight checkpoints: 1,800 observed lifecycle rows, 0 owner-asserted, all 13 state fields, effect106, "
+         "accounted VRAM, 13,868 Session RNG rows and 51 manager frames. RNG provenance: 9,504 prefix draws are hooked "
+         "observations; the 4,364 Restore-window draws are reconstructed by the recovered LCG between 109 observed RNG-state "
+         "anchors (not individually hooked, call sites unobserved); manager rows combine observed input/state/pad words "
+         "with derived per-traversal draw counts. Not image/audio parity, saved slots, loading, name entry, "
+         "field/battle/XTA, sampling, tick37297, the full texture port or the game.")
+DRIVER = "RESTORE_VALIDATION=local/research/restore-ownership-validation-v3 tools/restore_validation_run.sh final"
+
 def main(out):
     sources = [
         "include/okage/startup_textures.hpp", "src/startup_textures.cpp", "include/okage/texture_handles.hpp",
@@ -128,7 +139,7 @@ def main(out):
     evidence += [f"{cold}/align.txt", f"{cold}/binaries.sha256"]
     manifest = {
         "schema": "okage.restore.validation.v1",
-        "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
+        "scope": SCOPE,
         "base_commit": "82ec28a",
         "binaries_built_from": text(f"{V}/bin/source-head.txt"),
         "head_commit_at_generation": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
@@ -146,7 +157,7 @@ def main(out):
         },
         "tracked_sources": {p: sha(p) for p in sources},
         "evidence": [entry(p) for p in evidence],
-        "commands": {"driver": "tools/restore_validation_run.sh final", "per_run": f"{F}/commands.txt",
+        "commands": {"driver": DRIVER, "per_run": f"{F}/commands.txt",
                      "manifest": "python3 tools/restore_validation_manifest.py docs/restore-ownership-validation.json"},
     }
     Path(out).write_text(json.dumps(manifest, indent=1) + "\n")

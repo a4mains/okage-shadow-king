@@ -497,6 +497,101 @@ int main() {
             o.mark_unmodeled("second title updates");
             require(o.stage() == ResourceStage::Unmodeled, "past the stop: unmodeled");
         });
+        scenario([&] {
+            StartupTextureOwner o;
+            GameRandom r{1};
+            Hook h;
+            auto in = inputs();
+            in.record_observations = true;
+            run(o, in, r, h);
+            o.begin_scheduled_frames();
+            o.begin_logo_construction();
+            o.append_image(effect_xim({19, 256, 64, 32}, 50));
+            o.retire_image_list();
+            o.begin_title_construction();
+            o.append_image(effect_xim({19, 256, 64, 32}, 61));
+            o.finish_title_construction();
+            o.begin_title_updates();
+            o.note_effect_create(0, 106);
+            o.note_effect_removal_request(0);
+            o.request_title_successor(9);
+            o.note_effect_reclaim_armed(0);
+            o.retire_title_resources();
+            o.destroy_title_mode();
+            o.free_title_resource_node();
+            o.free_title_wrappers();
+            o.enter_successor(9);
+            auto& m = o.memory();
+            bool threw = false;
+            try { o.construct_restore(effect_xim({19, 256, 64, 32}, 77)); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "a New Game successor never constructs Restore");
+            const int atlas = o.construct_name_entry(effect_xim({19, 256, 64, 32}, 77));
+            require(atlas >= 0 && o.name_atlas() == atlas && o.image_list().empty(), "name entry: wrapper-owned atlas");
+            const auto atlas_alloc = o.handles().image(atlas)->id;
+            o.note_ui("manager-create", 9);
+            o.note_ui("window-create", 0);
+            o.note_effect_reclaim(0);
+            r.next();
+            o.note_session_draw(r.state, 1, 1);
+            require(o.rng_log().back().phase == StartupRngPhase::NameUiGlyph, "name-entry draws carry the name-ui label");
+            threw = false;
+            try { o.note_command(14, 1, 0); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "no command before the manager dies");
+            o.name_manager_death();
+            o.note_ui("manager-destroy", 9);
+            o.note_ui("window-death", 0);
+            require(m.allocation(atlas_alloc).has_value(), "window death does not release the atlas");
+            o.note_manager_free();
+            threw = false;
+            try { o.retire_name_entry_resources(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "no retirement before the command and request are published");
+            o.note_command(14, 1, 0);
+            o.name_entry_requested(2, 72, 0);
+            o.retire_name_entry_resources();
+            require(m.allocation(atlas_alloc).has_value(), "the resource child (101058) releases nothing");
+            o.release_name_atlas();
+            require(!m.allocation(atlas_alloc) && o.name_atlas() == -1, "124448 releases the atlas");
+            o.free_name_entry_resource_node();
+            o.free_name_entry_wrappers();
+            const auto records_live = o.handles().live_order().size();
+            const int chp = o.construct_chapter(1, effect_xim({19, 256, 512, 192}, 90));
+            require(o.image_list() == std::vector<int>({chp}) && o.handles().live_order().size() == records_live + 1,
+                    "Chapter 1 image appended to the source image list");
+            const auto chp_alloc = o.handles().image(chp)->id;
+            threw = false;
+            try { o.retire_chapter_resources(); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "no chapter retirement before its mode request");
+            o.note_command(0, 0, 0);
+            o.chapter_requested(2, 72, 0);
+            o.retire_chapter_resources();
+            require(o.image_list().empty() && !m.allocation(chp_alloc), "101058 -> 1b2240 releases the chapter image");
+            o.destroy_chapter_mode();
+            o.free_chapter_resource_node();
+            threw = false;
+            try { o.enter_field_constructor(72, 0); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "no field constructor before the mode-2 node is freed");
+            o.free_chapter_wrappers();
+            threw = false;
+            try { o.enter_field_constructor(73, 0); } catch (const std::logic_error&) { threw = true; }
+            require(threw, "the field constructor must enter the requested destination");
+            o.enter_field_constructor(72, 0);
+            require(o.stage() == ResourceStage::FieldConstructorEntry && o.handles().live_order().size() == 36,
+                    "stop: startup handles survive, chapter and name entry released");
+            // Source order of the published rows: command before request, both before any retirement row.
+            std::vector<std::string> mode_ops;
+            for (const auto& line : o.lifecycle()) {
+                const auto at = line.find("\"kind\":\"mode\",\"op\":\"");
+                if (at != std::string::npos) mode_ops.push_back(line.substr(at + 20, line.find('"', at + 20) - at - 20));
+            }
+            const auto first = [&](const std::string& op, std::size_t from = 0) {
+                for (std::size_t i = from; i < mode_ops.size(); ++i) if (mode_ops[i] == op) return i;
+                return mode_ops.size();
+            };
+            const auto cmd = first("command"), req = first("request", first("command"));
+            require(cmd < req && req < first("resource-retire", cmd), "command, then request, then retirement");
+            o.mark_unmodeled("ordinary field constructor body");
+            require(o.stage() == ResourceStage::Unmodeled, "past the stop: unmodeled");
+        });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
         scenario([&] {
             Ps2TextureMemory mem; mem.initialize_empty_allocator();
