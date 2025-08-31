@@ -286,6 +286,11 @@ def rng_draws(ev, rng, successor_i):
             trav += 1
         if e['ev'] == 'rand':
             tr_at[e['i']] = trav
+    # Every draw must continue the previous observed state (LCG 0x41c64e6d/0x3039): a missed rand() would break the
+    # chain, so the provenance claim "all hooked, none derived" is checked rather than asserted.
+    for a, b in zip(detail, detail[1:]):
+        need((a['state_after'] * 0x41c64e6d + 0x3039) & 0xffffffff == b['state_after'],
+             f'RNG chain break between draws {a["i"]} and {b["i"]}: a draw was not observed')
     for d, x in zip(draws, detail):
         x['trav'] = tr_at[x['oracle_i']]
         x['provenance'] = 'observed'
@@ -456,8 +461,8 @@ def analyse(evidence, out, rng, retire_evidence):
     ref['determinism'] = det
     ref['retire_neutrality'] = retire_neutrality(a, ev, tl, detail, cps, out, retire_evidence, runs)
     ctl = os.path.join(evidence, 'runs', CONTROL)
-    if os.path.isdir(ctl):
-        ref['control_minimal'] = control(ctl, a, ev)
+    need(os.path.isdir(ctl), 'the minimal-hook control run is required')
+    ref['control_minimal'] = control(ctl, a, ev)
     return ref
 
 def route_facts(ev, nf, cf, draw_detail, cps, trav_of, s_trav, successor_i, rng_rows):

@@ -338,11 +338,18 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     if not isinstance(digest.get('checkpoints'), dict) or not isinstance(digest.get('anchors'), dict):
         raise Malformed('manifest result digest lacks checkpoints/anchors')
     ref = parse_json(read_text(Path(orig_dir) / 'reference.json'), 'reference.json')
+    if ref.get('problems') != [] or ref.get('retire_neutrality', {}).get('failures') != [] \
+            or ref.get('control_minimal', {}).get('failures') != []:
+        raise Malformed('reference.json reports problems, Retire-neutrality or control failures (or no control)')
+    if not str(ref.get('rng', {}).get('provenance', '')).startswith('every draw is a hooked'):
+        raise Malformed('reference RNG rows are not all hooked observations')
     loaded = {}
     for cp in CHECKPOINTS:
         od, nd = Path(orig_dir) / cp, Path(nat_dir) / cp
         if not nd.is_dir():
             raise Malformed(f'native checkpoint directory {cp} missing')
+        if not (nd / 'vram.invalidated').exists():
+            raise Malformed(f'native {cp}/vram.invalidated missing (required: draw-target unknownness is compared)')
         o_ev, _ = load_lifecycle(od / 'events.jsonl')
         n_ev, n_as = load_lifecycle(nd / 'lifecycle.jsonl', native=True)
         o_rng, _ = load_rng(od / 'rng.jsonl')

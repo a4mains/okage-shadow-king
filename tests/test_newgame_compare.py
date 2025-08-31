@@ -156,13 +156,15 @@ class Fixture:
             self.put(shared, d / 'vram-invalidated-mask.bin', self.inval)
             self.put(shared, n / 'vram.bytes', self.data)
             self.put(shared, n / 'vram.known', self.mask)
+            self.put(shared, n / 'vram.invalidated', self.inval)
         (self.orig / 'name-frames.jsonl').write_text(jl(name_rows()))
         (self.orig / 'chapter-frames.jsonl').write_text(jl(chapter_rows()))
         (self.nat / 'name-frames.jsonl').write_text(jl(name_rows()))
         (self.nat / 'chapter-frames.jsonl').write_text(jl(chapter_rows()))
-        (self.orig / 'reference.json').write_text(json.dumps({
+        (self.orig / "reference.json").write_text(json.dumps({
             'checkpoints': {cp: {'t': T[cp]} for cp in CPS}, 'tails': {'theme_end_t': THEME_END},
-            'rng': {'provenance': 'synthetic hooked observations'}}))
+            'rng': {'provenance': 'every draw is a hooked 0x1f14b0 entry (synthetic fixture)'},
+            'problems': [], 'retire_neutrality': {'failures': []}, 'control_minimal': {'failures': []}}))
         (self.nat / 'route.json').write_text(json.dumps(self.route_json()))
         self.pin()
 
@@ -399,6 +401,28 @@ class NewGameControls(unittest.TestCase):
         self.assertIn('events: DIFFERENT at event', out)
         self.assertIn('"command":[14,2,0]', out)
 
+    def _mutate_reference(self, fn):
+        ref = json.loads((self.f.orig / "reference.json").read_text())
+        fn(ref)
+        (self.f.orig / "reference.json").write_text(json.dumps(ref))
+        self.f.pin()
+
+    def test_reference_with_problems_is_refused(self):
+        self._mutate_reference(lambda r: r.update(problems=['determinism']))
+        self.expect(2, 'reference.json reports problems')
+
+    def test_reference_without_control_is_refused(self):
+        self._mutate_reference(lambda r: r.pop('control_minimal'))
+        self.expect(2, 'reference.json reports problems')
+
+    def test_reference_with_derived_rng_is_refused(self):
+        self._mutate_reference(lambda r: r['rng'].update(provenance='LCG-derived between anchors'))
+        self.expect(2, 'not all hooked')
+
+    def test_native_invalidated_mask_required(self):
+        (self.f.nat / 'first-layout' / 'vram.invalidated').unlink()
+        self.expect(2, 'vram.invalidated missing')
+
     def test_wrong_image_counter(self):
         self.f.edit_json(self.f.nat / 'chapter-constructor-return' / 'session.json', lambda d: d.update(image_counter=99))
         out = self.expect(1, 'RESULT: DIFFERENT')
@@ -456,6 +480,11 @@ class NewGameControls(unittest.TestCase):
         data[0x20] = 1
         p.unlink()
         p.write_bytes(bytes(data))
+        q = self.f.nat / 'name-confirmed' / 'vram.invalidated'
+        inval = bytearray(q.read_bytes())
+        inval[0x20] &= ~1
+        q.unlink()
+        q.write_bytes(bytes(inval))
         out = self.expect(1, 'RESULT: DIFFERENT')
         self.assertIn('stale_known=1', out)
 

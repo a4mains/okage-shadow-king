@@ -1,0 +1,3175 @@
+{
+ "schema": "okage.newgame-original-manifest.v1",
+ "scope": "Independent original-execution reference of the FIRST cold title's New Game branch: the Retire newgame route continued past the 0x124548(mode 9) entry through name-entry construction (wrapper-owned bm_if atlas), an ordinary name edit (erase, select, append) and Yes, manager death and unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, the first 0x133830 (Chapter 1 image list), its counter-240 fade request and actual fade completion, the command clear and request, chapter retirement and frees, stopping at the ENTRY of the second 0x133830 (command 0), before its body.",
+ "oracle_source_commit": "0437f2f",
+ "play": {
+  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "ref": "refs/heads/master",
+  "path": "references/Play (main checkout, ignored)",
+  "tree_cleanliness": "not verified by this tool"
+ },
+ "oracle": {
+  "binary": "build/newgame-oracle/okage-oracle/okage-startup-oracle",
+  "retained_copy": "local/research/newgame-original-v1/bin/okage-startup-oracle (ran every final run)",
+  "retained_copy_sha256": "510a01dbc369ae7f10adc2a36b0a3c84feaa5eb07a4fa658f66b6bef551d7079",
+  "configure": "cmake -S <main>/references/Play -B build/newgame-oracle -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_PLAY=OFF -DBUILD_TESTS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DCMAKE_PROJECT_Play_INCLUDE=<main>/tools/play-oracle/Attach.cmake -DDEBUGGER_INCLUDED=ON -DOKAGE_REFERENCE_VULKAN=OFF -DOKAGE_REFERENCE_SPU_ADPCM_NDEBUG=ON",
+  "build": "ninja -C build/newgame-oracle okage-startup-oracle",
+  "cmake_build_type": "Debug",
+  "spu_adpcm_ndebug": "Iop_SpuBase.cpp alone is compiled with NDEBUG: in a Debug build Play asserts predictNumber < 5 on an ADPCM block the game plays after name entry (trial2, retained); Play's own defined behaviour is a zero predictor row. No Play source is edited.",
+  "mode": "--newgame-chapter (the Retire --title-retire newgame observer; Newgame hooks armed at the 0x124548 entry); --newgame-chapter --minimal for the control"
+ },
+ "tracked_sources_sha256": {
+  "tools/play-oracle/startup.cpp": "d5499f442f2efdebe3255e7d73ec8ba075a24f1f9ee5360f97e14bd33b172997",
+  "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
+  "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
+  "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
+  "tools/newgame_capture.sh": "c0e5830158b6bc5e11f30e3d759e1cb03024421b642e08b6fc9af684276817c8",
+  "tools/newgame_original_extract.py": "e83f460e7dd891dba45f56f6fbdada7efab0b896ee6b70116d700a99a9e394ce",
+  "tools/newgame_compare.py": "9a611456448c7349bfaa00bf1e5d590de32cf6665de998be9e7d1c035c4a29eb",
+  "tools/newgame_make_manifest.py": "30a54da2e4e858eaa02fe637bfa67a7926aa9256b660884256ee8bf7ee4c1f6d",
+  "tests/test_newgame_compare.py": "b5765759e78626c3067091f000a36b5046049a225f0184a0d218400cad40bc55",
+  "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
+  "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
+  "tools/retire_title_original_extract.py": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
+  "tools/retire_title_compare.py": "1cc64c806c36ba98cbd774c1f65f637127b7b49db4e4b639ecc2841d45005494",
+  "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac"
+ },
+ "inputs": {
+  "elf": {
+   "path": "local/extracted/SCUS_971.29",
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
+  },
+  "disc_cue": {
+   "path": "local/disc/Okage - Shadow King (USA).cue"
+  },
+  "disc_bin": {
+   "path": "local/disc/Okage - Shadow King (USA).bin"
+  },
+  "rng": {
+   "path": "local/research/rng-original-v1/analysis/rng.jsonl"
+  },
+  "retire_evidence": "local/research/retire-title-original-v1 (runs/newgame/*, analysis/newgame/successor-entry)",
+  "title_runs": "local/research/title-original-v1/runs",
+  "startup_run": "local/research/startup-original-v1/runs/fill00-a"
+ },
+ "current_time_audit": {
+  "note": "recomputed when this manifest was written; establishes the files present now, not historical reads",
+  "elf": {
+   "sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+   "bytes": 1374220
+  },
+  "disc_cue": {
+   "sha256": "b8bde56b092efe1d704c1be8cdb7c139478fafbb234b713bd06d2cd1afe7d69a",
+   "bytes": 91
+  },
+  "disc_bin": {
+   "sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
+   "bytes": 524481888
+  },
+  "rng_jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "retire_newgame_fill00_a_events": {
+   "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+   "bytes": 15362150
+  },
+  "retire_successor_entry_state": {
+   "sha256": "d117fb4ecfa3e72b24371c21762f641cf763f1083aa3aab6fea46f430bbddecf",
+   "bytes": 50731
+  },
+  "retire_manifest": {
+   "sha256": "9c253d8db67316b144197273282edbb267842c651b680a5b5303603c18d1080e",
+   "bytes": 158896
+  }
+ },
+ "run_time_provenance": {
+  "note": "from the runs themselves (run-meta.json, disc-opens.jsonl)",
+  "run_meta": {
+   "fill00-a": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 131099,
+    "breakpoint_stops": 128161,
+    "benign_block_start_stops": 8850,
+    "rand_calls": 11848,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1415,
+    "wall_seconds": 101.21,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 1304,
+    "title": true,
+    "stop_pc": "0x133830",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 23,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "retire-title-constructed",
+     "retire-first-update",
+     "retire-stable-menu",
+     "retire-removal-request",
+     "retire-resource-retirement",
+     "retire-successor-entry",
+     "name-constructor-return",
+     "first-layout",
+     "name-edited",
+     "name-confirmed",
+     "name-death",
+     "manager-free",
+     "command-published",
+     "resource-retirement",
+     "wrapper-free",
+     "chapter-constructor-return",
+     "chapter-fade-request",
+     "chapter-mode-request",
+     "chapter-resource-retirement",
+     "chapter-wrapper-free",
+     "field-constructor-entry"
+    ],
+    "newgame_chapter": true,
+    "hooks_armed": true,
+    "hooks": 57,
+    "return_sites": 364,
+    "name_input_calls": 48,
+    "mode2_constructs": 2,
+    "ui_place_calls": 2058,
+    "missing_checkpoints": []
+   },
+   "fill00-b": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 131099,
+    "breakpoint_stops": 128161,
+    "benign_block_start_stops": 8850,
+    "rand_calls": 11848,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1415,
+    "wall_seconds": 162.86,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 1304,
+    "title": true,
+    "stop_pc": "0x133830",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 23,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "retire-title-constructed",
+     "retire-first-update",
+     "retire-stable-menu",
+     "retire-removal-request",
+     "retire-resource-retirement",
+     "retire-successor-entry",
+     "name-constructor-return",
+     "first-layout",
+     "name-edited",
+     "name-confirmed",
+     "name-death",
+     "manager-free",
+     "command-published",
+     "resource-retirement",
+     "wrapper-free",
+     "chapter-constructor-return",
+     "chapter-fade-request",
+     "chapter-mode-request",
+     "chapter-resource-retirement",
+     "chapter-wrapper-free",
+     "field-constructor-entry"
+    ],
+    "newgame_chapter": true,
+    "hooks_armed": true,
+    "hooks": 57,
+    "return_sites": 364,
+    "name_input_calls": 48,
+    "mode2_constructs": 2,
+    "ui_place_calls": 2058,
+    "missing_checkpoints": []
+   },
+   "fillff-a": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 131099,
+    "breakpoint_stops": 128161,
+    "benign_block_start_stops": 8850,
+    "rand_calls": 11848,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1415,
+    "wall_seconds": 130.71,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 1304,
+    "title": true,
+    "stop_pc": "0x133830",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 23,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "retire-title-constructed",
+     "retire-first-update",
+     "retire-stable-menu",
+     "retire-removal-request",
+     "retire-resource-retirement",
+     "retire-successor-entry",
+     "name-constructor-return",
+     "first-layout",
+     "name-edited",
+     "name-confirmed",
+     "name-death",
+     "manager-free",
+     "command-published",
+     "resource-retirement",
+     "wrapper-free",
+     "chapter-constructor-return",
+     "chapter-fade-request",
+     "chapter-mode-request",
+     "chapter-resource-retirement",
+     "chapter-wrapper-free",
+     "field-constructor-entry"
+    ],
+    "newgame_chapter": true,
+    "hooks_armed": true,
+    "hooks": 57,
+    "return_sites": 364,
+    "name_input_calls": 48,
+    "mode2_constructs": 2,
+    "ui_place_calls": 2058,
+    "missing_checkpoints": []
+   },
+   "fillff-b": {
+    "fill": 255,
+    "fill_report": {
+     "fill": 255,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 131099,
+    "breakpoint_stops": 128161,
+    "benign_block_start_stops": 8850,
+    "rand_calls": 11848,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1415,
+    "wall_seconds": 118.77,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 1304,
+    "title": true,
+    "stop_pc": "0x133830",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 23,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "retire-title-constructed",
+     "retire-first-update",
+     "retire-stable-menu",
+     "retire-removal-request",
+     "retire-resource-retirement",
+     "retire-successor-entry",
+     "name-constructor-return",
+     "first-layout",
+     "name-edited",
+     "name-confirmed",
+     "name-death",
+     "manager-free",
+     "command-published",
+     "resource-retirement",
+     "wrapper-free",
+     "chapter-constructor-return",
+     "chapter-fade-request",
+     "chapter-mode-request",
+     "chapter-resource-retirement",
+     "chapter-wrapper-free",
+     "field-constructor-entry"
+    ],
+    "newgame_chapter": true,
+    "hooks_armed": true,
+    "hooks": 57,
+    "return_sites": 364,
+    "name_input_calls": 48,
+    "mode2_constructs": 2,
+    "ui_place_calls": 2058,
+    "missing_checkpoints": []
+   },
+   "control-minimal-fill00": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 1909,
+    "breakpoint_stops": 1633,
+    "benign_block_start_stops": 2,
+    "rand_calls": 0,
+    "minimal": true,
+    "rng_products": false,
+    "rand_pending_at_stop": false,
+    "vblanks": 1369,
+    "wall_seconds": 53.31,
+    "open_frames_at_stop": [],
+    "stack_depth_at_stop": 0,
+    "static_return_sites": 0,
+    "title": true,
+    "stop_pc": "0x133830",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 23,
+    "title_effect_slot": -1,
+    "checkpoints": [
+     "retire-first-update",
+     "retire-stable-menu",
+     "retire-successor-entry",
+     "name-constructor-return",
+     "name-edited",
+     "name-confirmed",
+     "chapter-constructor-return",
+     "field-constructor-entry"
+    ],
+    "newgame_chapter": true,
+    "hooks_armed": true,
+    "hooks": 0,
+    "return_sites": 0,
+    "name_input_calls": 48,
+    "mode2_constructs": 2,
+    "ui_place_calls": 0,
+    "missing_checkpoints": []
+   },
+   "regress-retire-newgame": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 79914,
+    "breakpoint_stops": 76314,
+    "benign_block_start_stops": 4430,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 1046,
+    "wall_seconds": 90.88,
+    "open_frames_at_stop": [
+     "main",
+     "mode_parent_tick",
+     "mode_child_create",
+     "node_create"
+    ],
+    "stack_depth_at_stop": 4,
+    "static_return_sites": 940,
+    "title": true,
+    "stop_pc": "0x124548",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true,
+    "title_retire": "newgame",
+    "route_mode": 9,
+    "title_updates": 192,
+    "pad_step": 6,
+    "title_effect_slot": 0,
+    "checkpoints": [
+     "title-constructed",
+     "first-update",
+     "stable-menu",
+     "removal-request",
+     "resource-retirement",
+     "successor-entry"
+    ]
+   },
+   "regress-title": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 51546,
+    "breakpoint_stops": 46618,
+    "benign_block_start_stops": 9,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": true,
+    "rand_pending_at_stop": false,
+    "vblanks": 843,
+    "wall_seconds": 36.67,
+    "open_frames_at_stop": [
+     "main"
+    ],
+    "stack_depth_at_stop": 1,
+    "static_return_sites": 463,
+    "title": true,
+    "stop_pc": "0x11528c",
+    "stop_sp": "0x1ffebf0",
+    "prefix_passed": true
+   },
+   "regress-default": {
+    "fill": 0,
+    "fill_report": {
+     "fill": 0,
+     "ee_pc": "0x100008",
+     "vram_all_zero_before_fill": true,
+     "gs_reg_writes_before_fill": 0,
+     "gs_vertex_kicks_before_fill": 0,
+     "gs_transfers_before_fill": 0,
+     "gs_resets_before_fill": 0
+    },
+    "events": 11146,
+    "breakpoint_stops": 11125,
+    "benign_block_start_stops": 1,
+    "rand_calls": 9504,
+    "minimal": false,
+    "rng_products": false,
+    "rand_pending_at_stop": false,
+    "vblanks": 84,
+    "wall_seconds": 6.5,
+    "open_frames_at_stop": [
+     "main"
+    ],
+    "stack_depth_at_stop": 1,
+    "static_return_sites": 323
+   }
+  }
+ },
+ "fixed_settings": {
+  "pad": "ScriptedPad: neutral sticks; Retire newgame title script (Start, Left, confirm); then, decided only at 0x11a1c8 entries/returns: Circle (erase), Right, Cross (append), Start (End), Cross (Yes/No opens on No), Up (Yes), Cross (accept); each set at the entry of a phase-1/-1 call and released at the return of the call whose source state shows it consumed",
+  "sound_handler": "none",
+  "gs": "null renderer + Title ledger",
+  "memory_cards": "none (no card access on the route)",
+  "vram_initial_fill": "0x00 (fill00-a/b, control, regressions) and 0xff (fillff-a/b)",
+  "stop": "ENTRY of the second 0x133830 (command 0, destination {2,72,0}), before its body",
+  "checkpoints": "the newgame ownership notes, section 2",
+  "deadline_seconds": 3600
+ },
+ "commands": [
+  "OKAGE_PLAY_VM_LOCK=<main>/local/research/.play-vm.lock tools/newgame_capture.sh <evidence>/bin/okage-startup-oracle \"<main>/local/disc/Okage - Shadow King (USA).cue\" <main>/local/extracted/SCUS_971.29 <evidence> fill00-a:00: fill00-b:00: fillff-a:ff: fillff-b:ff: control-minimal-fill00:00:--newgame-chapter+--minimal regress-retire-newgame:00:--title-retire+newgame regress-title:00:--title regress-default:00:default",
+  "python3 -I tools/newgame_original_extract.py <evidence> --out <evidence>/analysis --rng <main>/local/research/rng-original-v1/analysis/rng.jsonl --retire-evidence <main>/local/research/retire-title-original-v1 --regress-retire <evidence>/runs/regress-retire-newgame --regress-title <evidence>/runs/regress-title --regress-default <evidence>/runs/regress-default --title-runs <main>/local/research/title-original-v1/runs --startup-run <main>/local/research/startup-original-v1/runs/fill00-a > <evidence>/analysis.log",
+  "python3 -I tools/newgame_compare.py <evidence>/analysis NATIVE_DIR [--json OUT] [--strict]",
+  "python3 -I tools/newgame_make_manifest.py <evidence> <worktree> <main> <oracle_source_commit> docs/newgame-original-manifest.json"
+ ],
+ "evidence_dir": "local/research/newgame-original-v1 (read-only after capture)",
+ "outputs": {
+  "analysis/chapter-frames.jsonl": {
+   "sha256": "8290c1d21f240d61ca93a8621adbf92a5c9c3d4a0364cdbd097ea4709d93a786",
+   "bytes": 54594
+  },
+  "analysis/events-detail.jsonl": {
+   "sha256": "3b93ed9d9672ad62794fa66dbf28866ccd882624a16832379c2f930373de1c6c",
+   "bytes": 245244
+  },
+  "analysis/name-frames.jsonl": {
+   "sha256": "2fee7df11a0f084c4e11a602b35f91bb133ac5617b89dabd29cda74a170f1f58",
+   "bytes": 9234
+  },
+  "analysis/reference.json": {
+   "sha256": "fe91868b057bf1972e1bef400baa92b165cc6e5a8e77353844f89e8e49340072",
+   "bytes": 73414
+  },
+  "analysis/rng-detail.jsonl": {
+   "sha256": "f6c5e31b8f0264b690cc165c1e2835100a8f2622baf9f6fcf5e1a3c20651410b",
+   "bytes": 668361
+  },
+  "analysis/field-constructor-entry/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/field-constructor-entry/events.jsonl": {
+   "sha256": "bd18ced36c3fa13c0d3efa40942c5a4472b43a598ba6b3309f54d593ad205e66",
+   "bytes": 75513
+  },
+  "analysis/field-constructor-entry/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/field-constructor-entry/session.json": {
+   "sha256": "a5f1871b538def8f163b43d98d62392b8ab6768a163f1f59349e5719bcb3dd34",
+   "bytes": 307
+  },
+  "analysis/field-constructor-entry/state.json": {
+   "sha256": "3ae6ee67aa8ce077ac854989879f6d76f2249e38b81ac1b12bed7a4fbb99f62e",
+   "bytes": 50734
+  },
+  "analysis/field-constructor-entry/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/field-constructor-entry/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/field-constructor-entry/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis/manager-free/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/manager-free/events.jsonl": {
+   "sha256": "6c0eecba4e532073f3a9edee8748c1a7fa031c084525d8bc503ff770eb49c450",
+   "bytes": 72986
+  },
+  "analysis/manager-free/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/manager-free/session.json": {
+   "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+   "bytes": 318
+  },
+  "analysis/manager-free/state.json": {
+   "sha256": "29d35f11fe42a302b14ba169dbeb4c7b981cb32931866c3c67343c430c238ae5",
+   "bytes": 51100
+  },
+  "analysis/manager-free/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/manager-free/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/manager-free/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/retire-successor-entry/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/retire-successor-entry/events.jsonl": {
+   "sha256": "6b212f6c785de15f71fa996d87901ce211196255fdb7a41dd8085f11bf82b926",
+   "bytes": 71715
+  },
+  "analysis/retire-successor-entry/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/retire-successor-entry/session.json": {
+   "sha256": "639d7ea679d7a877b90c5e40460c9ff7d51efd1700ec3682bb7788596cbd13e1",
+   "bytes": 318
+  },
+  "analysis/retire-successor-entry/state.json": {
+   "sha256": "f21022afe1bb3e64d4638e4bdfb1567ab7cab2e38437be6840db51694b950c15",
+   "bytes": 50733
+  },
+  "analysis/retire-successor-entry/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/retire-successor-entry/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/retire-successor-entry/vram-written-values.bin": {
+   "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+   "bytes": 4194304
+  },
+  "analysis/name-constructor-return/effects.json": {
+   "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+   "bytes": 86
+  },
+  "analysis/name-constructor-return/events.jsonl": {
+   "sha256": "1ea1334c158fc3856ea2ec56e9d1d806dae6e2a70891837a273ff1bf6bbed5f3",
+   "bytes": 72593
+  },
+  "analysis/name-constructor-return/rng.jsonl": {
+   "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+   "bytes": 613171
+  },
+  "analysis/name-constructor-return/session.json": {
+   "sha256": "bb5da9a62f7ced0a6f019651f55b50ddc77d84f67d912d7b01b48cd01220d37b",
+   "bytes": 318
+  },
+  "analysis/name-constructor-return/state.json": {
+   "sha256": "d8ea2f25fa7b2266b3f3f58ead30934c7743ff45bb1fa736007bf29a07db5518",
+   "bytes": 51111
+  },
+  "analysis/name-constructor-return/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/name-constructor-return/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/name-constructor-return/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/wrapper-free/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/wrapper-free/events.jsonl": {
+   "sha256": "c2f68dc6f81ca8e2f97ec1f5c59fd5d322397aa86d8dc57e8db04961734138e2",
+   "bytes": 73755
+  },
+  "analysis/wrapper-free/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/wrapper-free/session.json": {
+   "sha256": "a41fb9254b230f82d58fbbac21c39a7a7b79a601a6c761927d0450754c0c1fee",
+   "bytes": 306
+  },
+  "analysis/wrapper-free/state.json": {
+   "sha256": "23c8e31156110f5fa0c5128101d5106fa7d58f0629682e2a719cc0f915381d3a",
+   "bytes": 50723
+  },
+  "analysis/wrapper-free/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/wrapper-free/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/wrapper-free/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/name-edited/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/name-edited/events.jsonl": {
+   "sha256": "51da3573687222693fc42758115536e18c3e0f7ba8ac4e8af45adda66abe349b",
+   "bytes": 72746
+  },
+  "analysis/name-edited/rng.jsonl": {
+   "sha256": "d1eeaa7dc70be1faa71f994182fe2689e9dbbad346bc2128e2e67dbb961aa3e3",
+   "bytes": 660029
+  },
+  "analysis/name-edited/session.json": {
+   "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+   "bytes": 318
+  },
+  "analysis/name-edited/state.json": {
+   "sha256": "21e556e108ce3e5b481f6cd6dc69fa421a96e5965a52015f941c7dbd56a549da",
+   "bytes": 51099
+  },
+  "analysis/name-edited/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/name-edited/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/name-edited/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/chapter-wrapper-free/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/chapter-wrapper-free/events.jsonl": {
+   "sha256": "5cce9e01998017bde1e0a6469f26cb7c515702214c904389000cd65483e9077d",
+   "bytes": 75381
+  },
+  "analysis/chapter-wrapper-free/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/chapter-wrapper-free/session.json": {
+   "sha256": "a5f1871b538def8f163b43d98d62392b8ab6768a163f1f59349e5719bcb3dd34",
+   "bytes": 307
+  },
+  "analysis/chapter-wrapper-free/state.json": {
+   "sha256": "8d62bb1c89afd86918b668f467c6bf52872267eb57f55c519d9f0f53cfbd497f",
+   "bytes": 50731
+  },
+  "analysis/chapter-wrapper-free/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/chapter-wrapper-free/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/chapter-wrapper-free/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis/name-confirmed/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/name-confirmed/events.jsonl": {
+   "sha256": "4e53cf94009840302b39101d5d39d9b04f10b2f05adc884b5354ee31d29f0b4b",
+   "bytes": 72795
+  },
+  "analysis/name-confirmed/rng.jsonl": {
+   "sha256": "c7db60a10c59095ce82eeb98d75541fb79c74bce7619545545afa360e1eea233",
+   "bytes": 702373
+  },
+  "analysis/name-confirmed/session.json": {
+   "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+   "bytes": 318
+  },
+  "analysis/name-confirmed/state.json": {
+   "sha256": "a99fdac695a43a40a24a82884ac5a0da20225f39d02c04257890c1bdec7a9288",
+   "bytes": 51102
+  },
+  "analysis/name-confirmed/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/name-confirmed/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/name-confirmed/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/name-death/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/name-death/events.jsonl": {
+   "sha256": "540901a99bb1a8f85579e4ba8ce42ec99ead561b872410acd917bc41ee307e5f",
+   "bytes": 72847
+  },
+  "analysis/name-death/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/name-death/session.json": {
+   "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+   "bytes": 318
+  },
+  "analysis/name-death/state.json": {
+   "sha256": "50c259485c801cc75d49244065c20be8dc8b73354b072d8f31d6c6745f613728",
+   "bytes": 51098
+  },
+  "analysis/name-death/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/name-death/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/name-death/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/chapter-resource-retirement/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/chapter-resource-retirement/events.jsonl": {
+   "sha256": "66140498c5ee663b9811a5319c3b9a2b2e7ff627600e95f75799bfa297b79339",
+   "bytes": 75185
+  },
+  "analysis/chapter-resource-retirement/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/chapter-resource-retirement/session.json": {
+   "sha256": "a8ed4914f8f5f2470c71e0a41dd6a128307e50318e1bd99b8931a3988a625ce5",
+   "bytes": 307
+  },
+  "analysis/chapter-resource-retirement/state.json": {
+   "sha256": "2a185eee4126e8c98b5c041325f14b4aa9f94d41ef424d3f69e819ef800f1531",
+   "bytes": 50738
+  },
+  "analysis/chapter-resource-retirement/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/chapter-resource-retirement/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/chapter-resource-retirement/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis/command-published/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/command-published/events.jsonl": {
+   "sha256": "b4f9c63b47d99872269089142c9471b0ab15496b141b6ba9f364614b15702bd3",
+   "bytes": 73223
+  },
+  "analysis/command-published/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/command-published/session.json": {
+   "sha256": "38140b38cd157d951ea697254e50a8cde1f7e62d1e9eb4dbb1e6b348f460f97d",
+   "bytes": 306
+  },
+  "analysis/command-published/state.json": {
+   "sha256": "88767c928352c6a11dd4e97af4e5ddfb6c45a7046c710d869555339ac5cb4bc4",
+   "bytes": 51105
+  },
+  "analysis/command-published/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/command-published/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/command-published/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/chapter-mode-request/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/chapter-mode-request/events.jsonl": {
+   "sha256": "394efa0e32d583478eb5f2c199f01b4ac276e3c8cd5adc679538bbb8b62c9c07",
+   "bytes": 74835
+  },
+  "analysis/chapter-mode-request/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/chapter-mode-request/session.json": {
+   "sha256": "894d82ccb2b33e7bf05c23c245c05b2536a8dd00398f21c0a7978c0a9a1c9494",
+   "bytes": 307
+  },
+  "analysis/chapter-mode-request/state.json": {
+   "sha256": "882f8a33f4118691a56cda90c6756acc6e60f4a1a4cddfe1e15608f4862b3804",
+   "bytes": 51110
+  },
+  "analysis/chapter-mode-request/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/chapter-mode-request/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/chapter-mode-request/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis/first-layout/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/first-layout/events.jsonl": {
+   "sha256": "493328f295a627967fb3509007145be998fbac12eeef4873584357d1749bb2ec",
+   "bytes": 72696
+  },
+  "analysis/first-layout/rng.jsonl": {
+   "sha256": "af130aa24519477591bf15070bff869c91725fe68b7c10319b798cdae11bb9b2",
+   "bytes": 615484
+  },
+  "analysis/first-layout/session.json": {
+   "sha256": "0be57871e8a90ee12f79bfb74fb63da824c404cb7a8cd44bc789c7e244716407",
+   "bytes": 318
+  },
+  "analysis/first-layout/state.json": {
+   "sha256": "506f33a577620e44e3a6151a83a29eeece6213ecdc18b57db855b5244934a454",
+   "bytes": 51100
+  },
+  "analysis/first-layout/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/first-layout/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/first-layout/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/chapter-fade-request/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/chapter-fade-request/events.jsonl": {
+   "sha256": "08a91647bb1a49263ee4012f8bc4d2ab201a2f6c196b99d758ff37723dde88d1",
+   "bytes": 74666
+  },
+  "analysis/chapter-fade-request/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/chapter-fade-request/session.json": {
+   "sha256": "65da87ebf77007018ba92dc3010cf5f9a8857a02ea50b0a7a2f71f73b6937b81",
+   "bytes": 315
+  },
+  "analysis/chapter-fade-request/state.json": {
+   "sha256": "90d804e235cf5ff7f5056a158af7a9e87c05b897784fac9a993bc81c36e4aace",
+   "bytes": 51110
+  },
+  "analysis/chapter-fade-request/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/chapter-fade-request/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/chapter-fade-request/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis/resource-retirement/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/resource-retirement/events.jsonl": {
+   "sha256": "eba3c8b24d266387a9a911c46cd1f140075fbc55c2d9d8e3d2cc26376a5bf134",
+   "bytes": 73389
+  },
+  "analysis/resource-retirement/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/resource-retirement/session.json": {
+   "sha256": "38140b38cd157d951ea697254e50a8cde1f7e62d1e9eb4dbb1e6b348f460f97d",
+   "bytes": 306
+  },
+  "analysis/resource-retirement/state.json": {
+   "sha256": "eaa8ec12d46a7fd8158cc10f061624f461091e5aabbc3f8f310a5a0f37a5466f",
+   "bytes": 51107
+  },
+  "analysis/resource-retirement/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/resource-retirement/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/resource-retirement/vram-written-values.bin": {
+   "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+   "bytes": 4194304
+  },
+  "analysis/chapter-constructor-return/effects.json": {
+   "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+   "bytes": 79
+  },
+  "analysis/chapter-constructor-return/events.jsonl": {
+   "sha256": "a5838bd91963b773f7120fb4265766d9fed2b260ef14e891987e994d7185801a",
+   "bytes": 74602
+  },
+  "analysis/chapter-constructor-return/rng.jsonl": {
+   "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+   "bytes": 784406
+  },
+  "analysis/chapter-constructor-return/session.json": {
+   "sha256": "9953502e9b7a4c75299dd56a4ecbc785a8ff886203b6b91e1cf0e900f7faddbe",
+   "bytes": 314
+  },
+  "analysis/chapter-constructor-return/state.json": {
+   "sha256": "aef6425833fd9a73bda88e3970f6a009f794f76d91b46619ee792bbc2113323f",
+   "bytes": 51116
+  },
+  "analysis/chapter-constructor-return/vram-invalidated-mask.bin": {
+   "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+   "bytes": 4194304
+  },
+  "analysis/chapter-constructor-return/vram-written-mask.bin": {
+   "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+   "bytes": 4194304
+  },
+  "analysis/chapter-constructor-return/vram-written-values.bin": {
+   "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+   "bytes": 4194304
+  },
+  "analysis.log": {
+   "sha256": "0be859e5ecd2a730085a1e0c9a04d46a21dfdc8a1ef19a4859aae00407f103f1",
+   "bytes": 92
+  }
+ },
+ "runs": {
+  "fill00-a": {
+   "runs/fill00-a/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/fill00-a/ee-ram-32mb.bin": {
+    "sha256": "84016260f150bbc962486306132f704719f28f2bd20157df2050e9497089e919",
+    "bytes": 33554432
+   },
+   "runs/fill00-a/ee-ram-after-10bc78.bin": {
+    "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+    "bytes": 33554432
+   },
+   "runs/fill00-a/events.jsonl": {
+    "sha256": "5e13ae3b085e42125f543beae419291b1b1aa11ecec2087747d19e45a72d7aa6",
+    "bytes": 26387628
+   },
+   "runs/fill00-a/final-state.jsonl": {
+    "sha256": "4a608680b74aa5a504702840a8195a43d9a997354182323ee4024e97cce19fa3",
+    "bytes": 92379
+   },
+   "runs/fill00-a/gs-ledger.jsonl": {
+    "sha256": "0a3a96690f75d907708961134f02e8efdfa24a9f9a87d4fec535377a4d0cfff3",
+    "bytes": 257279
+   },
+   "runs/fill00-a/pad-host.jsonl": {
+    "sha256": "0e6ff08c787c9d63fa1e6d8b042f61a90de86ccfbdd90bd35835793c4fb22da1",
+    "bytes": 1538
+   },
+   "runs/fill00-a/run-meta.json": {
+    "sha256": "4d6ee63257ca415f9b50a03cb25a756f83bcc32cd138067ae3ff8f71e284b6e3",
+    "bytes": 1346
+   },
+   "runs/fill00-a/state-at-100618.jsonl": {
+    "sha256": "163a9304d5937e5ebc186341a9f96b3aeb317d9988c4bed94dc18b03faff074b",
+    "bytes": 75898
+   },
+   "runs/fill00-a/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/field-constructor-entry/state.jsonl": {
+    "sha256": "4a608680b74aa5a504702840a8195a43d9a997354182323ee4024e97cce19fa3",
+    "bytes": 92379
+   },
+   "runs/fill00-a/checkpoints/field-constructor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/field-constructor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/field-constructor-entry/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-resource-retirement/state.jsonl": {
+    "sha256": "80945260782eba772a88801c8f547b161f1be0b65abed8a44068cb3b4c8f6cf1",
+    "bytes": 91874
+   },
+   "runs/fill00-a/checkpoints/retire-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-resource-retirement/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/manager-free/state.jsonl": {
+    "sha256": "2f03a1704abbc78786ea11fc10e1fc47d4c3d38e66892203799f751c9aa4b8cc",
+    "bytes": 92140
+   },
+   "runs/fill00-a/checkpoints/manager-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/manager-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/manager-free/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-successor-entry/state.jsonl": {
+    "sha256": "9a6721c74add0e74e24579014e69881d7cbf0564fb2a6b1416541758a7cc0e97",
+    "bytes": 91997
+   },
+   "runs/fill00-a/checkpoints/retire-successor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-successor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-successor-entry/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-constructor-return/state.jsonl": {
+    "sha256": "ebac6da6aea9a0a7ce9625766f32f6f5541be8d0628281243ee8d1892e121258",
+    "bytes": 92444
+   },
+   "runs/fill00-a/checkpoints/name-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-constructor-return/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/wrapper-free/state.jsonl": {
+    "sha256": "13d2cd76a8d096adcd8137b273af58671863eb61d9771ae0fd69cc97b82a11c8",
+    "bytes": 92027
+   },
+   "runs/fill00-a/checkpoints/wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/wrapper-free/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-edited/state.jsonl": {
+    "sha256": "583848c76ffa09e9da5b6604b4e964d24461e1aab0a81f3684aace0dd692bebd",
+    "bytes": 92143
+   },
+   "runs/fill00-a/checkpoints/name-edited/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-edited/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-edited/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-wrapper-free/state.jsonl": {
+    "sha256": "7d4d726e38aa37c06342ff2c9aede8f29ce9099f129edccf0bf050f8b5a31f59",
+    "bytes": 92379
+   },
+   "runs/fill00-a/checkpoints/chapter-wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-wrapper-free/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-confirmed/state.jsonl": {
+    "sha256": "b5d170decd5f9121a3eb982ee3d1d0dc468a9455a81c8b3c227b643363763c72",
+    "bytes": 92141
+   },
+   "runs/fill00-a/checkpoints/name-confirmed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-confirmed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-confirmed/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-stable-menu/state.jsonl": {
+    "sha256": "6ac3a483a6efdd4023cfc7a13944dfe5ba2c0867a6324f995f27432a0da2ee09",
+    "bytes": 99579
+   },
+   "runs/fill00-a/checkpoints/retire-stable-menu/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-stable-menu/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-stable-menu/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-death/state.jsonl": {
+    "sha256": "565119cc02fc8ced69c41cb4a275a30b836b353beaea8fa84973120d4c0e4890",
+    "bytes": 92140
+   },
+   "runs/fill00-a/checkpoints/name-death/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-death/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/name-death/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-resource-retirement/state.jsonl": {
+    "sha256": "6eea4a543df42fb62d448e9d1d95e58f02f2f1e43aeec5d1883a2a566dc8649e",
+    "bytes": 92379
+   },
+   "runs/fill00-a/checkpoints/chapter-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-resource-retirement/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/command-published/state.jsonl": {
+    "sha256": "56e06aa770888c3b448c27781fe903abc68f1585acb31a971942c0a71aa5ea45",
+    "bytes": 92128
+   },
+   "runs/fill00-a/checkpoints/command-published/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/command-published/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/command-published/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-first-update/state.jsonl": {
+    "sha256": "816e2bb7d42d99d4ac6fb246afbccccd90c02d986e518fbf2ffb4d783b6cf4c1",
+    "bytes": 99244
+   },
+   "runs/fill00-a/checkpoints/retire-first-update/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-first-update/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-first-update/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-title-constructed/state.jsonl": {
+    "sha256": "835fb6fa2e904f6af3d65513b10568f3614d831d500e11e745c5b225a5fd86e1",
+    "bytes": 99244
+   },
+   "runs/fill00-a/checkpoints/retire-title-constructed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-title-constructed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-title-constructed/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-mode-request/state.jsonl": {
+    "sha256": "386875ae544986dec8fc860d85f101398020b7a202c187ed9c77957a592580fe",
+    "bytes": 92482
+   },
+   "runs/fill00-a/checkpoints/chapter-mode-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-mode-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-mode-request/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/first-layout/state.jsonl": {
+    "sha256": "c7d43faba515172aaa614cc984d1e2e9876a3fccf333da860f159813e92eea7a",
+    "bytes": 92143
+   },
+   "runs/fill00-a/checkpoints/first-layout/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/first-layout/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/first-layout/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-removal-request/state.jsonl": {
+    "sha256": "c0cfeda15464004a0f7c2f40c2955967c2f5445f518d6e914362941e116af4af",
+    "bytes": 99579
+   },
+   "runs/fill00-a/checkpoints/retire-removal-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-removal-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/retire-removal-request/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-fade-request/state.jsonl": {
+    "sha256": "a7c7a7789f1c8b8a37a22dff37eecc289f298965c33c8fe2a0c230704f6b06a2",
+    "bytes": 92490
+   },
+   "runs/fill00-a/checkpoints/chapter-fade-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-fade-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-fade-request/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/resource-retirement/state.jsonl": {
+    "sha256": "931fd7d245c2958f74bf86d520a5cbe5dcc7d37be922776788c8fe6d4f07b6e8",
+    "bytes": 92122
+   },
+   "runs/fill00-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/resource-retirement/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-constructor-return/state.jsonl": {
+    "sha256": "f43bf9a7bbca0d93612fe129ec0484d3757a4cb3ad47fa9c9c00c054987e38c6",
+    "bytes": 92484
+   },
+   "runs/fill00-a/checkpoints/chapter-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-a/checkpoints/chapter-constructor-return/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-a.log": {
+    "sha256": "7d29b7c578a5f000215794716294c89dc299589bf1f67fd9a600f1df67168cbf",
+    "bytes": 596
+   }
+  },
+  "fill00-b": {
+   "runs/fill00-b/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/fill00-b/ee-ram-32mb.bin": {
+    "sha256": "84016260f150bbc962486306132f704719f28f2bd20157df2050e9497089e919",
+    "bytes": 33554432
+   },
+   "runs/fill00-b/ee-ram-after-10bc78.bin": {
+    "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+    "bytes": 33554432
+   },
+   "runs/fill00-b/events.jsonl": {
+    "sha256": "5e13ae3b085e42125f543beae419291b1b1aa11ecec2087747d19e45a72d7aa6",
+    "bytes": 26387628
+   },
+   "runs/fill00-b/final-state.jsonl": {
+    "sha256": "4a608680b74aa5a504702840a8195a43d9a997354182323ee4024e97cce19fa3",
+    "bytes": 92379
+   },
+   "runs/fill00-b/gs-ledger.jsonl": {
+    "sha256": "05bc1f765a49c49d01bddffef21b64f23d14401b71ddc85ccaa1fdae13ab80ce",
+    "bytes": 257279
+   },
+   "runs/fill00-b/pad-host.jsonl": {
+    "sha256": "0e6ff08c787c9d63fa1e6d8b042f61a90de86ccfbdd90bd35835793c4fb22da1",
+    "bytes": 1538
+   },
+   "runs/fill00-b/run-meta.json": {
+    "sha256": "24f054f171c83ec31f1b6791af2bb6ecdc27dac236ffb1ff648ef564d8901054",
+    "bytes": 1346
+   },
+   "runs/fill00-b/state-at-100618.jsonl": {
+    "sha256": "163a9304d5937e5ebc186341a9f96b3aeb317d9988c4bed94dc18b03faff074b",
+    "bytes": 75898
+   },
+   "runs/fill00-b/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/field-constructor-entry/state.jsonl": {
+    "sha256": "4a608680b74aa5a504702840a8195a43d9a997354182323ee4024e97cce19fa3",
+    "bytes": 92379
+   },
+   "runs/fill00-b/checkpoints/field-constructor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/field-constructor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/field-constructor-entry/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-resource-retirement/state.jsonl": {
+    "sha256": "80945260782eba772a88801c8f547b161f1be0b65abed8a44068cb3b4c8f6cf1",
+    "bytes": 91874
+   },
+   "runs/fill00-b/checkpoints/retire-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-resource-retirement/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/manager-free/state.jsonl": {
+    "sha256": "2f03a1704abbc78786ea11fc10e1fc47d4c3d38e66892203799f751c9aa4b8cc",
+    "bytes": 92140
+   },
+   "runs/fill00-b/checkpoints/manager-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/manager-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/manager-free/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-successor-entry/state.jsonl": {
+    "sha256": "9a6721c74add0e74e24579014e69881d7cbf0564fb2a6b1416541758a7cc0e97",
+    "bytes": 91997
+   },
+   "runs/fill00-b/checkpoints/retire-successor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-successor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-successor-entry/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-constructor-return/state.jsonl": {
+    "sha256": "ebac6da6aea9a0a7ce9625766f32f6f5541be8d0628281243ee8d1892e121258",
+    "bytes": 92444
+   },
+   "runs/fill00-b/checkpoints/name-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-constructor-return/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/wrapper-free/state.jsonl": {
+    "sha256": "13d2cd76a8d096adcd8137b273af58671863eb61d9771ae0fd69cc97b82a11c8",
+    "bytes": 92027
+   },
+   "runs/fill00-b/checkpoints/wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/wrapper-free/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-edited/state.jsonl": {
+    "sha256": "583848c76ffa09e9da5b6604b4e964d24461e1aab0a81f3684aace0dd692bebd",
+    "bytes": 92143
+   },
+   "runs/fill00-b/checkpoints/name-edited/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-edited/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-edited/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-wrapper-free/state.jsonl": {
+    "sha256": "7d4d726e38aa37c06342ff2c9aede8f29ce9099f129edccf0bf050f8b5a31f59",
+    "bytes": 92379
+   },
+   "runs/fill00-b/checkpoints/chapter-wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-wrapper-free/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-confirmed/state.jsonl": {
+    "sha256": "b5d170decd5f9121a3eb982ee3d1d0dc468a9455a81c8b3c227b643363763c72",
+    "bytes": 92141
+   },
+   "runs/fill00-b/checkpoints/name-confirmed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-confirmed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-confirmed/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-stable-menu/state.jsonl": {
+    "sha256": "6ac3a483a6efdd4023cfc7a13944dfe5ba2c0867a6324f995f27432a0da2ee09",
+    "bytes": 99579
+   },
+   "runs/fill00-b/checkpoints/retire-stable-menu/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-stable-menu/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-stable-menu/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-death/state.jsonl": {
+    "sha256": "565119cc02fc8ced69c41cb4a275a30b836b353beaea8fa84973120d4c0e4890",
+    "bytes": 92140
+   },
+   "runs/fill00-b/checkpoints/name-death/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-death/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/name-death/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-resource-retirement/state.jsonl": {
+    "sha256": "6eea4a543df42fb62d448e9d1d95e58f02f2f1e43aeec5d1883a2a566dc8649e",
+    "bytes": 92379
+   },
+   "runs/fill00-b/checkpoints/chapter-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-resource-retirement/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/command-published/state.jsonl": {
+    "sha256": "56e06aa770888c3b448c27781fe903abc68f1585acb31a971942c0a71aa5ea45",
+    "bytes": 92128
+   },
+   "runs/fill00-b/checkpoints/command-published/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/command-published/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/command-published/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-first-update/state.jsonl": {
+    "sha256": "816e2bb7d42d99d4ac6fb246afbccccd90c02d986e518fbf2ffb4d783b6cf4c1",
+    "bytes": 99244
+   },
+   "runs/fill00-b/checkpoints/retire-first-update/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-first-update/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-first-update/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-title-constructed/state.jsonl": {
+    "sha256": "835fb6fa2e904f6af3d65513b10568f3614d831d500e11e745c5b225a5fd86e1",
+    "bytes": 99244
+   },
+   "runs/fill00-b/checkpoints/retire-title-constructed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-title-constructed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-title-constructed/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-mode-request/state.jsonl": {
+    "sha256": "386875ae544986dec8fc860d85f101398020b7a202c187ed9c77957a592580fe",
+    "bytes": 92482
+   },
+   "runs/fill00-b/checkpoints/chapter-mode-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-mode-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-mode-request/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/first-layout/state.jsonl": {
+    "sha256": "c7d43faba515172aaa614cc984d1e2e9876a3fccf333da860f159813e92eea7a",
+    "bytes": 92143
+   },
+   "runs/fill00-b/checkpoints/first-layout/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/first-layout/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/first-layout/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-removal-request/state.jsonl": {
+    "sha256": "c0cfeda15464004a0f7c2f40c2955967c2f5445f518d6e914362941e116af4af",
+    "bytes": 99579
+   },
+   "runs/fill00-b/checkpoints/retire-removal-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-removal-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/retire-removal-request/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-fade-request/state.jsonl": {
+    "sha256": "a7c7a7789f1c8b8a37a22dff37eecc289f298965c33c8fe2a0c230704f6b06a2",
+    "bytes": 92490
+   },
+   "runs/fill00-b/checkpoints/chapter-fade-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-fade-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-fade-request/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/resource-retirement/state.jsonl": {
+    "sha256": "931fd7d245c2958f74bf86d520a5cbe5dcc7d37be922776788c8fe6d4f07b6e8",
+    "bytes": 92122
+   },
+   "runs/fill00-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/resource-retirement/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-constructor-return/state.jsonl": {
+    "sha256": "f43bf9a7bbca0d93612fe129ec0484d3757a4cb3ad47fa9c9c00c054987e38c6",
+    "bytes": 92484
+   },
+   "runs/fill00-b/checkpoints/chapter-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fill00-b/checkpoints/chapter-constructor-return/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/fill00-b.log": {
+    "sha256": "8d430524b47ef7ac4c025e771f183dd3354f1267aa21285e168e2ebdd37b8555",
+    "bytes": 595
+   }
+  },
+  "fillff-a": {
+   "runs/fillff-a/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/fillff-a/ee-ram-32mb.bin": {
+    "sha256": "84016260f150bbc962486306132f704719f28f2bd20157df2050e9497089e919",
+    "bytes": 33554432
+   },
+   "runs/fillff-a/ee-ram-after-10bc78.bin": {
+    "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+    "bytes": 33554432
+   },
+   "runs/fillff-a/events.jsonl": {
+    "sha256": "5e13ae3b085e42125f543beae419291b1b1aa11ecec2087747d19e45a72d7aa6",
+    "bytes": 26387628
+   },
+   "runs/fillff-a/final-state.jsonl": {
+    "sha256": "4594fb432c69e5c12af7114a589415335cfdaec4acb4514090c4357a74b53e81",
+    "bytes": 92381
+   },
+   "runs/fillff-a/gs-ledger.jsonl": {
+    "sha256": "0fe385a888f2b1a94df158d2fc0a49531c78a5c762b9c558a1d43e11181c887f",
+    "bytes": 257279
+   },
+   "runs/fillff-a/pad-host.jsonl": {
+    "sha256": "0e6ff08c787c9d63fa1e6d8b042f61a90de86ccfbdd90bd35835793c4fb22da1",
+    "bytes": 1538
+   },
+   "runs/fillff-a/run-meta.json": {
+    "sha256": "54bfa6e2cda1ff09f536e86725577d1e6d91dba434c9e100226e1bb096862e50",
+    "bytes": 1350
+   },
+   "runs/fillff-a/state-at-100618.jsonl": {
+    "sha256": "ef87c00311cf2f7d583850e7504cf57cdd6d3b2acf9d6631b421d6668d9e911e",
+    "bytes": 75900
+   },
+   "runs/fillff-a/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/field-constructor-entry/state.jsonl": {
+    "sha256": "4594fb432c69e5c12af7114a589415335cfdaec4acb4514090c4357a74b53e81",
+    "bytes": 92381
+   },
+   "runs/fillff-a/checkpoints/field-constructor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/field-constructor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/field-constructor-entry/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-resource-retirement/state.jsonl": {
+    "sha256": "fa15c26ab730ab70d75bec2d57a597abe0701d1d76ee2de823736b37203a3b30",
+    "bytes": 91876
+   },
+   "runs/fillff-a/checkpoints/retire-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-resource-retirement/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/manager-free/state.jsonl": {
+    "sha256": "3673c19e52a18c6d607242f74d8b19c531f17ccf6bdb93415f6df9fb4ee444fd",
+    "bytes": 92142
+   },
+   "runs/fillff-a/checkpoints/manager-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/manager-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/manager-free/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-successor-entry/state.jsonl": {
+    "sha256": "6117ee826d8a278d38aaf1e58a439152b0a9e7696c67918704f7fa4f19c379e4",
+    "bytes": 91999
+   },
+   "runs/fillff-a/checkpoints/retire-successor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-successor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-successor-entry/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-constructor-return/state.jsonl": {
+    "sha256": "7669016dd0f6e3cd0387cb5f47c5859e0e37d82bedaf67cce089efbb9b46b3c0",
+    "bytes": 92446
+   },
+   "runs/fillff-a/checkpoints/name-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-constructor-return/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/wrapper-free/state.jsonl": {
+    "sha256": "c5049732017543f0f310f5005914cf3849d259061df6bf010f55abcb7fe053a2",
+    "bytes": 92029
+   },
+   "runs/fillff-a/checkpoints/wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/wrapper-free/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-edited/state.jsonl": {
+    "sha256": "f9f565201b02bd9b19541db84a9f4e0b243c44df24f06c3da4cf53f3ed1b72d7",
+    "bytes": 92145
+   },
+   "runs/fillff-a/checkpoints/name-edited/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-edited/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-edited/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-wrapper-free/state.jsonl": {
+    "sha256": "4b2d3aef2a894e048d6a6bd22b8d631576e25547db46a2408991c39500520cf8",
+    "bytes": 92381
+   },
+   "runs/fillff-a/checkpoints/chapter-wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-wrapper-free/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-confirmed/state.jsonl": {
+    "sha256": "6ab4ebbc64ff7633e35c8e7679c12924813617966b04553cc6ea27020fb50506",
+    "bytes": 92143
+   },
+   "runs/fillff-a/checkpoints/name-confirmed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-confirmed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-confirmed/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-stable-menu/state.jsonl": {
+    "sha256": "03a01ea56d6b81dabf8fbd0925f48df012edffc56972dd429d1cbd31b54b6e67",
+    "bytes": 99581
+   },
+   "runs/fillff-a/checkpoints/retire-stable-menu/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-stable-menu/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-stable-menu/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-death/state.jsonl": {
+    "sha256": "a126ddce07c86d2917c1d218dea885ed07f593846dc4cd0493d4570b60e9acd6",
+    "bytes": 92142
+   },
+   "runs/fillff-a/checkpoints/name-death/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-death/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/name-death/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-resource-retirement/state.jsonl": {
+    "sha256": "e4e5b64b3d9c6c95d4321b6fdfe3d420a78192099d1d9074e12bfc635608ad6d",
+    "bytes": 92381
+   },
+   "runs/fillff-a/checkpoints/chapter-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-resource-retirement/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/command-published/state.jsonl": {
+    "sha256": "f1f60dc460b3194ecc0fd8dd74540bd36524545ed706f53bc8ef66dc189580cd",
+    "bytes": 92130
+   },
+   "runs/fillff-a/checkpoints/command-published/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/command-published/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/command-published/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-first-update/state.jsonl": {
+    "sha256": "a8b4ce27848606d66934f71c980466e3550df95f99d3b3a9895ca8717b4743c6",
+    "bytes": 99246
+   },
+   "runs/fillff-a/checkpoints/retire-first-update/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-first-update/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-first-update/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-title-constructed/state.jsonl": {
+    "sha256": "e9378d459a944e2dc2a311a540b0a2b42266b2aa5d4a93473aea14acf074c0fc",
+    "bytes": 99246
+   },
+   "runs/fillff-a/checkpoints/retire-title-constructed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-title-constructed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-title-constructed/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-mode-request/state.jsonl": {
+    "sha256": "74b10e2c79c7eae44cad3f0ecea3be8c81f443d1858633175ae826ab718b5af1",
+    "bytes": 92484
+   },
+   "runs/fillff-a/checkpoints/chapter-mode-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-mode-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-mode-request/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/first-layout/state.jsonl": {
+    "sha256": "2443cd0598d19ea0be39a96c4a368edf44149ae12d2a12888ae4a2cce01bbdce",
+    "bytes": 92145
+   },
+   "runs/fillff-a/checkpoints/first-layout/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/first-layout/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/first-layout/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-removal-request/state.jsonl": {
+    "sha256": "d6d017ea281ec317be076dd7317269624907d23a13138d175635d24136e01855",
+    "bytes": 99581
+   },
+   "runs/fillff-a/checkpoints/retire-removal-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-removal-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/retire-removal-request/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-fade-request/state.jsonl": {
+    "sha256": "6597ed3c66c563bfb0f2554f9b5d8b60e8349de2f083af780b476d9223b733f2",
+    "bytes": 92492
+   },
+   "runs/fillff-a/checkpoints/chapter-fade-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-fade-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-fade-request/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/resource-retirement/state.jsonl": {
+    "sha256": "6f4b49dced51f9ee487e54796a006c992b101c424d18283dca2595d87bcedaa4",
+    "bytes": 92124
+   },
+   "runs/fillff-a/checkpoints/resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/resource-retirement/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-constructor-return/state.jsonl": {
+    "sha256": "05339e63c31922d49cc9eb5d8c75af6774279121c45d8ee8ad2a3cdfef26215b",
+    "bytes": 92486
+   },
+   "runs/fillff-a/checkpoints/chapter-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-a/checkpoints/chapter-constructor-return/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-a.log": {
+    "sha256": "9763efe2625640c753706dc13963d74b892f626bd0addbf74cd898dd8a48e801",
+    "bytes": 596
+   }
+  },
+  "fillff-b": {
+   "runs/fillff-b/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/fillff-b/ee-ram-32mb.bin": {
+    "sha256": "84016260f150bbc962486306132f704719f28f2bd20157df2050e9497089e919",
+    "bytes": 33554432
+   },
+   "runs/fillff-b/ee-ram-after-10bc78.bin": {
+    "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+    "bytes": 33554432
+   },
+   "runs/fillff-b/events.jsonl": {
+    "sha256": "5e13ae3b085e42125f543beae419291b1b1aa11ecec2087747d19e45a72d7aa6",
+    "bytes": 26387628
+   },
+   "runs/fillff-b/final-state.jsonl": {
+    "sha256": "4594fb432c69e5c12af7114a589415335cfdaec4acb4514090c4357a74b53e81",
+    "bytes": 92381
+   },
+   "runs/fillff-b/gs-ledger.jsonl": {
+    "sha256": "8e135ee2929bffccf2014bda2f60b1dad6259728d27b9b52f9d123441ab705d0",
+    "bytes": 257279
+   },
+   "runs/fillff-b/pad-host.jsonl": {
+    "sha256": "0e6ff08c787c9d63fa1e6d8b042f61a90de86ccfbdd90bd35835793c4fb22da1",
+    "bytes": 1538
+   },
+   "runs/fillff-b/run-meta.json": {
+    "sha256": "45c3cab448832747ec8489290b7f4bc3384d566ed00694fa3ead4e914f7a7813",
+    "bytes": 1350
+   },
+   "runs/fillff-b/state-at-100618.jsonl": {
+    "sha256": "ef87c00311cf2f7d583850e7504cf57cdd6d3b2acf9d6631b421d6668d9e911e",
+    "bytes": 75900
+   },
+   "runs/fillff-b/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/field-constructor-entry/state.jsonl": {
+    "sha256": "4594fb432c69e5c12af7114a589415335cfdaec4acb4514090c4357a74b53e81",
+    "bytes": 92381
+   },
+   "runs/fillff-b/checkpoints/field-constructor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/field-constructor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/field-constructor-entry/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-resource-retirement/state.jsonl": {
+    "sha256": "fa15c26ab730ab70d75bec2d57a597abe0701d1d76ee2de823736b37203a3b30",
+    "bytes": 91876
+   },
+   "runs/fillff-b/checkpoints/retire-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-resource-retirement/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/manager-free/state.jsonl": {
+    "sha256": "3673c19e52a18c6d607242f74d8b19c531f17ccf6bdb93415f6df9fb4ee444fd",
+    "bytes": 92142
+   },
+   "runs/fillff-b/checkpoints/manager-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/manager-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/manager-free/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-successor-entry/state.jsonl": {
+    "sha256": "6117ee826d8a278d38aaf1e58a439152b0a9e7696c67918704f7fa4f19c379e4",
+    "bytes": 91999
+   },
+   "runs/fillff-b/checkpoints/retire-successor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-successor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-successor-entry/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-constructor-return/state.jsonl": {
+    "sha256": "7669016dd0f6e3cd0387cb5f47c5859e0e37d82bedaf67cce089efbb9b46b3c0",
+    "bytes": 92446
+   },
+   "runs/fillff-b/checkpoints/name-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-constructor-return/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/wrapper-free/state.jsonl": {
+    "sha256": "c5049732017543f0f310f5005914cf3849d259061df6bf010f55abcb7fe053a2",
+    "bytes": 92029
+   },
+   "runs/fillff-b/checkpoints/wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/wrapper-free/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-edited/state.jsonl": {
+    "sha256": "f9f565201b02bd9b19541db84a9f4e0b243c44df24f06c3da4cf53f3ed1b72d7",
+    "bytes": 92145
+   },
+   "runs/fillff-b/checkpoints/name-edited/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-edited/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-edited/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-wrapper-free/state.jsonl": {
+    "sha256": "4b2d3aef2a894e048d6a6bd22b8d631576e25547db46a2408991c39500520cf8",
+    "bytes": 92381
+   },
+   "runs/fillff-b/checkpoints/chapter-wrapper-free/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-wrapper-free/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-wrapper-free/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-confirmed/state.jsonl": {
+    "sha256": "6ab4ebbc64ff7633e35c8e7679c12924813617966b04553cc6ea27020fb50506",
+    "bytes": 92143
+   },
+   "runs/fillff-b/checkpoints/name-confirmed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-confirmed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-confirmed/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-stable-menu/state.jsonl": {
+    "sha256": "03a01ea56d6b81dabf8fbd0925f48df012edffc56972dd429d1cbd31b54b6e67",
+    "bytes": 99581
+   },
+   "runs/fillff-b/checkpoints/retire-stable-menu/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-stable-menu/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-stable-menu/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-death/state.jsonl": {
+    "sha256": "a126ddce07c86d2917c1d218dea885ed07f593846dc4cd0493d4570b60e9acd6",
+    "bytes": 92142
+   },
+   "runs/fillff-b/checkpoints/name-death/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-death/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/name-death/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-resource-retirement/state.jsonl": {
+    "sha256": "e4e5b64b3d9c6c95d4321b6fdfe3d420a78192099d1d9074e12bfc635608ad6d",
+    "bytes": 92381
+   },
+   "runs/fillff-b/checkpoints/chapter-resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-resource-retirement/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/command-published/state.jsonl": {
+    "sha256": "f1f60dc460b3194ecc0fd8dd74540bd36524545ed706f53bc8ef66dc189580cd",
+    "bytes": 92130
+   },
+   "runs/fillff-b/checkpoints/command-published/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/command-published/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/command-published/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-first-update/state.jsonl": {
+    "sha256": "a8b4ce27848606d66934f71c980466e3550df95f99d3b3a9895ca8717b4743c6",
+    "bytes": 99246
+   },
+   "runs/fillff-b/checkpoints/retire-first-update/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-first-update/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-first-update/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-title-constructed/state.jsonl": {
+    "sha256": "e9378d459a944e2dc2a311a540b0a2b42266b2aa5d4a93473aea14acf074c0fc",
+    "bytes": 99246
+   },
+   "runs/fillff-b/checkpoints/retire-title-constructed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-title-constructed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-title-constructed/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-mode-request/state.jsonl": {
+    "sha256": "74b10e2c79c7eae44cad3f0ecea3be8c81f443d1858633175ae826ab718b5af1",
+    "bytes": 92484
+   },
+   "runs/fillff-b/checkpoints/chapter-mode-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-mode-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-mode-request/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/first-layout/state.jsonl": {
+    "sha256": "2443cd0598d19ea0be39a96c4a368edf44149ae12d2a12888ae4a2cce01bbdce",
+    "bytes": 92145
+   },
+   "runs/fillff-b/checkpoints/first-layout/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/first-layout/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/first-layout/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-removal-request/state.jsonl": {
+    "sha256": "d6d017ea281ec317be076dd7317269624907d23a13138d175635d24136e01855",
+    "bytes": 99581
+   },
+   "runs/fillff-b/checkpoints/retire-removal-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-removal-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/retire-removal-request/vram.bin": {
+    "sha256": "b0dbf56dc124710faf638f4544a69267980d6fcf63286cb8c85e56f127aaa193",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-fade-request/state.jsonl": {
+    "sha256": "6597ed3c66c563bfb0f2554f9b5d8b60e8349de2f083af780b476d9223b733f2",
+    "bytes": 92492
+   },
+   "runs/fillff-b/checkpoints/chapter-fade-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-fade-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-fade-request/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/resource-retirement/state.jsonl": {
+    "sha256": "6f4b49dced51f9ee487e54796a006c992b101c424d18283dca2595d87bcedaa4",
+    "bytes": 92124
+   },
+   "runs/fillff-b/checkpoints/resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/resource-retirement/vram.bin": {
+    "sha256": "014331508d058b188d328fa5aa91192046a5b5ff4bdb43e35db32f5166131362",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-constructor-return/state.jsonl": {
+    "sha256": "05339e63c31922d49cc9eb5d8c75af6774279121c45d8ee8ad2a3cdfef26215b",
+    "bytes": 92486
+   },
+   "runs/fillff-b/checkpoints/chapter-constructor-return/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-constructor-return/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/fillff-b/checkpoints/chapter-constructor-return/vram.bin": {
+    "sha256": "b0b3e27e4bfbd829e79babc6543f65830d2f4c038c9730b18ce9953203d99783",
+    "bytes": 4194304
+   },
+   "runs/fillff-b.log": {
+    "sha256": "c75705af701c5fe1c6131bca7db78a34d1b412ce418f42be348bd744dce690c5",
+    "bytes": 596
+   }
+  },
+  "control-minimal-fill00": {
+   "runs/control-minimal-fill00/disc-opens.jsonl": {
+    "sha256": "854e9b1493c1dd2077076d59f0bc76704f77902807202e0ba43d599fbd56a202",
+    "bytes": 3115
+   },
+   "runs/control-minimal-fill00/ee-ram-32mb.bin": {
+    "sha256": "9b0f60e923732de19dca2b90cffe02462cf517ced15e36549accfdca50536882",
+    "bytes": 33554432
+   },
+   "runs/control-minimal-fill00/events.jsonl": {
+    "sha256": "160064f5911e854ba9ef7a6c25abf91b4e654c72761f2e543787f9f9f1d34c9a",
+    "bytes": 361233
+   },
+   "runs/control-minimal-fill00/final-state.jsonl": {
+    "sha256": "883e5a4a497e0df1678d1434276dc2612609fdecc3ef5a03b02297fc4c8db64f",
+    "bytes": 63437
+   },
+   "runs/control-minimal-fill00/gs-ledger.jsonl": {
+    "sha256": "eb927f1992d6d6c656b074693ec8c2f71487c9a9ee8879e299c769500d7f8650",
+    "bytes": 170765
+   },
+   "runs/control-minimal-fill00/pad-host.jsonl": {
+    "sha256": "5f87947fb67f8c76717ae1f0bbea93ea9e12e73d93e0df00224342b7bdee8568",
+    "bytes": 1538
+   },
+   "runs/control-minimal-fill00/run-meta.json": {
+    "sha256": "ccfc0f275bb8cac1891eac506f6115295f1eff852d0ba52a4cbdf885f39b3ef7",
+    "bytes": 987
+   },
+   "runs/control-minimal-fill00/state-at-100618.jsonl": {
+    "sha256": "f602955cf076cd69ade7a8a0909bb0e672ab5a94bcc5ec2d374fec2f5814ec8f",
+    "bytes": 62724
+   },
+   "runs/control-minimal-fill00/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/field-constructor-entry/state.jsonl": {
+    "sha256": "883e5a4a497e0df1678d1434276dc2612609fdecc3ef5a03b02297fc4c8db64f",
+    "bytes": 63437
+   },
+   "runs/control-minimal-fill00/checkpoints/field-constructor-entry/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-successor-entry/state.jsonl": {
+    "sha256": "7fd499c88294733f141d7e185fc531a6b785066f687ab839702383bbec7a5d4c",
+    "bytes": 63615
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-successor-entry/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/name-constructor-return/state.jsonl": {
+    "sha256": "980b8da8789b87251c0bfad64839ea9edede4c529dda7907d99a9e1663034dff",
+    "bytes": 63714
+   },
+   "runs/control-minimal-fill00/checkpoints/name-constructor-return/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/name-edited/state.jsonl": {
+    "sha256": "03f86f2c284d377d205a3b627772e842c99c29d3c83962f6fb59a64b1dc67618",
+    "bytes": 63557
+   },
+   "runs/control-minimal-fill00/checkpoints/name-edited/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/name-confirmed/state.jsonl": {
+    "sha256": "4296e0222c985531273ad48cbdbea5bec443b2b366d442fb6b745a527ed89bbe",
+    "bytes": 63555
+   },
+   "runs/control-minimal-fill00/checkpoints/name-confirmed/vram.bin": {
+    "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-stable-menu/state.jsonl": {
+    "sha256": "decde7e8340884c6b165fc93986ce1dcdbbdd8b800ee5522bc44ea4f9d569fcd",
+    "bytes": 71363
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-stable-menu/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-first-update/state.jsonl": {
+    "sha256": "fd2cc2b499aa249f391601050c251a15a36f223d47072727a84123ef36ee28ac",
+    "bytes": 71186
+   },
+   "runs/control-minimal-fill00/checkpoints/retire-first-update/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00/checkpoints/chapter-constructor-return/state.jsonl": {
+    "sha256": "79e1e1bd790e6cc5762309e1bf38c0ab0a3c9c4fade913124252d0ddb6babe9d",
+    "bytes": 63546
+   },
+   "runs/control-minimal-fill00/checkpoints/chapter-constructor-return/vram.bin": {
+    "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+    "bytes": 4194304
+   },
+   "runs/control-minimal-fill00.log": {
+    "sha256": "1c087a16e77d8753aa549e080fe6b508e2f2949653aa8d4462d0510d0860f04a",
+    "bytes": 592
+   }
+  },
+  "regress-retire-newgame": {
+   "runs/regress-retire-newgame/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/regress-retire-newgame/ee-ram-32mb.bin": {
+    "sha256": "a5ddf02bcc509d1bfcaf9881eb2296bdf7980e19ef604d77cfac64cc3bb8829d",
+    "bytes": 33554432
+   },
+   "runs/regress-retire-newgame/ee-ram-after-10bc78.bin": {
+    "sha256": "b1708a93abea2728959b63662964086d62bba3568e76af8c26b818829047b3e2",
+    "bytes": 33554432
+   },
+   "runs/regress-retire-newgame/events.jsonl": {
+    "sha256": "fcded45da7b2a88a973e8cec05760cf77f4de59651e91cfa4224ac8b82439b45",
+    "bytes": 15362150
+   },
+   "runs/regress-retire-newgame/final-state.jsonl": {
+    "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+    "bytes": 91559
+   },
+   "runs/regress-retire-newgame/gs-ledger.jsonl": {
+    "sha256": "8d9de45c05ecd0556a4c05b04d69f2c5207a414acb8bc62a8083ed3375254ad4",
+    "bytes": 250162
+   },
+   "runs/regress-retire-newgame/pad-host.jsonl": {
+    "sha256": "2c48263f5313cf83838ee1f6903b907f5b2c55e027ec5b0a57f0c2215715e4a2",
+    "bytes": 500
+   },
+   "runs/regress-retire-newgame/run-meta.json": {
+    "sha256": "b61936f5fa7b594cee785fd7e1519ad3cc6380b364f2c7f5b53f93ce9b6a265a",
+    "bytes": 825
+   },
+   "runs/regress-retire-newgame/state-at-100618.jsonl": {
+    "sha256": "3dcf6b61ccfa69c4e009541c82937bbad002b3d2de550942f2214dd1a3b4627a",
+    "bytes": 75597
+   },
+   "runs/regress-retire-newgame/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/stable-menu/state.jsonl": {
+    "sha256": "c6c41a2710e99197a8a509e3932bab2cff4ff24e1037830d096162ed6d236879",
+    "bytes": 99262
+   },
+   "runs/regress-retire-newgame/checkpoints/stable-menu/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/stable-menu/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/stable-menu/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/successor-entry/state.jsonl": {
+    "sha256": "f5ddcc577c748bc6cd59dc6acbc6d72474906717fac7f70c85d5c8a01784d9f5",
+    "bytes": 91559
+   },
+   "runs/regress-retire-newgame/checkpoints/successor-entry/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/successor-entry/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/successor-entry/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/removal-request/state.jsonl": {
+    "sha256": "b78d3606988cc2d4d33b1a05bc7c386a5689fc03649dddc3ec4c05271a2138d5",
+    "bytes": 99262
+   },
+   "runs/regress-retire-newgame/checkpoints/removal-request/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/removal-request/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/removal-request/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/first-update/state.jsonl": {
+    "sha256": "8fea9c51c496662037be42545dd89f64684a8831f1abd14537159603f27550f7",
+    "bytes": 98941
+   },
+   "runs/regress-retire-newgame/checkpoints/first-update/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/first-update/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/first-update/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/resource-retirement/state.jsonl": {
+    "sha256": "d7d49c052e44f634cd5860cd1884d2197550094badb3cd047fe498a40ff79657",
+    "bytes": 91557
+   },
+   "runs/regress-retire-newgame/checkpoints/resource-retirement/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/resource-retirement/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/resource-retirement/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/title-constructed/state.jsonl": {
+    "sha256": "24caea163c4e777426a73b80652233ffa3b4d59a3060856cfedcb4a470d740e3",
+    "bytes": 98941
+   },
+   "runs/regress-retire-newgame/checkpoints/title-constructed/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/title-constructed/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame/checkpoints/title-constructed/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-retire-newgame.log": {
+    "sha256": "9ed8db06d2591770c9a71b7ee233e8463b5d0f01bda33395671519d934df6e9b",
+    "bytes": 594
+   }
+  },
+  "regress-title": {
+   "runs/regress-title/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/regress-title/ee-ram-32mb.bin": {
+    "sha256": "a933ed73032be132a4e89c2fe6bbff9e20163d51e914e26a9c1ea37b6f9e014b",
+    "bytes": 33554432
+   },
+   "runs/regress-title/ee-ram-after-10bc78.bin": {
+    "sha256": "3f89a42e0ea6f80033bda9ebab6cfee95097346de9306283bdb2b659b57765a1",
+    "bytes": 33554432
+   },
+   "runs/regress-title/events.jsonl": {
+    "sha256": "10b3d769b57084bb79a452c132245cbbb66748c58609db5bb27bcb300c341ef8",
+    "bytes": 9693357
+   },
+   "runs/regress-title/final-state.jsonl": {
+    "sha256": "a4479a5055e4feabf05220f7d36e461584d0aaf07e57a2d3c2276bfeff2cf177",
+    "bytes": 98851
+   },
+   "runs/regress-title/gs-ledger.jsonl": {
+    "sha256": "0bbf9bf22809056724467a3bb164f6bdf5ac4f465d7b7221efa41eafa29c2c60",
+    "bytes": 169845
+   },
+   "runs/regress-title/run-meta.json": {
+    "sha256": "b6253a241620fc7a511576fdc0d13a275340d979deaccd77f55a8f1a24842892",
+    "bytes": 550
+   },
+   "runs/regress-title/state-at-100618.jsonl": {
+    "sha256": "09a9c8757bfc3c3684489d9f408443fac84fa0dda4e97610d342da722cf008dd",
+    "bytes": 75507
+   },
+   "runs/regress-title/vram-last-writer.bin": {
+    "sha256": "38ac70a91a667fd26478245b6e2ca167b3da8e5c955146fce87d999501134fca",
+    "bytes": 4194304
+   },
+   "runs/regress-title/vram-upload-ever.bin": {
+    "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+    "bytes": 4194304
+   },
+   "runs/regress-title/vram.bin": {
+    "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+    "bytes": 4194304
+   },
+   "runs/regress-title.log": {
+    "sha256": "105924bda403bbbe9955e8b0f09d30d9a91198eb69e3faa865c79580ccf1ff31",
+    "bytes": 643
+   }
+  },
+  "regress-default": {
+   "runs/regress-default/disc-opens.jsonl": {
+    "sha256": "5898cf7353c7a201adb070d20d66ae6e4e5474c5140422b39bb98c664c573708",
+    "bytes": 3190
+   },
+   "runs/regress-default/ee-ram-32mb.bin": {
+    "sha256": "be139d4fd6ebd9c509b9811cbc32846b65eebf7f1037a140058942554b3bf4fa",
+    "bytes": 33554432
+   },
+   "runs/regress-default/events.jsonl": {
+    "sha256": "03cd09bcf8a29a3e8fed44c5b8339c1f9d1846c098533e42d1dfcb77f31151c6",
+    "bytes": 1046167
+   },
+   "runs/regress-default/final-state.jsonl": {
+    "sha256": "d8c1ca03b6c0ad5eeb57c01c783353c950b2638fb41ee63ecf7c6aee2a0d7956",
+    "bytes": 17084
+   },
+   "runs/regress-default/gs-ledger.jsonl": {
+    "sha256": "ea4e24aa0294a1e0d5b0cff0e42c8f2acc30c9d88b4016211e16ffce9b5c4b17",
+    "bytes": 23295
+   },
+   "runs/regress-default/run-meta.json": {
+    "sha256": "a12e336af3b7ffed284fa3a618b685b852537496b362e1bf53f2397c97df8fdb",
+    "bytes": 472
+   },
+   "runs/regress-default/vram.bin": {
+    "sha256": "3d61f88d55f22717a482392a7c4931dc8ee9db4f2c539053c595b31ae007b29c",
+    "bytes": 4194304
+   },
+   "runs/regress-default.log": {
+    "sha256": "0480c15a0023d9e382a404a28ab838808814764d85ca891785a94f8f0404ccca",
+    "bytes": 643
+   }
+  }
+ },
+ "result_digest": {
+  "checkpoints": {
+   "retire-successor-entry": {
+    "resource_events": 1218,
+    "rng_draws": 9504,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1046,
+    "t": 0
+   },
+   "name-constructor-return": {
+    "resource_events": 1230,
+    "rng_draws": 9504,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1051,
+    "t": 0
+   },
+   "first-layout": {
+    "resource_events": 1231,
+    "rng_draws": 9536,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1051,
+    "t": 0
+   },
+   "name-edited": {
+    "resource_events": 1231,
+    "rng_draws": 10150,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1063,
+    "t": 6
+   },
+   "name-confirmed": {
+    "resource_events": 1231,
+    "rng_draws": 10728,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1075,
+    "t": 14
+   },
+   "name-death": {
+    "resource_events": 1231,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1108,
+    "t": 47
+   },
+   "manager-free": {
+    "resource_events": 1233,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1109,
+    "t": 48
+   },
+   "command-published": {
+    "resource_events": 1236,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1110,
+    "t": 49
+   },
+   "resource-retirement": {
+    "resource_events": 1238,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1111,
+    "t": 50
+   },
+   "wrapper-free": {
+    "resource_events": 1245,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1115,
+    "t": 51
+   },
+   "chapter-constructor-return": {
+    "resource_events": 1256,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1120,
+    "t": 52
+   },
+   "chapter-fade-request": {
+    "resource_events": 1256,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1359,
+    "t": 291
+   },
+   "chapter-mode-request": {
+    "resource_events": 1258,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1409,
+    "t": 341
+   },
+   "chapter-resource-retirement": {
+    "resource_events": 1265,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1410,
+    "t": 342
+   },
+   "chapter-wrapper-free": {
+    "resource_events": 1267,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1414,
+    "t": 343
+   },
+   "field-constructor-entry": {
+    "resource_events": 1268,
+    "rng_draws": 11848,
+    "vram_known_nibbles": 2586752,
+    "vram_unknown_nibbles": 3153920,
+    "vb": 1415,
+    "t": 344
+   }
+  },
+  "anchors": {
+   "checkpoint_t": {
+    "retire-successor-entry": 0,
+    "name-constructor-return": 0,
+    "first-layout": 0,
+    "name-edited": 6,
+    "name-confirmed": 14,
+    "name-death": 47,
+    "manager-free": 48,
+    "command-published": 49,
+    "resource-retirement": 50,
+    "wrapper-free": 51,
+    "chapter-constructor-return": 52,
+    "chapter-fade-request": 291,
+    "chapter-mode-request": 341,
+    "chapter-resource-retirement": 342,
+    "chapter-wrapper-free": 343,
+    "field-constructor-entry": 344
+   },
+   "name": {
+    "presses": [
+     [
+      2,
+      32
+     ],
+     [
+      4,
+      8192
+     ],
+     [
+      6,
+      64
+     ],
+     [
+      8,
+      2048
+     ],
+     [
+      10,
+      64
+     ],
+     [
+      12,
+      4096
+     ],
+     [
+      14,
+      64
+     ]
+    ],
+    "death_t": 47,
+    "traversals": 50
+   },
+   "chapter": {
+    "first_t": 52,
+    "counter_240_t": 291,
+    "clear_t": 341,
+    "calls": 290
+   },
+   "theme_end_t": 125
+  }
+ },
+ "limitations": [
+  "Play research backend, not hardware; vblank numbers are observer-dependent (the minimal control takes fewer vblanks), traversal counts, RNG states, resource state and VRAM at the shared checkpoints are not",
+  "null renderer: draw-written nibbles are conservative ledger rectangles; no original image or audio is captured",
+  "the SPU ADPCM reader is built with NDEBUG (see oracle.spu_adpcm_ndebug); audio samples are not observed"
+ ]
+}

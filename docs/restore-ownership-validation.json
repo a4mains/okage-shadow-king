@@ -555,7 +555,7 @@
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-08-23T12:18:11.475359+00:00",
+   "audited_at": "2025-08-31T12:18:11.475359+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -571,11 +571,11 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "308fd3b3cdcd50b033571f9fd4ebc084e2a47a9030f2b963ab26a9dacaedd5fb",
-  "src/startup_textures.cpp": "1506627b566b40356dd428a0fa7534a38af810cbed898e84b15acc4be73a5b5c",
+  "include/okage/startup_textures.hpp": "27da2ee3a6803ad958c0cebc590b156ae30d2cbb42fde42b11cbd3cfecade181",
+  "src/startup_textures.cpp": "8338a7d7fcccc1b9b62c1ecceee43e2bc35ed01a1b2655848ca4d6ba6b19f767",
   "include/okage/texture_handles.hpp": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
   "src/texture_handles.cpp": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
-  "src/native_runtime.mm": "113b119ff924bf3ccd6d1958f5d712954b50981d9905ac96afc95446ba1e1e48",
+  "src/native_runtime.mm": "16b1c3d5f027bfe5081758990b390c32616e6cdd97c53afd8137c7e4ed758102",
   "src/restore_session.hpp": "0a03ca2af500f5cd172d878437c1efe65ec32dfe62903e36e978dd0650081efd",
   "src/restore_session.mm": "f87c07b1d20f8dcffad06b12a22dc75fdeebae507cd20b475ebe1c870414167c",
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
@@ -585,7 +585,7 @@
   "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
   "include/okage/startup_inputs.hpp": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
   "src/startup_inputs.cpp": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
-  "CMakeLists.txt": "9b0c3c3a3da5935fe2c6f9cd421f883af701404594fed42aa9e928f5ca30df2f",
+  "CMakeLists.txt": "10b2c8de9b3ac09255053cfc11f81b089b00f71015b5be0e5f3fca59308cea88",
   "tools/retire_route_compare.py": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
   "tools/retire_route_regression.sh": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
   "tools/restore_validation_run.sh": "6af34b6d21a36d0aa91e2ae632b90a716d210d8f95f507ef0732e08e56ac2299",
@@ -594,11 +594,11 @@
   "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
   "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
   "tools/restore_make_manifest.py": "4cb9c095f13387438672019fb325c197461945f646a82d001d83ae3153b0403c",
-  "tools/play-oracle/startup.cpp": "e846329bc626154439b4b01bf12283540659d3f629460b11e18f139549038854",
+  "tools/play-oracle/startup.cpp": "d5499f442f2efdebe3255e7d73ec8ba075a24f1f9ee5360f97e14bd33b172997",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tools/restore_io_timing_evidence.py": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
   "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
-  "tests/startup_textures_tests.cpp": "106c21c8fdbaa2ba04a1d600b12a7cd61e9e82541d18ae61e556746966822656",
+  "tests/startup_textures_tests.cpp": "9b9f857f2a94909a6fb6191b5c49eac4bc0058c64b784cb901435da2079b14b7",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
   "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
@@ -1376,8 +1376,15 @@
   }
  ],
  "commands": {
-  "driver": "tools/restore_validation_run.sh final",
+  "driver": "RESTORE_VALIDATION=local/research/restore-ownership-validation-v3 tools/restore_validation_run.sh final",
   "per_run": "local/research/restore-ownership-validation-v3/final/commands.txt",
   "manifest": "python3 tools/restore_validation_manifest.py docs/restore-ownership-validation.json"
+ },
+ "errata": {
+  "date": "2025-08-31",
+  "by": "Newgame fixes-first ( section 1)",
+  "scope_was": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
+  "driver_was": "tools/restore_validation_run.sh final",
+  "note": "text fields only; every hash, evidence entry and run-time result is unchanged. The generator (tools/restore_validation_manifest.py) now emits the corrected scope and driver."
  }
 }

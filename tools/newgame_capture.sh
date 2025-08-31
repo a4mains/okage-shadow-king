@@ -8,7 +8,8 @@ if [ $# -eq 0 ]; then
 fi
 if [ -n "$OKAGE_PLAY_VM_LOCK" ]; then
   until mkdir "$OKAGE_PLAY_VM_LOCK" 2>/dev/null; do echo "VM lock busy, retrying in 30 s" >&2; sleep 30; done
-  trap 'rmdir "$OKAGE_PLAY_VM_LOCK"' EXIT INT TERM
+  trap 'rmdir "$OKAGE_PLAY_VM_LOCK"' EXIT
+  trap 'exit 130' INT TERM
 fi
 status=0
 for spec in "$@"; do

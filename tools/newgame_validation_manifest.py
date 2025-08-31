@@ -70,9 +70,12 @@ def main(sub, out):
     ]
     evidence = [f'{V}/bin/binaries.sha256', f'{V}/bin/source-head.txt', f'{F}/binaries-check.txt', f'{F}/commands.txt',
                 f'{F}/source-head.txt', f'{F}/driver-command.txt', f'{F}/stage-audit.txt']
-    for n in ('ctest-release-all.out', 'ctest-debug-all.out', 'ctest-sanitize-all.out', 'python-suite.out'):
+    for n in ('ctest-release-all.out', 'ctest-debug-all.out', 'ctest-sanitize-all.out', 'python-suite.out',
+              'python-suite-final.out'):
         if (ROOT / V / n).exists():
             evidence.append(f'{V}/{n}')
+    if (ROOT / V / 'recheck-hardened').exists():
+        evidence += [f'{V}/recheck-hardened/{p.name}' for p in sorted((ROOT / V / 'recheck-hardened').iterdir())]
     for p in ('local/research/newgame-counter-defect-v2/counter-comparison.txt', 'local/research/newgame-counter-defect-v2/binaries.sha256',
               'local/research/newgame-counter-defect-v2/input/sha256.txt'):
         evidence.append(p)
@@ -142,8 +145,10 @@ def main(sub, out):
             'sessions': sessions, 'restore_gate': restore, 'retire_routes_strict': retire, 'gates': gates, 'regressions': regressions,
             'ctest': {k: text(f'{V}/ctest-{k}.out').splitlines()[-3] for k in ('release-all', 'debug-all', 'sanitize-all')
                       if (ROOT / V / f'ctest-{k}.out').exists()},
-            'python_suite': [l for l in text(f'{V}/python-suite.out').splitlines() if l.startswith(('Ran ', 'OK', 'FAILED'))]
-            if (ROOT / V / 'python-suite.out').exists() else None,
+            'python_suite': {n: [l for l in text(f'{V}/{n}').splitlines() if l.startswith(('Ran ', 'OK', 'FAILED'))]
+                             for n in ('python-suite.out', 'python-suite-final.out') if (ROOT / V / n).exists()},
+            'recheck_hardened': text(f'{V}/recheck-hardened/summary.txt').splitlines()
+            if (ROOT / V / 'recheck-hardened/summary.txt').exists() else None,
         },
         'current_time_audit': {
             'stage': {k: v for k, v in json.loads(text(f'{F}/stage-audit-current-time.json')).items()
