@@ -27,6 +27,7 @@ STAGE = ROOT / "local/game-data-stage-v13"
 ROUTES = ROOT / "tests/data/newgame-routes"
 TITLE_PAD = ROOT / "tests/data/retire-routes/newgame-scripted/title-pad.txt"
 ORIGINAL = ROOT / "local/research/newgame-original-v1/analysis"
+ORIGINAL_NO = ROOT / "local/research/newgame-no-original-v1"
 MANIFEST_SHA256 = "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6"
 NATIVE = os.environ.get("OKAGE_NATIVE")
 sys.path.insert(0, str(ROOT / "tools"))
@@ -114,6 +115,13 @@ class NewGameRoutes(unittest.TestCase):
             self.assertEqual((back[0]["pressed"], back[0]["yes_no_out"]), (0x40, 1))
             accept = [r for r in frames if r["manager_ran"] and r["phase_in"] == -1 and r["phase_out"] == -2]
             self.assertEqual(len(accept), 1)
+            if ORIGINAL_NO.is_dir():
+                import newgame_compare as cmp
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    code = cmp.main([str(ORIGINAL_NO / "analysis"), str(tmp / "report"), "--strict", "--accept-control-timing",
+                                     "--manifest", str(ROOT / "docs/newgame-no-original-manifest.json")])
+                self.assertEqual(code, 0, buf.getvalue()[-4000:])
             if ORIGINAL.is_dir():
                 # The No branch changes no resource history: the stop's lifecycle rows equal the original's.
                 import newgame_compare as cmp
@@ -122,6 +130,16 @@ class NewGameRoutes(unittest.TestCase):
                 self.assertEqual([cmp.canon(e) for e in o if e["kind"] != "phase"],
                                  [cmp.canon(e) for e in n if e["kind"] != "phase"])
                 self.assertFalse(any(a))
+
+    def test_no_then_yes_control_timeline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self.run_route(tmp, ["--title-pad-script", str(TITLE_PAD), "--name-pad-script",
+                                 str(ROUTES / "no-then-yes-control/name-pad.txt")])
+            if ORIGINAL_NO.is_dir():
+                import newgame_control_exactness as ce
+                code, r = ce.run(ORIGINAL_NO / "runs/control-minimal-fill00", tmp / "report")
+                self.assertEqual(code, 0, json.dumps(r)[:3000])
 
     def test_fixed_raw_frame_tape(self):
         with tempfile.TemporaryDirectory() as tmp:

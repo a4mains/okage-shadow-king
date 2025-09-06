@@ -64,6 +64,7 @@ def main(sub, out):
         'tests/startup_textures_tests.cpp', 'tests/game_mode_tests.cpp', 'tests/name_entry_tests.cpp',
         'tests/test_newgame_routes.py', 'tests/test_newgame_compare.py', 'tests/test_newgame_route_compare.py',
         'tests/data/newgame-routes/newgame-chapter/name-pad.txt', 'tests/data/newgame-routes/no-then-yes/name-pad.txt',
+        'tests/data/newgame-routes/no-then-yes-control/name-pad.txt', 'tools/newgame_control_exactness.py',
         'tests/data/newgame-routes/newgame-fixed/buttons.txt', 'tests/data/newgame-routes/newgame-fixed/directions.txt',
         'tests/data/retire-routes/newgame-scripted/title-pad.txt', 'docs/newgame-original-manifest.json',
         'docs/restore-ownership-validation.json',
@@ -131,6 +132,22 @@ def main(sub, out):
     cold = f'{F}/regression-cold'
     regressions['cold-1800'] = results(f'{cold}/align.txt')
     evidence += [f'{cold}/align.txt', f'{cold}/binaries.sha256']
+    # The No/back-to-edit branch against its own original reference (dense capture and minimal control).
+    NO = 'local/research/newgame-no-route-v2'
+    no_route = {}
+    if (ROOT / NO).exists():
+        evidence += [f'{NO}/{n}' for n in ('binaries-check.txt', 'commands.txt', 'source-head.txt', 'tape-dense.txt',
+                                           'tape-control.txt', 'summary.txt', 'suites.txt', 'python-suite.out',
+                                           'ctest-release-newgame.out')]
+        evidence += ['local/research/newgame-no-route-v1/NOTE.txt', 'local/research/newgame-no-route-v1/summary.txt',
+                     'local/research/newgame-no-route-v1/no-then-yes-control-tape-USED-superseded.txt']
+        for d in sorted(p for p in (ROOT / NO).iterdir() if p.is_dir()):
+            rel = f'{NO}/{d.name}'
+            evidence += [f'{rel}/{n}' for n in ('stdout.txt', 'reads-check.json', 'dense-compare.txt', 'dense-compare.json',
+                                                 'control-exactness.json', 'report/route.json', 'report/name-frames.jsonl')]
+            no_route[d.name] = {k: int(text(f'{rel}/{k}.exit' if k != 'exit' else f'{rel}/exit.txt'))
+                                for k in ('exit', 'reads-check', 'dense-compare', 'control-exactness')}
+            no_route[d.name]['dense_result'] = json.loads(text(f'{rel}/dense-compare.json'))['result']
     manifest = {
         'schema': 'okage.newgame.validation.v1',
         'scope': SCOPE,
@@ -140,9 +157,11 @@ def main(sub, out):
         'elf_sha256': '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5',
         'stage_manifest_sha256_pinned': '1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6',
         'original_reference': {'manifest': entry('docs/newgame-original-manifest.json'),
-                               'analysis': 'local/research/newgame-original-v1/analysis'},
+                               'analysis': 'local/research/newgame-original-v1/analysis',
+                               'no_first_manifest': entry('docs/newgame-no-original-manifest.json'),
+                               'no_first_evidence': 'local/research/newgame-no-original-v1'},
         'run_time_evidence': {
-            'sessions': sessions, 'restore_gate': restore, 'retire_routes_strict': retire, 'gates': gates, 'regressions': regressions,
+            'sessions': sessions, 'no_route_v2': no_route, 'restore_gate': restore, 'retire_routes_strict': retire, 'gates': gates, 'regressions': regressions,
             'ctest': {k: text(f'{V}/ctest-{k}.out').splitlines()[-3] for k in ('release-all', 'debug-all', 'sanitize-all')
                       if (ROOT / V / f'ctest-{k}.out').exists()},
             'python_suite': {n: [l for l in text(f'{V}/{n}').splitlines() if l.startswith(('Ran ', 'OK', 'FAILED'))]

@@ -328,7 +328,10 @@ def refuse_self_compare(orig_dir, nat_dir):
             if os.path.samefile(p, q):
                 raise Malformed(f'refusing self-comparison: native {p.relative_to(n)} is the original {q.relative_to(o)}')
 
-def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
+CONTROL_TIMING_KEYS = ('name_input_calls_before_equal', 'rand_state_equal', 'resource_state_equal', 'session_state_equal',
+                       'vram_fill00_equal', 'name_input_sequence_equal', 'final_vram_equal', 'final_session_equal')
+
+def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False, accept_control_timing=False):
     out = out or sys.stdout
     refuse_self_compare(orig_dir, nat_dir)
     m, elf = g.load_manifest(manifest)
@@ -338,7 +341,13 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     if not isinstance(digest.get('checkpoints'), dict) or not isinstance(digest.get('anchors'), dict):
         raise Malformed('manifest result digest lacks checkpoints/anchors')
     ref = parse_json(read_text(Path(orig_dir) / 'reference.json'), 'reference.json')
-    if ref.get('problems') != [] or ref.get('retire_neutrality', {}).get('failures') != [] \
+    control_timing = False
+    if accept_control_timing and ref.get('retire_neutrality', {}).get('failures') == [] \
+            and isinstance(ref.get('control_minimal'), dict) and ref['control_minimal'].get('failures') \
+            and all(p.startswith('control:') for p in ref.get('problems', [])) \
+            and all(f.split(':')[-1] in CONTROL_TIMING_KEYS for f in ref['control_minimal']['failures']):
+        control_timing = True
+    elif ref.get('problems') != [] or ref.get('retire_neutrality', {}).get('failures') != [] \
             or ref.get('control_minimal', {}).get('failures') != []:
         raise Malformed('reference.json reports problems, Retire-neutrality or control failures (or no control)')
     if not str(ref.get('rng', {}).get('provenance', '')).startswith('every draw is a hooked'):
@@ -459,6 +468,11 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False):
     result.update({'name_frames_first_difference': nfirst, 'chapter_frames_first_difference': cfirst,
                    'frames_coverage': cov, 'anchors_original': o_anchors, 'anchors_native': n_anchors,
                    'anchors_differ': anchors_differ, 'asserted': asserted_total, 'coverage_gaps': gaps, 'result': label})
+    if control_timing:
+        result['reference_control_timing_differs'] = ref['control_minimal']['failures']
+        print('  reference note: the minimal-hook control consumed scripted presses on other traversals than this dense '
+              'reference (observer-dependent pad latency); this result is parity with the dense execution only '
+              '(see tools/newgame_control_exactness.py for parity with the control execution)', file=out)
     print('RESULT: ' + label, file=out)
     return code, result
 
@@ -469,9 +483,12 @@ def main(argv=None):
     p.add_argument('--manifest', default=str(MANIFEST))
     p.add_argument('--json')
     p.add_argument('--strict', action='store_true', help='zero VRAM coverage gaps required')
+    p.add_argument('--accept-control-timing', action='store_true',
+                   help='accept a reference whose only problems are minimal-control press-timing differences (labelled)')
     a = p.parse_args(argv)
     try:
-        code, result = run(a.original, a.native, manifest=a.manifest, strict=a.strict)
+        code, result = run(a.original, a.native, manifest=a.manifest, strict=a.strict,
+                           accept_control_timing=a.accept_control_timing)
     except Malformed as exc:
         print('MALFORMED: ' + str(exc), file=sys.stderr)
         return 2

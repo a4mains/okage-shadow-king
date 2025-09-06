@@ -3,7 +3,7 @@
  "scope": "Newgame: the FIRST cold title's New Game branch on the persistent Session texture owner and RNG, from entry of 124548 (mode 9) through name-entry construction (wrapper-owned bm_if atlas), an actual name edit and Yes, manager death/unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, Chapter 1 (CHP_01 image list, counter-240 fade request, actual fade completion, command clear and request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body.",
  "base_commit": "20b1c91",
  "binaries_built_from": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
- "head_commit_at_generation": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
+ "head_commit_at_generation": "c9a23049c5eb4ca77c7192e765a80a269a1dc9c5",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
  "original_reference": {
@@ -12,7 +12,13 @@
    "sha256": "0d96b1f870e08d8135c72bb18cca63370aa45b7b437b83b226adc004437d6de3",
    "bytes": 125428
   },
-  "analysis": "local/research/newgame-original-v1/analysis"
+  "analysis": "local/research/newgame-original-v1/analysis",
+  "no_first_manifest": {
+   "path": "docs/newgame-no-original-manifest.json",
+   "sha256": "c3130cf56b24b3aac34f4587b8279b35a2e3aef3119a924be5cf97f7922de786",
+   "bytes": 132733
+  },
+  "no_first_evidence": "local/research/newgame-no-original-v1"
  },
  "run_time_evidence": {
   "sessions": {
@@ -339,6 +345,36 @@
     "chapter_frames_first_difference": null
    }
   },
+  "no_route_v2": {
+   "release-control": {
+    "exit": 0,
+    "reads-check": 0,
+    "dense-compare": 3,
+    "control-exactness": 0,
+    "dense_result": "ANCHORS-DIFFER"
+   },
+   "release-dense": {
+    "exit": 0,
+    "reads-check": 0,
+    "dense-compare": 0,
+    "control-exactness": 1,
+    "dense_result": "IDENTICAL"
+   },
+   "sanitize-control": {
+    "exit": 0,
+    "reads-check": 0,
+    "dense-compare": 3,
+    "control-exactness": 0,
+    "dense_result": "ANCHORS-DIFFER"
+   },
+   "sanitize-dense": {
+    "exit": 0,
+    "reads-check": 0,
+    "dense-compare": 0,
+    "control-exactness": 1,
+    "dense_result": "IDENTICAL"
+   }
+  },
   "restore_gate": {
    "release": {
     "exit": 0,
@@ -535,26 +571,28 @@
   "include/okage/rng_site.hpp": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
   "src/texture_handles.cpp": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
   "CMakeLists.txt": "10b2c8de9b3ac09255053cfc11f81b089b00f71015b5be0e5f3fca59308cea88",
-  "tools/play-oracle/startup.cpp": "d5499f442f2efdebe3255e7d73ec8ba075a24f1f9ee5360f97e14bd33b172997",
+  "tools/play-oracle/startup.cpp": "6c365b50a436678c2062777945ab642767f15e33ff0dc4e9156dc640a0938608",
   "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/newgame_capture.sh": "c0e5830158b6bc5e11f30e3d759e1cb03024421b642e08b6fc9af684276817c8",
   "tools/newgame_original_extract.py": "e83f460e7dd891dba45f56f6fbdada7efab0b896ee6b70116d700a99a9e394ce",
-  "tools/newgame_compare.py": "9a611456448c7349bfaa00bf1e5d590de32cf6665de998be9e7d1c035c4a29eb",
-  "tools/newgame_make_manifest.py": "30a54da2e4e858eaa02fe637bfa67a7926aa9256b660884256ee8bf7ee4c1f6d",
+  "tools/newgame_compare.py": "1d9df75d7ea1cf0387b4d8e6b7e980f28fde9fe7bfd428cd1f3a60b87337fcb9",
+  "tools/newgame_make_manifest.py": "6ab600af3ce5636382bd6e18fe7fdb3e59a1e2a98c8e978de6c8282f19dc9881",
   "tools/newgame_route_compare.py": "de7c671bb3294d2fd02432639fe86af193244a7799875d2e934c07e028e1baf3",
   "tools/newgame_route_regression.sh": "ee7be9cdbfb0e256bc89b40a90bcdea7e4d4f077a041308063f991dc436b51a8",
   "tools/newgame_validation_run.sh": "dcb52710c85ab9d3331dd4888a130032a93ced19136278280517be14ddfcfd16",
-  "tools/newgame_validation_manifest.py": "1825159351e2ac63d81de8e1d1bd99b0e18ff5bc2a156885bc6b8b5951f38124",
+  "tools/newgame_validation_manifest.py": "50022e14a8bd9400f7ef98a2bcd1d65401b0efbb8d877a641016dabb54eec2c5",
   "tools/restore_validation_manifest.py": "15af13866e6a50da66ea177eb800852698ab2c3370f878c2b38ccf9fcce96fe7",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tests/startup_textures_tests.cpp": "9b9f857f2a94909a6fb6191b5c49eac4bc0058c64b784cb901435da2079b14b7",
   "tests/game_mode_tests.cpp": "2540d4af36325d5a8c961eddbaab9461a5a1c08d9bbf588853697f43075412fb",
   "tests/name_entry_tests.cpp": "e1b4139a6760d908b5736aabf3d27610e2397fb804986771740366903ac05680",
-  "tests/test_newgame_routes.py": "1db84aef91b33b3282aef6be07f45dc8903783d215cb398fa4ce43db216c3964",
+  "tests/test_newgame_routes.py": "dedd156617813cbf2e3230e8c52c2009b9684d3394bb44f78c544d170674c25f",
   "tests/test_newgame_compare.py": "b5765759e78626c3067091f000a36b5046049a225f0184a0d218400cad40bc55",
   "tests/test_newgame_route_compare.py": "6fd99ae18d85a90babcd89009c38089a0bd639239dbb3ed1c87e432a1fadc0f5",
   "tests/data/newgame-routes/newgame-chapter/name-pad.txt": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31",
   "tests/data/newgame-routes/no-then-yes/name-pad.txt": "ca7247964733dcb822c1f1a714e5fd18949fec7ac73091f670419714772f878b",
+  "tests/data/newgame-routes/no-then-yes-control/name-pad.txt": "49d00b80d75532c8bce92e73d530f0867243c9a9e87e87aff7e09e29c7246830",
+  "tools/newgame_control_exactness.py": "0abecef88d3509d206e062966870bdf5b8d8b4f3f04e0b4ad18d212443b45a5d",
   "tests/data/newgame-routes/newgame-fixed/buttons.txt": "eef36e77aad4568cd3d6efc655783c63998c4608144fca0de960b23f76ccc363",
   "tests/data/newgame-routes/newgame-fixed/directions.txt": "56ae102a6c8393ff5e122f18d7de6896f9f2a14cb39e95607b07f7db235c2314",
   "tests/data/retire-routes/newgame-scripted/title-pad.txt": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689",
@@ -1741,6 +1779,206 @@
    "path": "local/research/newgame-validation-v1/final/regression-cold/binaries.sha256",
    "sha256": "feadef7bdf40b45137e740cca6b57cd85592d2fa1a674921826b9c3f7fe64a11",
    "bytes": 290
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/binaries-check.txt",
+   "sha256": "451edd714e37f49a95f5ee8415c4be9bf636e2fe670600e16acedf23b1057840",
+   "bytes": 141
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/commands.txt",
+   "sha256": "a07897677807cf1f058be3dc58057ff2c0cde2265308e61463ec018b4ecb5079",
+   "bytes": 2174
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/source-head.txt",
+   "sha256": "60cbb772337c0e6996cb9b6bc957a44b1776d9efd240e964fcea03533b02a328",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/tape-dense.txt",
+   "sha256": "ca7247964733dcb822c1f1a714e5fd18949fec7ac73091f670419714772f878b",
+   "bytes": 76
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/tape-control.txt",
+   "sha256": "49d00b80d75532c8bce92e73d530f0867243c9a9e87e87aff7e09e29c7246830",
+   "bytes": 76
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/summary.txt",
+   "sha256": "2c049094488cd5771e1bd258064089e3b559eeaba4c454e6fdcbb644bf61f890",
+   "bytes": 360
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/suites.txt",
+   "sha256": "8a4dc67b4294c1daf86b918222b31cc52e172f32e57d1ee7ffa9a450712d153a",
+   "bytes": 113
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/python-suite.out",
+   "sha256": "7b541f366b80044487c7e584e26b9e417b7037017e7d44afff6442cfd1762275",
+   "bytes": 5880
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/ctest-release-newgame.out",
+   "sha256": "81c6878b982eaa17cdc9b1bb72969b23030ec949ea72a20000e1958b24821bbe",
+   "bytes": 560
+  },
+  {
+   "path": "local/research/newgame-no-route-v1/NOTE.txt",
+   "sha256": "c69ea9a59e48e90a6478866f17fca2455e697c86cbf98144094f36f6b30318b4",
+   "bytes": 293
+  },
+  {
+   "path": "local/research/newgame-no-route-v1/summary.txt",
+   "sha256": "c9b9fc9814a246d1cce1b16f531a4555825eed890391b849f8f29e46dbd51acb",
+   "bytes": 368
+  },
+  {
+   "path": "local/research/newgame-no-route-v1/no-then-yes-control-tape-USED-superseded.txt",
+   "sha256": "f50ee73ea4f2518eae1bdf72ed9666e39dc11221fdfcd76dfbe66935fbaf737c",
+   "bytes": 76
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/stdout.txt",
+   "sha256": "25b307de0c535166450ae4af20257b94109cb0b639d086ac5fadb73765791663",
+   "bytes": 832
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/reads-check.json",
+   "sha256": "0fa43d8f466f118d6787452c2529329857dbf0c5a3c1f3dd3b89028e3d6a160e",
+   "bytes": 22252
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/dense-compare.txt",
+   "sha256": "027d157d1f7b805b243affe84da17bd37b1227a76c047c13b0fc8a1ddcf3a3f0",
+   "bytes": 22814
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/dense-compare.json",
+   "sha256": "c9f249b833dff1d69d0d205e7883db8a6d4724422354a46d8e279ed1ac0bf27e",
+   "bytes": 13771
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/control-exactness.json",
+   "sha256": "6e0487df74551bf7e9bb848a5dc521d2244292f638ae8d8eaf6428e36e2629f4",
+   "bytes": 1303
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/report/route.json",
+   "sha256": "090d01643fcc5ac9d193b842e217e5992a4115c242e26797310d83b44f6c4876",
+   "bytes": 579
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-control/report/name-frames.jsonl",
+   "sha256": "abd44d97f17864a9af678e3feccea9e6660bd69042734d2c3bff599db4be4dff",
+   "bytes": 10537
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/stdout.txt",
+   "sha256": "9f47ea051ca6d0a263ade67b3261a4b1d06f8c6716989895e3cb4cd5d5ac4b4f",
+   "bytes": 832
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/reads-check.json",
+   "sha256": "0fa43d8f466f118d6787452c2529329857dbf0c5a3c1f3dd3b89028e3d6a160e",
+   "bytes": 22252
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/dense-compare.txt",
+   "sha256": "ea1db27479310edd62dcec4b16afebe55f4bf830f37307cd08c96bcb902b582c",
+   "bytes": 18052
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/dense-compare.json",
+   "sha256": "ceaae292847fa7af55243c1c91d133e20b7277670a545cb004b273e544186000",
+   "bytes": 13736
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/control-exactness.json",
+   "sha256": "96fe07baa14d65bfd4f7426990961e436319960cc57e03e66d49d3484ddcc731",
+   "bytes": 1307
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/report/route.json",
+   "sha256": "47c32b6c034e3f1d05760df6e9576149c8bd096875d14ecea6b72252fe8fcf57",
+   "bytes": 579
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/release-dense/report/name-frames.jsonl",
+   "sha256": "780f22fdf0100fdce57fb5a054f9c31da9d638ef37118a5aec29b1816e126d9a",
+   "bytes": 10352
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/stdout.txt",
+   "sha256": "c10ab9a28b890f16ba6c8e159cc0d9f8584dca72d6b39ffaca8d6233763041c9",
+   "bytes": 830
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/reads-check.json",
+   "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+   "bytes": 39425
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/dense-compare.txt",
+   "sha256": "003dccab769f3c870f134420f8fc6ee6449ac7be88a2c62ed5a57c69691c5871",
+   "bytes": 22814
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/dense-compare.json",
+   "sha256": "4aa9524fd3fada15dfae260ab8f5a0f10fa944057533d83d3b14bc59b21db5ed",
+   "bytes": 13771
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/control-exactness.json",
+   "sha256": "5d8e80a4bcd3dfd41d237fda726eb9f6e789c92dd4479d8e5320b8f2f8ab7165",
+   "bytes": 1304
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/report/route.json",
+   "sha256": "0c09b0eaa9dd21fd4887e590a5dae5e9dab00d25406dc33a0e14ab8f1daefcac",
+   "bytes": 579
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-control/report/name-frames.jsonl",
+   "sha256": "abd44d97f17864a9af678e3feccea9e6660bd69042734d2c3bff599db4be4dff",
+   "bytes": 10537
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/stdout.txt",
+   "sha256": "215a456cf3afeee4c8319a82cdddec81d120075863341fafea02eed19f9bb669",
+   "bytes": 830
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/reads-check.json",
+   "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+   "bytes": 39425
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/dense-compare.txt",
+   "sha256": "67f919e3b0fd761af36b9d8792f79f6f293225f84229dc7007eaca5f08150b9e",
+   "bytes": 18052
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/dense-compare.json",
+   "sha256": "8a8d8763fc0ece468b023a097b96a10b4bbb55f59f414946628de6eb69b0cb12",
+   "bytes": 13736
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/control-exactness.json",
+   "sha256": "4807b00b9af577980f6971b90d700d31c66246b74c5c699694500eda7d2db215",
+   "bytes": 1308
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/report/route.json",
+   "sha256": "b2a0fe0308d248ede743712ba1f749eaafbd48063a17c90722a28366adf55838",
+   "bytes": 579
+  },
+  {
+   "path": "local/research/newgame-no-route-v2/sanitize-dense/report/name-frames.jsonl",
+   "sha256": "780f22fdf0100fdce57fb5a054f9c31da9d638ef37118a5aec29b1816e126d9a",
+   "bytes": 10352
   }
  ],
  "commands": {

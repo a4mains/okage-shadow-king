@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Write the hash-bound New Game original manifest.
 
-usage: newgame_make_manifest.py EVIDENCE_DIR WORKTREE MAIN_CHECKOUT ORACLE_SOURCE_COMMIT OUT_JSON
+usage: newgame_make_manifest.py EVIDENCE_DIR WORKTREE MAIN_CHECKOUT ORACLE_SOURCE_COMMIT OUT_JSON [no-first]
+(no-first: the --name-no-first variant: the first Yes/No answer is No, back to editing, then End/Up/Yes)
 
 Pins: ELF, disc, Play revision (read from the Play checkout's .git files), oracle source/binary and build settings,
 every tracked source, the commands, every run's files and every analysis output (sha256 + bytes), and the result
@@ -23,12 +24,13 @@ TRACKED = ('tools/play-oracle/startup.cpp', 'tools/play-oracle/CMakeLists.txt', 
            'tools/newgame_compare.py', 'tools/newgame_make_manifest.py', 'tests/test_newgame_compare.py',
            'tools/restore_original_extract.py', 'tools/restore_compare.py', 'tools/retire_title_original_extract.py',
            'tools/retire_title_compare.py', 'tools/title_original_extract.py')
-RUNS = ('fill00-a', 'fill00-b', 'fillff-a', 'fillff-b', 'control-minimal-fill00', 'regress-retire-newgame', 'regress-title',
+RUNS = ('fill00-a', 'fill00-b', 'fillff-a', 'fillff-b', 'control-minimal-fill00', 'neutral-yes-fill00', 'regress-retire-newgame', 'regress-title',
         'regress-default')
 fsha, pin = gm.fsha, gm.pin
 
 def main(argv):
     ev, wt, main_, commit, out = argv[:5]
+    no_first = len(argv) > 5 and argv[5] == 'no-first'
     if os.path.exists(out):
         print('refusing existing manifest', file=sys.stderr)
         return 2
@@ -136,6 +138,18 @@ def main(argv):
     m['result_digest']['anchors'] = {'checkpoint_t': {cp: ref['checkpoints'][cp]['t'] for cp in cmp.CHECKPOINTS},
                                      'name': cmp.name_anchors(nf), 'chapter': cmp.chapter_anchors(cf),
                                      'theme_end_t': ref['tails']['theme_end_t']}
+    if no_first:
+        m['schema'] = 'okage.newgame-no-original-manifest.v1'
+        m['scope'] += (' VARIANT --name-no-first: End opens Yes/No on No, Cross on No returns to editing, then End, Up '
+                       'and Yes. Its minimal control consumed the presses after the No one traversal later than this '
+                       'dense capture (see reference.json control_minimal and problems): the dense run and the control '
+                       'are two distinct unchanged-original pad timelines.')
+        m['oracle']['mode'] = '--newgame-chapter --name-no-first; --minimal for the control'
+        m['commands'][0] = m['commands'][0].replace('fill00-a:00: fill00-b:00: fillff-a:ff: fillff-b:ff: control-minimal-fill00:00:--newgame-chapter+--minimal regress-retire-newgame:00:--title-retire+newgame regress-title:00:--title regress-default:00:default',
+            'fill00-a:00:--newgame-chapter+--name-no-first fill00-b:00:--newgame-chapter+--name-no-first fillff-a:ff:--newgame-chapter+--name-no-first fillff-b:ff:--newgame-chapter+--name-no-first control-minimal-fill00:00:--newgame-chapter+--name-no-first+--minimal neutral-yes-fill00:00:--newgame-chapter')
+        m['commands'][1] = ('python3 -I tools/newgame_original_extract.py <evidence> --out <evidence>/analysis --rng '
+                            '<main>/local/research/rng-original-v1/analysis/rng.jsonl --retire-evidence <main>/local/research/retire-title-original-v1 '
+                            '> <evidence>/analysis.log (exit 1: control timing problems recorded)')
     with open(out, 'x') as f:
         json.dump(m, f, indent=1)
         f.write('\n')
