@@ -571,7 +571,7 @@ int main(int argc,char** argv) {
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false,newgameChapter=false;std::string route;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false,newgameChapter=false,nameNoFirst=false;std::string route;
         std::filesystem::path memcards;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
@@ -583,6 +583,7 @@ int main(int argc,char** argv) {
             else if(std::string(argv[i])=="--light-restore")lightRestore=true;
             else if(std::string(argv[i])=="--memcards"&&i+1<argc)memcards=argv[++i];
             else if(std::string(argv[i])=="--newgame-chapter")newgameChapter=true;
+            else if(std::string(argv[i])=="--name-no-first")nameNoFirst=true;
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
@@ -599,6 +600,9 @@ int main(int argc,char** argv) {
                 throw std::runtime_error("--newgame-chapter is exclusive with --title/--title-retire/--rng-products/--restore-cancel");
             retire=true;route="newgame";
         }
+        // --name-no-first (Newgame No/back-to-edit coverage): the first Yes/No answer is No (Cross with +0xd8 = 1), which
+        // returns to editing; then End, Up and Yes as in the ordinary script.
+        if(nameNoFirst&&!newgameChapter)throw std::runtime_error("--name-no-first needs --newgame-chapter");
         // --title-retire restore|newgame (Retire): the --title observations, continued past the Title stop with a
         // fixed state-driven pad script, to the ENTRY of 0x124548 with mode10 (restore) or mode9 (newgame).
         if(retire){
@@ -1098,7 +1102,7 @@ int main(int argc,char** argv) {
             return q.str();};
         struct NameSnap{int32 phase,length,sel,yes;};
         auto nameSnap=[&](uint32 node){return NameSnap{int32(get32(node+0xe4c)),int32(get32(node+0xa8)),int32(get32(node+0xcc)),int32(get32(node+0xd8))};};
-        NameSnap namePressSnap{};uint64 nameInputCalls=0,nameWaitCalls=0;
+        NameSnap namePressSnap{};uint64 nameInputCalls=0,nameWaitCalls=0;bool nameNoDone=false;
         auto namePress=[&](uint32 node,int next,uint32 button,const std::string& why){
             namePressSnap=nameSnap(node);nameWaitCalls=0;padStep=next;setPad(1u<<button,why);};
         auto nameScriptEnter=[&](uint32 node){
@@ -1117,12 +1121,13 @@ int main(int argc,char** argv) {
             case 17: if(s.phase==1)namePress(node,18,btnCross,"press Cross on End (open Yes/No)");break;
             case 19: if(s.phase==-1)namePress(node,20,btnUp,"Yes/No phase -1: press Up (select Yes)");break;
             case 21: if(s.phase==-1)namePress(node,22,btnCross,"press Cross on Yes (accept)");break;
+            case 30: if(s.phase==-1&&s.yes==1)namePress(node,31,btnCross,"press Cross on No (back to editing)");break;
             default: break;
             }
         };
         auto nameScriptExit=[&](uint32 node){
             const NameSnap s=nameSnap(node),b=namePressSnap;
-            if(padStep>=10&&padStep<=22&&padStep%2==0&&++nameWaitCalls>8)throw std::runtime_error("name-entry press not consumed within 8 calls");
+            if(((padStep>=10&&padStep<=22&&padStep%2==0)||padStep==31)&&++nameWaitCalls>8)throw std::runtime_error("name-entry press not consumed within 8 calls");
             switch(padStep){
             case 10: if(s.length==b.length-1){padStep=11;setPad(0,"erase consumed (length -1): release");}break;
             case 12: if(s.sel!=b.sel){padStep=13;setPad(0,"Right consumed (selection changed): release");}break;
@@ -1130,9 +1135,11 @@ int main(int argc,char** argv) {
             case 16: if(s.sel==-3){padStep=17;setPad(0,"Start consumed (selection -3): release");}break;
             case 18: if(s.phase==-1){
                          if(s.yes!=1)throw std::runtime_error("Yes/No did not open on No (+0xd8 != 1)");
-                         padStep=19;setPad(0,"End consumed (phase -1, No selected): release");}
+                         if(nameNoFirst&&!nameNoDone){padStep=30;setPad(0,"End consumed (phase -1, No selected): release; answer No first");}
+                         else{padStep=19;setPad(0,"End consumed (phase -1, No selected): release");}}
                      break;
             case 20: if(s.yes==0){padStep=21;setPad(0,"Up consumed (+0xd8 = 0, Yes): release");}break;
+            case 31: if(s.phase==1){nameNoDone=true;padStep=15;setPad(0,"No consumed (phase -1 -> 1, back to editing): release");}break;
             case 22: if(s.phase==-2){padStep=23;setPad(0,"Yes consumed (phase -2): release");checkpoint("name-confirmed");}break;
             default: break;
             }
