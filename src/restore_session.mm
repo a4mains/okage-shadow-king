@@ -6,6 +6,7 @@
 #include "okage/results_text.hpp"
 #include "okage/load_queue.hpp"
 #include <algorithm>
+#include <atomic>
 #include <bit>
 #include <cfenv>
 #include <fstream>
@@ -61,6 +62,7 @@ struct RestoreSession::Impl {
     enum Io : unsigned {None,Checking,Scanning,Ready,Reading,Loaded,Failed,Writing,Written};
     bool live=true,manager=true,dead=false,completed=false,save=false;
     unsigned storage_latency_ms=0;
+    std::atomic<bool> storage_hold_released{false};
     unsigned phase=0,confirmation=0,success_ticks=0;
     Io io=None;
     RestoreShared& shared;BattleUiShared& ui;
@@ -126,7 +128,7 @@ struct RestoreSession::Impl {
             if(!save)fade.immediate(1);
         }catch(...){destroy_window();throw;}
     }
-    ~Impl(){destroy_window();}
+    ~Impl(){storage_hold_released=true;destroy_window();}
     void destroy_window(){if(handle>=0){ui.registry[unsigned(handle)].reset();handle=-1;}}
     UiWindow& window(){check(handle>=0&&bool(ui.registry[unsigned(handle)]),"Restore window lifetime");return *ui.registry[unsigned(handle)];}
     std::string text(Text id,std::initializer_list<std::string> args={}) const{return format(data.string(id),args);}
@@ -189,7 +191,7 @@ struct RestoreSession::Impl {
         case 151:case 999:shared.state=-1;window().set_opacity_tween(-4,128,0,128);break;
         case -1:break;
         case -2:
-            shared.state=0;dead=true;words[0x1c/4]|=0x80000000u;break;
+            shared.state=0;dead=true;storage_hold_released=true;words[0x1c/4]|=0x80000000u;break;
         case 30:case 40:case 60:case 100:case 530:case 700:break;
         default:throw std::runtime_error("Restore input state unrecovered: "+std::to_string(shared.state));
         }
@@ -259,7 +261,11 @@ struct RestoreSession::Impl {
             //0x212 (the Restore state contract). The Save path is unchanged (not re-verified).
             empty_slots();if(save)status=text(Text::CheckingCardNotice);else status.clear();
             jobs.enqueue([this]{
-                if(storage_latency_ms)std::this_thread::sleep_for(std::chrono::milliseconds(storage_latency_ms));
+                if(storage_latency_ms) {
+                    const auto until=std::chrono::steady_clock::now()+std::chrono::milliseconds(storage_latency_ms);
+                    while(!storage_hold_released&&std::chrono::steady_clock::now()<until)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                }
                 if(save)std::filesystem::create_directories(save_directory);
                 check(std::filesystem::is_directory(save_directory),"Restore storage directory unavailable");
                 check(std::filesystem::space(save_directory).available!=std::uintmax_t(-1),"Restore storage capacity unavailable");
@@ -372,7 +378,7 @@ bool RestoreSession::dead() const{return impl_->dead;}
 bool RestoreSession::saved_slots_present() const{
     return std::any_of(impl_->slots.begin(),impl_->slots.end(),[](const auto& s){return bool(s);});}
 void RestoreSession::retire(Animation& camera,FieldProjection& projection,RetiringSceneEffects* effects,BattleUiShared& ui) {
-    auto& p=*impl_;check(p.live,"Restore retired twice");if(effects)effects->mark();
+    auto& p=*impl_;check(p.live,"Restore retired twice");if(effects)effects->mark();p.storage_hold_released=true;
     p.destroy_window();for(auto& w:ui.registry)w.reset();projection.reset_scene();reset_scene_camera(camera);
     p.manager=false;p.renderer.reset();p.output=nullptr;p.live=false;
 }

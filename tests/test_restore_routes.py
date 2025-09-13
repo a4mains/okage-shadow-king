@@ -110,7 +110,7 @@ class RestoreRoutes(unittest.TestCase):
     def test_pending_scan_cancel(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
-            out, route = self.run_route(tmp, "pending-cancel", ["--restore-storage-latency-ms", "3000"])
+            out, route = self.run_route(tmp, "pending-cancel", ["--restore-storage-latency-ms", "600000"])
             self.assertEqual(route["checkpoints"]["cancel-death"] - 1070, 32)
             frames = [json.loads(x) for x in (tmp / "report/manager-frames.jsonl").read_text().splitlines()]
             cancel = next(f for f in frames if f["pressed"] == 0x20)

@@ -52,7 +52,7 @@ for tag bin in release $NEW sanitize $SAN; do
   python3 -I tools/restore_compare.py $ORIG_RESTORE $d/report --json $d/compare.json > $d/compare.txt 2>&1; print $? > $d/compare.exit
   python3 tools/restore_io_timing_evidence.py $d/report --require-exact --json $d/io-timing.json > $d/io-timing.txt 2>&1; print $? > $d/io-timing.exit
   d=$out/restore-$tag-pending; mkdir -p $d/saves
-  cmd=($bin --game-data $STAGE --save-directory $d/saves --restore-cancel-report $d/report --buttons tests/data/restore-routes/pending-cancel/buttons.txt --restore-storage-latency-ms 3000 --frames 1300 --capture $d/f.png)
+  cmd=($bin --game-data $STAGE --save-directory $d/saves --restore-cancel-report $d/report --buttons tests/data/restore-routes/pending-cancel/buttons.txt --restore-storage-latency-ms 600000 --frames 1300 --capture $d/f.png)
   log "${cmd[@]}"; "${cmd[@]}" > $d/stdout.txt 2>&1; print $? > $d/exit.txt; ls -A $d/saves > $d/saves-after.txt
 done
 # Retire routes (strict, original title-relative pad scripts) on the new binary.
