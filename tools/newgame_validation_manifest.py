@@ -148,6 +148,15 @@ def main(sub, out):
             no_route[d.name] = {k: int(text(f'{rel}/{k}.exit' if k != 'exit' else f'{rel}/exit.txt'))
                                 for k in ('exit', 'reads-check', 'dense-compare', 'control-exactness')}
             no_route[d.name]['dense_result'] = json.loads(text(f'{rel}/dense-compare.json'))['result']
+    for d in ('local/research/newgame-final-suites-v1', 'local/research/newgame-final-suites-v2', 'local/research/newgame-pending-fix-v1',
+              'local/research/newgame-postfix-sessions-v1', 'local/research/newgame-gates-v3', 'local/research/newgame-gates-v4', 'local/research/newgame-report-binding-v1'):
+        if (ROOT / d).exists():
+            evidence += [str(p.relative_to(ROOT)) for p in sorted((ROOT / d).rglob('*'))
+                         if p.is_file() and ('/report/' not in str(p) and '/saves/' not in str(p)
+                                             and not p.name.startswith('f.png'))]
+    evidence += ['local/research/newgame-review-v1.sha256', 'local/research/newgame-review-v1/review.md',
+                 'local/research/newgame-gate-audit-v1.sha256', 'local/research/newgame-gate-audit-v1/README.md',
+                 'local/research/newgame-gate-audit-v1/my-gates.txt']
     manifest = {
         'schema': 'okage.newgame.validation.v1',
         'scope': SCOPE,
