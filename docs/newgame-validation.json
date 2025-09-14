@@ -3,7 +3,7 @@
  "scope": "Newgame: the FIRST cold title's New Game branch on the persistent Session texture owner and RNG, from entry of 124548 (mode 9) through name-entry construction (wrapper-owned bm_if atlas), an actual name edit and Yes, manager death/unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, Chapter 1 (CHP_01 image list, counter-240 fade request, actual fade completion, command clear and request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body.",
  "base_commit": "20b1c91",
  "binaries_built_from": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
- "head_commit_at_generation": "c9a23049c5eb4ca77c7192e765a80a269a1dc9c5",
+ "head_commit_at_generation": "757c8bbed49c3f96d31ec37bc8a6751b0e280637",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
  "original_reference": {
@@ -579,8 +579,8 @@
   "tools/newgame_make_manifest.py": "6ab600af3ce5636382bd6e18fe7fdb3e59a1e2a98c8e978de6c8282f19dc9881",
   "tools/newgame_route_compare.py": "de7c671bb3294d2fd02432639fe86af193244a7799875d2e934c07e028e1baf3",
   "tools/newgame_route_regression.sh": "ee7be9cdbfb0e256bc89b40a90bcdea7e4d4f077a041308063f991dc436b51a8",
-  "tools/newgame_validation_run.sh": "dcb52710c85ab9d3331dd4888a130032a93ced19136278280517be14ddfcfd16",
-  "tools/newgame_validation_manifest.py": "50022e14a8bd9400f7ef98a2bcd1d65401b0efbb8d877a641016dabb54eec2c5",
+  "tools/newgame_validation_run.sh": "0eaa559f50f6a82ca446ee1727d5893e3e8afaabe3c2da83ed37929335f20f1a",
+  "tools/newgame_validation_manifest.py": "d523d79fa9c2c07dbc82ee18c057ce83aa02cb11e3b856eaab4cf1eb5956039c",
   "tools/restore_validation_manifest.py": "15af13866e6a50da66ea177eb800852698ab2c3370f878c2b38ccf9fcce96fe7",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tests/startup_textures_tests.cpp": "9b9f857f2a94909a6fb6191b5c49eac4bc0058c64b784cb901435da2079b14b7",
@@ -1979,6 +1979,511 @@
    "path": "local/research/newgame-no-route-v2/sanitize-dense/report/name-frames.jsonl",
    "sha256": "780f22fdf0100fdce57fb5a054f9c31da9d638ef37118a5aec29b1816e126d9a",
    "bytes": 10352
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/build-debug.log",
+   "sha256": "ebd1be2eec50a7a5403ade456a97b791bb8fdc42d5f4ba5929a9d3e4242c655d",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/build-release.log",
+   "sha256": "f5c0e87783fb5f37a665eaafc014c66a5813051580b237fe04d8a8807a7f3491",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/build-sanitize.log",
+   "sha256": "55c09dfb6eb71e5a3c6f150acc64c133c78aeed2d9978b7ddfe439716383f984",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/ctest-debug-all.out",
+   "sha256": "deaf4e1e8deb288792c0d67283f2a9f90d2adf0e5fe9c2854d7b4fafe9534658",
+   "bytes": 13179
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/ctest-release-all.out",
+   "sha256": "c1d56c2eb522462705580151000ca3f7a38ca0f3b5850d918d98b8e5386ec9fb",
+   "bytes": 13183
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/ctest-sanitize-all.out",
+   "sha256": "a62067bddaedab4ce0055c349db0d524f58aeaa396bd94491cf72e746ccc052f",
+   "bytes": 14835
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/isolated-pending-asan-1.out",
+   "sha256": "0b8cc6415b6a35fc861f5cf41d5d198c95b2cc78b2009468738024ffb464b8e5",
+   "bytes": 100
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/isolated-pending-asan-2.out",
+   "sha256": "bfc00344e8b925735e8a5783a34d3ba8e2bf314f8487f38ab3723cdcd5f54f43",
+   "bytes": 697
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/isolated-pending.txt",
+   "sha256": "ac04f524078213da772a7069d5a9110ccd7ca3af19416c57d5bb70072f384aec",
+   "bytes": 44
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/python-suite.out",
+   "sha256": "9d7a7497cffe1d7a8e66e2da4f2626b8f7de2dce441947c9712669ac7516c0be",
+   "bytes": 5880
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/source-head.txt",
+   "sha256": "071528c3f055afd7a9e02c9427e11ac667b422afa6c751c755c1c4878adfb81a",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/status.txt",
+   "sha256": "de6baa7259e026099d2b05daeac6444cc95cb75de1ea2f4e6f669eb726c85635",
+   "bytes": 143
+  },
+  {
+   "path": "local/research/newgame-final-suites-v1/tree-status.txt",
+   "sha256": "451aec00aac967e7963a58ade45b0a2a72079d6f693711d8084dfac311cd7064",
+   "bytes": 22
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/build-debug.log",
+   "sha256": "c6e0580bbebf5a3328815c2b118176faed2492aed9f7c38f6e4e4a667eb732f2",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/build-release.log",
+   "sha256": "f26996e6dcff3f86bea84ec1cffd5840755271f7b79f0c7295b06e7a7dc69425",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/build-sanitize.log",
+   "sha256": "4dcdacc9b918c5da75e055f644ba8ddfb37e4436274087e8f301f3feb1d5db3e",
+   "bytes": 5249
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/ctest-debug-all.out",
+   "sha256": "1269d052bd4ae30c7c4e8a2437a8025d24c053ef22ebc5ef5755240b24460b94",
+   "bytes": 13179
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/ctest-release-all.out",
+   "sha256": "08b9f3f36bc422a9579c4cd79bef69cd2eff86441c311fbf88e3bc71e2272ace",
+   "bytes": 13183
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/ctest-sanitize-all.out",
+   "sha256": "883c2e13b4932fca9d8ef380a75b4c29a49f1e574b1a52683a162823a5b47e2c",
+   "bytes": 13185
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/python-suite.out",
+   "sha256": "862e1c11c43d2863536fedc49204341dc2a59a5bb3036654b16d5fec2fe76d07",
+   "bytes": 5880
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/source-head.txt",
+   "sha256": "6969691d3a221bd2fbb06fd500db0151dbeaf47a14c30b786ea81e4332b88f21",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-final-suites-v2/status.txt",
+   "sha256": "e52b9b75fdfa9a088a78010e408b5ba9b8c124455defa4421bec14c66a39d566",
+   "bytes": 143
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/diff-stat.txt",
+   "sha256": "f9a76f6c4019ea80393bd4c6184f5a4dd012be1bb110dcee0432e92e62cf6986",
+   "bytes": 397
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/run-1-sanitize.out",
+   "sha256": "92024b09e267a690b94a14a45e5d4ec126be55fcca66fa7a032c639f34df495f",
+   "bytes": 100
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/run-2-sanitize.out",
+   "sha256": "e08d0bcee07a6dce9b59b6e4051943b3cfcc851ffb483c951b79f16bdd34d228",
+   "bytes": 100
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/run-3-sanitize.out",
+   "sha256": "c37a21d0a7dc1869f1ed3f5920acf7cf2c9d4cbc6a23e5835dfcf26730025d2c",
+   "bytes": 100
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/run-4-release.out",
+   "sha256": "90b39a7f578b00b6f82d5448c1635e98f16ab94971c30aacd0fe22118f712cb7",
+   "bytes": 99
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/run-5-debug.out",
+   "sha256": "3afc084b0f04a46b8d9c133da00050996192eb5f02e8032b466cdfd0cd903587",
+   "bytes": 100
+  },
+  {
+   "path": "local/research/newgame-pending-fix-v1/summary.txt",
+   "sha256": "09752da8fe2708cf501f656f24925c65eadf58a35e683cacbc109ec6ffa24189",
+   "bytes": 106
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/binaries.sha256",
+   "sha256": "35eede30ab6de1c2d26eb689e87e13f21d2746c60c65b562d12187bb95e65841",
+   "bytes": 259
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/compare.json",
+   "sha256": "d7bdada688b020315e662cabcb42dfee131e943fb8613792b215012d701c8418",
+   "bytes": 1314
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/compare.txt",
+   "sha256": "d7bdada688b020315e662cabcb42dfee131e943fb8613792b215012d701c8418",
+   "bytes": 1314
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/reads-check.txt",
+   "sha256": "0fa43d8f466f118d6787452c2529329857dbf0c5a3c1f3dd3b89028e3d6a160e",
+   "bytes": 22252
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/reads.jsonl",
+   "sha256": "97de11224f0c16253326166914479ccf69af19c36601d93a5344114a42e1d8e0",
+   "bytes": 50664
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-control/stdout.txt",
+   "sha256": "a0d0f02104d466f8f42c07f0893d4175205b83cfd1f33ad10f9cdde7f84bf154",
+   "bytes": 831
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/compare.json",
+   "sha256": "caaf2b446b740316cd64b93404163263cedd2d0ab1bc3c6704e35db3fd3854ad",
+   "bytes": 13736
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/compare.txt",
+   "sha256": "bff3a84b50b950cda0b27a88db19699c1857223011dc81402753d40d6b2032d7",
+   "bytes": 18052
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/reads-check.txt",
+   "sha256": "bf3019a59ac892dab226a3bcd01995407f334a6e05fbaf0072915cf0f77a867c",
+   "bytes": 21972
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/reads.jsonl",
+   "sha256": "c65688eb672b54d01d827144fe6b9cf595fbd1e6be3266e37986faf164ad9fc9",
+   "bytes": 49789
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-no-dense/stdout.txt",
+   "sha256": "db97b310bbc0a2fefd28d586b77ef4f25cab3d3511c9c3d6edd03490f68bc2a1",
+   "bytes": 831
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/compare.json",
+   "sha256": "c72a543ed76bd4ed2dfc003ab15bd5143cedf799d7e8dbf8c338e9de02302dc2",
+   "bytes": 13032
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/compare.txt",
+   "sha256": "a6679179416f8cebf5031302dc6b756a98c09fbc4742a69cdd75234b693b5e7e",
+   "bytes": 17776
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/reads-check.txt",
+   "sha256": "0fa43d8f466f118d6787452c2529329857dbf0c5a3c1f3dd3b89028e3d6a160e",
+   "bytes": 22252
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/reads.jsonl",
+   "sha256": "97de11224f0c16253326166914479ccf69af19c36601d93a5344114a42e1d8e0",
+   "bytes": 50664
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/release-yes/stdout.txt",
+   "sha256": "c98ced65a967ff99f610525c210754db79d6234e2b7d6ded41df5d91cb7e68fd",
+   "bytes": 831
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/compare.json",
+   "sha256": "043da7f4239059b5eff8f1a94bf1c80e5d3bf0e2b73fd7059c1eab42406be000",
+   "bytes": 1315
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/compare.txt",
+   "sha256": "043da7f4239059b5eff8f1a94bf1c80e5d3bf0e2b73fd7059c1eab42406be000",
+   "bytes": 1315
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/reads-check.txt",
+   "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+   "bytes": 39425
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/reads.jsonl",
+   "sha256": "c941d493da72e3dddf2e9bbc93d1d421a9b1ee9212c74c8e214f174c5330f0a2",
+   "bytes": 87855
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-control/stdout.txt",
+   "sha256": "c10ab9a28b890f16ba6c8e159cc0d9f8584dca72d6b39ffaca8d6233763041c9",
+   "bytes": 830
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/compare.json",
+   "sha256": "8a8d8763fc0ece468b023a097b96a10b4bbb55f59f414946628de6eb69b0cb12",
+   "bytes": 13736
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/compare.txt",
+   "sha256": "67f919e3b0fd761af36b9d8792f79f6f293225f84229dc7007eaca5f08150b9e",
+   "bytes": 18052
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/reads-check.txt",
+   "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+   "bytes": 39425
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/reads.jsonl",
+   "sha256": "c941d493da72e3dddf2e9bbc93d1d421a9b1ee9212c74c8e214f174c5330f0a2",
+   "bytes": 87855
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-no-dense/stdout.txt",
+   "sha256": "215a456cf3afeee4c8319a82cdddec81d120075863341fafea02eed19f9bb669",
+   "bytes": 830
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/compare.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/compare.json",
+   "sha256": "e759067395f12c2640589a10ff3e789034827b226c574723740de09e26c7b66e",
+   "bytes": 13044
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/compare.txt",
+   "sha256": "cef98044ff4979271e3958c47d59de83889c392a4dd2c5330c5fbe651d6150a1",
+   "bytes": 17776
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/exit.txt",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/reads-check.exit",
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+   "bytes": 2
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/reads-check.txt",
+   "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+   "bytes": 39425
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/reads.jsonl",
+   "sha256": "c941d493da72e3dddf2e9bbc93d1d421a9b1ee9212c74c8e214f174c5330f0a2",
+   "bytes": 87855
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/saves-after.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/sanitize-yes/stdout.txt",
+   "sha256": "facfb4e1ab0d0ec91ba56e900da0b334491ad58f40889b631b32ba018d6564e8",
+   "bytes": 830
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/source-head.txt",
+   "sha256": "6969691d3a221bd2fbb06fd500db0151dbeaf47a14c30b786ea81e4332b88f21",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-postfix-sessions-v1/summary.txt",
+   "sha256": "23f47eb55a3198c4637fb8b852731018196f6e79ba07f4d4c0e53928db78e97d",
+   "bytes": 243
+  },
+  {
+   "path": "local/research/newgame-gates-v3/gates.json",
+   "sha256": "5de08968c89ccef0a7e44ebbec14cff654901a321ff9f1aea9b49edef560b502",
+   "bytes": 22019
+  },
+  {
+   "path": "local/research/newgame-gates-v3/gates.txt",
+   "sha256": "fbf50b369b6a1fb05aee74562a9990118d8a6c055ba087a97cfcc417c91e1ead",
+   "bytes": 9147
+  },
+  {
+   "path": "local/research/newgame-gates-v3/source-head.txt",
+   "sha256": "6969691d3a221bd2fbb06fd500db0151dbeaf47a14c30b786ea81e4332b88f21",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-gates-v3/tree-status.txt",
+   "sha256": "8fd7bf90c22f7eecc952ac0356c0a7924c58b6b67f2330af479c354d6c5b57bd",
+   "bytes": 105
+  },
+  {
+   "path": "local/research/newgame-gates-v4/gates.json",
+   "sha256": "5de08968c89ccef0a7e44ebbec14cff654901a321ff9f1aea9b49edef560b502",
+   "bytes": 22019
+  },
+  {
+   "path": "local/research/newgame-gates-v4/gates.txt",
+   "sha256": "fbf50b369b6a1fb05aee74562a9990118d8a6c055ba087a97cfcc417c91e1ead",
+   "bytes": 9147
+  },
+  {
+   "path": "local/research/newgame-gates-v4/source-head.txt",
+   "sha256": "e6be89d91b5c132cc1d3192b6bb402feb72d36a5f510d8ef1a3f4dd8f77d36fc",
+   "bytes": 41
+  },
+  {
+   "path": "local/research/newgame-gates-v4/tree-status.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "path": "local/research/newgame-report-binding-v1/native-reports.sha256",
+   "sha256": "0f6e2101dcc5b942aa5cc2034f3815fb5044868a735d1e3c555beed3bae0da78",
+   "bytes": 295894
+  },
+  {
+   "path": "local/research/newgame-report-binding-v1/postfix-reports.sha256",
+   "sha256": "4c84977110513f47f42eb3e24d3110d664f503671f1b74a9e0e66bf777a39f6b",
+   "bytes": 158400
+  },
+  {
+   "path": "local/research/newgame-review-v1.sha256",
+   "sha256": "4122c659a05f852dcea03d2e252a07294b73e3022524b05d4ef435efec45178d",
+   "bytes": 512266
+  },
+  {
+   "path": "local/research/newgame-review-v1/review.md",
+   "sha256": "43eb985d1caa43207057b838839c8bf98adfa4af3f11625a27763c643cc1c754",
+   "bytes": 3150
+  },
+  {
+   "path": "local/research/newgame-gate-audit-v1.sha256",
+   "sha256": "3a77991602f911cbfa1945fc5fedc25570750cd1fb4a1c123f9de87be46ae9b3",
+   "bytes": 2236
+  },
+  {
+   "path": "local/research/newgame-gate-audit-v1/README.md",
+   "sha256": "b1262b5f980e024c0ce5ae72ad723ebce70e1494359513268660255b765c41e0",
+   "bytes": 914
+  },
+  {
+   "path": "local/research/newgame-gate-audit-v1/my-gates.txt",
+   "sha256": "d09adc7124acd3318a8ffadbd5b4f95f2b95d7e8fc7a8ad1b4169a4ef83b6675",
+   "bytes": 1834
   }
  ],
  "commands": {
