@@ -9,11 +9,13 @@ pass runs whose inputs differ from the reference (exit 3, ANCHORS-DIFFER). Exit 
 comparator-behaviour check holds.
 """
 import json
+import os
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path.cwd()
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 V = 'local/research/newgame-validation-v1'
 F = f'{V}/final'
 NO = 'local/research/newgame-no-route-v2'
@@ -26,6 +28,9 @@ def last_result(path, prefix):
     return lines[-1] if lines else None
 
 GATES, BEHAVIOUR, HYGIENE = [], [], []
+PINNED_COUNTS = {'local/research/newgame-report-binding-v1/native-reports.sha256': 1804,
+                 'local/research/newgame-report-binding-v1/postfix-reports.sha256': 984,
+                 'local/research/newgame-review-v1.sha256': 4240, 'local/research/newgame-gate-audit-v1.sha256': 24}
 YES_REF = 'local/research/newgame-original-v1/analysis/reference.json'
 NO_REF = 'local/research/newgame-no-original-v1/analysis/reference.json'
 SUITES = 'local/research/newgame-final-suites-v2'
@@ -64,8 +69,8 @@ def aligned_old_new(rel, tool):
 def gate(name, kind, path, expected, read=val, into=None):
     try:
         got = read(path)
-    except OSError as exc:
-        got = f'missing: {exc}'
+    except Exception as exc:
+        got = f'unreadable: {type(exc).__name__}: {exc}'
     (GATES if into is None else into).append({'gate': name, 'kind': kind, 'evidence': path, 'expected': expected,
                                               'got': got, 'pass': got == expected})
 
@@ -111,8 +116,9 @@ def main(argv):
                             and jload(p)['control_minimal']['failures'] == []))
     gate('Yes reference: every RNG draw hooked (chain-checked), 11,848 draws', 'reference', YES_REF, 'True',
          read=lambda p: str(jload(p)['rng']['provenance'].startswith('every draw is a hooked') and jload(p)['rng']['total_draws'] == 11848))
-    gate('No reference: deterministic and Retire-neutral; only problems are control press timing', 'reference', NO_REF, 'True',
-         read=lambda p: str(jload(p)['retire_neutrality']['failures'] == [] and all(x.startswith('control:') for x in jload(p)['problems'])))
+    import newgame_compare as cmpmod
+    gate('No reference: deterministic and Retire-neutral; only problems are control press timing (comparator rule)', 'reference',
+         NO_REF, 'True', read=lambda p: str(cmpmod.control_timing_only(jload(p))))
     gate('No-variant oracle leaves the default mode byte-identical', 'reference',
          'local/research/newgame-no-original-v1/neutrality-vs-final-reference.txt', 'True',
          read=lambda p: str(all(l.endswith('identical') for l in val(p).splitlines()) and len(val(p).splitlines()) == 6))
@@ -146,10 +152,13 @@ def main(argv):
     def newgame_ok(p):
         al = aligned_old_new(p, 'newgame')
         return str(bool(al) and all(set(v['differs']) <= {'chapter-state.bin', 'game-mode.bin'}
-                                    and v['differs'].get('game-mode.bin') in (None, [5]) and v['audio'] is None and v['png']
+                                    and ('game-mode.bin' not in v['differs'] or v['differs']['game-mode.bin'] == [5])
+                                    and v['audio'] is None and v['png']
                                     for v in al.values()))
     gate('old/new New Game raw-frame tape: aligned pairs differ only in the counter and current[2]', 'regression',
          f'{F}/regression-newgame', 'True', read=newgame_ok)
+    gate('old/new aligned-pair counts (New Game, Restore) as retained', 'regression', f'{F}', '[2, 5]',
+         read=lambda p: str([len(aligned_old_new(f'{p}/regression-newgame', 'newgame')), len(aligned_old_new(f'{p}/regression-restore-cancel', 'retire'))]))
     gate('old/new New Game: chapter-state difference is word 5 (image counter) only', 'regression',
          f'{F}/regression-newgame', 'True',
          read=lambda p: str(_chapter_word5_only(p)))
@@ -166,8 +175,9 @@ def main(argv):
     for b in ('release', 'debug', 'sanitize'):
         gate(f'CTest {b} (all), after the final change', 'tests', f'{SUITES}/ctest-{b}-all.out', 'True',
              read=lambda p: str(any(l.startswith('100% tests passed, 0 tests failed out of') for l in val(p).splitlines())))
-    gate('full Python suite after the final change', 'tests', f'{SUITES}/python-suite.out', 'True',
-         read=lambda p: str(any(l.startswith('OK') for l in val(p).splitlines()) and not any(l.startswith('FAILED') for l in val(p).splitlines())))
+    gate('full Python suite after the final change (all Newgame comparator tests ran: >= 1,182 tests)', 'tests', f'{SUITES}/python-suite.out', 'True',
+         read=lambda p: str(any(l.startswith('OK') for l in val(p).splitlines()) and not any(l.startswith('FAILED') for l in val(p).splitlines())
+                            and int(next(l for l in val(p).splitlines() if l.startswith('Ran ')).split()[1]) >= 1182))
     # Fix first: the counter defect, against the ORIGINAL's values.
     gate('original: counter constant (792) over every name-entry call, 290 steps all in the chapter', 'fix-first', YES_REF, 'True',
          read=lambda p: str(jload(p)['image_counter']['name_input_values'] == [792] and jload(p)['image_counter']['steps_after_successor'] == 290
@@ -177,7 +187,10 @@ def main(argv):
          read=lambda p: str([json.loads(l)['image_counter_in'] for l in val(p).splitlines()[:2]]))
     gate('defect reproduced: old binary 845, fixed binary 793 after the first chapter call (same inputs, same S)', 'fix-first',
          'local/research/newgame-counter-defect-v2/counter-comparison.txt', 'True',
-         read=lambda p: str('"image_counter_after_first_tick": 845' in val(p) and '"image_counter_after_first_tick": 793' in val(p)))
+         read=lambda p: str((lambda r: r['old']['first']['image_counter_after_first_tick'] == 845
+                                       and r['new']['first']['image_counter_after_first_tick'] == 793
+                                       and r['old']['first']['frame'] == r['new']['first']['frame'])(
+                               json.loads(val(p)[:val(p).index('\noriginal')]))))
     gate('fixed native: counter constant over name entry, +290 over the chapter (scripted session)', 'fix-first',
          f'{F}/sessions/release-scripted/report', 'True',
          read=lambda p: str(len({jload(f'{p}/{c}/session.json')['image_counter'] for c in ('name-constructor-return', 'name-death',
@@ -196,17 +209,17 @@ def main(argv):
                           ('local/research/newgame-report-binding-v1/postfix-reports.sha256', '.'),
                           ('local/research/newgame-review-v1.sha256', 'local/research/newgame-review-v1'),
                           ('local/research/newgame-gate-audit-v1.sha256', 'local/research/newgame-gate-audit-v1')):
-        n = len(val(listing).splitlines())
+        n = PINNED_COUNTS[listing]
         gate(f'hash binding verifies: {listing}', 'binding', listing, f'{n}/{n}', read=lambda p, b=base: sha_check(p, b))
     for m in ('docs/newgame-validation.json',):
         gate(f'{m}: every evidence hash verifies', 'binding', m, 'True',
-             read=lambda p: str(all(__import__('hashlib').sha256((ROOT / e['path']).read_bytes()).hexdigest() == e['sha256']
-                                    for e in jload(p)['evidence'])))
+             read=lambda p: str(len(jload(p)['evidence']) >= 377 and all(
+                 __import__('hashlib').sha256((ROOT / e['path']).read_bytes()).hexdigest() == e['sha256'] for e in jload(p)['evidence'])))
     for m, ev in (('docs/newgame-original-manifest.json', 'local/research/newgame-original-v1'),
                   ('docs/newgame-no-original-manifest.json', 'local/research/newgame-no-original-v1')):
         gate(f'{m}: every pinned output verifies', 'binding', m, 'True',
-             read=lambda p, e=ev: str(all(__import__('hashlib').sha256((ROOT / e / k).read_bytes()).hexdigest() == v['sha256']
-                                          for k, v in jload(p)['outputs'].items())))
+             read=lambda p, e=ev: str(len(jload(p)['outputs']) > 0 and all(
+                 __import__('hashlib').sha256((ROOT / e / k).read_bytes()).hexdigest() == v['sha256'] for k, v in jload(p)['outputs'].items())))
     # Preservation (current time).
     gate('preview PID 63851 alive and untouched', 'preservation', '-', 'True',
          read=lambda _: str(__import__('subprocess').run(['ps', '-p', '63851'], capture_output=True).returncode == 0))

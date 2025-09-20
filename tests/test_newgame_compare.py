@@ -419,6 +419,41 @@ class NewGameControls(unittest.TestCase):
         self._mutate_reference(lambda r: r['rng'].update(provenance='LCG-derived between anchors'))
         self.expect(2, 'not all hooked')
 
+    def _control_timing_ref(self, r, failures, extra=None):
+        r['problems'] = ['control:' + f for f in failures]
+        rows = {}
+        for f in failures:
+            cp, key = (f.split(':') + [''])[:2] if ':' in f else ('', f)
+            if cp:
+                row = rows.setdefault(cp, {'name_input_calls_before_equal': False,
+                                           'resource_state_equal': {'rand_state_214ec8_58': False, 'handles': True}})
+                row.update(extra or {})
+        r['control_minimal'] = {'failures': failures, 'pad_host_equal_modulo_vb': True, 'checkpoints_compared': rows}
+
+    def test_accept_control_timing_accepts_press_timing_only(self):
+        self._mutate_reference(lambda r: self._control_timing_ref(
+            r, ['name-confirmed:name_input_calls_before_equal', 'name-confirmed:rand_state_equal',
+                'name-confirmed:resource_state_equal', 'name_input_sequence_equal']))
+        self.expect(2, 'reference.json reports problems')  # refused without the flag
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = cmp.main([str(self.f.orig), str(self.f.nat), '--manifest', str(self.f.manifest), '--accept-control-timing'])
+        self.assertEqual(code, 0, buf.getvalue())
+        self.assertIn('minimal-hook control consumed', buf.getvalue())
+
+    def test_accept_control_timing_refuses_non_timing_failures(self):
+        for failures, extra in ((['name-confirmed:session_state_equal'], None),
+                                (['final_vram_equal'], None),
+                                (['name-confirmed:resource_state_equal'],
+                                 {'name_input_calls_before_equal': False,
+                                  'resource_state_equal': {'rand_state_214ec8_58': True, 'handles': False}}),
+                                (['name-confirmed:rand_state_equal'], {'name_input_calls_before_equal': True})):
+            self._mutate_reference(lambda r: self._control_timing_ref(r, failures, extra))
+            buf = io.StringIO()
+            with redirect_stdout(buf), redirect_stderr(buf):
+                code = cmp.main([str(self.f.orig), str(self.f.nat), '--manifest', str(self.f.manifest), '--accept-control-timing'])
+            self.assertEqual(code, 2, (failures, buf.getvalue()[-500:]))
+
     def test_native_invalidated_mask_required(self):
         (self.f.nat / 'first-layout' / 'vram.invalidated').unlink()
         self.expect(2, 'vram.invalidated missing')

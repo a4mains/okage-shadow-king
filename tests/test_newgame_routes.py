@@ -34,6 +34,9 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 if os.environ.get("OKAGE_REQUIRE_STARTUP_TESTS") and not (NATIVE and STAGE.is_dir()):
     raise RuntimeError("required Newgame route test cannot run: binary or staged root missing")
+# With the requirement set, the original-parity checks must not be silently skipped either.
+if os.environ.get("OKAGE_REQUIRE_STARTUP_TESTS") and not (ORIGINAL.is_dir() and ORIGINAL_NO.is_dir()):
+    raise RuntimeError("required Newgame route test cannot compare: pinned original analyses missing")
 
 def jsonl(path):
     return [json.loads(x) for x in Path(path).read_text().splitlines()]

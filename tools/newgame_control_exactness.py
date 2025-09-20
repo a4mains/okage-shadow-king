@@ -34,10 +34,14 @@ def run(control, native):
         sess = json.loads((nd / 'session.json').read_text())
         dump = (control / 'checkpoints' / cp / 'vram.bin').read_bytes()
         nb, nk = (nd / 'vram.bytes').read_bytes(), (nd / 'vram.known').read_bytes()
+        if not (len(nb) == len(nk) == len(dump) == 1 << 22):
+            raise ValueError(f'{cp}: VRAM files are not 4 MiB each')
+        if meta.get('fill') != 0:
+            raise ValueError('the control must be the fill-00 run (its dump is compared on known nibbles)')
         mism = sum(1 for a in range(len(nk)) if nk[a] and ((nb[a] ^ dump[a]) & ((0x0F if nk[a] & 1 else 0) | (0xF0 if nk[a] & 2 else 0))))
         r = {'rng_state_equal': st['rand_state_via_ptr'] == rng, 'session_equal': ex.session_state(st) == sess,
              'known_bytes': sum(1 for k in nk if k), 'known_nibble_mismatches': mism}
-        r['equal'] = r['rng_state_equal'] and r['session_equal'] and mism == 0
+        r['equal'] = r['rng_state_equal'] and r['session_equal'] and mism == 0 and r['known_bytes'] > 0
         ok &= r['equal']
         out['checkpoints'][cp] = r
     ev = [json.loads(l) for l in (control / 'events.jsonl').read_text().splitlines()]
@@ -62,7 +66,7 @@ def main(argv=None):
         return 2
     try:
         code, r = run(*argv)
-    except (ValueError, OSError, KeyError) as exc:
+    except (ValueError, OSError, KeyError, IndexError) as exc:
         print('malformed:', exc, file=sys.stderr)
         return 2
     print(json.dumps(r, indent=1))

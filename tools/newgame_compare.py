@@ -328,8 +328,27 @@ def refuse_self_compare(orig_dir, nat_dir):
             if os.path.samefile(p, q):
                 raise Malformed(f'refusing self-comparison: native {p.relative_to(n)} is the original {q.relative_to(o)}')
 
-CONTROL_TIMING_KEYS = ('name_input_calls_before_equal', 'rand_state_equal', 'resource_state_equal', 'session_state_equal',
-                       'vram_fill00_equal', 'name_input_sequence_equal', 'final_vram_equal', 'final_session_equal')
+CONTROL_TIMING_KEYS = ('name_input_calls_before_equal', 'rand_state_equal', 'resource_state_equal', 'name_input_sequence_equal')
+
+def control_timing_only(ref):
+    c = ref.get('control_minimal')
+    if ref.get('retire_neutrality', {}).get('failures') != [] or not isinstance(c, dict) or not c.get('failures'):
+        return False
+    if not all(p.startswith('control:') for p in ref['problems']) or not c.get('pad_host_equal_modulo_vb'):
+        return False
+    for f in c['failures']:
+        key = f.split(':')[-1]
+        if key not in CONTROL_TIMING_KEYS:
+            return False
+        if key == 'name_input_sequence_equal':
+            continue
+        cp = f.split(':')[0]
+        row = c.get('checkpoints_compared', {}).get(cp, {})
+        if row.get('name_input_calls_before_equal') is not False:
+            return False
+        if key == 'resource_state_equal' and {k for k, v in row['resource_state_equal'].items() if not v} - {'rand_state_214ec8_58'}:
+            return False
+    return True
 
 def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False, accept_control_timing=False):
     out = out or sys.stdout
@@ -342,10 +361,7 @@ def run(orig_dir, nat_dir, out=None, manifest=MANIFEST, strict=False, accept_con
         raise Malformed('manifest result digest lacks checkpoints/anchors')
     ref = parse_json(read_text(Path(orig_dir) / 'reference.json'), 'reference.json')
     control_timing = False
-    if accept_control_timing and ref.get('retire_neutrality', {}).get('failures') == [] \
-            and isinstance(ref.get('control_minimal'), dict) and ref['control_minimal'].get('failures') \
-            and all(p.startswith('control:') for p in ref.get('problems', [])) \
-            and all(f.split(':')[-1] in CONTROL_TIMING_KEYS for f in ref['control_minimal']['failures']):
+    if accept_control_timing and 'problems' in ref and control_timing_only(ref):
         control_timing = True
     elif ref.get('problems') != [] or ref.get('retire_neutrality', {}).get('failures') != [] \
             or ref.get('control_minimal', {}).get('failures') != []:
