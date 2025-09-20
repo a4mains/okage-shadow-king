@@ -19,16 +19,16 @@
   "cmake_build_type": "Debug",
   "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
   "osx_architectures": "arm64",
-  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk",
-  "cxx_version": "Apple clang version 16.0.0 (clang-1600.0.26.6), target arm64-apple-darwin24.1.0"
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk",
+  "cxx_version": "Apple clang version 17.0.0 (clang-1700.3.19.1), target arm64-apple-darwin25.0.0"
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "e5222b71a4b6ef5cd48fa4ec055c83a1baf063c3ace2adce6532ce192a14721d",
-  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/startup.cpp": "6c365b50a436678c2062777945ab642767f15e33ff0dc4e9156dc640a0938608",
+  "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/startup_capture.sh": "94792d8193bfafa3132c7d2a8114a64d337c0d6af753e72989bca7bd058f993e",
   "tools/startup_original_report.py": "725c16e76472547c522fd72f0ad3ae6f517b4fe293d322fca118138b1dd5239c",
-  "tools/startup_make_manifest.py": "4a93b26be682fca5493a0addaacec7d49b1c9096c76dce0856b72b1f4cd9ce6b",
+  "tools/startup_make_manifest.py": "9469ee1075b4e4adf09b1c28ecc63a4ce58d654984c0b7b619c8dfe29c9c2989",
   "tests/test_startup_original.py": "6bf7636c994e64fc0b4cdddaa7545274ffd203a5e31116ca6a329ade29503f04"
  },
  "inputs": {
