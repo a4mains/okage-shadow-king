@@ -149,7 +149,7 @@ def main(sub, out):
                                 for k in ('exit', 'reads-check', 'dense-compare', 'control-exactness')}
             no_route[d.name]['dense_result'] = json.loads(text(f'{rel}/dense-compare.json'))['result']
     for d in ('local/research/newgame-final-suites-v1', 'local/research/newgame-final-suites-v2', 'local/research/newgame-pending-fix-v1',
-              'local/research/newgame-postfix-sessions-v1', 'local/research/newgame-gates-v3', 'local/research/newgame-gates-v4', 'local/research/newgame-report-binding-v1'):
+              'local/research/newgame-postfix-sessions-v1', 'local/research/newgame-gates-v3', 'local/research/newgame-gates-v4', 'local/research/newgame-gates-v5', 'local/research/newgame-final-suites-v3', 'local/research/newgame-post4b44f27-review-v1', 'local/research/newgame-completion-reaudit-v1', 'local/research/newgame-postfix-binaries-v1', 'local/research/newgame-report-binding-v1'):
         if (ROOT / d).exists():
             evidence += [str(p.relative_to(ROOT)) for p in sorted((ROOT / d).rglob('*'))
                          if p.is_file() and ('/report/' not in str(p) and '/saves/' not in str(p)

@@ -33,7 +33,7 @@ PINNED_COUNTS = {'local/research/newgame-report-binding-v1/native-reports.sha256
                  'local/research/newgame-review-v1.sha256': 4240, 'local/research/newgame-gate-audit-v1.sha256': 24}
 YES_REF = 'local/research/newgame-original-v1/analysis/reference.json'
 NO_REF = 'local/research/newgame-no-original-v1/analysis/reference.json'
-SUITES = 'local/research/newgame-final-suites-v2'
+SUITES = 'local/research/newgame-final-suites-v3'
 POST = 'local/research/newgame-postfix-sessions-v1'
 
 def jload(p):
