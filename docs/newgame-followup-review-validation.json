@@ -1,0 +1,1312 @@
+{
+  "schema": "okage.newgame.followup-review.v1",
+  "reviewed_head": "74ec81e",
+  "implementation_changes": false,
+  "date": "2025-09-27",
+  "result": "Newgame accepted only within documented boundary; fixes-first Field planned",
+  "integration_resolution": "Primary integration complies with the review rules. No redo required.",
+  "rerun": {
+    "retained_gates": "77/77 pass;4/4 behavior controls",
+    "manifest_hashes": {
+      "evidence": 439,
+      "original_manifest_pins": 2,
+      "tracked_sources": 43,
+      "mismatches": 0
+    },
+    "ctest_release": "15/15 pass",
+    "ctest_asan_ubsan": "15/15 pass",
+    "python": "75 discovered;71 executed;4 real-binary tests skipped;OK",
+    "fresh_release": "1400 frames, exit0;strict IDENTICAL16 checkpoints,50 name rows,290 chapter rows;provenance0;empty isolated saves"
+  },
+  "not_rerun": [
+    "full111-test suites in Release/Debug/ASan",
+    "full1187-test Python suite",
+    "original VM captures",
+    "fresh sanitizer Session"
+  ],
+  "limitations": [
+    "Existing builds reused; no rebuild. Current sanitizer executable differs from pinned post-fix ASan bundle.",
+    "Fresh review original reference remains Play/null renderer; no original image/audio parity.",
+    "Newgame native event provenance includes model-supplied fields and intracallback ordering.",
+    "Timing helper defect is a direct helper repro, not a false pass of the actual pinned No route."
+  ],
+  "next_scope": "Field common ordinary-field prefix: second133830command0 through post131e7c/pre131e80; first fix timing witness and metadata.",
+  "prompt_characters_including_prefix_newline": 3942,
+  "audited_sources": [
+    {
+      "path": "tools/newgame_gates.py",
+      "sha256": "681895ad5e9f90cf9d2638c5e54e3ed1361e3e04879851ea500eb52e64744ac6",
+      "bytes": 17826
+    },
+    {
+      "path": "tools/newgame_compare.py",
+      "sha256": "d9996824911dd5f736709f1623566312364cc1e252ede0a11c577681b58ab20f",
+      "bytes": 29569
+    },
+    {
+      "path": "tools/newgame_control_exactness.py",
+      "sha256": "2d08884209f6fb2de89127fa9cc30d612435d40ac5c6fb29f5f61123125ebed9",
+      "bytes": 4364
+    },
+    {
+      "path": "tools/newgame_validation_manifest.py",
+      "sha256": "64e9e856351dcc8e3bc37a7e6ebbbcd806146c099674157e2bccce303f717a60",
+      "bytes": 13961
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "sha256": "16b1c3d5f027bfe5081758990b390c32616e6cdd97c53afd8137c7e4ed758102",
+      "bytes": 240547
+    },
+    {
+      "path": "src/startup_textures.cpp",
+      "sha256": "8338a7d7fcccc1b9b62c1ecceee43e2bc35ed01a1b2655848ca4d6ba6b19f767",
+      "bytes": 58168
+    },
+    {
+      "path": "src/texture_transfer.cpp",
+      "sha256": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f",
+      "bytes": 10830
+    },
+    {
+      "path": "src/texture_handles.cpp",
+      "sha256": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
+      "bytes": 19647
+    },
+    {
+      "path": "src/game_mode.cpp",
+      "sha256": "07100537d7541b01d59c1a040e1c7b65cbd18639fecfc6286fc617dd8e5bd938",
+      "bytes": 1497
+    },
+    {
+      "path": "docs/newgame-validation.json",
+      "sha256": "53a3e0b1041412060247572a4cd0eac29c639706b92da10cc94cfac1503f5305",
+      "bytes": 107197
+    }
+  ],
+  "source_leads": [
+    {
+      "path": "local/research/00133830.asm",
+      "sha256": "765a55fd4395766cb7f13cdb256c8f95bc2eb84e3db25972c75981e5336dd275",
+      "bytes": 3015
+    },
+    {
+      "path": "local/research/00132688.asm",
+      "sha256": "f65a1cc58b3d73a18b5daf20122a5bc85c41119168b312979f19a78052b74162",
+      "bytes": 487
+    },
+    {
+      "path": "local/research/00131d28.asm",
+      "sha256": "f0bbc569f005d60c8997be130d28021f07d1807828685d35273a814f95ddbebe",
+      "bytes": 14190
+    },
+    {
+      "path": "local/research/00131cd0.asm",
+      "sha256": "378d5460562cc097099968e7e8b958d468dfe21fa9a07596c8640994da7ef066",
+      "bytes": 508
+    },
+    {
+      "path": "local/research/00100c60.asm",
+      "sha256": "e364847f1f95cf41c2b6d7cca16ad0de985dfc5e32b398300560d8221675d83b",
+      "bytes": 785
+    }
+  ],
+  "used_binaries": [
+    {
+      "path": "build/newgame-release/okage-native.app/Contents/MacOS/okage-native",
+      "sha256": "2ea2256f0d411831d5949e4f613a3bea7e2040ab8ab9ce1bd7945344cd3d5f0d",
+      "bytes": 3604976
+    },
+    {
+      "path": "build/newgame-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "sha256": "0d9edbe20626cfe69b039dc2f2ee65d9e89b09b6362cc4f62c4b39d20ff817e6",
+      "bytes": 38116128
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "tools/newgame_gates.py",
+        "--json",
+        "local/research/newgame-followup-review-v1/gates.json"
+      ],
+      "exit": 0,
+      "note": "Run before tracked review edits, clean tree27f84bc."
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/newgame-release",
+        "--output-on-failure",
+        "-R",
+        "^(texture-(memory|transfer|format|psm1|snapshot|handles)|startup(-textures|-inputs)?|game-mode|name-entry|chapter(-session)?|load-queue|xim-raw)-tests$"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/newgame-sanitize",
+        "--output-on-failure",
+        "-R",
+        "^(texture-(memory|transfer|format|psm1|snapshot|handles)|startup(-textures|-inputs)?|game-mode|name-entry|chapter(-session)?|load-queue|xim-raw)-tests$"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_newgame*.py",
+        "-v"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "session",
+      "command": [
+        "build/newgame-release/okage-native.app/Contents/MacOS/okage-native",
+        "--game-data",
+        "local/game-data-stage-v13",
+        "--save-directory",
+        "local/research/newgame-followup-review-v1/fresh-release/saves",
+        "--title-pad-script",
+        "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+        "--name-pad-script",
+        "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+        "--input-log",
+        "local/research/newgame-followup-review-v1/fresh-release/reads.jsonl",
+        "--newgame-report",
+        "local/research/newgame-followup-review-v1/fresh-release/report",
+        "--frames",
+        "1400",
+        "--capture",
+        "local/research/newgame-followup-review-v1/fresh-release/f.png"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "compare",
+      "command": [
+        "python3",
+        "-I",
+        "tools/newgame_compare.py",
+        "local/research/newgame-original-v1/analysis",
+        "local/research/newgame-followup-review-v1/fresh-release/report",
+        "--strict",
+        "--json",
+        "local/research/newgame-followup-review-v1/fresh-release/compare.json"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "provenance",
+      "command": [
+        "python3",
+        "tools/retire_input_provenance.py",
+        "check-reads",
+        "local/game-data-stage-v13",
+        "local/research/newgame-followup-review-v1/fresh-release/reads.jsonl",
+        "--manifest-sha256",
+        "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+        "--strict-stage",
+        "--out",
+        "local/research/newgame-followup-review-v1/fresh-release/reads-check.json"
+      ],
+      "exit": 0
+    }
+  ],
+  "runs": [
+    {
+      "run": "mode_observer",
+      "scope": "Read-only runtime/lifetime/RNG review of1613ef1..74ec81e",
+      "finding": "No concrete regression found. Effect reclaim observer is valid for this bounded first-name-traversal route, not a general per-traversal observer."
+    },
+    {
+      "run": "chapter_asset_import",
+      "scope": "Read-only evidence/comparator/backend audit and handoff review",
+      "finding": "Unwitnessed whole-sequence timing exception reproduced. Real No reference has witnesses. Manifest field-provenance and initial/post-fix binary-source wording need correction. NDEBUG and full external Play-tree provenance remain disclosed limits."
+    },
+    {
+      "run": "field_shadow_roster",
+      "scope": "Read-only next-boundary/source audit and handoff review",
+      "finding": "Use post131e7c/pre131e80 common field prefix. Distinct atlas manager+60 and environment resource+48. CLUT allocation-class selection is not reserved-handle queue. Availability does not mean loader completion. No material draft scope or acceptance defect."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "local/research/newgame-followup-review-v1/commands.json",
+      "sha256": "54322f1287d3fd4b477f43587be51c06d6416400661418f7b61ed7811a19b4e6",
+      "bytes": 2672
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/control-timing-witness-repro.json",
+      "sha256": "b15e554d17fdedbade1b24ca66d7aa777e583f4d08692be9aa6e4477e196c96b",
+      "bytes": 468
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/commands.json",
+      "sha256": "383c5e395929c9cf84c45500732742c7726d0aedf24de48093873551f2476056",
+      "bytes": 1623
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/compare.json",
+      "sha256": "6a236b08711e5020e0d798c1f2e84cbd407074240f2c15d7871f13e585c40941",
+      "bytes": 13032
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/compare.log",
+      "sha256": "0e4ab2fd732d4eeb1b5e7c6c488317f4b6a935b327a4aa80db7a0d3f4fd2e080",
+      "bytes": 17776
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png",
+      "sha256": "6a3988ce27f723ca6f6316ee876d6592aea8ad51647fee8eeade7c1691550bc5",
+      "bytes": 6031
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.actors-state.json",
+      "sha256": "13b2e4210231bcbd406d2a5ba501384cd073b88459ad138ca73ca4e5b023d49f",
+      "bytes": 460
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.audio.json",
+      "sha256": "7a79053b463eac04595b40f37472049304abfd46274283d11a1de95dd7d7816a",
+      "bytes": 162
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.audio.pcm",
+      "sha256": "ee18848d559a8b24d0b1d7affc2851b35a94cac5f970f2e92809f898fb2cf133",
+      "bytes": 4480000
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.battle-capture.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.battle-loading.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.battle-transition.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.chapter-state.bin",
+      "sha256": "4dd7e4cd7360fbb08ab0401dffbe39a621c3b39bda8b3d48ca7063eb0437bd4a",
+      "bytes": 6960
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.choices.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.dialogue.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.effect-submissions.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.effects.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.game-mode.bin",
+      "sha256": "26325f78f4b8fd6f091472b14ece935eef979f1e7610bc6d421ba070739048c9",
+      "bytes": 171900
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.json",
+      "sha256": "952dfb62367cd7700d0bc51d8f6eea8bd6202355a11a2883f74a1c7747e16018",
+      "bytes": 1062
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.map-effects.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.music.bin",
+      "sha256": "be0b1f1552b1c569c4f2f2256db8ba96578411e73095d909a98591ebeda258ef",
+      "bytes": 28000
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.name-entry-state.bin",
+      "sha256": "854ff072a0e6d516f2ee2f8fb9c218ee6761b5b5d125161baa8f607a57ffae96",
+      "bytes": 193400
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.ordinary-load.bin",
+      "sha256": "8ebadcb4f5005223c7fe8f6c9f556b8ab4aabc718dde64fcbfd45aea5fc50eb3",
+      "bytes": 9072
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.restore-state.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.results.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.retiring-effects.bin",
+      "sha256": "70322dd2fbd3aa554b93e9056a09d07a07424c0ded1f90533431d1ea27f887c6",
+      "bytes": 39216
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.save-state.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.screen-filter.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.sound.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.startup.bin",
+      "sha256": "52bc52c4e25270dde4eed55d8c4c9869d50da9c7b4c0fa60586c855e66ce7526",
+      "bytes": 29040
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.title-state.bin",
+      "sha256": "bd8638ec6d6afc32fe5a2c723fae44eb3110c2399444baa97de84e7fea2ed23d",
+      "bytes": 33024
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.transition.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.ui-party.bin",
+      "sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597",
+      "bytes": 288
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/f.png.variables.bin",
+      "sha256": "db92eb2b4e3e72672c1541d7bf97c84cf8c5f7ebfc746e6afb388fd5cae595d0",
+      "bytes": 4096
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/provenance.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/reads-check.json",
+      "sha256": "3c003c35b6e2af83ef7ea025ee5a062482cd78560861ef64cad47fbaccbac23e",
+      "bytes": 39425
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/reads.jsonl",
+      "sha256": "c941d493da72e3dddf2e9bbc93d1d421a9b1ee9212c74c8e214f174c5330f0a2",
+      "bytes": 87855
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/lifecycle.jsonl",
+      "sha256": "c9e8e3d6897cf0faef446f5abd00e84c713c3c4496926b621d0f95b278f40779",
+      "bytes": 74565
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/session.json",
+      "sha256": "9953502e9b7a4c75299dd56a4ecbc785a8ff886203b6b91e1cf0e900f7faddbe",
+      "bytes": 314
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/state.json",
+      "sha256": "dcb44aed9e8c602970ef6645c9719b318a62eecf7e4fa4e585d40da82b80cc13",
+      "bytes": 52566
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/timeline.jsonl",
+      "sha256": "c9e8e3d6897cf0faef446f5abd00e84c713c3c4496926b621d0f95b278f40779",
+      "bytes": 74565
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-constructor-return/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/lifecycle.jsonl",
+      "sha256": "7c68324daa9126f209a1d88d636b04e6bc25a45953c0518137cc513683beaba1",
+      "bytes": 74612
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/session.json",
+      "sha256": "65da87ebf77007018ba92dc3010cf5f9a8857a02ea50b0a7a2f71f73b6937b81",
+      "bytes": 315
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/state.json",
+      "sha256": "7be2dca4706918f89a8367dcdc86e3b465705a8b788cb9ba7371ca06ecf05da9",
+      "bytes": 52560
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/timeline.jsonl",
+      "sha256": "7c68324daa9126f209a1d88d636b04e6bc25a45953c0518137cc513683beaba1",
+      "bytes": 74612
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-fade-request/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-frames.jsonl",
+      "sha256": "8290c1d21f240d61ca93a8621adbf92a5c9c3d4a0364cdbd097ea4709d93a786",
+      "bytes": 54594
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/lifecycle.jsonl",
+      "sha256": "3aa7f8412b6a7a52c2cb01a9bdc41ab5037dc014801be4fc2b7e786ddb553fd0",
+      "bytes": 74819
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/session.json",
+      "sha256": "894d82ccb2b33e7bf05c23c245c05b2536a8dd00398f21c0a7978c0a9a1c9494",
+      "bytes": 307
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/state.json",
+      "sha256": "5c15bf3034a97eb2c433c76598b8c2a10093ca8174ed2bf3f4adce61e02c65cd",
+      "bytes": 52568
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/timeline.jsonl",
+      "sha256": "3aa7f8412b6a7a52c2cb01a9bdc41ab5037dc014801be4fc2b7e786ddb553fd0",
+      "bytes": 74819
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-mode-request/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/lifecycle.jsonl",
+      "sha256": "a887c97ca59030b5eda89c8fd3fda3b1c288c0e5ab07ea80c44ba75b03d6258a",
+      "bytes": 75217
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/session.json",
+      "sha256": "a8ed4914f8f5f2470c71e0a41dd6a128307e50318e1bd99b8931a3988a625ce5",
+      "bytes": 307
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/state.json",
+      "sha256": "69a0cfb611c8f96441df55e82db593742cb0bb3c68b483ecbfab97852e2e5619",
+      "bytes": 52190
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/timeline.jsonl",
+      "sha256": "a887c97ca59030b5eda89c8fd3fda3b1c288c0e5ab07ea80c44ba75b03d6258a",
+      "bytes": 75217
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-resource-retirement/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/lifecycle.jsonl",
+      "sha256": "3bf9f6754675829e20525c9dc83ac622543ba610eb961d97a04d7a8e421613b5",
+      "bytes": 75395
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/session.json",
+      "sha256": "a5f1871b538def8f163b43d98d62392b8ab6768a163f1f59349e5719bcb3dd34",
+      "bytes": 307
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/state.json",
+      "sha256": "49953494b2a00cba11c3295cc3af852e4090cc36e7527328c4d716d516557320",
+      "bytes": 52183
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/timeline.jsonl",
+      "sha256": "3bf9f6754675829e20525c9dc83ac622543ba610eb961d97a04d7a8e421613b5",
+      "bytes": 75395
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/chapter-wrapper-free/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/lifecycle.jsonl",
+      "sha256": "de6b98c5c69e9dc1e3fcb9239e545e31e1becaabe22f73aafbe07be474cd9e43",
+      "bytes": 73062
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/session.json",
+      "sha256": "38140b38cd157d951ea697254e50a8cde1f7e62d1e9eb4dbb1e6b348f460f97d",
+      "bytes": 306
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/state.json",
+      "sha256": "0036165493d239f458dc5ebef85df81bd5cbeb592d7f8ab90644bd9f68fa56e6",
+      "bytes": 52569
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/timeline.jsonl",
+      "sha256": "de6b98c5c69e9dc1e3fcb9239e545e31e1becaabe22f73aafbe07be474cd9e43",
+      "bytes": 73062
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/command-published/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/lifecycle.jsonl",
+      "sha256": "ea233519be1c93d75d70186054e5dea9148b7085c42ccd564c646f02c03a0aef",
+      "bytes": 75674
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/session.json",
+      "sha256": "a5f1871b538def8f163b43d98d62392b8ab6768a163f1f59349e5719bcb3dd34",
+      "bytes": 307
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/state.json",
+      "sha256": "55cb392be68cbede652a86909784a33e73cd925fd0e91400fbf62f1ab425ce75",
+      "bytes": 52184
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/timeline.jsonl",
+      "sha256": "ea233519be1c93d75d70186054e5dea9148b7085c42ccd564c646f02c03a0aef",
+      "bytes": 75674
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/vram.bytes",
+      "sha256": "6d023b858fef2eaa2fb61e3dcd364d46dbaf088638392b8bac4113e8ead332cf",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/field-constructor-entry/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/lifecycle.jsonl",
+      "sha256": "c7f3dcafab7a2318f40affb19bbd73d2486bb0b9332f2f273d446f91c3ef610f",
+      "bytes": 72480
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/rng.jsonl",
+      "sha256": "af130aa24519477591bf15070bff869c91725fe68b7c10319b798cdae11bb9b2",
+      "bytes": 615484
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/session.json",
+      "sha256": "0be57871e8a90ee12f79bfb74fb63da824c404cb7a8cd44bc789c7e244716407",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/state.json",
+      "sha256": "96c01526da8ee8558c602474c6c2db6176730e74f702c65725c313af11ab6035",
+      "bytes": 52552
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/timeline.jsonl",
+      "sha256": "c7f3dcafab7a2318f40affb19bbd73d2486bb0b9332f2f273d446f91c3ef610f",
+      "bytes": 72480
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/first-layout/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/lifecycle.jsonl",
+      "sha256": "f35eba74b84d23fc66dcd5e625f29ff35107537b9a8fe8a885b7f331334d7bd9",
+      "bytes": 72776
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/session.json",
+      "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/state.json",
+      "sha256": "14ab5ef8a5b44685a33d56affbbe96161c75cc26f406becd4c519ccf4c63d950",
+      "bytes": 52559
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/timeline.jsonl",
+      "sha256": "f35eba74b84d23fc66dcd5e625f29ff35107537b9a8fe8a885b7f331334d7bd9",
+      "bytes": 72776
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/manager-free/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/lifecycle.jsonl",
+      "sha256": "9570b4a7b80b00c6242f3f433d701b59a32d2f388b180c3296391863696dc94e",
+      "bytes": 72559
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/rng.jsonl",
+      "sha256": "c7db60a10c59095ce82eeb98d75541fb79c74bce7619545545afa360e1eea233",
+      "bytes": 702373
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/session.json",
+      "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/state.json",
+      "sha256": "7658b320666f5c068a78668be9add4f91e7524b9516024dba7da2cbd63e7bb8e",
+      "bytes": 52555
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/timeline.jsonl",
+      "sha256": "9570b4a7b80b00c6242f3f433d701b59a32d2f388b180c3296391863696dc94e",
+      "bytes": 72559
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-confirmed/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/effects.json",
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+      "bytes": 86
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/lifecycle.jsonl",
+      "sha256": "24aa3ebcf5ebb02c9146aa9616e525f7fe81fc48cf3bf6cce300f9c87fd44112",
+      "bytes": 72399
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/rng.jsonl",
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+      "bytes": 613171
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/session.json",
+      "sha256": "bb5da9a62f7ced0a6f019651f55b50ddc77d84f67d912d7b01b48cd01220d37b",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/state.json",
+      "sha256": "ff14c0b96afe3df842650e5af321b6166672f39161c0f754a9a0262489b0f3d5",
+      "bytes": 52563
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/timeline.jsonl",
+      "sha256": "24aa3ebcf5ebb02c9146aa9616e525f7fe81fc48cf3bf6cce300f9c87fd44112",
+      "bytes": 72399
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-constructor-return/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/lifecycle.jsonl",
+      "sha256": "ea1c5cdfc6db6df70e407fce2cc7b9fa9b5b2b8a9e4ad9dd17a8da08847ee082",
+      "bytes": 72646
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/session.json",
+      "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/state.json",
+      "sha256": "df159886fb0a52e0067a4686ec31958c7e740f18d82b10344ecb100425cea102",
+      "bytes": 52557
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/timeline.jsonl",
+      "sha256": "ea1c5cdfc6db6df70e407fce2cc7b9fa9b5b2b8a9e4ad9dd17a8da08847ee082",
+      "bytes": 72646
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-death/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/lifecycle.jsonl",
+      "sha256": "7c31ff2d841cb2ca9272a766a63993e131edf9665139113fd1a448dcb17847ad",
+      "bytes": 72518
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/rng.jsonl",
+      "sha256": "d1eeaa7dc70be1faa71f994182fe2689e9dbbad346bc2128e2e67dbb961aa3e3",
+      "bytes": 660029
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/session.json",
+      "sha256": "9324a06f6ce9ac27ff9d96c784d8825d14c6dd72d7805b0f6b6d609b1d99b811",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/state.json",
+      "sha256": "0745e9997c43c23970010d3e03c861cc6134a4f24c3ab1838d8b1db05b22e99d",
+      "bytes": 52552
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/timeline.jsonl",
+      "sha256": "7c31ff2d841cb2ca9272a766a63993e131edf9665139113fd1a448dcb17847ad",
+      "bytes": 72518
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-edited/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/name-frames.jsonl",
+      "sha256": "2fee7df11a0f084c4e11a602b35f91bb133ac5617b89dabd29cda74a170f1f58",
+      "bytes": 9234
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/lifecycle.jsonl",
+      "sha256": "3e1b33daae539d22a0c0465fb3a29a2452ffd36b8038d66e7962a33235a785ff",
+      "bytes": 73219
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/session.json",
+      "sha256": "38140b38cd157d951ea697254e50a8cde1f7e62d1e9eb4dbb1e6b348f460f97d",
+      "bytes": 306
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/state.json",
+      "sha256": "ee20b772bc85bfe77bcfedf278ba34311cbdea30edb9a5ad260b09155e0c2b1e",
+      "bytes": 52571
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/timeline.jsonl",
+      "sha256": "3e1b33daae539d22a0c0465fb3a29a2452ffd36b8038d66e7962a33235a785ff",
+      "bytes": 73219
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/resource-retirement/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/route.json",
+      "sha256": "0c3ee74adb188d230ac020c15d7b5f9c1d1d0e668e1225b353a3aaa7ef69661a",
+      "bytes": 579
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/session-draw-frames.jsonl",
+      "sha256": "2570cd72a7a40c0c2aab540cab632083d8eb6655e07481c38f0c5198f3924c1c",
+      "bytes": 78586
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/effects.json",
+      "sha256": "c54acb1126ea841213da3c7ddf3cb4c608dd6d669969f0ff1c3dc354865f259d",
+      "bytes": 86
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/lifecycle.jsonl",
+      "sha256": "edd8587891483b2f1324cf8d5842a47fe5e168926e193ff10aca447a3133a14c",
+      "bytes": 71544
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/rng.jsonl",
+      "sha256": "8944f78ee4ff3e65cb1462315ab1e01a2ee3d0f36a61e00110957298402532bb",
+      "bytes": 613171
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/session.json",
+      "sha256": "639d7ea679d7a877b90c5e40460c9ff7d51efd1700ec3682bb7788596cbd13e1",
+      "bytes": 318
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/state.json",
+      "sha256": "c927b7e94fd0979e581f56f7201bf0862df21dc1a3f6fd2ed3a34a95697b505b",
+      "bytes": 52173
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/timeline.jsonl",
+      "sha256": "edd8587891483b2f1324cf8d5842a47fe5e168926e193ff10aca447a3133a14c",
+      "bytes": 71544
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/vram.bytes",
+      "sha256": "fc61f2a2ed3c66f51d16d8642f30d76be9d624d39c96ae3f1864b307f2c2778e",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/retire-successor-entry/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/effects.json",
+      "sha256": "0760230676ca7559538f655bcc392337cb44589cb26e409a0282783e11d28d14",
+      "bytes": 79
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/lifecycle.jsonl",
+      "sha256": "62803198060cebae171c1b527e38291550069d1404fa481a2f4074dfa01a0da1",
+      "bytes": 73622
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/rng.jsonl",
+      "sha256": "6ca7ae1b1060aef7d7fd84e3b239da08f1edaf2f566de6f2938c9be5a61a5871",
+      "bytes": 784406
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/session.json",
+      "sha256": "a41fb9254b230f82d58fbbac21c39a7a7b79a601a6c761927d0450754c0c1fee",
+      "bytes": 306
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/startup-timeline.jsonl",
+      "sha256": "7225f9baab7b3f6c2ce5e2d85e32dfa6c1d67683c85736534d837c75f2ada617",
+      "bytes": 12148
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/state.json",
+      "sha256": "515bc88b96cbbeda491e7b99e738eaeb361bf682efb64a52b3672eb2fb709879",
+      "bytes": 52178
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/timeline.jsonl",
+      "sha256": "62803198060cebae171c1b527e38291550069d1404fa481a2f4074dfa01a0da1",
+      "bytes": 73622
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/vram.bytes",
+      "sha256": "ca191a5a07131e4c35a58997e1092776568578e09728f9d4b4ce18e8e3988d41",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/vram.invalidated",
+      "sha256": "20cfc71081e79c7e794e12e54aa644079e2e2b22f8678974eaa1b842fb4ab43c",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/report/wrapper-free/vram.known",
+      "sha256": "5ee968fc0fe11092474c3b7aeff38c0df02febbf0b66a38f1687f1cd3ffab09f",
+      "bytes": 4194304
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/fresh-release/session.log",
+      "sha256": "06b5402029e924afd7d415ce4117806be2d92b8f8ab82a50f02e03a2f57a8884",
+      "bytes": 830
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/gates.json",
+      "sha256": "d0bca52db21f2aceb0c4e6faefcca9e63b0d1623290a932146781184822208a5",
+      "bytes": 22310
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/gates.log",
+      "sha256": "bba1414f1c3a8d1c09d48499578f21785cf35295119c256fff1dc002fc63717f",
+      "bytes": 9326
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/manifest-audit.json",
+      "sha256": "6e0ade1118a2c6b13fad5965946644331dad0f280e23d9fb3fe461a44ff9de1e",
+      "bytes": 128883
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/preservation-after.txt",
+      "sha256": "2aef52fe3ce999fddd04560854db737ac19035a9f4559ae7090643d39b1d653d",
+      "bytes": 86
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/python-tests.json",
+      "sha256": "6ed8427b2957d2638e82f3a0a723f0730b42dd23a1ef3b8593fdd959d6987f17",
+      "bytes": 155
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/python-tests.log",
+      "sha256": "013dbd58115e78cc7aa70968c18c5f089f2d1be4a21b5b3d5945859c8f42fc00",
+      "bytes": 6597
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/release-tests.json",
+      "sha256": "e8e5b02c37ab1d3ac416024d00f8bd5f36318be1a0185ad17cd86a1ec34d948b",
+      "bytes": 287
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/release-tests.log",
+      "sha256": "383476a7c79770aa6c7a9b343151dbab9ac16fe78f949140ec027d64e0d4d4d5",
+      "bytes": 1888
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/sanitize-tests.json",
+      "sha256": "17e25a387351a7856cf77aeccb50fb8bd48030dc74294376f2dfa45979f404fb",
+      "bytes": 288
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/sanitize-tests.log",
+      "sha256": "6edac740a69259ab8d9455237798927a9b186d2d6f7f6b08357c77c7b894d291",
+      "bytes": 1890
+    },
+    {
+      "path": "local/research/newgame-followup-review-v1/tracked-source-audit.json",
+      "sha256": "7106c4774564f87b3baf483e0e52a805d7b5f8efec4f03eb2ab6d0bb0a7dd507",
+      "bytes": 10856
+    }
+  ]
+}
