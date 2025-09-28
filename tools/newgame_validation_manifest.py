@@ -22,8 +22,18 @@ SCOPE = ("Newgame: the FIRST cold title's New Game branch on the persistent Sess
          "request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body. "
          "Fixes first: the name-entry image-counter defect (reproduced, corrected), the mode-parent +0x4c write of "
          "1246b0, and the Restore metadata. Provenance: every original RNG row is a hooked observation; every native "
-         "lifecycle row is observed (none asserted). Not original image/audio parity, ordinary field/XTA/battle "
+         "lifecycle row is emitted at a native event point and none is owner-asserted (zero asserted rows is a marker "
+         "count: some fields and the ordering inside one callback are model-supplied, not independently observed). "
+         "Not original image/audio parity, ordinary field/XTA/battle "
          "loading, saved-field Restore, shared-GS sampling, performance, tick37297, the full texture port or the game.")
+
+POSTFIX_BINARIES = {
+    'built_from': '09646f84157a8a758c7a4c4b3b4a7712027497aa',
+    'pin': 'local/research/newgame-postfix-binaries-v1/binaries.sha256',
+    'release_sha256': '2ea2256f0d411831d5949e4f613a3bea7e2040ab8ab9ce1bd7945344cd3d5f0d',
+    'asan_ubsan_sha256': 'f1c40614962bd2974dd0dc4c853670af6d55d048fd5e1af568edaf0d7a086064',
+    'sessions': 'local/research/newgame-postfix-sessions-v1',
+}
 
 def sha(path):
     h = hashlib.sha256()
@@ -161,7 +171,8 @@ def main(sub, out):
         'schema': 'okage.newgame.validation.v1',
         'scope': SCOPE,
         'base_commit': '20b1c91',
-        'binaries_built_from': text(f'{V}/bin/source-head.txt'),
+        'initial_sessions_binaries_built_from': text(f'{V}/bin/source-head.txt'),
+        'postfix_sessions_binaries': POSTFIX_BINARIES,
         'head_commit_at_generation': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         'elf_sha256': '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5',
         'stage_manifest_sha256_pinned': '1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6',

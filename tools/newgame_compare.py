@@ -329,24 +329,62 @@ def refuse_self_compare(orig_dir, nat_dir):
                 raise Malformed(f'refusing self-comparison: native {p.relative_to(n)} is the original {q.relative_to(o)}')
 
 CONTROL_TIMING_KEYS = ('name_input_calls_before_equal', 'rand_state_equal', 'resource_state_equal', 'name_input_sequence_equal')
+CONTROL_TOP_KEYS = ('name_input_sequence_equal', 'final_vram_equal', 'final_session_equal', 'pad_host_equal_modulo_vb')
+
+def _control_failures(c):
+    """Recompute the failure list from the control's own comparison record (the extractor's rule), or None."""
+    rows = c.get('checkpoints_compared')
+    if not isinstance(rows, dict) or any(not isinstance(c.get(k), bool) for k in CONTROL_TOP_KEYS):
+        return None
+    out = []
+    for cp, row in rows.items():
+        if not isinstance(row, dict):
+            return None
+        for k, v in row.items():
+            if v is False or (isinstance(v, dict) and not all(v.values())):
+                out.append(f'{cp}:{k}')
+    return sorted(out + [k for k in CONTROL_TOP_KEYS if not c[k]])
+
+def _timing_witness(row):
+    """A checkpoint whose name-input call count differs between the control and the dense execution."""
+    n = row.get('name_input_calls_before')
+    return row.get('name_input_calls_before_equal') is False and isinstance(n, list) and len(n) == 2 \
+        and all(isinstance(x, int) and not isinstance(x, bool) for x in n) and n[0] != n[1]
 
 def control_timing_only(ref):
+    """True only when every control failure is a press-timing consequence WITNESSED at a checkpoint.
+
+    The failure list must equal the one recomputed from the control's comparison rows (no missing, extra, duplicate or
+    unknown records) and the reference problems must be exactly those failures. A checkpoint failure needs a call-count
+    difference at that checkpoint; the whole-sequence failure needs at least one such checkpoint.
+    """
     c = ref.get('control_minimal')
-    if ref.get('retire_neutrality', {}).get('failures') != [] or not isinstance(c, dict) or not c.get('failures'):
+    if ref.get('retire_neutrality', {}).get('failures') != [] or not isinstance(c, dict):
         return False
-    if not all(p.startswith('control:') for p in ref['problems']) or not c.get('pad_host_equal_modulo_vb'):
+    failures, problems = c.get('failures'), ref.get('problems')
+    if not isinstance(failures, list) or not failures or not isinstance(problems, list):
         return False
-    for f in c['failures']:
+    if len(set(failures)) != len(failures) or sorted(failures) != _control_failures(c):
+        return False
+    if len(set(problems)) != len(problems) or sorted(problems) != sorted('control:' + f for f in failures):
+        return False
+    if not c['pad_host_equal_modulo_vb']:
+        return False
+    rows = c['checkpoints_compared']
+    witnesses = {cp for cp, row in rows.items() if _timing_witness(row)}
+    for f in failures:
         key = f.split(':')[-1]
         if key not in CONTROL_TIMING_KEYS:
             return False
         if key == 'name_input_sequence_equal':
+            if f != key or not witnesses:
+                return False
             continue
         cp = f.split(':')[0]
-        row = c.get('checkpoints_compared', {}).get(cp, {})
-        if row.get('name_input_calls_before_equal') is not False:
+        if f.count(':') != 1 or cp not in witnesses:
             return False
-        if key == 'resource_state_equal' and {k for k, v in row['resource_state_equal'].items() if not v} - {'rand_state_214ec8_58'}:
+        if key == 'resource_state_equal' and {k for k, v in rows[cp]['resource_state_equal'].items() if not v} \
+                - {'rand_state_214ec8_58'}:
             return False
     return True
 

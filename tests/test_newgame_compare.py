@@ -419,40 +419,134 @@ class NewGameControls(unittest.TestCase):
         self._mutate_reference(lambda r: r['rng'].update(provenance='LCG-derived between anchors'))
         self.expect(2, 'not all hooked')
 
-    def _control_timing_ref(self, r, failures, extra=None):
-        r['problems'] = ['control:' + f for f in failures]
+    def _control_timing_ref(self, r, failures, extra=None, problems=None, top=None):
+        r['problems'] = ['control:' + f for f in failures] if problems is None else problems
         rows = {}
         for f in failures:
             cp, key = (f.split(':') + [''])[:2] if ':' in f else ('', f)
             if cp:
-                row = rows.setdefault(cp, {'name_input_calls_before_equal': False,
+                row = rows.setdefault(cp, {'name_input_calls_before_equal': False, 'name_input_calls_before': [22, 21],
+                                           'rand_state_equal': False,
                                            'resource_state_equal': {'rand_state_214ec8_58': False, 'handles': True}})
                 row.update(extra or {})
-        r['control_minimal'] = {'failures': failures, 'pad_host_equal_modulo_vb': True, 'checkpoints_compared': rows}
+        c = {'failures': failures, 'checkpoints_compared': rows, 'name_input_sequence_equal': 'name_input_sequence_equal'
+             not in failures, 'final_vram_equal': 'final_vram_equal' not in failures,
+             'final_session_equal': True, 'pad_host_equal_modulo_vb': True}
+        c.update(top or {})
+        r['control_minimal'] = c
+
+    TIMING = ['name-confirmed:name_input_calls_before_equal', 'name-confirmed:rand_state_equal',
+              'name-confirmed:resource_state_equal', 'name_input_sequence_equal']
+
+    def _accept(self):
+        buf = io.StringIO()
+        with redirect_stdout(buf), redirect_stderr(buf):
+            code = cmp.main([str(self.f.orig), str(self.f.nat), '--manifest', str(self.f.manifest), '--accept-control-timing'])
+        return code, buf.getvalue()
 
     def test_accept_control_timing_accepts_press_timing_only(self):
-        self._mutate_reference(lambda r: self._control_timing_ref(
-            r, ['name-confirmed:name_input_calls_before_equal', 'name-confirmed:rand_state_equal',
-                'name-confirmed:resource_state_equal', 'name_input_sequence_equal']))
+        self._mutate_reference(lambda r: self._control_timing_ref(r, list(self.TIMING)))
         self.expect(2, 'reference.json reports problems')  # refused without the flag
-        buf = io.StringIO()
-        with redirect_stdout(buf):
-            code = cmp.main([str(self.f.orig), str(self.f.nat), '--manifest', str(self.f.manifest), '--accept-control-timing'])
-        self.assertEqual(code, 0, buf.getvalue())
-        self.assertIn('minimal-hook control consumed', buf.getvalue())
+        code, out = self._accept()
+        self.assertEqual(code, 0, out)
+        self.assertIn('minimal-hook control consumed', out)
 
     def test_accept_control_timing_refuses_non_timing_failures(self):
         for failures, extra in ((['name-confirmed:session_state_equal'], None),
                                 (['final_vram_equal'], None),
                                 (['name-confirmed:resource_state_equal'],
-                                 {'name_input_calls_before_equal': False,
+                                 {'name_input_calls_before_equal': False, 'rand_state_equal': True,
                                   'resource_state_equal': {'rand_state_214ec8_58': True, 'handles': False}}),
                                 (['name-confirmed:rand_state_equal'], {'name_input_calls_before_equal': True})):
             self._mutate_reference(lambda r: self._control_timing_ref(r, failures, extra))
-            buf = io.StringIO()
-            with redirect_stdout(buf), redirect_stderr(buf):
-                code = cmp.main([str(self.f.orig), str(self.f.nat), '--manifest', str(self.f.manifest), '--accept-control-timing'])
-            self.assertEqual(code, 2, (failures, buf.getvalue()[-500:]))
+            code, out = self._accept()
+            self.assertEqual(code, 2, (failures, out[-500:]))
+
+    def test_control_timing_sequence_without_witness_is_refused(self):
+        # The retained review reproduction: a whole-sequence failure only, equal pads, no checkpoint rows.
+        repro = ROOT / 'local/research/newgame-followup-review-v1/control-timing-witness-repro.json'
+        probe = {'problems': ['control:name_input_sequence_equal'], 'retire_neutrality': {'failures': []},
+                 'control_minimal': {'failures': ['name_input_sequence_equal'], 'pad_host_equal_modulo_vb': True,
+                                     'checkpoints_compared': {}}}
+        if repro.exists():
+            self.assertEqual(json.loads(repro.read_text())['probe'], probe)
+        self.assertFalse(cmp.control_timing_only(probe))
+        for failures, extra in ((['name_input_sequence_equal'], None),
+                                # rows present but every call count equal: still no witness
+                                (['name-confirmed:rand_state_equal', 'name_input_sequence_equal'],
+                                 {'name_input_calls_before_equal': True, 'name_input_calls_before': [22, 22],
+                                  'resource_state_equal': {'rand_state_214ec8_58': True}}),
+                                # flag claims a difference but the recorded counts are equal
+                                (['name-confirmed:name_input_calls_before_equal', 'name_input_sequence_equal'],
+                                 {'name_input_calls_before': [22, 22], 'rand_state_equal': True,
+                                  'resource_state_equal': {'rand_state_214ec8_58': True}})):
+            self._mutate_reference(lambda r: self._control_timing_ref(r, failures, extra))
+            code, out = self._accept()
+            self.assertEqual(code, 2, (failures, out[-500:]))
+
+    def test_control_timing_failure_records_must_correspond(self):
+        cases = {
+            'problem missing': dict(problems=['control:' + f for f in self.TIMING[:-1]]),
+            'unknown problem': dict(problems=['control:' + f for f in self.TIMING] + ['determinism']),
+            'duplicate problem': dict(problems=['control:' + f for f in self.TIMING] + ['control:' + self.TIMING[0]]),
+            'non-control problem': dict(problems=['control:' + f for f in self.TIMING[:-1]] + [self.TIMING[-1]]),
+        }
+        for what, kw in cases.items():
+            self._mutate_reference(lambda r: self._control_timing_ref(r, list(self.TIMING), **kw))
+            code, out = self._accept()
+            self.assertEqual(code, 2, (what, out[-500:]))
+
+        def drop_listed(r):
+            self._control_timing_ref(r, list(self.TIMING))
+            r['control_minimal']['failures'] = [f for f in self.TIMING if f != 'name-confirmed:rand_state_equal']
+            r['problems'] = ['control:' + f for f in r['control_minimal']['failures']]
+
+        def duplicate(r):
+            self._control_timing_ref(r, list(self.TIMING))
+            r['control_minimal']['failures'] = self.TIMING + [self.TIMING[0]]
+            r['problems'] = ['control:' + f for f in r['control_minimal']['failures']]
+
+        def phantom(r):  # a listed failure whose row says equal
+            self._control_timing_ref(r, list(self.TIMING))
+            r['control_minimal']['checkpoints_compared']['name-confirmed']['rand_state_equal'] = True
+
+        def missing_top(r):
+            self._control_timing_ref(r, list(self.TIMING))
+            del r['control_minimal']['final_session_equal']
+
+        for fn in (drop_listed, duplicate, phantom, missing_top):
+            self._mutate_reference(fn)
+            code, out = self._accept()
+            self.assertEqual(code, 2, (fn.__name__, out[-500:]))
+
+    def test_control_timing_unrelated_differences_are_refused(self):
+        for extra, top in (({'vram_fill00_equal': False}, None),
+                           ({'session_state_equal': False}, None),
+                           ({'resource_state_equal': {'rand_state_214ec8_58': False, 'vram.occupancy_sha256': False}}, None),
+                           (None, {'final_session_equal': False}),
+                           (None, {'pad_host_equal_modulo_vb': False})):
+            self._mutate_reference(lambda r: self._control_timing_ref(r, list(self.TIMING), extra, top=top))
+            code, out = self._accept()
+            self.assertEqual(code, 2, (extra, top, out[-500:]))
+            fails = sorted(self.TIMING + [f'name-confirmed:{k}' for k in (extra or {}) if k != 'resource_state_equal']
+                           + [k for k in (top or {})])
+
+            def listed(r):
+                self._control_timing_ref(r, list(self.TIMING), extra, top=top)
+                r['control_minimal']['failures'] = fails
+                r['problems'] = ['control:' + f for f in fails]
+            self._mutate_reference(listed)
+            code, out = self._accept()
+            self.assertEqual(code, 2, ('listed', extra, top, out[-500:]))
+
+    def test_control_timing_real_no_reference_is_accepted(self):
+        ref = ROOT / 'local/research/newgame-no-original-v1/analysis/reference.json'
+        if not ref.exists():
+            self.skipTest('pinned No reference not present')
+        self.assertTrue(cmp.control_timing_only(json.loads(ref.read_text())))
+        yes = ROOT / 'local/research/newgame-original-v1/analysis/reference.json'
+        if yes.exists():
+            self.assertFalse(cmp.control_timing_only(json.loads(yes.read_text())))  # no failures: nothing to accept
 
     def test_native_invalidated_mask_required(self):
         (self.f.nat / 'first-layout' / 'vram.invalidated').unlink()

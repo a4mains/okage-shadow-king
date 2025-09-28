@@ -2,7 +2,14 @@
  "schema": "okage.newgame.validation.v1",
  "scope": "Newgame: the FIRST cold title's New Game branch on the persistent Session texture owner and RNG, from entry of 124548 (mode 9) through name-entry construction (wrapper-owned bm_if atlas), an actual name edit and Yes, manager death/unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, Chapter 1 (CHP_01 image list, counter-240 fade request, actual fade completion, command clear and request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body.",
  "base_commit": "20b1c91",
- "binaries_built_from": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
+ "initial_sessions_binaries_built_from": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
+ "postfix_sessions_binaries": {
+  "built_from": "09646f84157a8a758c7a4c4b3b4a7712027497aa",
+  "pin": "local/research/newgame-postfix-binaries-v1/binaries.sha256",
+  "release_sha256": "2ea2256f0d411831d5949e4f613a3bea7e2040ab8ab9ce1bd7945344cd3d5f0d",
+  "asan_ubsan_sha256": "f1c40614962bd2974dd0dc4c853670af6d55d048fd5e1af568edaf0d7a086064",
+  "sessions": "local/research/newgame-postfix-sessions-v1"
+ },
  "head_commit_at_generation": "5657c883bd4add574d3e2d0fabc4c68e6c8d526d",
  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -575,19 +582,19 @@
   "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/newgame_capture.sh": "c0e5830158b6bc5e11f30e3d759e1cb03024421b642e08b6fc9af684276817c8",
   "tools/newgame_original_extract.py": "e83f460e7dd891dba45f56f6fbdada7efab0b896ee6b70116d700a99a9e394ce",
-  "tools/newgame_compare.py": "d9996824911dd5f736709f1623566312364cc1e252ede0a11c577681b58ab20f",
+  "tools/newgame_compare.py": "55385c2564255db20943656fbbcd044173c571a1ee7cb3e752323eb121f5a2dc",
   "tools/newgame_make_manifest.py": "6ab600af3ce5636382bd6e18fe7fdb3e59a1e2a98c8e978de6c8282f19dc9881",
   "tools/newgame_route_compare.py": "de7c671bb3294d2fd02432639fe86af193244a7799875d2e934c07e028e1baf3",
   "tools/newgame_route_regression.sh": "ee7be9cdbfb0e256bc89b40a90bcdea7e4d4f077a041308063f991dc436b51a8",
   "tools/newgame_validation_run.sh": "0eaa559f50f6a82ca446ee1727d5893e3e8afaabe3c2da83ed37929335f20f1a",
-  "tools/newgame_validation_manifest.py": "64e9e856351dcc8e3bc37a7e6ebbbcd806146c099674157e2bccce303f717a60",
+  "tools/newgame_validation_manifest.py": "ea61c3d1a297d24422d20c372caf8eceb3b471e9968eb43bc11588b600835e01",
   "tools/restore_validation_manifest.py": "15af13866e6a50da66ea177eb800852698ab2c3370f878c2b38ccf9fcce96fe7",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tests/startup_textures_tests.cpp": "9b9f857f2a94909a6fb6191b5c49eac4bc0058c64b784cb901435da2079b14b7",
   "tests/game_mode_tests.cpp": "2540d4af36325d5a8c961eddbaab9461a5a1c08d9bbf588853697f43075412fb",
   "tests/name_entry_tests.cpp": "e1b4139a6760d908b5736aabf3d27610e2397fb804986771740366903ac05680",
   "tests/test_newgame_routes.py": "272f8a44947764e71f050633875d3b8ddee0f026bece87c18b9c56fe19298986",
-  "tests/test_newgame_compare.py": "a82d288c1707eff4d5faa8fecdc3ebfd7b40465fb1c0809e56b749884d599d54",
+  "tests/test_newgame_compare.py": "6d01387a8bda0ec8ca48ea1d831dcf1408e57730c241b7f8c54f50fa1593dd07",
   "tests/test_newgame_route_compare.py": "6fd99ae18d85a90babcd89009c38089a0bd639239dbb3ed1c87e432a1fadc0f5",
   "tests/data/newgame-routes/newgame-chapter/name-pad.txt": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31",
   "tests/data/newgame-routes/no-then-yes/name-pad.txt": "ca7247964733dcb822c1f1a714e5fd18949fec7ac73091f670419714772f878b",
@@ -2800,5 +2807,12 @@
   "driver": "NEWGAME_VALIDATION=local/research/newgame-validation-v1 tools/newgame_validation_run.sh final",
   "per_run": "local/research/newgame-validation-v1/final/commands.txt",
   "manifest": "NEWGAME_VALIDATION=local/research/newgame-validation-v1 python3 tools/newgame_validation_manifest.py final docs/newgame-validation.json"
+ },
+ "errata": {
+  "date": "2025-09-28",
+  "by": "Field fixes-first ( section 1)",
+  "scope_was": "Newgame: the FIRST cold title's New Game branch on the persistent Session texture owner and RNG, from entry of 124548 (mode 9) through name-entry construction (wrapper-owned bm_if atlas), an actual name edit and Yes, manager death/unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, Chapter 1 (CHP_01 image list, counter-240 fade request, actual fade completion, command clear and request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body.",
+  "binaries_built_from_was": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",
+  "note": "text fields only; every evidence entry, hash and run-time result is unchanged and was not regenerated. binaries_built_from described only the initial driver sessions; the final post-fix sessions used the separately pinned 09646f8 pair. tracked_sources records the Newgame-time hashes; tools/newgame_compare.py and tools/newgame_validation_manifest.py have since changed (Field control-timing witness, these labels). The generator now emits the corrected scope and labels.  test totals before section 5f are historical."
  }
 }
