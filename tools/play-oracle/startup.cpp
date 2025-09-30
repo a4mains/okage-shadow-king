@@ -524,6 +524,15 @@ const HookDef newgameHookDefs[]={
     {0x1b3710,"image_submit"},{0x100800,"image_frame"},{0x1b5ee0,"image_frame_list"},{0x1b3450,"image_counter_step"},
     {0x1b26a0,"image_list_link"},{0x1cb4b8,"clear_color_set"},
 };
+const HookDef fieldPrefixHookDefs[]={
+    {0x1248f8,"command_get"},{0x1151b8,"resource_create"},{0x1bafd0,"switch_1bafd0"},{0x1b7eb0,"f_1b7eb0"},
+    {0x135aa0,"f_135aa0"},{0x1315d0,"f_1315d0"},{0x178578,"job_enqueue"},
+    {0x132688,"field_worker"},{0x1b8348,"loader_1b8348"},{0x131d28,"field_prefix"},{0x1cf910,"f_1cf910"},
+    {0x1cd7a8,"clut_class_set"},{0x1257b8,"scene_table"},{0x1bccf0,"f_1bccf0"},{0x131cd0,"field_atlas"},
+    {0x1252a8,"var_bank"},{0x11fb10,"atlas_load_psm"},{0x100c60,"texenv_load"},{0x1c2e68,"file_load"},
+    {0x183ff0,"env_bind"},{0x1bcc80,"f_1bcc80"},
+};
+constexpr uint32 uiPublishBlock=0x131e74,uiPublishNextA=0x131ec4,uiPublishNextB=0x131ec8;
 constexpr uint32 commandAddr=0x24f740,fadeCurrent=0x24eab0,fadeTarget=0x24eab4,fadeRate=0x24eab8,fadeColor=0x24eabc,
                  imageCounter=0x337500,gameVarsPtr=0x24f788;
 constexpr uint32 btnUp=4,btnRight=7;
@@ -565,13 +574,13 @@ int bitsPerPixelTitle(uint32 psm){switch(psm){case 1:return 24;case 2:case 10:re
 
 int main(int argc,char** argv) {
     try {
-        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products | --title [--minimal] | --title-retire restore|newgame [--minimal] | --restore-cancel --memcards DIR [--minimal] | --newgame-chapter [--minimal]]");
+        if(argc<5)throw std::runtime_error("Usage: okage-startup-oracle DISC.cue ELF OUTDIR FILL(00|ff) [--deadline-seconds N] [--minimal | --rng-products | --title [--minimal] | --title-retire restore|newgame [--minimal] | --restore-cancel --memcards DIR [--minimal] | --newgame-chapter [--minimal] [--field-prefix]]");
         const auto disc=std::filesystem::absolute(argv[1]);
         const std::filesystem::path elfPath=argv[2],outDir=argv[3];
         const std::string fillText=argv[4];
         if(fillText!="00"&&fillText!="ff")throw std::runtime_error("FILL must be 00 or ff");
         const uint8 fill=fillText=="ff"?0xff:0x00;
-        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false,newgameChapter=false,nameNoFirst=false;std::string route;
+        unsigned deadlineSeconds=1800;bool minimal=false,rngProducts=false,title=false,retire=false,restoreCancel=false,lightRestore=false,newgameChapter=false,nameNoFirst=false,fieldPrefix=false;std::string route;
         std::filesystem::path memcards;
         for(int i=5;i<argc;++i){
             if(std::string(argv[i])=="--deadline-seconds"&&i+1<argc)deadlineSeconds=unsigned(std::stoul(argv[++i]));
@@ -584,6 +593,7 @@ int main(int argc,char** argv) {
             else if(std::string(argv[i])=="--memcards"&&i+1<argc)memcards=argv[++i];
             else if(std::string(argv[i])=="--newgame-chapter")newgameChapter=true;
             else if(std::string(argv[i])=="--name-no-first")nameNoFirst=true;
+            else if(std::string(argv[i])=="--field-prefix")fieldPrefix=true;
             else throw std::runtime_error("Unknown argument");
         }
         if(minimal&&rngProducts)throw std::runtime_error("--minimal and --rng-products are exclusive");
@@ -603,6 +613,8 @@ int main(int argc,char** argv) {
         // --name-no-first (Newgame No/back-to-edit coverage): the first Yes/No answer is No (Cross with +0xd8 = 1), which
         // returns to editing; then End, Up and Yes as in the ordinary script.
         if(nameNoFirst&&!newgameChapter)throw std::runtime_error("--name-no-first needs --newgame-chapter");
+        // --field-prefix (Field): continue past the second 0x133830 entry to just after the 0x131e7c store.
+        if(fieldPrefix&&(!newgameChapter||nameNoFirst))throw std::runtime_error("--field-prefix needs --newgame-chapter (Yes route)");
         // --title-retire restore|newgame (Retire): the --title observations, continued past the Title stop with a
         // fixed state-driven pad script, to the ENTRY of 0x124548 with mode10 (restore) or mode9 (newgame).
         if(retire){
@@ -696,6 +708,27 @@ int main(int argc,char** argv) {
                 if((w>>26)==3&&restoreEntryName.count((w&0x03ffffff)<<2)&&!returnSites.count(a+8))restoreReturnSites.insert(a+8);
             }
         }
+        // Field: hooks armed at the second 0x133830 entry (not before), with their own static return sites. The minimal
+        // control arms only 0x132688 (its return is dynamic) and the 0x131e74/next-block brackets.
+        std::map<uint32,std::string> fieldEntryName;std::set<uint32> fieldReturnSites;
+        if(fieldPrefix){
+            if(minimal)fieldEntryName[0x132688]="field_worker";
+            else for(const auto& h:fieldPrefixHookDefs){
+                if(fieldEntryName.count(h.addr))throw std::runtime_error("Duplicate Field hook");
+                if(entryName.count(h.addr)||restoreEntryName.count(h.addr))continue; // already observed by an earlier set
+                fieldEntryName[h.addr]=h.name;
+            }
+            if(!minimal)for(uint32 a=0x100000;a+8<0x1f8434;a+=4){
+                const auto w=elfWord(a);
+                if((w>>26)==3&&fieldEntryName.count((w&0x03ffffff)<<2)&&!returnSites.count(a+8)&&!restoreReturnSites.count(a+8))
+                    fieldReturnSites.insert(a+8);
+            }
+            // The bracket addresses must be block starts of the pinned text: 0x131e74 is the jal 0x1c0930 return site,
+            // 0x131ec4 follows the bne/delay slot at 0x131ebc/0x131ec0, 0x131ec8 is its target.
+            if(elfWord(0x131e6c)!=0x0c07024cu||elfWord(0x131e7c)!=0xae830034u||(elfWord(0x131ebc)>>26)!=5
+               ||((elfWord(0x131ebc)&0xffff)<<2)+0x131ec0!=uiPublishNextB)
+                throw std::runtime_error("0x131d28 publication block differs from the pinned text");
+        }
         // Top-level call sites of 0x1002f8. Title mode extends the range over the main loop body
         // (0x1005e0..0x1006c4) so every event carries the loop call that is current.
         std::map<uint32,uint32> topSites; // pc -> callee
@@ -752,6 +785,14 @@ int main(int argc,char** argv) {
             for(const auto& kv:restoreEntryName){entryName[kv.first]=kv.second;addBp(kv.first);}
             for(auto a:restoreReturnSites){returnSites.insert(a);addBp(a);}
             if(!newgameChapter)for(const auto& pr:restoreProbeDefs)addBp(pr.addr);
+        };
+        bool fieldArmed=false;
+        std::function<void()> armFieldHooks=[&]{
+            if(fieldArmed)throw std::runtime_error("Field hooks armed twice");
+            fieldArmed=true;
+            for(const auto& kv:fieldEntryName){entryName[kv.first]=kv.second;addBp(kv.first);}
+            for(auto a:fieldReturnSites){returnSites.insert(a);addBp(a);}
+            addBp(uiPublishBlock);
         };
         uint64 lightWindowStops=0;
         std::function<void(uint32)> beginLight=[&](uint32 extraRa){
@@ -1082,6 +1123,28 @@ int main(int argc,char** argv) {
             q<<",\"command_24f740\":"<<words3(commandAddr)<<",\"image_counter_337500\":"<<int32(get32(imageCounter))
              <<",\"fade\":{\"current\":"<<hx(get32(fadeCurrent))<<",\"target\":"<<hx(get32(fadeTarget))<<",\"rate\":"<<hx(get32(fadeRate))
              <<",\"color\":"<<hx(get32(fadeColor))<<"}}";
+            return q.str();};
+        // Field: field manager (0x132688 a0+0), the worker frame, the 0x131e74 pre-publication snapshot and the bracket stop.
+        uint32 fieldManager=0;uint64 fieldWorkerEntries=0;bool uiPublishPending=false,fieldStopped=false;uint32 uiPublishSp=0;
+        auto fieldJson=[&]{
+            std::ostringstream q;const uint32 m=fieldManager;
+            q<<"{\"manager\":"<<hx(m);
+            if(plausiblePtr(m,0x440)){
+                const uint32 r=get32(m+0x3c);
+                q<<",\"w20\":"<<int32(get32(m+0x20))<<",\"w30\":"<<int32(get32(m+0x30))<<",\"w34\":"<<int32(get32(m+0x34))
+                 <<",\"w38\":"<<int32(get32(m+0x38))<<",\"w48\":"<<int32(get32(m+0x48))<<",\"w4c\":"<<int32(get32(m+0x4c))
+                 <<",\"w60\":"<<int32(get32(m+0x60))<<",\"we4\":"<<int32(get32(m+0xe4))<<",\"resource_3c\":"<<hx(r)
+                 <<",\"manager_440_sha256\":\""<<sha(ram+(m&0x1ffffff),0x440)<<"\"";
+                if(plausiblePtr(r,0x50))q<<",\"resource_48\":"<<int32(get32(r+0x48))<<",\"resource_50_sha256\":\""<<sha(ram+(r&0x1ffffff),0x50)<<"\"";
+            }
+            q<<",\"tex0_332430\":["<<hx(get32(0x332430))<<","<<hx(get32(0x332434))<<"],\"env_332450\":["<<hx(get32(0x332450))<<","
+             <<hx(get32(0x332454))<<","<<hx(get32(0x332458))<<","<<hx(get32(0x33245c))<<"],\"w337e70\":"<<hx(get32(0x337e70))
+             <<",\"lower_1fe30c\":"<<hx(get32(0x1fe30c))<<",\"cache_1fe310\":"<<hx(get32(0x1fe310))<<",\"reserve_3abb14\":"<<hx(get32(0x3abb14))
+             <<",\"clut_class_2138c4\":"<<hx(get32(0x2138c4))<<",\"atlas_global_24f730\":"<<int32(get32(0x24f730));
+            // 0x1a9190: 16 RUW slots at 0x200708 (buffer pointers; only liveness is meaningful) and the per-slot word
+            // 0x332b98 it clears.
+            q<<",\"ruw_slots_live\":[";for(uint32 k=0;k<16;++k)q<<(k?",":"")<<(get32(0x200708+4*k)?1:0);
+            q<<"],\"ruw_332b98\":"<<int32(get32(0x332b98))<<"}";
             return q.str();};
         auto nameJson=[&](uint32 node){
             std::ostringstream q;
@@ -1443,10 +1506,27 @@ int main(int argc,char** argv) {
                         }else{
                             if(cmd!=0)throw std::runtime_error("second 0x133830 without command 0");
                             if(!minimal&&!taken("chapter-wrapper-free"))throw std::runtime_error("second 0x133830 before the chapter node was freed");
+                            if(fieldPrefix)fieldManager=uint32(f.a[0]);
                             checkpoint("field-constructor-entry");
-                            newgameStopped=true;
-                            return; // paused AT the second 0x133830 entry: nothing of its body has executed
+                            if(fieldPrefix){
+                                // Field: arm the prefix hooks while paused at the entry; the body is observed from here.
+                                armFieldHooks();
+                                emit("\"ev\":\"field_hooks_armed\",\"hooks\":"+std::to_string(fieldEntryName.size())
+                                     +",\"return_sites\":"+std::to_string(fieldReturnSites.size())+","+randState());
+                            }else{
+                                newgameStopped=true;
+                                return; // paused AT the second 0x133830 entry: nothing of its body has executed
+                            }
                         }
+                    }
+                    else if(fieldPrefix&&name=="field_worker"){
+                        if(mode2Constructs!=2)throw std::runtime_error("0x132688 before the second 0x133830");
+                        const uint32 block=uint32(f.a[0]);const uint32 mgr=get32(block);
+                        if(++fieldWorkerEntries!=1)throw std::runtime_error("0x132688 entered twice in the prefix");
+                        if(mgr!=fieldManager)throw std::runtime_error("0x132688 job owner is not the second 0x133830 node");
+                        emit("\"ev\":\"field_worker\",\"block\":"+hx(block)+",\"manager\":"+hx(mgr)+",\"scene\":"
+                             +std::to_string(int32(get32(block+4)))+",\"field\":"+fieldJson()+","+randState());
+                        checkpoint("worker-entry");
                     }
                 }
             }
@@ -1603,10 +1683,20 @@ int main(int argc,char** argv) {
                     if(!taken("name-death"))throw std::runtime_error("command 14 published before the name manager died");
                     checkpoint("command-published");
                 }
+                else if(name=="mode2_construct"&&fieldPrefix&&mode2Constructs==2){
+                    // Field: the second 0x133830 returned after enqueuing 0x132688 (the worker may already have run).
+                    if(uint32(f.a[0])!=fieldManager)throw std::runtime_error("second 0x133830 returned for another node");
+                    checkpoint("field-constructor-return");
+                }
                 else if(name=="mode2_construct"){
                     if(int32(get32(uint32(f.a[0])+0x48))!=0x13)throw std::runtime_error("first 0x133830 did not enter phase 19");
                     checkpoint("chapter-constructor-return");
                 }
+                // Field prefix returns, identified by their single call sites in 0x131cd0/0x100c60/0x131d28.
+                else if(fieldPrefix&&fieldArmed&&name=="atlas_load_psm"&&f.ra==0x131d14)checkpoint("atlas-loaded");
+                else if(fieldPrefix&&fieldArmed&&name=="env_bind"&&f.ra==0x100cc0)checkpoint("texenv-bound");
+                else if(fieldPrefix&&fieldArmed&&name=="texenv_load"&&f.ra==0x131e40)checkpoint("texenv-loaded");
+                else if(fieldPrefix&&fieldArmed&&name=="ruw_load"&&f.ra==0x131e6c)checkpoint("ruw-loaded");
                 else if(name=="mode2_update"){
                     const uint32 node=uint32(f.a[0]);
                     if(!taken("chapter-fade-request")&&int32(get32(node+0x38))==0xf0)checkpoint("chapter-fade-request");
@@ -1753,6 +1843,7 @@ int main(int argc,char** argv) {
                 if(plausiblePtr(mp,0x54))out<<",\"mode_parent_fields\":{\"phase_20\":"<<int32(get32(mp+0x20))<<",\"child_38\":"<<hx(get32(mp+0x38))
                     <<",\"request_3c\":"<<int32(get32(mp+0x3c))<<",\"current_40\":"<<int32(get32(mp+0x40))<<",\"w44\":"<<int32(get32(mp+0x44))
                     <<",\"w48\":"<<int32(get32(mp+0x48))<<",\"w4c\":"<<int32(get32(mp+0x4c))<<",\"w50\":"<<int32(get32(mp+0x50))<<"}";
+                if(fieldPrefix&&fieldManager)out<<",\"field\":"<<fieldJson();
             }
             out<<"}\n";
         }
@@ -1861,6 +1952,31 @@ int main(int argc,char** argv) {
                         emit(o.str());explained=true;
                     }
                 }
+                if(fieldPrefix&&fieldArmed&&!uiPublishPending&&pc==uiPublishBlock) {
+                    // Field: block start 0x131e74 (the 0x1c0930 return in 0x131d28): before 0x131e74..0x131e7c execute.
+                    explained=true;
+                    if(fieldWorkerEntries!=1||(!minimal&&!taken("ruw-loaded")))throw std::runtime_error("0x131e74 before the observed prefix");
+                    if(uint32(reg(CMIPS::S4))!=fieldManager)throw std::runtime_error("0x131e74 with s4 other than the field manager");
+                    if(get32(fieldManager+0x34)!=0)throw std::runtime_error("manager+0x34 already published at 0x131e74");
+                    for(uint32 a=uiPublishBlock;a<=uiPublishNextB;a+=4)
+                        if(get32(a)!=elfWord(a))throw std::runtime_error("0x131d28 publication block in RAM differs from the ELF");
+                    emit("\"ev\":\"ui_publish_pre\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)+",\"s4\":"+hx(uint32(reg(CMIPS::S4)))
+                         +",\"s6\":"+hx(uint32(reg(CMIPS::S6)))+",\"field\":"+fieldJson()+","+randState());
+                    checkpoint("ui-publish-pre");
+                    writeFresh(outDir/"checkpoints"/"ui-publish-pre"/"ee-ram-32mb.bin",ram,0x2000000);
+                    uiPublishPending=true;uiPublishSp=uint32(sp);addBp(uiPublishNextA);addBp(uiPublishNextB);
+                }
+                else if(uiPublishPending&&(pc==uiPublishNextA||pc==uiPublishNextB)&&uint32(sp)==uiPublishSp) {
+                    // Field: the next block start after the store (0x131ec4 fall through or 0x131ec8 taken).
+                    explained=true;
+                    emit("\"ev\":\"ui_publish_post_block\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)+",\"s4\":"+hx(uint32(reg(CMIPS::S4)))
+                         +",\"field\":"+fieldJson()+","+randState());
+                    checkpoint("ui-publish-post-block");
+                    writeFresh(outDir/"checkpoints"/"ui-publish-post-block"/"ee-ram-32mb.bin",ram,0x2000000);
+                    emit("\"ev\":\"stop\",\"kind\":\"ui_prefix_published\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
+                         +",\"stack_depth\":"+std::to_string(stack.size())+","+randState());
+                    titleStopSp=sp;fieldStopped=true;stopped=true;break;
+                }
                 if(newgameStopped) {
                     // Newgame stop: paused AT the entry of the second 0x133830 (command 0); its body has not executed.
                     emit("\"ev\":\"stop\",\"kind\":\"field_constructor_entry\",\"pc\":"+hx(pc)+",\"sp\":"+hx(sp)
@@ -1908,7 +2024,8 @@ int main(int argc,char** argv) {
         if(!stopped)throw std::runtime_error("Startup did not reach the stop PC (exit="+std::to_string(exited.load())+" stops="+std::to_string(stops)+")");
         if(vm.GetStatus()!=CVirtualMachine::PAUSED)throw std::runtime_error("VM not paused at stop");
         const double seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-startTime).count();
-        if(uint32(cpu.nPC)!=(newgameChapter?0x133830u:restoreCancel?titleStopRa:retire?0x124548u:title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
+        if(fieldPrefix){if(uint32(cpu.nPC)!=uiPublishNextA&&uint32(cpu.nPC)!=uiPublishNextB)throw std::runtime_error("Stop PC mismatch");}
+        else if(uint32(cpu.nPC)!=(newgameChapter?0x133830u:restoreCancel?titleStopRa:retire?0x124548u:title?titleStopRa:stopPc))throw std::runtime_error("Stop PC mismatch");
         if(restoreCancel){
             static const char* need[]={"retire-successor-entry","restore-constructor-return","first-layout","empty-ready","cancel-death",
                                        "resource-retirement","wrapper-free","second-title-return"};
@@ -1929,6 +2046,16 @@ int main(int argc,char** argv) {
                 if(minimal&&s!="retire-successor-entry"&&s!="name-edited"&&s!="name-confirmed"&&s!="chapter-constructor-return"
                    &&s!="field-constructor-entry")continue;
                 if(!taken(s))missingCheckpoints.push_back(s);
+            }
+            if(fieldPrefix){
+                static const char* more[]={"field-constructor-return","worker-entry","atlas-loaded","texenv-bound","texenv-loaded",
+                                           "ruw-loaded","ui-publish-pre","ui-publish-post-block"};
+                for(const char* n:more){
+                    const std::string s=n;
+                    // The minimal control adds only 0x132688 and the 0x131e74/next-block brackets.
+                    if(minimal&&s!="field-constructor-return"&&s!="worker-entry"&&s!="ui-publish-pre"&&s!="ui-publish-post-block")continue;
+                    if(!taken(s))missingCheckpoints.push_back(s);
+                }
             }
         }
         if(title&&!prefixPassed)throw std::runtime_error("Title stop reached without passing 0x100618");
@@ -1995,7 +2122,11 @@ int main(int argc,char** argv) {
             if(newgameChapter){
                 o<<",\"newgame_chapter\":true,\"hooks_armed\":"<<(restoreArmed?"true":"false")<<",\"hooks\":"<<restoreEntryName.size()
                  <<",\"return_sites\":"<<restoreReturnSites.size()<<",\"name_input_calls\":"<<nameInputCalls
-                 <<",\"mode2_constructs\":"<<mode2Constructs<<",\"ui_place_calls\":"<<uiPlaceCalls<<",\"missing_checkpoints\":[";
+                 <<",\"mode2_constructs\":"<<mode2Constructs<<",\"ui_place_calls\":"<<uiPlaceCalls;
+                if(fieldPrefix)o<<",\"field_prefix\":true,\"field_hooks\":"<<fieldEntryName.size()<<",\"field_return_sites\":"<<fieldReturnSites.size()
+                 <<",\"field_manager\":"<<hx(fieldManager)<<",\"field_worker_entries\":"<<fieldWorkerEntries<<",\"field_stop_pc\":"<<hx(cpu.nPC)
+                 <<",\"field_stopped\":"<<(fieldStopped?"true":"false");
+                o<<",\"missing_checkpoints\":[";
                 for(size_t i=0;i<missingCheckpoints.size();++i)o<<(i?",":"")<<"\""<<missingCheckpoints[i]<<"\"";
                 o<<"]";
             }
