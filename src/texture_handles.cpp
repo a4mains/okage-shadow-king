@@ -84,16 +84,18 @@ int TextureHandleOwner::alloc_range(int count) {
 void TextureHandleOwner::free_id(int id) { id_used_[id] = false; }
 
 int TextureHandleOwner::pick_handle_id() {
-    if (!reserved_.empty()) return reserved_.front();
+    const auto& reserved = reserved_[reservation_class_];
+    if (!reserved.empty()) return reserved.front();
     for (int i = 0; i < handle_capacity; ++i)
         if (!id_used_[i]) return i;
     return -1;
 }
 
 int TextureHandleOwner::take_handle_id() {
-    if (!reserved_.empty()) {
-        const int id = reserved_.front();
-        reserved_.pop_front();
+    auto& reserved = reserved_[reservation_class_];
+    if (!reserved.empty()) {
+        const int id = reserved.front();
+        reserved.pop_front();
         return id;
     }
     return alloc_range(1);
@@ -135,7 +137,7 @@ int TextureHandleOwner::create_alias(int record) {
 int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, std::uint16_t height,
                                      std::span<const std::uint8_t> pixels) {
     if (psm != GsPixelStorage::Psmct32 && psm != GsPixelStorage::Psmct24 && psm != GsPixelStorage::Psmt8 && psm != GsPixelStorage::Psmt4 &&
-        psm != GsPixelStorage::Psmt4Hl && psm != GsPixelStorage::Psmt4Hh)
+        psm != GsPixelStorage::Psmt4Hl && psm != GsPixelStorage::Psmt4Hh && psm != GsPixelStorage::Psmt8H)
         throw std::invalid_argument("texture handle: unsupported pixel storage");
     if (!width || !height || width > 2048 || height > 2048)
         throw std::invalid_argument("texture handle: dimension outside 1..2048");
@@ -206,7 +208,9 @@ XimLoadReport TextureHandleOwner::load_xim(const OwnedRawXim& xim) {
                                  static_cast<std::uint16_t>(l.width),
                                  static_cast<std::uint16_t>(l.height), xim.image());
     if (report.handle < 0) return report;
-    const bool indexed = l.pixel_format == 19 || l.pixel_format == 20;
+    // 18f6a8: a palette block exists for every header PSM >= 0x10, including the
+    // 11fb10/18f500 override to 27 (PSMT8H) of an authored PSMT8 file.
+    const bool indexed = l.indexed;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
         PaletteLevelOutcome outcome;
         outcome.level = i;
@@ -217,14 +221,19 @@ XimLoadReport TextureHandleOwner::load_xim(const OwnedRawXim& xim) {
     return report;
 }
 
+void TextureHandleOwner::set_reservation_class(int value) noexcept {
+    if (value >= 0 && value < 2) reservation_class_ = static_cast<unsigned>(value);
+}
+
 int TextureHandleOwner::reserve_handles(int count) {
+    auto& reserved = reserved_[reservation_class_];
     if (count <= 0) throw std::invalid_argument("texture handle: reservation count must be positive");
-    for (int id : reserved_) free_id(id);  // phase 1; not undone on failure
-    reserved_.clear();
+    for (int id : reserved) free_id(id);  // phase 1; not undone on failure
+    reserved.clear();
     const int first = alloc_range(count);
-    log_event({HandleEvent::Kind::Reserved, count, first});
+    log_event({HandleEvent::Kind::Reserved, count, first, reservation_class_});
     if (first < 0) return -1;
-    for (int i = 0; i < count; ++i) reserved_.push_back(first + i);
+    for (int i = 0; i < count; ++i) reserved.push_back(first + i);
     return first;
 }
 
@@ -436,8 +445,10 @@ void TextureHandleOwner::set_event_log_limit(std::size_t limit) {
 }
 
 void TextureHandleOwner::retire_all() {
-    for (int id : reserved_) free_id(id);
-    reserved_.clear();
+    for (auto& reserved : reserved_) {
+        for (int id : reserved) free_id(id);
+        reserved.clear();
+    }
     for (int h = 0; h < handle_capacity; ++h)
         if (map_[h] >= 0) retire(h);
 }
@@ -485,7 +496,12 @@ int TextureHandleOwner::live_record_count() const noexcept {
 std::uint16_t TextureHandleOwner::record_handle_count(int record) const { return records_.at(record).handles; }
 std::string TextureHandleOwner::record_name(int record) const { return records_.at(record).name.data(); }
 int TextureHandleOwner::record_hash_slot(int record) const { return records_.at(record).hash_slot; }
-std::vector<int> TextureHandleOwner::reserved_handles() const { return {reserved_.begin(), reserved_.end()}; }
+std::vector<int> TextureHandleOwner::reserved_handles() const { return reserved_handles(reservation_class_); }
+std::vector<int> TextureHandleOwner::reserved_handles(unsigned reservation_class) const {
+    if (reservation_class >= reserved_.size()) throw std::invalid_argument("texture reservation class");
+    const auto& reserved = reserved_[reservation_class];
+    return {reserved.begin(), reserved.end()};
+}
 std::vector<std::pair<int, int>> TextureHandleOwner::hash_entries() const {
     std::vector<std::pair<int, int>> out;
     for (int i = 0; i < hash_size; ++i)

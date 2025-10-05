@@ -66,7 +66,8 @@ static void formats() {
         {19, 0, 16, S::Supported}, {19, 0, 256, S::Supported},
         {19, 0, 32, S::UnsupportedPaletteShape}, {19, 2, 256, S::UnsupportedPaletteFormat},
         {20, 0, 16, S::Supported}, {20, 0, 256, S::Supported}, {20, 2, 16, S::UnsupportedPaletteFormat},
-        {27, 0, 256, S::UnsupportedImageFormat},
+        {27, 0, 256, S::Supported}, {27, 0, 16, S::Supported},
+        {27, 2, 256, S::UnsupportedPaletteFormat}, {27, 0, 32, S::UnsupportedPaletteShape},
     };
     for (const auto& r : rows) {
         for (unsigned levels : {1u, r.psm >= 16 ? 3u : 1u}) {

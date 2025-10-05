@@ -89,6 +89,23 @@ int main() {
             require(defined_count(m) == 64, "only the 64 transferred bytes are defined");
             require(byte_is(m, 8, -1), "row-1 position 0,1 untouched: y1 is +8");
         });
+        scenario([&] {
+            Ps2TextureMemory m;
+            const auto low=sequence(16,91), high=sequence(16,3);
+            transfer_host_to_local(m,{0,0,1,0,0,2,2},low);
+            const auto r=transfer_host_to_local(m,{27,0,1,0,0,8,4},high);
+            require(r.bytes_written==16 && r.pixels_written==16,"8H result");
+            for(unsigned k=0;k<3;++k) {
+                require(byte_is(m,k,low[k]) && byte_is(m,4+k,low[4+k]) &&
+                        byte_is(m,8+k,low[8+k]),"8H preserves existing low24");
+            }
+            require(byte_is(m,3,high[0]) && byte_is(m,7,high[1]) &&
+                    byte_is(m,0x13,high[2]) && byte_is(m,0xb,high[8]),"8H hand-derived word addresses");
+            require(byte_is(m,0x43,-1) && byte_is(m,0x10,-1),"8H unwritten row and low lanes unknown");
+            transfer_host_to_local(m,{27,0x3fff,1,64,0,16,1},high);
+            require(byte_is(m,0x1f03,high[0]),"8H wrap");
+            rejects("8H invalid later coordinate",[&]{transfer_host_to_local(m,{27,0,1,0,2047,8,2},high);});
+        });
         // Row wrap uses rrw but stride comes from TBW: 2x2 at TBW1.
         scenario([&] {
             Ps2TextureMemory m;
@@ -157,7 +174,6 @@ int main() {
             const auto data = sequence(32);
             // PSM1 became supported in Title (tests/texture_psm1_tests.cpp); its sibling selectors stay guards.
             rejects("psm 0x31", [&] { transfer_host_to_local(m, {0x31, 0, 1, 0, 0, 4, 4}, data); });
-            rejects("psm 27", [&] { transfer_host_to_local(m, {27, 0, 1, 0, 0, 8, 8}, data); });
             rejects("psm 2", [&] { transfer_host_to_local(m, {2, 0, 1, 0, 0, 8, 8}, data); });
             rejects("psm 18", [&] { transfer_host_to_local(m, {18, 0, 1, 0, 0, 8, 8}, data); });
             rejects("tbp", [&] { transfer_host_to_local(m, {0, 0x4000, 1, 0, 0, 4, 4}, data); });
