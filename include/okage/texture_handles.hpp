@@ -97,10 +97,6 @@ public:
     // contiguous ids, queues them FIFO. -1 on failure (releases persist).
     // n <= 0 is unguarded in retail and rejected here.
     int reserve_handles(int count);
-    // 0x1cbdd8: selects one of two independent reservation queues. Invalid
-    // values leave the current class unchanged, exactly as the source setter.
-    void set_reservation_class(int value) noexcept;
-    unsigned reservation_class() const noexcept { return reservation_class_; }
     // 0x1cc4e0. Null name clears. Lower-cased, 19 chars. Duplicate: newest wins.
     void set_name(int handle, const char* name);
     // 0x1cce78. Hit creates an alias handle (no descriptor change). -1 on miss
@@ -120,7 +116,6 @@ public:
     // 0x186a40(1): lower-cases the file name passed to the reader (names are
     // always lower-cased inside lookup/registration).
     void set_lower_case_file_names(bool on) noexcept { lower_file_names_ = on; }
-    bool lower_case_file_names() const noexcept { return lower_file_names_; }
 
     using FileReader = std::function<std::optional<std::vector<std::uint8_t>>(std::string&)>;
     XmdLoadResult load_xmd_names(std::span<const std::string> names, const FileReader& read_file);
@@ -137,7 +132,6 @@ public:
     std::string record_name(int record) const;
     int record_hash_slot(int record) const;
     std::vector<int> reserved_handles() const;
-    std::vector<int> reserved_handles(unsigned reservation_class) const;
     std::size_t free_record_count() const noexcept { return free_records_.size(); }
     std::size_t free_extra_count() const noexcept { return free_extras_.size(); }
     std::vector<std::pair<int, int>> hash_entries() const;  // (slot, value)
@@ -162,8 +156,7 @@ private:
     Ps2TextureMemory* memory_;
     std::array<std::int16_t, handle_capacity> map_;
     std::array<bool, handle_capacity> id_used_{};  // range allocator (HR)
-    std::array<std::deque<int>, 2> reserved_;
-    unsigned reservation_class_{};
+    std::deque<int> reserved_;                      // class-0 queue
     std::array<Record, record_capacity> records_{};
     std::deque<int> free_records_;
     std::array<OptDescriptor, extra_palette_capacity> extra_desc_{};

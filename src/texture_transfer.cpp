@@ -17,7 +17,7 @@ namespace {
 std::uint32_t bits_per_pixel(std::uint32_t psm) {
     if (psm == 0) return 32;
     if (psm == 1) return 24;
-    if (psm == 19 || psm == 0x1b) return 8;
+    if (psm == 19) return 8;
     if (psm == 0x14 || psm == 0x24 || psm == 0x2c) return 4;
     reject("unsupported pixel storage format " + std::to_string(psm));
 }
@@ -86,17 +86,6 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
         for (std::uint32_t i = 0; i < pixels; ++i)
             memory.write_nibble(slots[i].address, slots[i].nibble,
                                 static_cast<std::uint8_t>(data[i / 2] >> ((i & 1u) * 4u)));
-        return {data.size(), pixels};
-    }
-
-    if (t.psm == 0x1b) {
-        std::vector<std::uint32_t> high(pixels);
-        for (std::uint32_t i = 0; i < pixels; ++i) {
-            const auto word = gs_texture_byte_address(0, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
-            if (!word) reject("pixel address outside the supported coordinate range");
-            high[i] = *word + 3u;
-        }
-        for (std::uint32_t i = 0; i < pixels; ++i) memory.write_bytes(high[i], data.subspan(i, 1));
         return {data.size(), pixels};
     }
 
@@ -219,9 +208,7 @@ std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedR
     if (!image) return std::nullopt;
     result.image = image->id;
     upload_allocation_image(memory, image->id, xim.image());
-    // 18f6a8 reads the palette block whenever the header PSM is >= 0x10 (19, 20
-    // and the 11fb10/18f500 override 27 alike).
-    const bool indexed = l.indexed;
+    const bool indexed = l.pixel_format == 19 || l.pixel_format == 20;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
         XimPaletteAttempt attempt{i, std::nullopt, false};
         const auto palette = memory.allocate(0, GsPixelStorage::Psmct32, 16,

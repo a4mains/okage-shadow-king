@@ -51,12 +51,6 @@ enum class ResourceStage : std::uint8_t {
     ChapterResourcesRetired,
     ChapterWrappersFreed,       // resource node then mode-2 node freed
     FieldConstructorEntry,
-    FieldConstructed,           // 133830 returned: 1151b8 resource 221980 at +0x3c, 1bafd0(1), 178578(132688, node, scene, 0)
-    FieldWorkerEntered,         // 132688 entry: +0x38/+0x30/+0x34 = 0, 1b8348(1)
-    FieldAtlasLoaded,           // 131d88 1cd7a8(0), 131d90 186a40(1), 131cd0 -> 11fb10(bm_if[j], 27): manager+0x60, 24f730
-    FieldTexenvLoaded,          // 100c60(resource, texenv.xim): 18f7a8 -> resource+0x48, 183ff0 TEX0 332430 / region 332450
-    FieldRuwLoaded,             // 1a9190("fld.ruw", 0): RUW slot 0
-    FieldUiPublished,           // 131e7c: manager+0x34 = 1 (the prefix is available; loading is NOT complete: +0x30 stays 0)
     Unmodeled,
 };
 const char* to_string(ResourceStage);
@@ -227,40 +221,8 @@ public:
     void destroy_chapter_mode();
     void free_chapter_resource_node();
     void free_chapter_wrappers();
-    // Entry of the second 133830 with command 0 (the Newgame stop).
+    // Entry of the second 133830 with command 0 (the Newgame stop). Its body (field loading) is not modeled.
     void enter_field_constructor(unsigned scene, unsigned entrance);
-    // ---- Field: the ordinary-field common prefix  ----
-    using OwnedBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
-    // Source-visible state of the prefix, the field manager (the mode-2 node) and its resource child.
-    struct FieldPrefixState {
-        bool resource_created{};         // 1151b8(node, 221980, 0x50) -> node+0x3c
-        std::uint32_t switch_337e70{};
-        bool job_queued{};               // 178578(132688, node, scene, 0)
-        unsigned scene{}, entrance{};
-        int w30{}, w34{};                // 132688 clears both; 131e7c sets +0x34; +0x30 only after 131d28 returns
-        int manager_60{};
-        int resource_48{-1};
-        int atlas_global_24f730{-1};
-        std::uint32_t clut_class_2138c4{};
-        std::uint64_t tex0_332430{};
-        std::array<std::uint32_t, 4> region_332450{};
-        bool ruw_slot0_live{};           // 1a9190("fld.ruw", 0)
-        std::uint64_t ruw_bytes{};
-        std::string ruw_sha256;
-    };
-    const FieldPrefixState& field_prefix() const noexcept { return field_; }
-    void construct_field_mode(unsigned scene, unsigned entrance);
-    // 132688 entry (the job ran): the publication words are cleared, 1b8348(1).
-    void enter_field_worker();
-    int load_field_atlas(const OwnedBytes& atlas);
-    // 131d14 executes after the observed 11fb10 return checkpoint.
-    void bind_field_atlas();
-    // 100c60(resource, "texenv.xim"): 18f7a8 -> resource+0x48, then 183ff0(handle, 0, 0, 0, height, width).
-    int load_field_texenv(const OwnedBytes& texenv);
-    // 1a9190("fld.ruw", 0).
-    void load_field_ruw(const OwnedBytes& ruw);
-    // 131e7c: manager+0x34 = 1. The rest of 131d28 (131e80 onward) is not modeled.
-    void publish_field_ui();
     unsigned chapter_scene() const noexcept { return chapter_scene_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
     void request_title_successor(unsigned mode);
@@ -278,6 +240,7 @@ public:
     const std::vector<int>& image_list() const noexcept { return image_list_; }
     // Binding table of the last bound model (handles[i] for name index i; -7/-1 past the tail).
     const std::vector<int>& model_binding() const noexcept { return model_binding_; }
+    using OwnedBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
     const std::vector<OwnedBytes>& model_slot_bytes() const noexcept { return model_slot_bytes_; }
     bool started() const noexcept { return started_; }
     Ps2TextureMemory& memory() noexcept { return memory_; }
@@ -343,8 +306,6 @@ private:
     std::string unmodeled_reason_;
     unsigned successor_mode_{};
     int wrapper_atlas_{-1};  // wrapper+0x30 of the live mode-9/10 wrapper (Restore or name entry)
-    FieldPrefixState field_;
-    OwnedBytes field_atlas_bytes_, field_texenv_bytes_, field_ruw_bytes_;
     unsigned chapter_scene_{};
     bool second_title_{};
     std::vector<std::uint32_t> session_draw_frames_;
@@ -357,7 +318,7 @@ private:
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
-enum class CheckpointSchema : std::uint8_t { Retire, Restore, Newgame, Field };
+enum class CheckpointSchema : std::uint8_t { Retire, Restore, Newgame };
 void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
                                    const std::string& checkpoint, std::uint32_t session_rng_state,
                                    CheckpointSchema schema = CheckpointSchema::Retire);

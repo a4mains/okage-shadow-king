@@ -76,17 +76,6 @@ target_link_libraries(okage-texture-transfer-compare PRIVATE okage_assets)
 add_executable(okage-texture-memory-corpus tools/texture_memory_corpus.cpp)
 target_link_libraries(okage-texture-memory-corpus PRIVATE okage_assets)
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../games/pcsx2/pcsx2/GS/GSTables.cpp")
-    set(PCSX2_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../games/pcsx2")
-endif()
-
-if(PCSX2_SOURCE_DIR)
-    add_executable(okage-gs-differential-compare tools/gs_differential_compare.cpp "${PCSX2_SOURCE_DIR}/pcsx2/GS/GSTables.cpp")
-    target_include_directories(okage-gs-differential-compare PRIVATE "${PCSX2_SOURCE_DIR}" "${PCSX2_SOURCE_DIR}/pcsx2")
-    target_link_libraries(okage-gs-differential-compare PRIVATE okage_assets)
-    target_compile_options(okage-gs-differential-compare PRIVATE -Wall -Wextra -Wno-unused-parameter)
-endif()
-
 if(APPLE)
     enable_language(OBJCXX)
     add_library(okage_texture_address_batch_metal src/texture_address_batch_metal.mm)
