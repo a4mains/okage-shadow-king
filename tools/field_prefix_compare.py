@@ -64,6 +64,17 @@ FIELD_INT = ('switch_337e70', 'scene', 'entrance', 'w30', 'w34', 'manager_60', '
              'ruw_bytes', 'reserve_class_3abb14')
 FIELD_KEYS = FIELD_BOOL + FIELD_INT + ('tex0_332430', 'region_332450', 'ruw_sha256')
 
+CONTROL_RESOURCE_KEYS = frozenset((
+    'handles', 'records', 'hash', 'live_handles', 'reserved', 'free_records', 'free_extras', 'descriptors',
+    'free_queue_ids', 'inuse_ring_ids', 'reserved1', 'reserve_class', 'cache_switch', 'lower_switch',
+    'image_list_count', 'image_list', 'record_free_order', 'extra_free_order', 'handle_ids_free_order',
+    'handle_range_sha256', 'handle_nodes_sha256', 'material_tables', 'occupancy_hex', 'rand_state_214ec8_58',
+    'vram.available', 'vram.cursors', 'vram.occupancy_sha256', 'vram.nodes_sha256'))
+CONTROL_FIELD_KEYS = frozenset((
+    'manager', 'w20', 'w30', 'w34', 'w48', 'w4c', 'w60', 'we4', 'resource_3c', 'manager_440_sha256',
+    'resource_48', 'resource_50_sha256', 'tex0_332430', 'env_332450', 'w337e70', 'lower_1fe30c', 'cache_1fe310',
+    'reserve_3abb14', 'clut_class_2138c4', 'atlas_global_24f730', 'ruw_slots_live', 'ruw_332b98'))
+
 def hex_string(v, length):
     return isinstance(v, str) and len(v) == length and all(c in '0123456789abcdef' for c in v)
 
@@ -299,8 +310,13 @@ def load_reference(path):
         required = {'resource_state_equal', 'session_state_equal', 'field_equal_except_counter', 'vram_fill00_equal'}
         if not isinstance(evidence, dict) or not required <= set(evidence):
             raise Malformed(f'reference minimal control evidence missing for {cp}')
-        if any(not isinstance(evidence[k], dict) or not evidence[k] for k in ('resource_state_equal', 'field_equal_except_counter')):
-            raise Malformed(f'reference minimal control state coverage missing for {cp}')
+        for key, expected in (('resource_state_equal', CONTROL_RESOURCE_KEYS),
+                              ('field_equal_except_counter', CONTROL_FIELD_KEYS)):
+            value = evidence[key]
+            if not isinstance(value, dict) or set(value) != expected or any(type(x) is not bool for x in value.values()):
+                raise Malformed(f'reference minimal control {key} source property coverage missing/malformed for {cp}')
+        if any(type(evidence[k]) is not bool for k in ('session_state_equal', 'vram_fill00_equal')):
+            raise Malformed(f'reference minimal control equality witness malformed for {cp}')
         if cp.startswith('ui-publish') and type(evidence.get('ee_ram_equal')) is not bool:
             raise Malformed(f'reference minimal control RAM evidence missing for {cp}')
         for key in required | ({'ee_ram_equal'} if cp.startswith('ui-publish') else set()):

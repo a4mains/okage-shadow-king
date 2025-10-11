@@ -46,8 +46,8 @@ class Fixture:
         self.ref = {'schema': 'okage.field-prefix-original-reference.v1', 'route': cmp.ROUTE, 'checkpoints': {},
                     'rng': {'provenance': 'every draw is a hooked observation', 'total': cmp.RNG_COUNT, 'window_draws': 0}, 'problems': [],
                     'control_minimal': {'failures': [], 'missing': [], 'checkpoints_compared': {
-                        cp: {'resource_state_equal': {'handles': True}, 'session_state_equal': True,
-                             'field_equal_except_counter': {'w34': True}, 'vram_fill00_equal': True,
+                        cp: {'resource_state_equal': {k: True for k in cmp.CONTROL_RESOURCE_KEYS}, 'session_state_equal': True,
+                             'field_equal_except_counter': {k: True for k in cmp.CONTROL_FIELD_KEYS}, 'vram_fill00_equal': True,
                              **({'ee_ram_equal': True} if cp.startswith('ui-publish') else {})}
                         for cp in ('field-constructor-return', 'worker-entry', 'ui-publish-pre', 'ui-publish-post-block')}},
                     'newgame_neutrality': {cp: {k: True for k in ('events.jsonl', 'state.json', 'rng.jsonl', 'session.json', 'effects.json')}
@@ -286,6 +286,36 @@ class Comparator(unittest.TestCase):
         dump(self.f.orig / 'reference.json', self.f.ref)
         self.f.repin()
         with self.assertRaises(cmp.Malformed):
+            self.run_cmp()
+
+    def test_common_missing_resource_control_property_with_valid_inventory(self):
+        for evidence in self.f.ref['control_minimal']['checkpoints_compared'].values():
+            evidence['resource_state_equal'].pop('descriptors')
+        dump(self.f.orig / 'reference.json', self.f.ref)
+        self.f.repin()
+        with self.assertRaisesRegex(cmp.Malformed, 'resource_state_equal source property coverage'):
+            self.run_cmp()
+
+    def test_common_missing_field_control_property_with_valid_inventory(self):
+        for evidence in self.f.ref['control_minimal']['checkpoints_compared'].values():
+            evidence['field_equal_except_counter'].pop('manager_440_sha256')
+        dump(self.f.orig / 'reference.json', self.f.ref)
+        self.f.repin()
+        with self.assertRaisesRegex(cmp.Malformed, 'field_equal_except_counter source property coverage'):
+            self.run_cmp()
+
+    def test_unknown_control_property_rejected(self):
+        self.f.ref['control_minimal']['checkpoints_compared']['worker-entry']['resource_state_equal']['invented'] = True
+        dump(self.f.orig / 'reference.json', self.f.ref)
+        self.f.repin()
+        with self.assertRaisesRegex(cmp.Malformed, 'source property coverage'):
+            self.run_cmp()
+
+    def test_nonboolean_control_equality_rejected(self):
+        self.f.ref['control_minimal']['checkpoints_compared']['worker-entry']['session_state_equal'] = 'true'
+        dump(self.f.orig / 'reference.json', self.f.ref)
+        self.f.repin()
+        with self.assertRaisesRegex(cmp.Malformed, 'equality witness malformed'):
             self.run_cmp()
 
     def test_control_failure_without_witness(self):
