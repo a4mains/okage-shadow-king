@@ -77,7 +77,7 @@ int main() {
             require(defined_count(m) == 2 * 256, "two 8x8 PSM0 uploads");
             const int nu = o.create_image(C32, 8, 8, {});
             require(nu == 2 && defined_count(m) == 2 * 256, "no pixel pointer: no upload");
-            rejects("psm27", [&] { o.create_image(GsPixelStorage::Psmt8H, 8, 8, {}); });
+            rejects("psm2", [&] { o.create_image(GsPixelStorage::Psmct16, 8, 8, {}); });
             {
                 const int h24 = o.create_image(GsPixelStorage::Psmct24, 8, 8, sequence(8 * 8 * 3));
                 require(h24 >= 0, "psm1 image created");
@@ -177,6 +177,31 @@ int main() {
             require(o.reserved_handles().empty(), "failed reserve does not undo the phase-1 release");
             require(o.reserve_handles(TextureHandleOwner::handle_capacity - 2) == 2, "exact remaining run");
             rejects("n<=0", [&] { o.reserve_handles(0); });
+        });
+        // Worker class reservations survive main-thread reservations and vice versa.
+        scenario([&] {
+            Ps2TextureMemory m; m.initialize_empty_allocator();
+            TextureHandleOwner o(m);
+            require(o.reserve_handles(3) == 0, "main reserves 0..2");
+            o.set_event_log_limit(32);
+            o.set_reservation_class(1);
+            require(o.reserve_handles(2) == 3, "worker reserves separate 3..4");
+            require(o.events().back().kind==K::Reserved && o.events().back().c==1,"reservation records creation class");
+            require(o.create_handle({}) == 3, "worker consumes its own head");
+            o.set_reservation_class(-1); o.set_reservation_class(2);
+            require(o.reservation_class() == 1, "invalid class leaves selector alone");
+            o.set_reservation_class(0);
+            require(o.create_handle({}) == 0, "main queue survived worker creation");
+            require(o.reserve_handles(TextureHandleOwner::handle_capacity) == -1, "main oversized reservation fails");
+            require(o.reserved_handles(1) == std::vector<int>({4}), "failure only releases selected queue");
+            o.set_reservation_class(1);
+            require(o.create_handle({}) == 4, "worker pending head survives main failure");
+            o.reserve_handles(2);
+            o.set_reservation_class(0); o.reserve_handles(2);
+            o.retire_all();
+            require(o.reserved_handles(0).empty() && o.reserved_handles(1).empty() && o.live_handle_count() == 0,
+                    "teardown frees both queues");
+            require(o.reserve_handles(TextureHandleOwner::handle_capacity) == 0, "all ids reusable after teardown");
         });
         // Palette binding.
         scenario([&] {

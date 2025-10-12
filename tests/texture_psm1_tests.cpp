@@ -221,7 +221,7 @@ int main() {
             require(known_bytes(m) == 0 && m.identity() == id0, "guards wrote nothing");
         });
 
-        // Raw XIM support: direct PSMCT24, no palette. PSM27 and CPSM2 stay guarded.
+        // Raw XIM support: direct PSMCT24, no palette. Field also accepts PSM27/CPSM0.
         scenario([&] {
             const OwnedRawXim xim(build_xim(1, 0, 32, 16));
             const auto support = xim_upload_support(xim.layout());
@@ -242,7 +242,7 @@ int main() {
             require(known_bytes(m) == 32 * 16 * 3, "only the image bytes");
             rejects("psm1 smaller than a quadword", [&] { upload_xim(m, OwnedRawXim(build_xim(1, 0, 5, 1))); });
             const OwnedRawXim p27(build_xim(27, 0, 8, 8));
-            require(xim_upload_support(p27.layout()).status == XimUploadStatus::UnsupportedImageFormat, "psm27 guarded");
+            require(xim_upload_support(p27.layout()).status == XimUploadStatus::Supported, "psm27 supported with palette");
             const OwnedRawXim p0(build_xim(0, 0, 8, 8));
             require(xim_upload_support(p0.layout()).status == XimUploadStatus::Supported, "psm0 unchanged");
         });

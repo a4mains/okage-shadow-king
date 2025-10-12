@@ -99,6 +99,10 @@ struct FieldReturnLoad {
     std::optional<okage::BattleHudData> numbers;
     std::shared_ptr<okage::RuwResource> ruw;
     std::shared_ptr<const okage::Texture> atlas;
+    std::shared_ptr<const std::vector<std::uint8_t>> atlas_bytes,texenv_bytes,ruw_bytes;
+    bool prefix_modeled=false;
+    std::atomic<unsigned> prefix_ready{0};
+    unsigned prefix_applied=0;
     std::unique_ptr<okage::ResultsRenderer> drawing;
     std::unique_ptr<okage::ResultsInterface> ui;
     std::optional<okage::UiDrawList> draw;
@@ -201,6 +205,21 @@ struct Session {
         okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::Newgame);
         write_newgame_session(newgame_report/name/"session.json");
         if(std::string_view(name)=="field-constructor-entry")write_newgame_route();
+    }
+    void field_checkpoint(const char* name) {
+        startup_textures->note_checkpoint(name);
+        newgame_checkpoint_frames.emplace_back(name,frame);
+        if(newgame_report.empty())return;
+        okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::Field);
+        write_newgame_session(newgame_report/name/"session.json");
+        if(std::string_view(name)=="ui-prefix-published") {
+            std::ofstream out(newgame_report/"field-route.json",std::ios::binary);
+            out<<"{\"route\":\"newgame-field-prefix\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
+            bool first=true;
+            for(const auto& [n,f]:newgame_checkpoint_frames){out<<(first?"":",")<<"\""<<n<<"\":"<<f;first=false;}
+            out<<"}}\n";
+            if(!out)throw std::runtime_error("Field field route report write failed");
+        }
     }
     static std::string fbits(float v){char b[11];std::snprintf(b,sizeof b,"0x%x",std::bit_cast<std::uint32_t>(v));return b;}
     void write_newgame_session(const fs::path& path) {
@@ -1112,16 +1131,30 @@ struct Session {
         auto* f=field_return.get();f->ordinary=true;f->phase=7;f->entrance=selection[2];
         const auto input=battle_input,decoded=field_root.parent_path();
         const bool alternate=variables[12]!=0;
+        f->prefix_modeled=title_modeled(okage::ResourceStage::FieldConstructorEntry);
+        if(f->prefix_modeled) {
+            startup_textures->construct_field_mode(selection[1],selection[2]);
+            field_checkpoint("field-constructor-return");
+        }
         f->jobs.enqueue([f,input,decoded,alternate]{@autoreleasepool {
             f->counter.store(0); //132688, before the first loader service.
+            f->prefix_ready.store(1,std::memory_order_release);
             if(!f->jobs.checkpoint())return;
             auto bytes=readData(decoded/"CMNDATA/2D/MAIN.XPF"/(alternate?"bm_ifj.xim":"bm_if.xim"));
             if(bytes.size()<4)throw std::runtime_error("Ordinary field UI atlas header");
             unsigned header=0;for(unsigned i=0;i<4;++i)header|=unsigned(bytes[i])<<(8*i);
             header=(header&0xfc0fffff)|(0x1bu<<20);for(unsigned i=0;i<4;++i)bytes[i]=header>>(8*i);
-            f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(bytes));
+            f->atlas_bytes=std::make_shared<const std::vector<std::uint8_t>>(std::move(bytes));
+            f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(*f->atlas_bytes));
+            f->prefix_ready.store(2,std::memory_order_release);
             if(!f->jobs.checkpoint())return;
-            f->ruw=std::make_shared<okage::RuwResource>(readData(input/"FLD.RUW"));
+            //100c60: texenv.xim from the same mounted MAIN.XPF (logical load only; sampling is unchanged).
+            f->texenv_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(decoded/"CMNDATA/2D/MAIN.XPF"/"texenv.xim"));
+            f->prefix_ready.store(3,std::memory_order_release);
+            if(!f->jobs.checkpoint())return;
+            f->ruw_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(input/"FLD.RUW"));
+            f->ruw=std::make_shared<okage::RuwResource>(*f->ruw_bytes);
+            f->prefix_ready.store(4,std::memory_order_release);
         }},{0x132688,0x131d28});
         std::cout<<"Native ordinary field queued scene="<<current_scene<<" entrance="<<current_entrance<<" frame="<<frame<<'\n';
     }
@@ -1130,7 +1163,38 @@ struct Session {
         auto& f=*field_return;f.jobs.check();
         if(load_observation_trace)f.jobs.observe(okage::LoadEventKind::Poll,0,{},frame);
         if(!f.resumed){if(loading_policy==LoadingPolicy::Continuous)f.jobs.resume();f.resumed=true;return;}
+        if(f.prefix_modeled) {
+            auto& handles=startup_textures->handles();
+            const auto prior_class=handles.reservation_class();
+            struct RestoreClass {
+                okage::TextureHandleOwner& handles; unsigned value;
+                ~RestoreClass(){handles.set_reservation_class(value);}
+            } restore_class{handles,prior_class};
+            handles.set_reservation_class(1);
+            const auto ready=f.prefix_ready.load(std::memory_order_acquire);
+            while(f.prefix_applied<ready) {
+                switch(++f.prefix_applied) {
+                    case 1:
+                        // Source observer stops at entry, before any 132688 effects.
+                        field_checkpoint("worker-entry");startup_textures->enter_field_worker();break;
+                    case 2:
+                        startup_textures->load_field_atlas(f.atlas_bytes);field_checkpoint("atlas-loaded");
+                        startup_textures->bind_field_atlas();break;
+                    case 3:
+                        startup_textures->load_field_texenv(f.texenv_bytes);
+                        field_checkpoint("texenv-bound");field_checkpoint("texenv-loaded");break;
+                    case 4:
+                        startup_textures->load_field_ruw(f.ruw_bytes);field_checkpoint("ruw-loaded");
+                        startup_textures->publish_field_ui();field_checkpoint("ui-prefix-published");
+                        f.ui_stage=1;
+                        startup_textures->mark_unmodeled("131d28 after 131e7c (131e80 onward: field definition, PME, music, map/XMD/XTA, actors) is not modeled");
+                        break;
+                    default:throw std::logic_error("Invalid field prefix publication");
+                }
+            }
+        }
         if(f.jobs.pending())return;
+        if(f.prefix_modeled && f.prefix_applied!=4)return;
         if(!f.world_queued) {
             f.ui_stage=1;
             f.definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),current_scene);
@@ -1516,7 +1580,6 @@ struct Session {
                 if(selection[0]==2&&pending_game_command[0]==0&&title_modeled(okage::ResourceStage::ChapterWrappersFreed)) {
                     startup_textures->enter_field_constructor(selection[1],selection[2]);
                     newgame_checkpoint("field-constructor-entry");
-                    startup_textures->mark_unmodeled("ordinary field constructor body (133830 command 0) is not modeled");
                 }
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {

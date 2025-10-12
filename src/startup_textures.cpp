@@ -1,4 +1,5 @@
 #include "okage/startup_textures.hpp"
+#include "okage/sha256.hpp"
 
 #include <algorithm>
 #include <map>
@@ -180,7 +181,7 @@ void StartupTextureOwner::sync() {
                 break;
             case K::Reserved:
                 lifecycle_push("{\"kind\":\"reserve\",\"count\":" + n(e.a) + ",\"first\":" + n(e.b) +
-                               ",\"class\":0}");
+                               ",\"class\":" + n(e.c) + "}");
                 break;
             default: break;
         }
@@ -424,6 +425,12 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::ChapterResourcesRetired: return "chapter-resources-retired";
         case ResourceStage::ChapterWrappersFreed: return "chapter-wrappers-freed";
         case ResourceStage::FieldConstructorEntry: return "field-constructor-entry";
+        case ResourceStage::FieldConstructed: return "field-constructed";
+        case ResourceStage::FieldWorkerEntered: return "field-worker-entered";
+        case ResourceStage::FieldAtlasLoaded: return "field-atlas-loaded";
+        case ResourceStage::FieldTexenvLoaded: return "field-texenv-loaded";
+        case ResourceStage::FieldRuwLoaded: return "field-ruw-loaded";
+        case ResourceStage::FieldUiPublished: return "field-ui-published";
         case ResourceStage::Unmodeled: return "unmodeled";
     }
     return "unknown";
@@ -614,6 +621,7 @@ int StartupTextureOwner::construct_restore(const std::vector<std::uint8_t>& atla
     sync();
     const auto report = handles_.load_xim(OwnedRawXim(atlas));  // 18f7a8: authored PSM19/CPSM0, unnamed
     wrapper_atlas_ = report.handle;
+    field_.atlas_global_24f730 = report.handle;
     sync();
     advance(ResourceStage::RestoreActive);
     return wrapper_atlas_;
@@ -764,6 +772,7 @@ int StartupTextureOwner::construct_name_entry(const std::vector<std::uint8_t>& a
     sync();
     const auto report = handles_.load_xim(OwnedRawXim(atlas));  // 18f7a8: authored PSM19/CPSM0, unnamed
     wrapper_atlas_ = report.handle;
+    field_.atlas_global_24f730 = report.handle;
     sync();
     advance(ResourceStage::NameEntryActive);
     return wrapper_atlas_;
@@ -862,6 +871,114 @@ void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entra
     advance(ResourceStage::FieldConstructorEntry);
 }
 
+// ---- Field: the ordinary-field common prefix  ----
+void StartupTextureOwner::construct_field_mode(unsigned scene, unsigned entrance) {
+    require_stage(ResourceStage::FieldConstructorEntry, "133830 command-0 body");
+    if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field destination differs from active chapter request");
+    sync();
+    // 1151b8(node, 221980, 0x50): the resource child (100ef8 sets its +0x48 texenv handle to -1).
+    field_ = FieldPrefixState{.atlas_global_24f730 = field_.atlas_global_24f730, .clut_class_2138c4 = field_.clut_class_2138c4};
+    field_.resource_created = true;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"resource-create\"}");
+    field_.switch_337e70 = 1;  // 1bafd0(1)
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"switch-337e70\",\"value\":1}");
+    // 1b7eb0(10), 135aa0 and 1315d0 touch no texture, RNG or ownership state (see the Field contract).
+    field_.job_queued = true;
+    field_.scene = scene;
+    field_.entrance = 0;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"job-enqueue\",\"job\":\"0x132688\",\"scene\":" + std::to_string(scene) +
+                   ",\"arg\":0}");
+    advance(ResourceStage::FieldConstructed);
+}
+
+void StartupTextureOwner::enter_field_worker() {
+    require_stage(ResourceStage::FieldConstructed, "132688 entry");
+    sync();
+    field_.w30 = field_.w34 = 0;  // +0x38 (the parent-incremented counter) is scheduling state, not reported here
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"worker-entry\"}");
+    advance(ResourceStage::FieldWorkerEntered);
+}
+
+int StartupTextureOwner::load_field_atlas(const OwnedBytes& atlas) {
+    require_stage(ResourceStage::FieldWorkerEntered, "131cd0 atlas");
+    if (!atlas) throw std::invalid_argument("field atlas bytes missing");
+    sync();
+    field_.clut_class_2138c4 = 0;  // 1cd7a8(0)
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"clut-class\",\"value\":0}");
+    handles_.set_lower_case_file_names(true);  // 186a40(1)
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"lower-case\",\"value\":1}");
+    const OwnedRawXim xim(*atlas);
+    if (xim.layout().pixel_format != 27) throw std::invalid_argument("field atlas bytes lack the 18f500 PSM 27 override");
+    const auto report = handles_.load_xim(xim);  // 18f7a8 on the patched buffer
+    sync();
+    field_atlas_bytes_ = atlas;
+    field_.atlas_global_24f730 = report.handle;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"atlas\",\"handle\":" + std::to_string(report.handle) + "}");
+    advance(ResourceStage::FieldAtlasLoaded);
+    return report.handle;
+}
+
+void StartupTextureOwner::bind_field_atlas() {
+    require_stage(ResourceStage::FieldAtlasLoaded, "131d14 atlas ownership store");
+    field_.manager_60 = field_.atlas_global_24f730;
+}
+
+int StartupTextureOwner::load_field_texenv(const OwnedBytes& texenv) {
+    require_stage(ResourceStage::FieldAtlasLoaded, "100c60 texenv");
+    if (!texenv) throw std::invalid_argument("texenv bytes missing");
+    sync();
+    const OwnedRawXim xim(*texenv);
+    const auto report = handles_.load_xim(xim);
+    sync();
+    field_texenv_bytes_ = texenv;
+    field_.resource_48 = report.handle;  // 100ca0
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"texenv\",\"handle\":" + std::to_string(report.handle) + "}");
+    // 183ff0(handle, 0, 0, 0, t0 = image header +0xc, t1 = +0x8): the region, then TEX0 from the live descriptors
+    // (1cc2b0 image, 1cd500 level 0). No reference is taken.
+    const auto& w = xim.layout().image_header_words;
+    const auto region = [](std::int32_t v) { return std::bit_cast<std::uint32_t>((float(v) + 0.5f) * (1.f / 1024.f)); };
+    field_.region_332450 = {region(0), region(0), region(std::int32_t(w[3])), region(std::int32_t(w[2]))};
+    std::uint64_t image = 0, clut = 0;
+    if (report.handle >= 0) {
+        if (const auto d = handles_.image(report.handle))
+            if (const auto a = memory_.allocation(d->id)) image = a->descriptor;
+        if (const auto d = handles_.palette(report.handle, 0))
+            if (const auto a = memory_.allocation(d->id)) clut = a->descriptor;
+    }
+    field_.tex0_332430 = (image & 0x3fff) | (((image >> 14) & 0x3f) << 14) | (((image >> 32) & 0x3f) << 20) |
+                         (std::uint64_t(10) << 26) | (std::uint64_t(10) << 30) | (std::uint64_t(1) << 34) |
+                         ((clut & 0x3fff) << 37) | (((clut >> 32) & 0x3f) << 51) | (std::uint64_t(1) << 61);
+    char tex0[24];
+    std::snprintf(tex0, sizeof tex0, "0x%016llx", static_cast<unsigned long long>(field_.tex0_332430));
+    std::string r;
+    for (auto v : field_.region_332450) r += (r.empty() ? "" : ",") + std::to_string(v);
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"env-bind\",\"handle\":" + std::to_string(report.handle) + ",\"tex0\":\"" +
+                   tex0 + "\",\"region\":[" + r + "]}");
+    advance(ResourceStage::FieldTexenvLoaded);
+    return report.handle;
+}
+
+void StartupTextureOwner::load_field_ruw(const OwnedBytes& ruw) {
+    require_stage(ResourceStage::FieldTexenvLoaded, "1a9190 fld.ruw");
+    if (!ruw) throw std::invalid_argument("fld.ruw bytes missing");
+    sync();
+    field_ruw_bytes_ = ruw;
+    field_.ruw_slot0_live = true;
+    field_.ruw_bytes = ruw->size();
+    field_.ruw_sha256 = sha256_hex(*ruw);
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"ruw\",\"slot\":0,\"bytes\":" + std::to_string(ruw->size()) +
+                   ",\"sha256\":\"" + field_.ruw_sha256 + "\"}");
+    advance(ResourceStage::FieldRuwLoaded);
+}
+
+void StartupTextureOwner::publish_field_ui() {
+    require_stage(ResourceStage::FieldRuwLoaded, "131e7c publication");
+    sync();
+    field_.w34 = 1;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"ui-available\"}");
+    advance(ResourceStage::FieldUiPublished);
+}
+
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir) {
     std::ostringstream o;
@@ -948,7 +1065,8 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     };
     if (session_schema && !checkpoint.empty()) {
         // Retire: a title checkpoint between the first 1296f8 and entry of 124548.
-        const char* label = schema == CheckpointSchema::Newgame ? "newgame" : schema == CheckpointSchema::Restore ? "restore" : "retire-title";
+        const char* label = schema == CheckpointSchema::Field ? "field-prefix" : schema == CheckpointSchema::Newgame ? "newgame"
+                          : schema == CheckpointSchema::Restore ? "restore" : "retire-title";
         const bool second_return = owner.second_title() && owner.stage() == ResourceStage::TitleConstructed;
         if ((!second_return && (owner.stage() < ResourceStage::TitleActive || owner.stage() == ResourceStage::Unmodeled)) ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
@@ -958,7 +1076,9 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         o << "{\n \"coverage\":{\"lifecycle\":\"" << label << "\",\"checkpoint\":\"" << checkpoint
           << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"stage "
           << to_string(owner.stage())
-          << (schema == CheckpointSchema::Newgame
+          << (schema == CheckpointSchema::Field
+                  ? "; unmodeled after the 131e7c store (manager+0x34 = 1): 131e80 onward (field definition, PME, music, map/XMD/XTA, actors), the 132688 +0x30 completion, battle\","
+                  : schema == CheckpointSchema::Newgame
                   ? "; unmodeled after entry of the second 133830 (command 0): ordinary field loading, XTA, battle\","
                   : schema == CheckpointSchema::Restore
                   ? "; unmodeled after the second 12c350(1) return: its first 1296f8 update, saved-slot Restore, field, battle, XTA\","
@@ -1057,13 +1177,15 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             rng << "{\"i\":" << i++ << ",\"phase\":\"" << to_string(d.phase) << "\",\"state\":" << d.state
                 << ",\"value\":" << d.value << "}\n";
         const bool restore_rows = session_schema && !checkpoint.empty() && schema != CheckpointSchema::Retire;
-        const bool newgame_rows = restore_rows && schema == CheckpointSchema::Newgame;
+        const bool newgame_rows = restore_rows && (schema == CheckpointSchema::Newgame || schema == CheckpointSchema::Field);
+        const bool field_rows = restore_rows && schema == CheckpointSchema::Field;
         // Rows outside this report's vocabulary: Restore kinds unless Restore/Newgame, published commands unless Newgame.
         const auto excluded = [&](const std::string& line) {
             const bool restore_kind = line.rfind("{\"kind\":\"upload-bytes\"", 0) == 0 || line.rfind("{\"kind\":\"ui\"", 0) == 0 ||
                                   line.rfind("{\"kind\":\"glyph\"", 0) == 0;
             const bool newgame_kind = line.rfind("{\"kind\":\"mode\",\"op\":\"command\"", 0) == 0;
-            return (restore_kind && !restore_rows) || (newgame_kind && !newgame_rows);
+            const bool field_kind = line.rfind("{\"kind\":\"field\"", 0) == 0;
+            return (restore_kind && !restore_rows) || (newgame_kind && !newgame_rows) || (field_kind && !field_rows);
         };
         const auto plain = [&](const std::string& line) {  // earlier schemas have no provenance key
             if (restore_rows) return line;
@@ -1125,6 +1247,25 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         } else e << "null";
         e << "}\n";
         std::ofstream(dir / "effects.json", std::ios::binary) << e.str();
+        if (schema == CheckpointSchema::Field) {
+            // Field field.json: the prefix's source-visible words.
+            const auto& f = owner.field_prefix();
+            char tex0[24];
+            std::snprintf(tex0, sizeof tex0, "0x%016llx", static_cast<unsigned long long>(f.tex0_332430));
+            std::ostringstream fj;
+            fj << "{\"resource_created\":" << (f.resource_created ? "true" : "false") << ",\"switch_337e70\":" << f.switch_337e70
+               << ",\"job_queued\":" << (f.job_queued ? "true" : "false") << ",\"scene\":" << f.scene << ",\"entrance\":" << f.entrance
+               << ",\"w30\":" << f.w30 << ",\"w34\":" << f.w34 << ",\"manager_60\":" << f.manager_60
+               << ",\"resource_48\":" << f.resource_48 << ",\"atlas_global_24f730\":" << f.atlas_global_24f730
+               << ",\"clut_class_2138c4\":" << f.clut_class_2138c4
+               << ",\"reserve_class_3abb14\":" << h.reservation_class()
+               << ",\"lower_1fe30c\":" << (h.lower_case_file_names() ? 1 : 0) << ",\"cache_1fe310\":" << (h.name_cache_enabled() ? 1 : 0)
+               << ",\"tex0_332430\":\"" << tex0 << "\",\"region_332450\":[";
+            for (std::size_t i = 0; i < 4; ++i) fj << (i ? "," : "") << f.region_332450[i];
+            fj << "],\"ruw_slot0_live\":" << (f.ruw_slot0_live ? "true" : "false") << ",\"ruw_bytes\":" << f.ruw_bytes
+               << ",\"ruw_sha256\":" << (f.ruw_sha256.empty() ? std::string("null") : "\"" + f.ruw_sha256 + "\"") << "}\n";
+            std::ofstream(dir / "field.json", std::ios::binary) << fj.str();
+        }
     }
 }
 } // namespace
