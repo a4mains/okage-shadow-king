@@ -130,6 +130,7 @@ public:
 
     // Inspection.
     bool handle_live(int handle) const;
+    std::uint64_t handle_serial(int handle) const noexcept;
     int record_of(int handle) const;  // -1 if unmapped
     int live_handle_count() const noexcept { return live_handles_; }
     int live_record_count() const noexcept;
@@ -162,6 +163,8 @@ private:
     Ps2TextureMemory* memory_;
     std::array<std::int16_t, handle_capacity> map_;
     std::array<bool, handle_capacity> id_used_{};  // range allocator (HR)
+    std::array<std::uint64_t, handle_capacity> handle_serials_{};
+    std::uint64_t last_handle_serial_{};
     std::array<std::deque<int>, 2> reserved_;
     unsigned reservation_class_{};
     std::array<Record, record_capacity> records_{};
@@ -177,6 +180,7 @@ private:
     int live_head_{-1}, live_tail_{-1};
     void link_live(int id);
     void unlink_live(int id);
+    void require_handle_serial_available() const;
     std::deque<HandleEvent> events_;
     std::size_t event_limit_{};
     std::size_t events_dropped_{};

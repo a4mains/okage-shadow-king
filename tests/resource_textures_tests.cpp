@@ -88,6 +88,36 @@ int main() {
         }
         {
             Fixture f;
+            f.handles.enable_name_cache();
+            const std::vector<std::string> names{"same"};
+            const auto reader = [](std::string&) { return std::optional(xim()); };
+            auto survivor = f.owner.load_xmd(names, reader);
+            auto stale = f.owner.load_xmd(names, reader);
+            const auto old = stale.slots[0];
+            require(old.handle_serial > survivor.slots[0].handle_serial && old.handle_serial != 0,
+                    "alias creation advances host incarnation serial");
+            f.handles.retire(old.handle);
+            require(f.handles.handle_serial(old.handle) == 0 && f.handles.handle_serial(-1) == 0 &&
+                    f.handles.handle_serial(TextureHandleOwner::handle_capacity) == 0,
+                    "retired and invalid handles expose zero serial");
+            auto replacement = f.owner.load_xmd(names, reader);
+            const auto fresh = replacement.slots[0];
+            require(fresh.handle == old.handle && fresh.record == old.record && fresh.image == old.image &&
+                    fresh.handle_serial > old.handle_serial && fresh.bytes == old.bytes,
+                    "same alias handle/record/image reuse has a fresh serial and preserves payload identity");
+            f.handles.clear_events();
+            rejects([&] { f.owner.retire_xmd(stale); });
+            require(f.handles.handle_live(fresh.handle) && f.handles.handle_serial(fresh.handle) == fresh.handle_serial &&
+                    retired(f.handles).empty() && !stale.xmd_retired,
+                    "stale resource cannot retire replacement alias of surviving source record");
+            f.owner.retire_xmd(replacement); f.owner.retire_xmd(survivor);
+            require(f.handles.handle_serial(fresh.handle) == 0, "retiring new resource clears exposed live serial");
+            const int next = f.handles.create_handle({});
+            require(f.handles.handle_serial(next) > fresh.handle_serial,
+                    "fresh record creation keeps serial monotonic after retirement");
+        }
+        {
+            Fixture f;
             std::vector<std::string> names{"a", "missing"};
             auto r = f.owner.load_xmd(names, [](std::string& name) -> std::optional<std::vector<std::uint8_t>> {
                 return name == "a.xim" ? std::optional(xim()) : std::nullopt;

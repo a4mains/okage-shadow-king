@@ -12,6 +12,7 @@ using ImmutableTextureBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
 
 struct ResourceTextureSlot {
     int handle{-1};
+    std::uint64_t handle_serial{};
     int record{-1};
     OptDescriptor image;
     ImmutableTextureBytes bytes;

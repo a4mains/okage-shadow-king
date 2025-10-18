@@ -35,6 +35,7 @@ std::int32_t xta_group(std::string_view row) {
 ResourceTextureSlot ResourceTextureOwner::describe(int handle) const {
     ResourceTextureSlot slot;
     slot.handle = handle;
+    slot.handle_serial = handles_.handle_serial(handle);
     slot.record = handles_.record_of(handle);
     slot.image = handles_.image(handle);
     if (slot.image) {
@@ -117,7 +118,8 @@ bool ResourceTextureOwner::load_xta(ResourceTextures& resource, ImmutableTexture
 
 void ResourceTextureOwner::retire(const ResourceTextureSlot& slot) {
     if (handles_.handle_live(slot.handle) &&
-        (handles_.record_of(slot.handle) != slot.record || handles_.image(slot.handle) != slot.image))
+        (handles_.handle_serial(slot.handle) != slot.handle_serial ||
+         handles_.record_of(slot.handle) != slot.record || handles_.image(slot.handle) != slot.image))
         throw std::logic_error("Resource texture handle was reused before retirement");
     handles_.retire(slot.handle);
 }
