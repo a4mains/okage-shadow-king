@@ -37,17 +37,20 @@ ResourceTextureSlot ResourceTextureOwner::describe(int handle) const {
     slot.handle = handle;
     slot.handle_serial = handles_.handle_serial(handle);
     slot.record = handles_.record_of(handle);
+    slot.record_serial = handles_.record_serial(slot.record);
     slot.image = handles_.image(handle);
     if (slot.image) {
-        const auto found = payloads_.find({slot.record, slot.image->id, slot.image->serial});
+        const auto found = payloads_.find({slot.record, slot.record_serial, slot.image->id, slot.image->serial});
         if (found != payloads_.end()) slot.bytes = found->second.lock();
     }
     return slot;
 }
 
 void ResourceTextureOwner::remember(int handle, const ImmutableTextureBytes& bytes) {
-    if (const auto image = handles_.image(handle))
-        payloads_[{handles_.record_of(handle), image->id, image->serial}] = bytes;
+    if (const auto image = handles_.image(handle)) {
+        const int record = handles_.record_of(handle);
+        payloads_[{record, handles_.record_serial(record), image->id, image->serial}] = bytes;
+    }
 }
 
 ResourceTextures ResourceTextureOwner::load_xmd(std::span<const std::string> names,
@@ -119,7 +122,8 @@ bool ResourceTextureOwner::load_xta(ResourceTextures& resource, ImmutableTexture
 void ResourceTextureOwner::retire(const ResourceTextureSlot& slot) {
     if (handles_.handle_live(slot.handle) &&
         (handles_.handle_serial(slot.handle) != slot.handle_serial ||
-         handles_.record_of(slot.handle) != slot.record || handles_.image(slot.handle) != slot.image))
+         handles_.record_of(slot.handle) != slot.record ||
+         handles_.record_serial(slot.record) != slot.record_serial || handles_.image(slot.handle) != slot.image))
         throw std::logic_error("Resource texture handle was reused before retirement");
     handles_.retire(slot.handle);
 }

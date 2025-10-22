@@ -44,7 +44,8 @@ struct Fixture {
 int main() {
     try {
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             f.handles.enable_name_cache();
             std::vector<std::string> names{"same", "same"};
             unsigned reads = 0;
@@ -54,7 +55,8 @@ int main() {
             auto a = f.owner.load_xmd(names, reader);
             require(reads == 1 && a.slots.size() == 2 && a.slots[0].handle != a.slots[1].handle,
                     "duplicate XMD name uses two handles and one actual read");
-            require(a.slots[0].record == a.slots[1].record && a.slots[0].image == a.slots[1].image &&
+            require(a.slots[0].record == a.slots[1].record && a.slots[0].record_serial == a.slots[1].record_serial &&
+                    a.slots[0].record_serial != 0 && a.slots[0].image == a.slots[1].image &&
                     a.slots[0].bytes == a.slots[1].bytes,
                     "cache alias has identical descriptor and immutable payload");
             const auto image = *a.slots[0].image;
@@ -76,7 +78,8 @@ int main() {
             require(retired(f.handles).size() == calls, "resource retirement is idempotent");
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             for (unsigned i = 0; i < 511; ++i) require(f.handles.create_handle({}) >= 0, "fill records");
             std::vector<std::string> names{"a", "b", "c"};
             auto r = f.owner.load_xmd(names, [](std::string&) { return std::optional(xim()); });
@@ -87,7 +90,8 @@ int main() {
             require(f.handles.live_handle_count() == 511, "negative slots retire as no-ops");
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             f.handles.enable_name_cache();
             const std::vector<std::string> names{"same"};
             const auto reader = [](std::string&) { return std::optional(xim()); };
@@ -117,7 +121,8 @@ int main() {
                     "fresh record creation keeps serial monotonic after retirement");
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             std::vector<std::string> names{"a", "missing"};
             auto r = f.owner.load_xmd(names, [](std::string& name) -> std::optional<std::vector<std::uint8_t>> {
                 return name == "a.xim" ? std::optional(xim()) : std::nullopt;
@@ -129,7 +134,8 @@ int main() {
             require(f.handles.live_handle_count() == 1, "source unbound prefix is not silently reclaimed");
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             const auto h = f.handles.load_xim(OwnedRawXim(xim())).handle;
             f.handles.set_name(h, "old.xim"); f.handles.enable_name_cache();
             const std::vector<std::string> names{"old"};
@@ -141,7 +147,8 @@ int main() {
             f.owner.retire_xmd(r); f.handles.retire(h);
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             const std::vector<std::string> names{"known"}, other{"other"};
             auto known = f.owner.load_xmd(names, [](std::string&) { return std::optional(xim()); });
             const int separate = f.handles.create_handle(known.slots[0].image);
@@ -154,7 +161,41 @@ int main() {
             f.owner.retire_xmd(known); f.owner.retire_xmd(alias); f.handles.retire(separate);
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
+            const std::vector<std::string> original{"original"}, names{"replacement"};
+            auto old = f.owner.load_xmd(original, [](std::string&) { return std::optional(xim()); });
+            const auto prior = old.slots[0];
+            const int guardian = f.handles.create_handle(prior.image);
+            for (unsigned i = 0; i < TextureHandleOwner::record_capacity - 2; ++i)
+                require(f.handles.create_handle({}) >= 0, "occupy other records before FIFO reuse");
+            f.handles.retire(prior.handle);
+            require(f.handles.record_serial(prior.record) == 0 && f.handles.record_serial(-1) == 0 &&
+                    f.handles.record_serial(TextureHandleOwner::record_capacity) == 0,
+                    "dead and invalid record serials are zero before slot reuse");
+            const int replacement = f.handles.create_handle(prior.image);
+            require(f.handles.record_of(replacement) == prior.record && f.handles.image(replacement) == prior.image &&
+                    f.handles.record_serial(prior.record) > prior.record_serial &&
+                    old.slots[0].bytes && f.memory.allocation(prior.image->id),
+                    "same old record/image tuple reappears while original bytes and allocation survive");
+            bool uploaded = false;
+            const auto palette = f.handles.create_palette(16, {}, uploaded);
+            f.handles.bind_palette(replacement, 0, palette);
+            require(f.handles.palette(replacement,0) && !f.owner.describe(replacement).bytes,
+                    "new record incarnation with different palette must not inherit old raw XIM payload");
+            f.handles.set_name(replacement, "replacement.xim"); f.handles.enable_name_cache();
+            auto alias = f.owner.load_xmd(names, [](std::string&) -> std::optional<std::vector<std::uint8_t>> {
+                throw std::runtime_error("replacement record cache hit must not read");
+            });
+            require(alias.slots[0].record == prior.record && alias.slots[0].image == prior.image &&
+                    alias.slots[0].record_serial == f.handles.record_serial(prior.record) &&
+                    alias.slots[0].record_serial != prior.record_serial && !alias.slots[0].bytes && alias.xmd_reads.empty(),
+                    "cache alias of reused record cannot recover stale prior-incarnation payload");
+            f.owner.retire_xmd(alias); f.handles.retire(replacement); f.handles.retire(guardian);
+        }
+        {
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             f.handles.enable_name_cache();
             const std::vector<std::string> names{"eye"};
             auto r = f.owner.load_xmd(names, [](std::string&) { return std::optional(xim()); });
@@ -182,7 +223,8 @@ int main() {
                     "global retirement clears list only; pending reservations and retained bytes survive");
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             ResourceTextures absent, empty, partial;
             const auto reader = [](std::string& name) -> std::optional<std::vector<std::uint8_t>> {
                 return name == "ok.xim" ? std::optional(xim()) : std::nullopt;
@@ -197,7 +239,8 @@ int main() {
             f.owner.retire_scene_images();
         }
         {
-            Fixture f;
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             for (unsigned i = 0; i < 511; ++i) f.handles.create_handle({});
             ResourceTextures r;
             f.owner.load_xta(r, text("=A.XIM\n=B.XIM\n"), [](std::string&) { return std::optional(xim()); });

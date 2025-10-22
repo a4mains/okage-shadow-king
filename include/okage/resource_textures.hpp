@@ -14,6 +14,7 @@ struct ResourceTextureSlot {
     int handle{-1};
     std::uint64_t handle_serial{};
     int record{-1};
+    std::uint64_t record_serial{};
     OptDescriptor image;
     ImmutableTextureBytes bytes;
 };
@@ -55,7 +56,7 @@ public:
 
 private:
     TextureHandleOwner& handles_;
-    using PayloadKey = std::tuple<int, TextureAllocationId, std::uint64_t>;
+    using PayloadKey = std::tuple<int, std::uint64_t, TextureAllocationId, std::uint64_t>;
     std::map<PayloadKey, std::weak_ptr<const std::vector<std::uint8_t>>> payloads_;
     std::vector<ResourceTextureSlot> scene_images_;
     void remember(int handle, const ImmutableTextureBytes& bytes);

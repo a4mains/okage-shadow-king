@@ -107,6 +107,11 @@ void TextureHandleOwner::require_handle_serial_available() const {
         throw std::overflow_error("texture handle incarnation serial exhausted");
 }
 
+void TextureHandleOwner::require_record_serial_available() const {
+    if (last_record_serial_ == std::numeric_limits<std::uint64_t>::max())
+        throw std::overflow_error("texture record incarnation serial exhausted");
+}
+
 int TextureHandleOwner::create_handle(OptDescriptor image) {
     if (free_records_.empty()) return -1;
     if (pick_handle_id() < 0) return -1;
@@ -115,11 +120,13 @@ int TextureHandleOwner::create_handle(OptDescriptor image) {
         if (!a || a->serial != image->serial) throw std::logic_error("texture descriptor is stale");
     }
     require_handle_serial_available();
+    require_record_serial_available();
     const int record = free_records_.front();
     free_records_.pop_front();
     const int id = take_handle_id();
     map_[id] = static_cast<std::int16_t>(record);
     handle_serials_[id] = ++last_handle_serial_;
+    record_serials_[record] = ++last_record_serial_;
     link_live(id);
     auto& r = records_[record];
     r = Record{};
@@ -156,6 +163,7 @@ int TextureHandleOwner::create_image(GsPixelStorage psm, std::uint16_t width, st
     if (!pixels.empty() && pixels.size() < std::size_t(qwc) * 16)
         throw std::invalid_argument("texture handle: pixel data shorter than the quadwords sent");
     require_handle_serial_available();
+    require_record_serial_available();
     const auto a = memory_->allocate(1, psm, width, height);
     if (!a) return -1;
     log_allocation(*a);
@@ -498,6 +506,9 @@ bool TextureHandleOwner::handle_live(int handle) const {
 }
 std::uint64_t TextureHandleOwner::handle_serial(int handle) const noexcept {
     return handle >= 0 && handle < handle_capacity && map_[handle] >= 0 ? handle_serials_[handle] : 0;
+}
+std::uint64_t TextureHandleOwner::record_serial(int record) const noexcept {
+    return record >= 0 && record < record_capacity && records_[record].live ? record_serials_[record] : 0;
 }
 int TextureHandleOwner::record_of(int handle) const {
     return handle >= 0 && handle < handle_capacity ? map_[handle] : -1;
