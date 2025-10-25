@@ -1,0 +1,539 @@
+{
+  "schema": "okage.texture-to-battle-validation.v1",
+  "status": "INCOMPLETE",
+  "scope": "Intermediate field-prefix checkpoint; the complete six-package review remains open.",
+  "base_commit": "8e20f515abf991690c5a88d0ddc1f505419c2959",
+  "worktree": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "source": {
+    "CMakeLists.txt": {
+      "path": "CMakeLists.txt",
+      "sha256": "554bd3a18ae98665e619cfd59063ec8d1329520142d212365afd4ad0e5a7ef02",
+      "bytes": 38558
+    },
+    "include/okage/resource_textures.hpp": {
+      "path": "include/okage/resource_textures.hpp",
+      "sha256": "e18930b4588fa034e31a9854bd667040e06b6453dd194b19af696ee8a41750d7",
+      "bytes": 2265
+    },
+    "include/okage/startup_textures.hpp": {
+      "path": "include/okage/startup_textures.hpp",
+      "sha256": "a786de6932d982d8bd2487a0fde1d1879d5301247eb1910c88f4543cc083633f",
+      "bytes": 19651
+    },
+    "include/okage/texture_handles.hpp": {
+      "path": "include/okage/texture_handles.hpp",
+      "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
+      "bytes": 8520
+    },
+    "include/okage/texture_transfer.hpp": {
+      "path": "include/okage/texture_transfer.hpp",
+      "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+      "bytes": 2367
+    },
+    "src/assets.cpp": {
+      "path": "src/assets.cpp",
+      "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26",
+      "bytes": 14408
+    },
+    "src/native_runtime.mm": {
+      "path": "src/native_runtime.mm",
+      "sha256": "1e7de31330c4f6cca23cc3fd863d60972391cda56a3f679e3fd97fbab8b43371",
+      "bytes": 244429
+    },
+    "src/resource_textures.cpp": {
+      "path": "src/resource_textures.cpp",
+      "sha256": "16606d48bb99d9b44d220e82a98504d8706d08a0f0f2792c99ca743ee78c72cc",
+      "bytes": 6422
+    },
+    "src/startup_textures.cpp": {
+      "path": "src/startup_textures.cpp",
+      "sha256": "c5a6b03f65a1f39f6091abab17cc8ec600e495d9002f8b846994cd58a04147bb",
+      "bytes": 66654
+    },
+    "src/texture_handles.cpp": {
+      "path": "src/texture_handles.cpp",
+      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
+      "bytes": 21665
+    },
+    "src/texture_transfer.cpp": {
+      "path": "src/texture_transfer.cpp",
+      "sha256": "62c7cf758ad3e229dc1eb2e8d543f122fe526f0799f797d30e2d8ae7103f15f0",
+      "bytes": 11455
+    },
+    "tests/resource_textures_tests.cpp": {
+      "path": "tests/resource_textures_tests.cpp",
+      "sha256": "fc69b513f8d79e7bb4f1203c39aaec81fcd84ac9fd8a40422bb337fc17d653f8",
+      "bytes": 16300
+    },
+    "tests/test_field_prefix_compare.py": {
+      "path": "tests/test_field_prefix_compare.py",
+      "sha256": "9a09d704f703b513c8bc11aff8930859a4164d77d5b780b696420f042f5f3317",
+      "bytes": 18827
+    },
+    "tests/texture_handles_tests.cpp": {
+      "path": "tests/texture_handles_tests.cpp",
+      "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f",
+      "bytes": 30259
+    },
+    "tests/texture_psm1_tests.cpp": {
+      "path": "tests/texture_psm1_tests.cpp",
+      "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2",
+      "bytes": 17198
+    },
+    "tests/texture_transfer_tests.cpp": {
+      "path": "tests/texture_transfer_tests.cpp",
+      "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
+      "bytes": 30353
+    },
+    "tests/xim_raw_tests.cpp": {
+      "path": "tests/xim_raw_tests.cpp",
+      "sha256": "e3eb8e0ff1d6be9b879a0b6443705e384905ae8ba70805db58c2fa5916d3ae03",
+      "bytes": 11983
+    },
+    "tools/play-oracle/startup.cpp": {
+      "path": "tools/play-oracle/startup.cpp",
+      "sha256": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
+      "bytes": 168001
+    },
+    "tools/field_prefix_compare.py": {
+      "path": "tools/field_prefix_compare.py",
+      "sha256": "a99b584b26d5697cce5f52c1269eb0be6d5a7be53e94c01b03ba239008e01e14",
+      "bytes": 30502
+    },
+    "tools/field_prefix_extract.py": {
+      "path": "tools/field_prefix_extract.py",
+      "sha256": "bfca7aa7b9990b2122b70bdcb37217e529cc0ee3111c8b32f4e4335b75308c2a",
+      "bytes": 27594
+    }
+  },
+  "inherited_state": {
+    "path": "local/research/texture-to-battle-v1/inherited-state.json",
+    "bytes": 999,
+    "sha256": "aa68f75d9e77e05dc00bf8dab3dd955529f7e11d003cde2ca714f7475dbeaddd"
+  },
+  "inherited_diff": {
+    "path": "local/research/texture-to-battle-v1/inherited-field.patch",
+    "bytes": 35027,
+    "sha256": "295168f54a5750338b720290273a5e5ab00892fa974210d1f6670f18e026f29d"
+  },
+  "requirements": [
+    {
+      "id": 1,
+      "required": "Persistent startup/field/battle/return ownership chain including successful saved-field Restore, source-order cache/XMD/XTA and lifetime",
+      "status": "incomplete",
+      "evidence": "seven Field prefix payloads; world and later resources explicitly unmodeled"
+    },
+    {
+      "id": 2,
+      "required": "Immutable prepared-frame shared GS-memory sampling in actual Metal with lifetime/overlap/palette/reuse evidence",
+      "status": "incomplete",
+      "evidence": "existing library snapshots only; renderer not connected"
+    },
+    {
+      "id": 3,
+      "required": "Unchanged historical input prefix beyond old boundary and demonstrated correct actual sampled-memory dependency (or truthful live divergence plus modeled historical regression)",
+      "status": "incomplete",
+      "evidence": "historical v5 boundary37296/37297 preserved; no new replay of that interval"
+    },
+    {
+      "id": 4,
+      "required": "Ordinary Chapter2 victory, earned state/rewards, results, controllable field return and interaction/transition",
+      "status": "incomplete",
+      "evidence": "not executed"
+    },
+    {
+      "id": 5,
+      "required": "Genuine new-progress gameplay Save, cold separate-process menu Restore, saved state/bindings and another transition/encounter",
+      "status": "incomplete",
+      "evidence": "not executed"
+    },
+    {
+      "id": 6,
+      "required": "Final integrated Release/Debug/ASan/UBSan and GPU checks, full Python, fixed-anchor differential state/image/audio audit, second-pass review, focused local commits and documents",
+      "status": "incomplete",
+      "evidence": "prefix checks/review only; final integrated gates open"
+    }
+  ],
+  "prefix": {
+    "corrected_v2": {
+      "payload": "IDENTICAL all7; 11848LCG-checked draws, lifecycle1271/1271/1285/1297/1297/1298/1299, full4MiB masks/defined values, zero missing/asserted rows",
+      "overall": "UNPROVEN: original control fullEE RAM unequal",
+      "comparison": {
+        "path": "local/research/texture-to-battle-v1/comparator-v2/release-prefix-v2-comparison.json",
+        "bytes": 5274,
+        "sha256": "166197575a5b690217ee4d9cb085ae92ec896763273f53212f6558a739c52b54"
+      },
+      "newgame_regression": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-v2/newgame-compare.json",
+        "bytes": 13044,
+        "sha256": "c61dd8fe455725957ae4537a9796107bcc42da92684a5e5a3329da6fc355fde0"
+      },
+      "input_reads": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-v2/reads-check.log",
+        "bytes": 39569,
+        "sha256": "a4be64572aa267268fb7e7421c0f468024b0b63ccd4784fdfa37688816dde890"
+      }
+    },
+    "control_audit": {
+      "path": "local/research/texture-to-battle-v1/control-ram-audit.json",
+      "bytes": 125994,
+      "sha256": "fbb45f6a19c43ea1f3d206c549126c99f1d3783ba011c5638ea62079307d4a0b"
+    },
+    "limitations": [
+      "original minimal control differs665RAM bytes; inherited scheduling quantified but liveness unresolved",
+      "checkpoint payload equality is separate from full temporal alignment",
+      "nullGS cannot establish image/audio parity",
+      "all reached world/cache/XMD/XTA/actors remain outside owner history",
+      "class1 queue source/setter unit coverage; original multi-class operation corpus not yet captured"
+    ]
+  },
+  "checks": {
+    "release": {
+      "status": "passed",
+      "count": 11,
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "log": {
+        "path": "local/research/texture-to-battle-v1/ctest-release-record-incarnation.log",
+        "sha256": "9f813f2964573233fb3925efdcd2023ceff44abb2c39d39ceb7c42cadf950074",
+        "bytes": 1566
+      }
+    },
+    "debug": {
+      "status": "passed",
+      "count": 11,
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "log": {
+        "path": "local/research/texture-to-battle-v1/ctest-debug-record-incarnation.log",
+        "sha256": "920fb1af68445a37ffaca77cdb1acd683b11714eb0d7d12c5d9f13776ee992df",
+        "bytes": 1562
+      }
+    },
+    "sanitize": {
+      "status": "passed",
+      "count": 11,
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "log": {
+        "path": "local/research/texture-to-battle-v1/ctest-sanitize-record-incarnation.log",
+        "sha256": "6cf95359fc9b48d66ffd2e9f641669f4ef399c69d38dfa35eb2808cad95f49b1",
+        "bytes": 1568
+      }
+    },
+    "full_python": {
+      "status": "passed",
+      "log": {
+        "path": "local/research/texture-to-battle-v1/full-python-integrated-world-preparation-v2.log",
+        "sha256": "2f135a8b52cfcbb37582ea1328a83d4db452112dbd7de1608aff8f6bc9342eb3",
+        "bytes": 124797
+      },
+      "result": [
+        "Ran 1231 tests in 273.290s",
+        "OK (skipped=95)"
+      ],
+      "failure_preserved": {
+        "path": "local/research/texture-to-battle-v1/full-python-integrated-prefix.log",
+        "sha256": "3ba5044055a35de3ba3977d9f9d2525bd6f3e531077aee83502c49defc43007b",
+        "bytes": 130034
+      },
+      "input_visibility_repair": {
+        "path": "local/research/texture-to-battle-v1/python-contract-visibility-fix.log",
+        "sha256": "4592ce6861ea63e1a4c186be0df2caecf83b8b8d69bde90022c7c081becf095a",
+        "bytes": 1644
+      }
+    }
+  },
+  "inputs": {
+    "tests/data/retire-routes/newgame-scripted/title-pad.txt": {
+      "path": "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+      "bytes": 23,
+      "sha256": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689"
+    },
+    "tests/data/newgame-routes/newgame-chapter/name-pad.txt": {
+      "path": "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+      "bytes": 52,
+      "sha256": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31"
+    }
+  },
+  "commands": [
+    "cmake -S . -B build/texture-to-battle-release -DCMAKE_BUILD_TYPE=Release",
+    "cmake -S . -B build/texture-to-battle-debug -DCMAKE_BUILD_TYPE=Debug",
+    "cmake -S . -B build/texture-to-battle-sanitize -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_OBJCXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'",
+    "cmake --build build/texture-to-battle-BUILD --target okage-native texture-memory-tests texture-transfer-tests texture-handles-tests startup-textures-tests texture-psm1-tests load-queue-tests -j6",
+    "ctest --test-dir build/texture-to-battle-BUILD --output-on-failure -R '^(texture-memory|texture-transfer|texture-handles|startup-textures|texture-psm1|load-queue)-tests$'",
+    "build/texture-to-battle-BUILD/okage-native.app/Contents/MacOS/okage-native --game-data local/game-data-stage-v13 --save-directory OUT/saves --title-pad-script tests/data/retire-routes/newgame-scripted/title-pad.txt --name-pad-script tests/data/newgame-routes/newgame-chapter/name-pad.txt --input-log OUT/reads.jsonl --newgame-report OUT/report --frames 1600 --capture OUT/f.png",
+    "python3 tools/newgame_compare.py local/research/newgame-original-v1/analysis OUT/report --strict --json OUT/newgame-compare.json",
+    "python3 -I tools/field_prefix_compare.py local/research/texture-to-battle-v1/original-analysis OUT/report --inventory local/research/texture-to-battle-v1/comparator-v2/original-pins.json --json OUT/field-compare.json",
+    "python3 tools/retire_input_provenance.py check-reads local/game-data-stage-v13 OUT/reads.jsonl --manifest-sha256 1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6 --strict-stage"
+  ],
+  "coverage_unclaimed": [
+    "other fields/navigation branches",
+    "all other formations and battle classes",
+    "font/glyph/framebuffer capture writers beyond earlier evidence",
+    "fullGS palette/filter modes",
+    "cancellation after modeled field publication",
+    "fullgame/end playthrough",
+    "physicalPS2 media parity",
+    "performance"
+  ],
+  "frozen_prefix_source": {
+    "commit": "0574fa603e200578527d5ba5f16e5e48d8e824d4",
+    "files": {
+      "include/okage/startup_textures.hpp": {
+        "path": "include/okage/startup_textures.hpp",
+        "bytes": 19651,
+        "sha256": "a786de6932d982d8bd2487a0fde1d1879d5301247eb1910c88f4543cc083633f"
+      },
+      "include/okage/texture_handles.hpp": {
+        "path": "include/okage/texture_handles.hpp",
+        "bytes": 8520,
+        "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
+      },
+      "include/okage/texture_transfer.hpp": {
+        "path": "include/okage/texture_transfer.hpp",
+        "bytes": 2367,
+        "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
+      },
+      "src/assets.cpp": {
+        "path": "src/assets.cpp",
+        "bytes": 14408,
+        "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
+      },
+      "src/native_runtime.mm": {
+        "path": "src/native_runtime.mm",
+        "bytes": 244429,
+        "sha256": "1e7de31330c4f6cca23cc3fd863d60972391cda56a3f679e3fd97fbab8b43371"
+      },
+      "src/startup_textures.cpp": {
+        "path": "src/startup_textures.cpp",
+        "bytes": 66654,
+        "sha256": "c5a6b03f65a1f39f6091abab17cc8ec600e495d9002f8b846994cd58a04147bb"
+      },
+      "src/texture_handles.cpp": {
+        "path": "src/texture_handles.cpp",
+        "bytes": 21665,
+        "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
+      },
+      "src/texture_transfer.cpp": {
+        "path": "src/texture_transfer.cpp",
+        "bytes": 11455,
+        "sha256": "62c7cf758ad3e229dc1eb2e8d543f122fe526f0799f797d30e2d8ae7103f15f0"
+      },
+      "tests/texture_handles_tests.cpp": {
+        "path": "tests/texture_handles_tests.cpp",
+        "bytes": 30259,
+        "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f"
+      },
+      "tests/texture_psm1_tests.cpp": {
+        "path": "tests/texture_psm1_tests.cpp",
+        "bytes": 17198,
+        "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2"
+      },
+      "tests/texture_transfer_tests.cpp": {
+        "path": "tests/texture_transfer_tests.cpp",
+        "bytes": 30353,
+        "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706"
+      }
+    },
+    "note": "Frozen checkpoint accepted as component evidence by second-pass reviewer; source has since advanced."
+  },
+  "source_commit": "196559659af0f32fb4857981798692869adc1857",
+  "historical_runs": {
+    "release": {
+      "binary": {
+        "path": "build/texture-to-battle-release/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 3624256,
+        "sha256": "159b0313ac310be14aa9d21f13257a28251772834dc6fdc755b1068ce740f85e",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/release-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    },
+    "debug": {
+      "binary": {
+        "path": "build/texture-to-battle-debug/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 12516144,
+        "sha256": "63555d9154842308cfbe9570f596670df511b318b28327b3857028028933ad84",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/debug-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    },
+    "sanitize": {
+      "binary": {
+        "path": "build/texture-to-battle-sanitize/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 38346944,
+        "sha256": "2f03b0772b5954aa1f20ab254dff1c1e4aff073fb9a53cd4b9418d730c169a53",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    }
+  },
+  "current_runs": {
+    "release": {
+      "source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-helper-release",
+        "sha256": "d693d78f717b02708ea0182bb8c816c69dfc511252a391b3361346d99141ced3",
+        "bytes": 3625296
+      },
+      "exit_code": 0,
+      "root": "local/research/texture-to-battle-v1/sessions/release-prefix-helper",
+      "comparison": "Field payload IDENTICAL; overall UNPROVEN exit4 on original2RAM-control failures; Newgame strict0 and inputprovenance0",
+      "output_inventory": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-helper-output-hashes.json",
+        "sha256": "d638e80da680a16c9dd3976606532be44026985add133c19d0037d1a46d0bd07",
+        "bytes": 39865
+      },
+      "field_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-helper/field-compare.json",
+        "sha256": "01fe110717891c93f1df9b4aa80ef1e4f9e1694e13d80a66a7fd59df3f499c47",
+        "bytes": 5274
+      },
+      "newgame_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-helper/newgame-compare.json",
+        "sha256": "c61dd8fe455725957ae4537a9796107bcc42da92684a5e5a3329da6fc355fde0",
+        "bytes": 13044
+      },
+      "input_provenance": {
+        "path": "local/research/texture-to-battle-v1/sessions/release-prefix-helper/reads-check.log",
+        "sha256": "5c922229cea89bc120f679f6281aa8a201de77e299230c2a0c7ea4c7213c868d",
+        "bytes": 39569
+      }
+    },
+    "debug": {
+      "source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-helper-debug",
+        "sha256": "2a3b19c97d0f74249208f95f33c3adebcd19a9357f59a49304dd4650e7dce5b3",
+        "bytes": 12517264
+      },
+      "exit_code": 0,
+      "root": "local/research/texture-to-battle-v1/sessions/debug-prefix-helper",
+      "comparison": "Field payload IDENTICAL; overall UNPROVEN exit4 on original2RAM-control failures; Newgame strict0 and inputprovenance0",
+      "output_inventory": {
+        "path": "local/research/texture-to-battle-v1/sessions/debug-prefix-helper-output-hashes.json",
+        "sha256": "b26ff96bb07f52546b8dd06457516f8da91e0475d5c93c8dd026f2268276c828",
+        "bytes": 39865
+      },
+      "field_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/debug-prefix-helper/field-compare.json",
+        "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823",
+        "bytes": 5274
+      },
+      "newgame_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/debug-prefix-helper/newgame-compare.json",
+        "sha256": "e759067395f12c2640589a10ff3e789034827b226c574723740de09e26c7b66e",
+        "bytes": 13044
+      },
+      "input_provenance": {
+        "path": "local/research/texture-to-battle-v1/sessions/debug-prefix-helper/reads-check.log",
+        "sha256": "5c922229cea89bc120f679f6281aa8a201de77e299230c2a0c7ea4c7213c868d",
+        "bytes": 39569
+      }
+    },
+    "sanitize": {
+      "source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-helper-sanitize",
+        "sha256": "c1fb255fec1ddee7ded9083374d56a1d7ea62bd14164c667cea2dfc1d40851a8",
+        "bytes": 38348208
+      },
+      "exit_code": 0,
+      "root": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-helper",
+      "comparison": "Field payload IDENTICAL; overall UNPROVEN exit4 on original2RAM-control failures; Newgame strict0 and inputprovenance0",
+      "output_inventory": {
+        "path": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-helper-output-hashes.json",
+        "sha256": "b3b43529b29e44bacb260403d070895042e21b4cbd340c0a10c6dfb5ece9a4bb",
+        "bytes": 41279
+      },
+      "field_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-helper/field-compare.json",
+        "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823",
+        "bytes": 5274
+      },
+      "newgame_comparison": {
+        "path": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-helper/newgame-compare.json",
+        "sha256": "e759067395f12c2640589a10ff3e789034827b226c574723740de09e26c7b66e",
+        "bytes": 13044
+      },
+      "input_provenance": {
+        "path": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-helper/reads-check.log",
+        "sha256": "a4be64572aa267268fb7e7421c0f468024b0b63ccd4784fdfa37688816dde890",
+        "bytes": 39569
+      }
+    }
+  },
+  "world_preparation": {
+    "status": "helper/oracle integrated; runtime world ownership not integrated",
+    "helper_evidence": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-handle-incarnation.json",
+    "source_observer_commit": "b9f7286",
+    "evidence_root": "local/research/texture-to-battle-v1/field-world-original-v1",
+    "observed": "10XMD,4XTA,32replacement images,206uploads,5cache hits;62new checkpoints resource/RNG/VRAM agree full/minimal;complementary/repeat stability observed;all62 paired-fill masks extracted with0failures; repeat exact91checkpoints and64rawRAM dumps",
+    "not_claimed": [
+      "runtime world owner",
+      "image/audio parity",
+      "temporal parity",
+      "Chapter2 result",
+      "new Save/Restore"
+    ],
+    "verification": {
+      "path": "local/research/texture-to-battle-v1/field-world-original-v1/verification.json",
+      "sha256": "075ce58112ac0100dd889707170424cca89608cc770751564b4858324087be16",
+      "bytes": 2877
+    },
+    "full_output_inventory": {
+      "path": "local/research/texture-to-battle-v1/field-world-original-v1/output-files-sha256.json",
+      "sha256": "be3ec24b7b14750ae7e812f54746b798b85892917b7f114a9898607551f97321",
+      "bytes": 412684
+    },
+    "known_helper_finding": "Reproduced same-record/same-allocation stale raw-payload provenance; fixed by record incarnation serial in1965596, integrated Release/Debug/ASan tests pass; independent fix review requested, runtime use remains pending.",
+    "record_fix_validation": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-record-incarnation.json",
+      "sha256": "60dba15452d9434dd3026496a7f75b88834c8166b4798c53c4295aa8ae2d0798",
+      "bytes": 5535
+    },
+    "xta_source_audit": "Initial variant does not overwrite TEX0; all4 sidecar-return checkpoints preserve original TEX0; native current_=original_ agrees. Typed selection/restoration audit pending."
+  },
+  "current_run_commands": {
+    "path": "local/research/texture-to-battle-v1/prefix-helper-integrated-comparisons.json",
+    "sha256": "3b9721b9f860aa621f5d15b7f48d60e29bde7993a87e508a5ca66920096bde8a",
+    "bytes": 5808
+  },
+  "prefix_runs_source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
+  "current_builds": {
+    "release": {
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-record-incarnation-release",
+        "sha256": "cd686438ce6eb603ca388cdff53affe774d0817c7f81411f8e6cf02c722fe29e",
+        "bytes": 3625888
+      },
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "status": "built; new record serial regression covered by integrated CTests, no native field-runtime helper use yet"
+    },
+    "debug": {
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-record-incarnation-debug",
+        "sha256": "29d3b0a44c711f825486d7fb81c54474749a2dc0aba9248463ef95b480974178",
+        "bytes": 12517904
+      },
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "status": "built; new record serial regression covered by integrated CTests, no native field-runtime helper use yet"
+    },
+    "sanitize": {
+      "binary": {
+        "path": "local/research/texture-to-battle-v1/bin/okage-native-record-incarnation-sanitize",
+        "sha256": "38e0e783a8fc95e0633bb3826c518b8bf30b4a4c090e0b1c156e5f6ae0e9893e",
+        "bytes": 38348992
+      },
+      "source_commit": "196559659af0f32fb4857981798692869adc1857",
+      "status": "built; new record serial regression covered by integrated CTests, no native field-runtime helper use yet"
+    }
+  }
+}
