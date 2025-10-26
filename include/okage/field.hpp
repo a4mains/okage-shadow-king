@@ -94,6 +94,9 @@ public:
     // Split 0x131d28 construction from 0x132720 activation. Staging owns copies
     // of the STG/XCL bytes so the activation can happen in a later manager turn.
     void prepare(FieldDefinition definition,Bytes stg,Bytes xcl);
+    void begin_prepare(FieldDefinition definition,Bytes stg,Bytes xcl);
+    void prepare_next_npc();
+    void finish_prepare();
     void activate(unsigned entrance);
     void activate_entry(unsigned entrance,ExplorationInput input={});
     void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={});
@@ -201,7 +204,7 @@ private:
     void update_player_shadow();
     std::optional<FieldDefinition> definition_;
     std::vector<std::uint8_t> staged_stg_,staged_xcl_;
-    bool prepared_=false,activated_=false;
+    bool preparing_=false,prepared_=false,activated_=false;
     int interaction_alias_=0,interaction_event_=0;
     std::int32_t saved_input_gate_=0;
     bool save_requested_=false,save_menu_active_=false,save_resuming_=false;
@@ -220,6 +223,7 @@ private:
     std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;
     void initialize_npcs();
+    void initialize_one_npc(std::size_t index);
     void activate_pose(const Float4& player_position,const Float4& player_rotation,
                        const std::optional<Float4>& raw_camera_position);
     void update_npcs();

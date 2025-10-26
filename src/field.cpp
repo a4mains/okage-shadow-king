@@ -289,15 +289,18 @@ void OpeningField::load_interactions(Bytes database,const std::string& room,Byte
 }
 void OpeningField::initialize_npcs() {
     if(!definition_||!enemies_.empty())throw std::runtime_error("NPC configuration lifecycle");
-    for(std::size_t i=0;i<definition_->npcs.size();++i) {
-        const auto& npc=definition_->npcs[i];
-        if(actors_.at(i).alias!=npc.alias)throw std::runtime_error("NPC collision bindings must preserve construction order");
-        if(!random_value)throw std::runtime_error("NPC construction requires the shared game RNG");
-        const auto cooldown=EncounterEnemy::initial_cooldown(random_value(),definition_->type==2?2:0);
-        enemies_.push_back(npc.state==5?std::optional<EncounterEnemy>({0,cooldown,-.2f}):std::nullopt);
-        wanderers_.push_back(npc.state==1?std::make_optional<WanderingNpc>():std::nullopt);
-        actor(npc.alias)->encounter_model=npc.model=="rkumo"||npc.model=="wkumo"||npc.model=="bkumo";
-    }
+    for(std::size_t i=0;i<definition_->npcs.size();++i)initialize_one_npc(i);
+}
+void OpeningField::initialize_one_npc(std::size_t index) {
+    if(!definition_||index!=enemies_.size()||index!=wanderers_.size()||index>=definition_->npcs.size())
+        throw std::runtime_error("NPC configuration lifecycle");
+    const auto& npc=definition_->npcs[index];
+    if(actors_.at(index).alias!=npc.alias)throw std::runtime_error("NPC collision bindings must preserve construction order");
+    if(!random_value)throw std::runtime_error("NPC construction requires the shared game RNG");
+    const auto cooldown=EncounterEnemy::initial_cooldown(random_value(),definition_->type==2?2:0);
+    enemies_.push_back(npc.state==5?std::optional<EncounterEnemy>({0,cooldown,-.2f}):std::nullopt);
+    wanderers_.push_back(npc.state==1?std::make_optional<WanderingNpc>():std::nullopt);
+    actor(npc.alias)->encounter_model=npc.model=="rkumo"||npc.model=="wkumo"||npc.model=="bkumo";
 }
 void OpeningField::update_npcs() {
     if(!definition_)return;
@@ -545,10 +548,17 @@ void OpeningField::build_collision(Bytes xcl) {
     }
 }
 void OpeningField::prepare(FieldDefinition definition,Bytes stg,Bytes xcl) {
+    // Preserve the existing complete preparation contract and rounding scope.
+    Rounding rounding;
+    begin_prepare(std::move(definition),stg,xcl);
+    while(enemies_.size()<definition_->npcs.size())prepare_next_npc();
+    finish_prepare();
+}
+void OpeningField::begin_prepare(FieldDefinition definition,Bytes stg,Bytes xcl) {
     Rounding rounding;
     if(definition_||actors_.empty()||actors_.back().alias!=-1||definition.type>1)
         throw std::runtime_error("Unrecovered field entry construction");
-    if(prepared_||activated_)throw std::runtime_error("Field staging lifecycle");
+    if(preparing_||prepared_||activated_)throw std::runtime_error("Field staging lifecycle");
     if(!definition.followers.empty())throw std::runtime_error("Field follower construction is unrecovered");
     if(definition.type==0&&!exterior_camera)throw std::runtime_error("Exterior field requires session camera state");
     if(definition.npcs.size()+1+unsigned(shadow_.has_value())!=actors_.size())throw std::runtime_error("Field entry NPC bindings differ");
@@ -568,7 +578,20 @@ void OpeningField::prepare(FieldDefinition definition,Bytes stg,Bytes xcl) {
         if(npc.flags&8)object->shadow_mode_override=6;
     }
     definition_=std::move(definition);player_.footstep_sound=definition_->footstep;player_.dust_effect=definition_->dust;
-    initialize_npcs();
+    preparing_=true;
+}
+void OpeningField::prepare_next_npc() {
+    if(!preparing_||prepared_||activated_||!definition_)
+        throw std::runtime_error("Field NPC staging lifecycle");
+    Rounding rounding;
+    initialize_one_npc(enemies_.size());
+}
+void OpeningField::finish_prepare() {
+    if(!preparing_||prepared_||activated_||!definition_)
+        throw std::runtime_error("Field NPC staging lifecycle");
+    if(enemies_.size()!=definition_->npcs.size()||wanderers_.size()!=definition_->npcs.size())
+        throw std::runtime_error("Field NPC preparation is incomplete");
+    preparing_=false;
     prepared_=true;
 }
 void OpeningField::activate_pose(const Float4& player_position,const Float4& player_rotation,
@@ -1088,6 +1111,7 @@ void OpeningField::close_save_menu() {
     save_menu_active_=false;save_resuming_=true;
 }
 void OpeningField::tick(ExplorationInput input) {
+    if(preparing_)throw std::runtime_error("Field tick before NPC preparation complete");
     if(save_menu_active_) {
         tick_callbacks(input,false,true,true);return;
     }
