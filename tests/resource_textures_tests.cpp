@@ -196,6 +196,31 @@ int main() {
         {
             auto fixture = std::make_unique<Fixture>();
             auto& f = *fixture;
+            auto resource = f.owner.load_xmd({}, [](std::string&) { return std::optional(xim()); });
+            unsigned callbacks = 0;
+            f.owner.load_xta(resource, text("=A.XIM\n=B.XIM\n"),
+                [](std::string&) { return std::optional(xim()); }, [&] {
+                    ++callbacks;
+                    require(f.owner.scene_images().size() == callbacks && resource.xta_variants.size() == callbacks,
+                            "image return publishes both source append lists");
+                    require(resource.xta_first == (callbacks == 1 ? -1 : resource.xta_variants[0].handle),
+                            "image return precedes first-variant bookkeeping");
+                    const auto& slot = resource.xta_variants.back();
+                    require(slot.bytes && slot.image && f.handles.handle_live(slot.handle),
+                            "image return observes actual retained upload");
+                });
+            require(callbacks == 2, "one callback per actual image return");
+            f.owner.retire_scene_images();
+            auto interrupted = f.owner.load_xmd({}, [](std::string&) { return std::optional(xim()); });
+            rejects([&] { f.owner.load_xta(interrupted, text("=A.XIM\n=B.XIM\n"),
+                [](std::string&) { return std::optional(xim()); }, [] { throw std::runtime_error("observer stopped"); }); });
+            require(interrupted.xta_variants.size() == 1 && f.owner.scene_images().size() == 1 && interrupted.xta_first == -1,
+                    "interrupted return retains the upload without executing later bookkeeping or reads");
+            f.owner.retire_scene_images();
+        }
+        {
+            auto fixture = std::make_unique<Fixture>();
+            auto& f = *fixture;
             f.handles.enable_name_cache();
             const std::vector<std::string> names{"eye"};
             auto r = f.owner.load_xmd(names, [](std::string&) { return std::optional(xim()); });

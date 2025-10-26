@@ -662,8 +662,9 @@ void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,Explor
     activate_pose(saved.player_position,saved.player_rotation,saved.raw_camera_position);
     tick_callbacks(input,false);
 }
-void OpeningField::activate_entry(unsigned entrance,ExplorationInput input) {
+void OpeningField::activate_entry(unsigned entrance,ExplorationInput input,const std::function<void()>& after_activate) {
     activate(entrance);
+    if(after_activate)after_activate();
     tick_callbacks(input,false);
 }
 void OpeningField::enter(FieldDefinition definition,Bytes stg,Bytes xcl,unsigned entrance,ExplorationInput input) {

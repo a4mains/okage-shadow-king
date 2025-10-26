@@ -2,6 +2,7 @@
 #include "okage/actor.hpp"
 #include "okage/collision.hpp"
 #include "okage/map.hpp"
+#include "okage/scene_model_asset.hpp"
 #include <filesystem>
 #include <memory>
 namespace okage {
@@ -10,7 +11,7 @@ struct MapCollisionBinding {std::size_t placement;int instance;CollisionBody bod
 std::vector<MapCollisionBinding> map_collision_bodies(const MapFile&);
 class MapObjects {
 public:
-    explicit MapObjects(const std::filesystem::path& map);
+    explicit MapObjects(const std::filesystem::path& map, std::span<const std::shared_ptr<const SceneModelAsset>> assets = {});
     std::span<const ActorBinding> bindings() const{return bindings_;}
     const FieldActor* placement(std::size_t index) const;
     bool visible(std::size_t placement) const;

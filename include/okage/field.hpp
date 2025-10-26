@@ -98,7 +98,7 @@ public:
     void prepare_next_npc();
     void finish_prepare();
     void activate(unsigned entrance);
-    void activate_entry(unsigned entrance,ExplorationInput input={});
+    void activate_entry(unsigned entrance,ExplorationInput input={},const std::function<void()>& after_activate={});
     void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}

@@ -48,7 +48,8 @@ public:
     ResourceTextures load_xmd(std::span<const std::string> names,
                               const TextureHandleOwner::FileReader& reader);
     bool load_xta(ResourceTextures& resource, ImmutableTextureBytes sidecar,
-                  const TextureHandleOwner::FileReader& reader);
+                  const TextureHandleOwner::FileReader& reader,
+                  const std::function<void()>& image_return = {});
     void retire_xmd(ResourceTextures& resource);
     void retire_scene_images();
     const std::vector<ResourceTextureSlot>& scene_images() const noexcept { return scene_images_; }

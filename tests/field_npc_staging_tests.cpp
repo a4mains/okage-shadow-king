@@ -127,8 +127,15 @@ int main() {try {
         std::vector<std::pair<int,okage::Float4>> a,b;
         legacy->field->observe_wander=[&](int,bool,const auto& state,const auto&){a.emplace_back(state.counter,state.velocity);};
         staged->field->observe_wander=[&](int,bool,const auto& state,const auto&){b.emplace_back(state.counter,state.velocity);};
-        legacy->field->activate(0);staged->field->activate(0);
-        legacy->field->tick();staged->field->tick();
+        legacy->field->activate(0);
+        legacy->field->tick();
+        unsigned boundary_calls=0;
+        staged->field->activate_entry(0,{},[&] {
+            ++boundary_calls;
+            require(staged->draws.size()==1&&b.empty()&&staged->field->exploration_ready(),
+                    "132720 return hook sees activation before the first wandering descendant");
+        });
+        require(boundary_calls==1,"activation return has exactly one boundary hook");
         require(a==b&&a.size()==2&&a.front().first==0&&a.front().second==okage::Float4{}&&a.back().first>0,
                 "staged wandering NPC starts with the same real runtime state");
         require(legacy->draws==staged->draws&&a.back().second!=okage::Float4{}&&staged->draws.size()==3,

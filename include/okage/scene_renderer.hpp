@@ -3,6 +3,7 @@
 #include "okage/actor.hpp"
 #include "okage/effect.hpp"
 #include "okage/field_shadows.hpp"
+#include "okage/scene_model_asset.hpp"
 #include <filesystem>
 #include <memory>
 #include <functional>
@@ -32,7 +33,9 @@ struct SceneGpuPass {
 struct FieldOrdinaryLighting;
 struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};
-    std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> texture_bytes{};};
+    std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> texture_bytes{};
+    std::vector<ResourceTextureSlot> texture_slots{};
+    bool textures_owned=false;};
 class SceneRenderer {
     struct Impl;
 public:
@@ -61,7 +64,8 @@ public:
     // Diagnostic snapshot; no reset API and no scene/asset initialization.
     static std::size_t cached_backend_count();
     SceneRenderer();
-    explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr);
+    explicit SceneRenderer(const std::filesystem::path& map,std::span<const SceneActor> actors={},const MapObjects* objects=nullptr,
+                           std::span<const std::shared_ptr<const SceneModelAsset>> map_assets={});
     ~SceneRenderer();
     void add_actor(const SceneActor&);
     void retire_instances();

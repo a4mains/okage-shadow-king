@@ -61,7 +61,7 @@ std::vector<std::uint8_t> read_elf_va(std::span<const std::uint8_t> elf, std::ui
     throw std::runtime_error("virtual address not backed by file contents");
 }
 
-StartupTextureOwner::StartupTextureOwner() : handles_(memory_) {}
+StartupTextureOwner::StartupTextureOwner() : handles_(memory_), resources_(handles_) {}
 
 StartupTextureOwner::~StartupTextureOwner() {
     try {
@@ -430,6 +430,10 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::FieldAtlasLoaded: return "field-atlas-loaded";
         case ResourceStage::FieldTexenvLoaded: return "field-texenv-loaded";
         case ResourceStage::FieldRuwLoaded: return "field-ruw-loaded";
+        case ResourceStage::FieldWorldLoading: return "field-world-loading";
+        case ResourceStage::FieldWorldComplete: return "field-world-complete";
+        case ResourceStage::FieldMapCommitted: return "field-map-committed";
+        case ResourceStage::FieldActive: return "field-active";
         case ResourceStage::FieldUiPublished: return "field-ui-published";
         case ResourceStage::Unmodeled: return "unmodeled";
     }
@@ -979,6 +983,59 @@ void StartupTextureOwner::publish_field_ui() {
     advance(ResourceStage::FieldUiPublished);
 }
 
+void StartupTextureOwner::begin_field_world() {
+    require_stage(ResourceStage::FieldUiPublished, "1bbac8 field map load");
+    sync();
+    handles_.enable_name_cache();
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"cache-enable\",\"value\":1}");
+    advance(ResourceStage::FieldWorldLoading);
+}
+
+const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_model(
+    const std::string& name, std::span<const std::string> names,
+    const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return) {
+    require_stage(ResourceStage::FieldWorldLoading, "186c48 field model");
+    auto model = std::make_unique<WorldModelTextures>(WorldModelTextures{name, resources_.load_xmd(names, reader)});
+    sync();
+    if (buffer_return) buffer_return();
+    world_models_.push_back(std::move(model));
+    const auto& result = *world_models_.back();
+    for (std::size_t i = 0; i < result.textures.slots.size(); ++i)
+        lifecycle_push("{\"kind\":\"material\",\"model\":" + json_string(name) + ",\"slot\":" +
+                       std::to_string(i) + ",\"handle\":" + std::to_string(result.textures.slots[i].handle) + "}");
+    return result;
+}
+
+void StartupTextureOwner::load_field_sidecar(const OwnedBytes& bytes,
+    const TextureHandleOwner::FileReader& reader, const std::function<void()>& image_return) {
+    require_stage(ResourceStage::FieldWorldLoading, "1b6848 field sidecar");
+    if (world_models_.empty()) throw std::logic_error("Field XTA without a model");
+    resources_.load_xta(world_models_.back()->textures, bytes, reader, [&] {
+        sync();
+        if (image_return) image_return();
+    });
+    sync();
+}
+
+void StartupTextureOwner::complete_field_world() {
+    require_stage(ResourceStage::FieldWorldLoading, "132688 completion");
+    sync(); field_.w30 = 1;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"world-complete\"}");
+    advance(ResourceStage::FieldWorldComplete);
+}
+void StartupTextureOwner::commit_field_map() {
+    require_stage(ResourceStage::FieldWorldComplete, "100c08 field map commit");
+    sync(); field_.job_queued = false;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"map-commit\"}");
+    advance(ResourceStage::FieldMapCommitted);
+}
+void StartupTextureOwner::activate_field() {
+    require_stage(ResourceStage::FieldMapCommitted, "132720 field activation return");
+    sync();
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"activated\"}");
+    advance(ResourceStage::FieldActive);
+}
+
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
                                      const std::filesystem::path& dir) {
     std::ostringstream o;
@@ -1065,7 +1122,7 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     };
     if (session_schema && !checkpoint.empty()) {
         // Retire: a title checkpoint between the first 1296f8 and entry of 124548.
-        const char* label = schema == CheckpointSchema::Field ? "field-prefix" : schema == CheckpointSchema::Newgame ? "newgame"
+        const char* label = schema == CheckpointSchema::FieldWorld ? "field-world" : schema == CheckpointSchema::Field ? "field-prefix" : schema == CheckpointSchema::Newgame ? "newgame"
                           : schema == CheckpointSchema::Restore ? "restore" : "retire-title";
         const bool second_return = owner.second_title() && owner.stage() == ResourceStage::TitleConstructed;
         if ((!second_return && (owner.stage() < ResourceStage::TitleActive || owner.stage() == ResourceStage::Unmodeled)) ||
@@ -1076,7 +1133,9 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         o << "{\n \"coverage\":{\"lifecycle\":\"" << label << "\",\"checkpoint\":\"" << checkpoint
           << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"stage "
           << to_string(owner.stage())
-          << (schema == CheckpointSchema::Field
+          << (schema == CheckpointSchema::FieldWorld
+                  ? "; field world uploads accounted; later scene retirement, battle and shared-GS rendering remain unproven\","
+                  : schema == CheckpointSchema::Field
                   ? "; unmodeled after the 131e7c store (manager+0x34 = 1): 131e80 onward (field definition, PME, music, map/XMD/XTA, actors), the 132688 +0x30 completion, battle\","
                   : schema == CheckpointSchema::Newgame
                   ? "; unmodeled after entry of the second 133830 (command 0): ordinary field loading, XTA, battle\","
@@ -1157,8 +1216,15 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     for (const auto& [slot, value] : h.hash_entries()) { o << (first ? "" : ",") << "[" << slot << "," << value << "]"; first = false; }
     o << "],\n \"reserved\":[";
     first = true;
-    for (int id : h.reserved_handles()) { o << (first ? "" : ",") << id; first = false; }
-    o << "],\n \"free_records\":" << h.free_record_count() << ",\"free_extras\":" << h.free_extra_count();
+    for (int id : (schema == CheckpointSchema::FieldWorld ? h.reserved_handles(0) : h.reserved_handles())) { o << (first ? "" : ",") << id; first = false; }
+    o << "]";
+    if (schema == CheckpointSchema::FieldWorld) {
+        o << ",\n \"reserved1\":[";
+        first = true;
+        for (int id : h.reserved_handles(1)) { o << (first ? "" : ",") << id; first = false; }
+        o << "],\n \"reserve_class\":" << h.reservation_class() ;
+    }
+    o << ",\n \"free_records\":" << h.free_record_count() << ",\"free_extras\":" << h.free_extra_count();
     o << ",\n \"available\":" << m.available_count() << ",\n \"cursors\":[";
     first = true;
     for (auto c : m.search_cursors()) { o << (first ? "" : ",") << c; first = false; }
@@ -1177,8 +1243,8 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             rng << "{\"i\":" << i++ << ",\"phase\":\"" << to_string(d.phase) << "\",\"state\":" << d.state
                 << ",\"value\":" << d.value << "}\n";
         const bool restore_rows = session_schema && !checkpoint.empty() && schema != CheckpointSchema::Retire;
-        const bool newgame_rows = restore_rows && (schema == CheckpointSchema::Newgame || schema == CheckpointSchema::Field);
-        const bool field_rows = restore_rows && schema == CheckpointSchema::Field;
+        const bool newgame_rows = restore_rows && (schema == CheckpointSchema::Newgame || schema == CheckpointSchema::Field || schema == CheckpointSchema::FieldWorld);
+        const bool field_rows = restore_rows && (schema == CheckpointSchema::Field || schema == CheckpointSchema::FieldWorld);
         // Rows outside this report's vocabulary: Restore kinds unless Restore/Newgame, published commands unless Newgame.
         const auto excluded = [&](const std::string& line) {
             const bool restore_kind = line.rfind("{\"kind\":\"upload-bytes\"", 0) == 0 || line.rfind("{\"kind\":\"ui\"", 0) == 0 ||
@@ -1247,7 +1313,23 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         } else e << "null";
         e << "}\n";
         std::ofstream(dir / "effects.json", std::ios::binary) << e.str();
-        if (schema == CheckpointSchema::Field) {
+        if (schema == CheckpointSchema::FieldWorld) {
+            std::ostringstream world;
+            world << "{\"models\":[";
+            bool first_model = true;
+            for (const auto& model : owner.world_models()) {
+                world << (first_model ? "" : ",") << "{\"name\":" << json_string(model->name) << ",\"handles\":[";
+                for (std::size_t i = 0; i < model->textures.slots.size(); ++i)
+                    world << (i ? "," : "") << model->textures.slots[i].handle;
+                world << "]}"; first_model = false;
+            }
+            world << "],\"xta_scene\":[";
+            const auto& images = owner.resources().scene_images();
+            for (std::size_t i = 0; i < images.size(); ++i) world << (i ? "," : "") << images[i].handle;
+            world << "]}\n";
+            std::ofstream(dir / "world.json", std::ios::binary) << world.str();
+        }
+        if (schema == CheckpointSchema::Field || schema == CheckpointSchema::FieldWorld) {
             // Field field.json: the prefix's source-visible words.
             const auto& f = owner.field_prefix();
             char tex0[24];

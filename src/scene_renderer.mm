@@ -157,7 +157,7 @@ struct SceneRenderer::Impl {
         std::vector<std::size_t> textureBases;
     };
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};
-        std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> textureBytes{};};
+        std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> textureBytes{};std::vector<ResourceTextureSlot> textureSlots{};bool texturesOwned=false;};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
@@ -192,9 +192,11 @@ struct SceneRenderer::Impl {
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
     Impl(){initializeMetal();}
-    explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects) {
+    explicit Impl(const fs::path& path,std::span<const SceneActor> actors,const MapObjects* objects,
+                  std::span<const std::shared_ptr<const SceneModelAsset>> assets) {
         mapObjects=objects;
         const auto map=read_xmp(read(path));
+        if(!assets.empty() && assets.size()!=map.definitions.size())throw std::runtime_error("Owned map definition count");
         unsigned back=640;
         for(std::size_t index=0;index<map.placements.size();++index) {
             const auto& placement=map.placements[index];
@@ -210,8 +212,11 @@ struct SceneRenderer::Impl {
             // optimized0x80 and terrain0x80000 classifications take precedence.
             if(!(transform.flags&0x80080)&&(transform.flags&0x20000))sky_input=inputs.size();
             const auto file=path.parent_path()/definition.name;
-            inputs.push_back({file,object?object->model():read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
+            const auto asset=assets.empty()?nullptr:assets[placement.definition()];
+            if(!assets.empty() && !asset)throw std::runtime_error("Owned map definition unavailable");
+            inputs.push_back({file,object?object->model():asset?asset->model:read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
                 (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
+            if(asset){inputs.back().textureSlots=asset->textures;inputs.back().texturesOwned=true;}
             inputs.back().flags=transform.flags;
             inputs.back().ordinal=transform.flags&0x100000?640+--back:nextFrontOrdinal++;
         }
@@ -269,12 +274,20 @@ struct SceneRenderer::Impl {
         Input input{binding.model_path,binding.actor->model(),{},binding.actor,{},{},true,shadow.ordinary_after_shadows()};
         input.flags=shadow.flags;input.ordinal=nextFrontOrdinal;
         input.special=!binding.descriptor&&(name=="wkumo"||name=="rkumo"||name=="bkumo");
-        input.descriptor=binding.descriptor;input.textureBytes=binding.texture_bytes;
+        input.descriptor=binding.descriptor;input.textureBytes=binding.texture_bytes;input.textureSlots=binding.texture_slots;input.texturesOwned=binding.textures_owned;
         return {std::move(input),std::move(shadow)};
     }
     static std::vector<Texture> inputTextures(const Input& input) {
         std::vector<Texture> images;
         const auto& names=input.actor ? input.actor->textures().names() : input.model.textures;
+        if(input.texturesOwned || !input.textureSlots.empty()) {
+            if(input.textureSlots.size()!=names.size())throw std::runtime_error("Owned model slot count");
+            for(const auto& slot:input.textureSlots) {
+                if(slot.handle<0 || !slot.image || !slot.bytes)throw std::runtime_error("Owned model binding unavailable");
+                images.push_back(decode_xim(*slot.bytes));
+            }
+            return images;
+        }
         if(!input.textureBytes.empty()) {
             //Owned bytes from the caller's source-order load: no second file read.
             if(input.textureBytes.size()!=names.size())throw std::runtime_error("Owned model texture count");
@@ -853,8 +866,9 @@ std::size_t SceneRenderer::cached_backend_count() {
     return cache.entries.size();
 }
 SceneRenderer::SceneRenderer():impl_(std::make_unique<Impl>()){}
-SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects):
-    impl_(std::make_unique<Impl>(map,actors,objects)){}
+SceneRenderer::SceneRenderer(const fs::path& map,std::span<const SceneActor> actors,const MapObjects* objects,
+                             std::span<const std::shared_ptr<const SceneModelAsset>> assets):
+    impl_(std::make_unique<Impl>(map,actors,objects,assets)){}
 SceneRenderer::~SceneRenderer()=default;
 void SceneRenderer::add_actor(const SceneActor& actor){impl_->addActor(actor);}
 void SceneRenderer::retire_instances(){impl_->retireInstances();}

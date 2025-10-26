@@ -78,7 +78,8 @@ ResourceTextures ResourceTextureOwner::load_xmd(std::span<const std::string> nam
 }
 
 bool ResourceTextureOwner::load_xta(ResourceTextures& resource, ImmutableTextureBytes sidecar,
-                                   const TextureHandleOwner::FileReader& reader) {
+                                   const TextureHandleOwner::FileReader& reader,
+                                   const std::function<void()>& image_return) {
     if (resource.xta_attempted) throw std::logic_error("XTA sidecar already attempted for this resource");
     resource.xta_attempted = true;
     if (!sidecar || sidecar->empty()) return false; // 1b6898 read <= 0 precedes reservation
@@ -110,6 +111,7 @@ bool ResourceTextureOwner::load_xta(ResourceTextures& resource, ImmutableTexture
             slot.bytes = std::move(payload);
             scene_images_.push_back(slot);
             resource.xta_variants.push_back(std::move(slot));
+            if (image_return) image_return(); // 1b6710 return, before 1b6908 bookkeeping
             if (resource.xta_first == -1) resource.xta_first = handle; // 1b6908..1b6914
         } else {
             if (resource.xta_groups.size() == 8) throw std::invalid_argument("XTA exceeds eight source group pointers");

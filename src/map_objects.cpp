@@ -55,8 +55,9 @@ std::vector<MapCollisionBinding> map_collision_bodies(const MapFile& map) {
     }
     return result;
 }
-MapObjects::MapObjects(const std::filesystem::path& path) {
+MapObjects::MapObjects(const std::filesystem::path& path, std::span<const std::shared_ptr<const SceneModelAsset>> assets) {
     const auto map=read_xmp(read(path));const auto ids=map_instance_ids(map);
+    if(!assets.empty() && assets.size()!=map.definitions.size())throw std::runtime_error("Owned map definition count");
     collisions_=map_collision_bodies(map);
     placements_.resize(map.placements.size());
     static_channels_.resize(map.placements.size());
@@ -82,14 +83,18 @@ MapObjects::MapObjects(const std::filesystem::path& path) {
         }
         auto model=path.parent_path()/d.name,motion=model,xta=model;
         motion.replace_extension(".xmt");xta.replace_extension(".xta");
+        const auto asset=assets.empty()?nullptr:assets[p.definition()];
+        if(!assets.empty() && (!asset || !asset->motion))throw std::runtime_error("Owned animated map asset unavailable");
         TextureAnimation textures;
         // 0x1b6a18 attempts the XTA sidecar; missing files leave no replacement
         // table. A present malformed file is not silently discarded.
-        if(std::filesystem::exists(xta)) {
+        if(asset)textures=asset->animation;
+        else if(std::filesystem::exists(xta)) {
             const auto bytes=read(xta);
             textures=read_xta({reinterpret_cast<const char*>(bytes.data()),bytes.size()});
         }
-        auto object=std::make_unique<FieldActor>(read_xmd(read(model)),read(motion),std::move(textures));
+        auto object=std::make_unique<FieldActor>(asset?asset->model:read_xmd(read(model)),
+            asset?Bytes(*asset->motion):Bytes(read(motion)),std::move(textures));
         object->animation().set_channel(0,transform.rotation);
         object->animation().set_channel(1,transform.position);
         object->animation().set_channel(2,transform.scale);

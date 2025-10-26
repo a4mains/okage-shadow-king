@@ -13,6 +13,7 @@
 #include "okage/effect.hpp"
 #include "okage/enemy.hpp"
 #include "okage/texture_handles.hpp"
+#include "okage/resource_textures.hpp"
 #include "okage/texture_memory.hpp"
 
 namespace okage {
@@ -57,6 +58,10 @@ enum class ResourceStage : std::uint8_t {
     FieldTexenvLoaded,          // 100c60(resource, texenv.xim): 18f7a8 -> resource+0x48, 183ff0 TEX0 332430 / region 332450
     FieldRuwLoaded,             // 1a9190("fld.ruw", 0): RUW slot 0
     FieldUiPublished,           // 131e7c: manager+0x34 = 1 (the prefix is available; loading is NOT complete: +0x30 stays 0)
+    FieldWorldLoading,
+    FieldWorldComplete,
+    FieldMapCommitted,
+    FieldActive,
     Unmodeled,
 };
 const char* to_string(ResourceStage);
@@ -259,8 +264,23 @@ public:
     int load_field_texenv(const OwnedBytes& texenv);
     // 1a9190("fld.ruw", 0).
     void load_field_ruw(const OwnedBytes& ruw);
-    // 131e7c: manager+0x34 = 1. The rest of 131d28 (131e80 onward) is not modeled.
+    // 131e7c: manager+0x34 = 1, before world resources and worker completion.
     void publish_field_ui();
+    // 1bbac8 -> 186a50(1), before authored map-definition model loads.
+    void begin_field_world();
+    struct WorldModelTextures {
+        std::string name;
+        ResourceTextures textures;
+    };
+    const WorldModelTextures& load_field_model(const std::string& name, std::span<const std::string> names,
+        const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return);
+    void load_field_sidecar(const OwnedBytes& bytes, const TextureHandleOwner::FileReader& reader,
+                           const std::function<void()>& image_return);
+    void complete_field_world(); // 132688 +0x30 store, only after all worker work succeeds
+    void commit_field_map();
+    void activate_field();       // 132720 returned
+    const std::vector<std::unique_ptr<WorldModelTextures>>& world_models() const noexcept { return world_models_; }
+    const ResourceTextureOwner& resources() const noexcept { return resources_; }
     unsigned chapter_scene() const noexcept { return chapter_scene_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
     void request_title_successor(unsigned mode);
@@ -317,6 +337,8 @@ private:
 
     Ps2TextureMemory memory_;
     TextureHandleOwner handles_;
+    ResourceTextureOwner resources_;
+    std::vector<std::unique_ptr<WorldModelTextures>> world_models_;
     StartupCoverage coverage_{StartupCoverage::NotRun};
     bool started_{};
     std::array<StartupLayer, 3> layers_{};
@@ -357,7 +379,7 @@ private:
 
 void write_startup_texture_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
 void write_session_resource_report(const StartupTextureOwner& owner, const std::filesystem::path& dir);
-enum class CheckpointSchema : std::uint8_t { Retire, Restore, Newgame, Field };
+enum class CheckpointSchema : std::uint8_t { Retire, Restore, Newgame, Field, FieldWorld };
 void write_title_checkpoint_report(const StartupTextureOwner& owner, const std::filesystem::path& dir,
                                    const std::string& checkpoint, std::uint32_t session_rng_state,
                                    CheckpointSchema schema = CheckpointSchema::Retire);
