@@ -93,6 +93,75 @@ static Texture sample(const fs::path& dir,std::span<const Surface> surfaces,bool
     return cold;
 }
 static std::array<unsigned,3> center(const Texture& t){const auto n=(112*640+320)*4;return {t.rgba[n],t.rgba[n+1],t.rgba[n+2]};}
+struct OwnedSceneTextures {
+    Ps2TextureMemory memory;
+    TextureHandleOwner handles;
+    ResourceTextureOwner resources;
+    OwnedSceneTextures():handles(memory),resources(handles){memory.initialize_empty_allocator();}
+    ~OwnedSceneTextures(){handles.retire_all();}
+};
+template<class F> static void owned_rejects(F&& make,const char* message) {
+    bool rejected=false;
+    try{make();}catch(const std::runtime_error& e){rejected=std::string(e.what())==message;}
+    require(rejected);
+}
+static ResourceTextures owned_texture(OwnedSceneTextures& owner,const ModelFile& model) {
+    // The source transfer needs at least one full quadword.
+    Data xim(48);put(xim,24,2);put(xim,28,2);
+    for(unsigned i=32;i<xim.size();i+=4){xim[i]=32;xim[i+1]=64;xim[i+2]=96;xim[i+3]=128;}
+    unsigned reads=0;
+    auto resource=owner.resources.load_xmd(model.textures,[&](std::string& name)->std::optional<Data>{
+        require(name==model.textures.front()+".xim");++reads;return xim;
+    });
+    require(reads==1&&resource.slots.size()==1);
+    const auto& slot=resource.slots.front();
+    require(slot.handle>=0&&slot.handle_serial&&slot.record>=0&&slot.record_serial&&slot.image&&slot.bytes);
+    require(owner.handles.handle_live(slot.handle)&&owner.memory.allocation(slot.image->id).has_value());
+    return resource;
+}
+static void owned_map_assets(const fs::path& dir,bool animated) {
+    const std::array<Surface,1> surfaces{{{{.75f,.5f,.25f,1},0}}};
+    sample(dir,surfaces,true,true,animated);
+    auto owner=std::make_unique<OwnedSceneTextures>();
+    auto asset=std::make_shared<SceneModelAsset>();
+    asset->model=read_xmd(model(surfaces,true,true,false));
+    Data motion(56);put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);
+    asset->motion=std::make_shared<const Data>(motion);
+    auto resource=owned_texture(*owner,asset->model);asset->textures=resource.slots;
+    const SceneModelAssets assets{asset};
+    write(dir/"t.xim",*resource.slots.front().bytes);
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    const auto initialize=[](MapObjects& objects){for(const auto& binding:objects.bindings()) {
+        binding.actor->animation().set_channel(4,{0,0,0,1});
+        binding.actor->animation().set_channel(5,{0,0,0,1});binding.actor->evaluate();
+    }};
+    const auto expected=[&]{
+        MapObjects objects(dir/"a.xmp");initialize(objects);
+        SceneRenderer renderer(dir/"a.xmp",{},&objects);renderer.set_clear_rgb({14,18,24});
+        return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    }();
+    require(center(expected)!=std::array<unsigned,3>{14,18,24});
+    // A valid on-disk XIM must not conceal an incomplete owned definition.
+    const auto rejects=[&](std::vector<ResourceTextureSlot> slots,const char* message){
+        auto invalid=std::make_shared<SceneModelAsset>(*asset);invalid->textures=std::move(slots);
+        const SceneModelAssets inputs{invalid};MapObjects objects(dir/"a.xmp",inputs);
+        owned_rejects([&]{SceneRenderer renderer(dir/"a.xmp",{},&objects,inputs);},message);
+    };
+    rejects({},"Owned model slot count");
+    auto missing=resource.slots;missing[0].bytes.reset();rejects(missing,"Owned model binding unavailable");
+    missing=resource.slots;missing[0].image.reset();rejects(missing,"Owned model binding unavailable");
+    missing=resource.slots;missing[0].handle=-1;rejects(missing,"Owned model binding unavailable");
+    for(const auto* name:{"m.xmd","t.xim","m.xmt"})require(fs::remove(dir/name));
+    MapObjects objects(dir/"a.xmp",assets);
+    require(objects.bindings().size()==unsigned(animated));
+    initialize(objects);
+    SceneRenderer renderer(dir/"a.xmp",{},&objects,assets);renderer.set_clear_rgb({14,18,24});
+    const auto image=renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    require(image.rgba==expected.rgba&&renderer.placements()==1&&renderer.actors()==0);
+    owner->resources.retire_xmd(resource);
+}
 static void shared_static_channels(const fs::path& dir) {
     const std::array<Surface,1> surfaces{{{{1,1,1,1},0,false}}};
     const auto baseline=sample(dir,surfaces,true,false,false);
@@ -198,6 +267,41 @@ static Texture ordinary_field_actor_sample(const fs::path& dir,std::span<const S
     projection.begin_effects();projection.begin_deferred();projection.end_effects();
     const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
     return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+}
+static void owned_actor_textures(const fs::path& dir) {
+    const std::array<Surface,1> surfaces{{{{.75f,.5f,.25f,1},0}}};
+    ordinary_field_actor_sample(dir,surfaces,true);
+    auto owner=std::make_unique<OwnedSceneTextures>();
+    FieldActor actor(read_xmd(model(surfaces,true,true,false)));actor.evaluate();
+    auto resource=owned_texture(*owner,actor.model());
+    write(dir/"t.xim",*resource.slots.front().bytes);
+    FieldProjection projection;projection.load_stage(stage({1,1,1,1},{.125f,.25f,.375f,1},false));
+    projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
+    const Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+    SceneActor binding{&actor,dir/"m.xmd",2};
+    const auto expected=[&]{
+        SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1));renderer.set_clear_rgb({14,18,24});
+        return renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame());
+    }();
+    require(center(expected)!=std::array<unsigned,3>{14,18,24});
+    binding.texture_slots=resource.slots;binding.textures_owned=true;
+    binding.texture_bytes={resource.slots.front().bytes};
+    const auto rejects=[&](std::vector<ResourceTextureSlot> slots,const char* message){
+        auto invalid=binding;invalid.texture_slots=std::move(slots);
+        owned_rejects([&]{SceneRenderer renderer(dir/"a.xmp",std::span(&invalid,1));},message);
+    };
+    rejects({},"Owned model slot count");
+    auto missing=resource.slots;missing[0].bytes.reset();rejects(missing,"Owned model binding unavailable");
+    missing=resource.slots;missing[0].image.reset();rejects(missing,"Owned model binding unavailable");
+    missing=resource.slots;missing[0].handle=-1;rejects(missing,"Owned model binding unavailable");
+    binding.texture_bytes.clear();
+    auto hidden=std::make_shared<SceneModelAsset>();hidden->model=actor.model();hidden->textures=resource.slots;
+    const SceneModelAssets assets{hidden};
+    require(fs::remove(dir/"m.xmd")&&fs::remove(dir/"t.xim"));
+    SceneRenderer renderer(dir/"a.xmp",std::span(&binding,1),nullptr,assets);renderer.set_clear_rgb({14,18,24});
+    require(renderer.render(identity,field_clip_projection(projection.frame().ordinary),nullptr,{},1024,{},&projection.frame()).rgba==expected.rgba);
+    require(renderer.actors()==1&&renderer.placements()==1);
+    owner->resources.retire_xmd(resource);
 }
 static Texture sorted_field_actor_sample(const fs::path& dir,bool farFirst,unsigned renderFlags) {
     fs::create_directory(dir);
@@ -621,9 +725,13 @@ int main(int argc,const char** argv){@autoreleasepool {try {
     }
     ui_bridge(out/"ui-bridge");
     shared_static_channels(out/"shared-static-channels");
+    owned_map_assets(out/"owned-static-map",false);
+    owned_map_assets(out/"owned-animated-map",true);
+    owned_actor_textures(out/"owned-actor");
     submitted_frame_tickets();
     retired_instances(out/"retired-instances");
     if(argc==1)fs::remove_all(out);
+    std::cout<<"Scene owned textures: real resource slots preserve static/animated map and actor RGBA without model/XIM/motion files; incomplete owned bindings reject\n";
     std::cout<<"Scene retirement: retained snapshots, detached owners, empty range and effect texture indices passed\n";
     std::cout<<"Scene UI pass: ordered overlay, shared depth, raw alpha, completed validation and recovery passed\n";
     std::cout<<"Scene map material: TME-off selected state, exact GS-unit centers, animated-map stage ambient, bypass and whole-list pass ordering passed\n";
