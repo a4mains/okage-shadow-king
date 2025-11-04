@@ -1,110 +1,165 @@
 {
   "schema": "okage.texture-to-battle-validation.v1",
   "status": "INCOMPLETE",
-  "scope": "Intermediate field-prefix checkpoint; the complete six-package review remains open.",
+  "scope": "Complete six-package assignment; current bounded proof is cold New Game through first ordinary field world activation.",
   "base_commit": "8e20f515abf991690c5a88d0ddc1f505419c2959",
   "worktree": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source": {
     "CMakeLists.txt": {
-      "path": "CMakeLists.txt",
-      "sha256": "554bd3a18ae98665e619cfd59063ec8d1329520142d212365afd4ad0e5a7ef02",
-      "bytes": 38558
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/CMakeLists.txt",
+      "sha256": "0a9591787b91423a99bafc0fc688bf25ad14c606603ce49e94f24a0a11187d53",
+      "bytes": 38800
+    },
+    "include/okage/field.hpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/field.hpp",
+      "sha256": "580166354e48d1d73533a31c3487fca9b924611fba825525f144e5ea5c4a3ccd",
+      "bytes": 17368
+    },
+    "include/okage/map_objects.hpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/map_objects.hpp",
+      "sha256": "6815ec7b2dc3a1738dc7866c20365f937c067431418bf168298d855f31823e30",
+      "bytes": 2113
     },
     "include/okage/resource_textures.hpp": {
-      "path": "include/okage/resource_textures.hpp",
-      "sha256": "e18930b4588fa034e31a9854bd667040e06b6453dd194b19af696ee8a41750d7",
-      "bytes": 2265
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/resource_textures.hpp",
+      "sha256": "9025bab216cd4e9b1a08a6b27ef6c40a5a1915a518904ea1665bd1e7635aa241",
+      "bytes": 3792
+    },
+    "include/okage/scene_model_asset.hpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/scene_model_asset.hpp",
+      "sha256": "10ecb3c2baf4605bb62efbd8472662089316bdef7aed103836738f4c9234f79c",
+      "bytes": 540
+    },
+    "include/okage/scene_renderer.hpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/scene_renderer.hpp",
+      "sha256": "fcd3f763aaa58a28b60ea5c1149e6460e170926f7449cd23ae3368c60c99eb35",
+      "bytes": 9702
     },
     "include/okage/startup_textures.hpp": {
-      "path": "include/okage/startup_textures.hpp",
-      "sha256": "a786de6932d982d8bd2487a0fde1d1879d5301247eb1910c88f4543cc083633f",
-      "bytes": 19651
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/startup_textures.hpp",
+      "sha256": "edc46eeb1ffc073c8a3a024a09c5af8ec688a80fdb765eae3389c570e7ec70a4",
+      "bytes": 31741
     },
     "include/okage/texture_handles.hpp": {
-      "path": "include/okage/texture_handles.hpp",
-      "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
-      "bytes": 8520
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/texture_handles.hpp",
+      "sha256": "0dc440c678fb5d5c0b0a8220e19e1378b6fd41fa5f287b341a65fb1b4d9e564c",
+      "bytes": 13380
     },
     "include/okage/texture_transfer.hpp": {
-      "path": "include/okage/texture_transfer.hpp",
-      "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
-      "bytes": 2367
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/texture_transfer.hpp",
+      "sha256": "acef32e43403cddda710cf29a6aaba8767eadf0a4cf1764f34235ead43f04398",
+      "bytes": 8624
     },
     "src/assets.cpp": {
-      "path": "src/assets.cpp",
-      "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26",
-      "bytes": 14408
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/assets.cpp",
+      "sha256": "4c0db7c519fa92d3e49ba5739fce4565f7465f016373396eee1121558f6612d8",
+      "bytes": 14638
+    },
+    "src/field.cpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/field.cpp",
+      "sha256": "bfac13de4ca957a90e98b4477fa70d4de2d5bbb6b9e7f920fb3cc11eb1c5ea8b",
+      "bytes": 91245
+    },
+    "src/map_objects.cpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/map_objects.cpp",
+      "sha256": "9030a9a6feef824d1c409dd831f5fc56a8404de7f7890236bfc8c4a36a833d8d",
+      "bytes": 9056
     },
     "src/native_runtime.mm": {
-      "path": "src/native_runtime.mm",
-      "sha256": "1e7de31330c4f6cca23cc3fd863d60972391cda56a3f679e3fd97fbab8b43371",
-      "bytes": 244429
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/native_runtime.mm",
+      "sha256": "9c7b93625fa647d64d0919c24d78abc1c2308d1b30b92e1d175267848558741c",
+      "bytes": 271968
     },
     "src/resource_textures.cpp": {
-      "path": "src/resource_textures.cpp",
-      "sha256": "16606d48bb99d9b44d220e82a98504d8706d08a0f0f2792c99ca743ee78c72cc",
-      "bytes": 6422
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/resource_textures.cpp",
+      "sha256": "d552667855b9db24bd8410305388b06c1132267260a04054c0160498e3360633",
+      "bytes": 7837
+    },
+    "src/scene_renderer.mm": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/scene_renderer.mm",
+      "sha256": "3b4228b768739588ed75e916fd7197539c99fcdfa2b59a1ddeeacd6977cb4eff",
+      "bytes": 69497
     },
     "src/startup_textures.cpp": {
-      "path": "src/startup_textures.cpp",
-      "sha256": "c5a6b03f65a1f39f6091abab17cc8ec600e495d9002f8b846994cd58a04147bb",
-      "bytes": 66654
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/startup_textures.cpp",
+      "sha256": "f75df5db4b2eccd1d6bd9bb764767d4814278104d07ad1b38aad4adbc6478a58",
+      "bytes": 73360
     },
     "src/texture_handles.cpp": {
-      "path": "src/texture_handles.cpp",
-      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
-      "bytes": 21665
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/texture_handles.cpp",
+      "sha256": "0e53c01353a15f9d530e5196cde6ce365130995343a7f8397fc966e20ec6dd01",
+      "bytes": 23177
     },
     "src/texture_transfer.cpp": {
-      "path": "src/texture_transfer.cpp",
-      "sha256": "62c7cf758ad3e229dc1eb2e8d543f122fe526f0799f797d30e2d8ae7103f15f0",
-      "bytes": 11455
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/texture_transfer.cpp",
+      "sha256": "69ee9e3dfe2f74de2ce2246f5cb01dc16f28f84e28284c20155af5f5b7ddfeff",
+      "bytes": 13844
+    },
+    "tests/field_npc_staging_tests.cpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/field_npc_staging_tests.cpp",
+      "sha256": "3abbb9c261c5fc321e1f0596f18f105ec24260792dfc94b9f0908de928857710",
+      "bytes": 10181
     },
     "tests/resource_textures_tests.cpp": {
-      "path": "tests/resource_textures_tests.cpp",
-      "sha256": "fc69b513f8d79e7bb4f1203c39aaec81fcd84ac9fd8a40422bb337fc17d653f8",
-      "bytes": 16300
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/resource_textures_tests.cpp",
+      "sha256": "48b4a6c939a669f8f6de122c5b43596d451c8dd802571aa360ce16972e0c52ba",
+      "bytes": 18861
+    },
+    "tests/scene_map_material_tests.mm": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/scene_map_material_tests.mm",
+      "sha256": "fc7aea92436253d4176cef8f5f5f62a424fe8f34c47b391bc3ef7a984695adc5",
+      "bytes": 58338
+    },
+    "tests/test_field_world_compare.py": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_world_compare.py",
+      "sha256": "175803967b51b572103cf13758913e6e4ec004e7edfb53512133ba7deab9200d",
+      "bytes": 18435
     },
     "tests/test_field_prefix_compare.py": {
-      "path": "tests/test_field_prefix_compare.py",
-      "sha256": "9a09d704f703b513c8bc11aff8930859a4164d77d5b780b696420f042f5f3317",
-      "bytes": 18827
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_prefix_compare.py",
+      "sha256": "cecab13c3f59f720f17a845aecb29546a6c22656b7b3ce594fb89f342d095ccb",
+      "bytes": 18845
     },
     "tests/texture_handles_tests.cpp": {
-      "path": "tests/texture_handles_tests.cpp",
-      "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f",
-      "bytes": 30259
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_handles_tests.cpp",
+      "sha256": "bf0fc1f90cb6cafe2dae801e912252bf1386aec05c10aeb50a539907ddbb7788",
+      "bytes": 30400
     },
     "tests/texture_psm1_tests.cpp": {
-      "path": "tests/texture_psm1_tests.cpp",
-      "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2",
-      "bytes": 17198
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_psm1_tests.cpp",
+      "sha256": "2980eb52099d4180a91cbd57799ac09ce3db2695398071cfb262dbd6c733df1f",
+      "bytes": 18401
     },
     "tests/texture_transfer_tests.cpp": {
-      "path": "tests/texture_transfer_tests.cpp",
-      "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
-      "bytes": 30353
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_transfer_tests.cpp",
+      "sha256": "0b3018b013bf05f2586e6ad95bac4be5b1f4735e9b3a597046873cfac0721cb4",
+      "bytes": 31696
     },
     "tests/xim_raw_tests.cpp": {
-      "path": "tests/xim_raw_tests.cpp",
-      "sha256": "e3eb8e0ff1d6be9b879a0b6443705e384905ae8ba70805db58c2fa5916d3ae03",
-      "bytes": 11983
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/xim_raw_tests.cpp",
+      "sha256": "7026358648cd279f051032cac56a6fe1af93de2347f73109e27cc45a85e1e89a",
+      "bytes": 12054
+    },
+    "tools/field_world_compare.py": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_world_compare.py",
+      "sha256": "86bf9c2ef03f4182ca7dad2230960e20a8182e651a678aab97967fc74a586e21",
+      "bytes": 35653
     },
     "tools/play-oracle/startup.cpp": {
-      "path": "tools/play-oracle/startup.cpp",
-      "sha256": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
-      "bytes": 168001
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/play-oracle/startup.cpp",
+      "sha256": "d5efee10cf710118e339145743d501d0af30e1c952c2496a5166b3058c3af9ef",
+      "bytes": 181664
     },
     "tools/field_prefix_compare.py": {
-      "path": "tools/field_prefix_compare.py",
-      "sha256": "a99b584b26d5697cce5f52c1269eb0be6d5a7be53e94c01b03ba239008e01e14",
-      "bytes": 30502
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_prefix_compare.py",
+      "sha256": "bda322fa111925c20e9cbc7b0e93b50ce3052cdf9e4aedfa575c71d4e0cd1ec2",
+      "bytes": 31088
     },
     "tools/field_prefix_extract.py": {
-      "path": "tools/field_prefix_extract.py",
-      "sha256": "bfca7aa7b9990b2122b70bdcb37217e529cc0ee3111c8b32f4e4335b75308c2a",
-      "bytes": 27594
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_prefix_extract.py",
+      "sha256": "41229ec95a0cb952a33fef2b5fd4c5cd8ded72de431471826d1fd3f6ab89bcbe",
+      "bytes": 28236
     }
   },
   "inherited_state": {
@@ -122,7 +177,7 @@
       "id": 1,
       "required": "Persistent startup/field/battle/return ownership chain including successful saved-field Restore, source-order cache/XMD/XTA and lifetime",
       "status": "incomplete",
-      "evidence": "seven Field prefix payloads; world and later resources explicitly unmodeled"
+      "evidence": "Persistent owner cold first-field cache/XMD/XTA/actors and62 original component checkpoints verified in3builds. Retirement/reentry, saved Restore, battle and later memory writers incomplete."
     },
     {
       "id": 2,
@@ -152,7 +207,7 @@
       "id": 6,
       "required": "Final integrated Release/Debug/ASan/UBSan and GPU checks, full Python, fixed-anchor differential state/image/audio audit, second-pass review, focused local commits and documents",
       "status": "incomplete",
-      "evidence": "prefix checks/review only; final integrated gates open"
+      "evidence": "18 affected integrated checks/build, expanded owned-input GPU battery, fullPython1262/95skip,62 world and earlier Newgame/Field payload regressions. Final gameplay, media, and full-port reviews remain open."
     }
   ],
   "prefix": {
@@ -184,11 +239,968 @@
       "original minimal control differs665RAM bytes; inherited scheduling quantified but liveness unresolved",
       "checkpoint payload equality is separate from full temporal alignment",
       "nullGS cannot establish image/audio parity",
-      "all reached world/cache/XMD/XTA/actors remain outside owner history",
-      "class1 queue source/setter unit coverage; original multi-class operation corpus not yet captured"
+      "World components are verified separately; earlier2 full-RAM control failures are unchanged.",
+      "Both queues and selector verified in62 world snapshots; simultaneous nonempty queues remain unobserved in this cold route."
     ]
   },
   "checks": {
+    "release": {
+      "status": "passed",
+      "count": 18,
+      "source_commit": "1208d5c831a5a30d1d21a3015b5d6a143274149a",
+      "evidence": {
+        "count": 18,
+        "log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-release-sealed-v1.log",
+          "sha256": "d68b365b38033605c46c86110e9863d804442167d22dd6588ef8fcc0948a012c",
+          "bytes": 2323
+        },
+        "binaries": {
+          "resource-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/resource-textures-tests",
+            "sha256": "7f662c51db73f89de2c4569e7801b48254e8226d45894bae29d9519331d7444b",
+            "bytes": 220040
+          },
+          "field-npc-staging-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/field-npc-staging-tests",
+            "sha256": "4e340c45e5a7f145a50eac00787d097049d8e271c3e1b4b7430416b65e1116cf",
+            "bytes": 764424
+          },
+          "field-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/field-tests",
+            "sha256": "07ab6b67068ea6005b4736638d975ed9d5e887e5d29ab44ab341c2627628c123",
+            "bytes": 1266680
+          },
+          "scene-map-material-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/scene-map-material-tests",
+            "sha256": "5d607332e4dde0e0264ecabbd973af783a98e417880c833b17734a7fc5cb5911",
+            "bytes": 1309528
+          },
+          "scene-backend-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/scene-backend-tests",
+            "sha256": "6f33569afa19b8df0fd2043351ac13589e22f62d6bb2843e577ae8a9f2e359d9",
+            "bytes": 1034496
+          },
+          "actor-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/actor-tests",
+            "sha256": "e39b510d37233d8a8f7caaf8c6ec5cbdddaec3646f89a3958fa07747fe35fff4",
+            "bytes": 114104
+          },
+          "texture-animation-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-animation-tests",
+            "sha256": "686b11c1650ecbc22996bb288da89b926166f48a646647b795b63b1576b36d93",
+            "bytes": 89560
+          },
+          "map-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/map-tests",
+            "sha256": "d29efa4f5a988d56e48356ef4639280bd059b5c5f58fb30a2788c59752e2d7da",
+            "bytes": 76504
+          },
+          "texture-memory-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-memory-tests",
+            "sha256": "35f99123b7a0286c144f76d289c55c96a7d6730fac813bfbfc4ffa5869a261bc",
+            "bytes": 81448
+          },
+          "texture-transfer-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-transfer-tests",
+            "sha256": "3184a9e3c9ca81a78db0dc6a313d3119ac67d29a9b71f4b3f425d8cef0a8531d",
+            "bytes": 139176
+          },
+          "texture-handles-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-handles-tests",
+            "sha256": "f36e345ec3e5e938d7486e3a032934be258c03950cb42dea795db9367b2fc4ea",
+            "bytes": 212200
+          },
+          "startup-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/startup-textures-tests",
+            "sha256": "82557b4bb7859ac8c4f2c856ba7b51d84aa50717b4f6d5a87e92bd32d6bc3af9",
+            "bytes": 569320
+          },
+          "texture-psm1-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-psm1-tests",
+            "sha256": "6f0cdbde3601de519d869989f07522260ef19522a4d737185034f1f95eee8191",
+            "bytes": 127840
+          },
+          "load-queue-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/load-queue-tests",
+            "sha256": "d59134a4bf392035be178696c191babe62c3ddeb7b0483cfc7fd0782b3713fed",
+            "bytes": 185296
+          },
+          "asset-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/asset-tests",
+            "sha256": "e8be1129a3bd34dd306053358dc830ad596daed602e0916afc4bfa613c39f306",
+            "bytes": 58744
+          },
+          "xim-raw-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/xim-raw-tests",
+            "sha256": "5c6fc0d7e9ab31e4c59dcef78b43fe1dcdbf892c3a2815859710b122e9634603",
+            "bytes": 98752
+          },
+          "texture-snapshot-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/texture-snapshot-tests",
+            "sha256": "fe9fcf0df9bdbddd29fa0b56bae7a1bd64a6ed42c912a04e431519794e41da61",
+            "bytes": 84072
+          },
+          "gs-texture-address-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/release/gs-texture-address-tests",
+            "sha256": "c4612320338d4b2c988c00404cb74a00a81ad2e39e82f3eb11252bb56c9d4141",
+            "bytes": 37096
+          }
+        },
+        "build_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/build-field-world-release-sealed-tests.log",
+          "sha256": "9725135fab2e980194ea31016ac15845717804920ae69063e09e2d429754c009",
+          "bytes": 2870
+        },
+        "expanded_owned_scene_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-release-owned-scene.log",
+          "sha256": "cb3ef4de4d9559b6e8ab56d33a1f855d1679b24fc6393b8b2a6a29f03eb7fc32",
+          "bytes": 461
+        }
+      }
+    },
+    "debug": {
+      "status": "passed",
+      "count": 18,
+      "source_commit": "1208d5c831a5a30d1d21a3015b5d6a143274149a",
+      "evidence": {
+        "count": 18,
+        "log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-debug-sealed-v1.log",
+          "sha256": "12c942044d6c240d9ee1f36493109487eaa5c16614d276df9eed4de8e82df961",
+          "bytes": 2319
+        },
+        "binaries": {
+          "resource-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/resource-textures-tests",
+            "sha256": "30fa29e77a561db022a0dde1c3f2df7ccb95d69f56c1977eb0f2d48f2f716679",
+            "bytes": 1089208
+          },
+          "field-npc-staging-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/field-npc-staging-tests",
+            "sha256": "d4679f3822e67f0a0db3db6c31cb9c0768f6efb733a3496d53361d847e820ece",
+            "bytes": 3189880
+          },
+          "field-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/field-tests",
+            "sha256": "dded2ff98eea9f05a049d15d1a0b9878f98e1c3676c555f11a49b15289be639b",
+            "bytes": 4583848
+          },
+          "scene-map-material-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/scene-map-material-tests",
+            "sha256": "d29dd489755c0a6041732b9557e0270c78484b64e86a00954ce8c39e679a5c3e",
+            "bytes": 5718616
+          },
+          "scene-backend-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/scene-backend-tests",
+            "sha256": "3902a1711959cdead268212295a277046851a6f0dc98e1071ea9e28ba07b22f7",
+            "bytes": 4518464
+          },
+          "actor-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/actor-tests",
+            "sha256": "701ba6ee6c8fa2f2b460edb36b59734b7cecb89183bc0f199696f96465627dda",
+            "bytes": 671960
+          },
+          "texture-animation-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-animation-tests",
+            "sha256": "a770fe3ff42571f8006e3a15a9ec387627c02ccad73649fda2810cf93a8a51cf",
+            "bytes": 503496
+          },
+          "map-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/map-tests",
+            "sha256": "da91458af53dd1cd2018a614ab639343c25e39a218935c361fb4e84ada0126f6",
+            "bytes": 372856
+          },
+          "texture-memory-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-memory-tests",
+            "sha256": "eaa280a1a436f9fcd6d4907f812cd62eaf6f07566f6e8e019d67119e0bcbcbd8",
+            "bytes": 260280
+          },
+          "texture-transfer-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-transfer-tests",
+            "sha256": "bdad495bbe3726f0abe31cf09f90780da5c709a55681790425f8bfc1405c1cc1",
+            "bytes": 540072
+          },
+          "texture-handles-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-handles-tests",
+            "sha256": "4b782fca6388a07073f9e78824c53742cef78a2a90864ba2f76d3f2037be48d4",
+            "bytes": 869560
+          },
+          "startup-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/startup-textures-tests",
+            "sha256": "0c6716364df3e63019d7e55a2626dd142c5e7985f189da20762f2328fe88f6d6",
+            "bytes": 1777688
+          },
+          "texture-psm1-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-psm1-tests",
+            "sha256": "1a5e970e9a92148835211fb297085e26f675ec206fd7cd7447ebd7599eab631e",
+            "bytes": 575312
+          },
+          "load-queue-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/load-queue-tests",
+            "sha256": "1466e42f9bbafa81d4fb1dda1c51d555919f1c672fa029c5a5f53103321ccc8a",
+            "bytes": 684384
+          },
+          "asset-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/asset-tests",
+            "sha256": "8bf57915a171491f6e967333d37598b2ef0d5105ed4a3288b3d26d93b1c38385",
+            "bytes": 218280
+          },
+          "xim-raw-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/xim-raw-tests",
+            "sha256": "a54d75765e25db47d2a2636e13339d390d20fa386aa6fc3da36807ee60cd6401",
+            "bytes": 343120
+          },
+          "texture-snapshot-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/texture-snapshot-tests",
+            "sha256": "de1e24ba03eaf9f57318b6396fd2fe5eea758f3fd93d35a2b0bf0b41645169fd",
+            "bytes": 312344
+          },
+          "gs-texture-address-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/debug/gs-texture-address-tests",
+            "sha256": "284dffc2969f08544d07120c542b47deae9e52b4a0d74a3740658f98df333cf9",
+            "bytes": 47608
+          }
+        },
+        "build_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/build-field-world-debug-sealed-tests.log",
+          "sha256": "0a8363419e997307860f1d09f801414d12536dc7ff2b8ea2c685c0dbe8faf373",
+          "bytes": 3700
+        },
+        "expanded_owned_scene_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-debug-owned-scene.log",
+          "sha256": "4374049f99950f23ca8c2961982e3f9c8fecd116eb7784267b2ebf5799e8d995",
+          "bytes": 457
+        }
+      }
+    },
+    "sanitize": {
+      "status": "passed",
+      "count": 18,
+      "source_commit": "1208d5c831a5a30d1d21a3015b5d6a143274149a",
+      "evidence": {
+        "count": 18,
+        "log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-sanitize-sealed-v1.log",
+          "sha256": "1d9a5941f4546920e61aff466f003cb6a5e2e89112f83fe00bba93a29696ea60",
+          "bytes": 2325
+        },
+        "binaries": {
+          "resource-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/resource-textures-tests",
+            "sha256": "50e115a2ccdc53276463da57843e9ecdbbfe0e4621bf14a191dffdab300942f6",
+            "bytes": 3158984
+          },
+          "field-npc-staging-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/field-npc-staging-tests",
+            "sha256": "a863c87a10b96b0253a399e565d33808f41613abc2cc9ab9338613172357b362",
+            "bytes": 9654344
+          },
+          "field-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/field-tests",
+            "sha256": "35b6cf0805b8fe6e30d9f977087e0d3731a97cae731da85feef41d661a116ba2",
+            "bytes": 14149768
+          },
+          "scene-map-material-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/scene-map-material-tests",
+            "sha256": "f8676980c68f228aec09d6d04e12bdb0f01ab142abfd6fd278b1ec7f459d9009",
+            "bytes": 16873816
+          },
+          "scene-backend-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/scene-backend-tests",
+            "sha256": "9788b7ba05ebc4d7069446ce659e8fe20f2237fb4bd3000a8aa02fb1dfca2db3",
+            "bytes": 13372944
+          },
+          "actor-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/actor-tests",
+            "sha256": "599d7db7720ebd3acda45afc03ddc8165b542f44c17c7d9328a6015cdbb17ad4",
+            "bytes": 1834040
+          },
+          "texture-animation-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-animation-tests",
+            "sha256": "a431b5727fd57b1506ae7cbe390bfb574bf81eec089733be2be3188ffd96ef41",
+            "bytes": 1380632
+          },
+          "map-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/map-tests",
+            "sha256": "c38fdec1d237e8b1ff1383ceae0ba0356ee1a5cd9cef0d284710446b57a947c1",
+            "bytes": 960712
+          },
+          "texture-memory-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-memory-tests",
+            "sha256": "82742db967be821c7248cbc53036c3f0886411573dcb56a0848099e80a117d40",
+            "bytes": 721880
+          },
+          "texture-transfer-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-transfer-tests",
+            "sha256": "eb98cedf69f69a82bf1cb15133ac77888bb96dc9d2c26cfe510d5e16e737d2b0",
+            "bytes": 1642392
+          },
+          "texture-handles-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-handles-tests",
+            "sha256": "a9263685d012bdb3c21277ae732eb74fee0a360e2221e64df1deae3361f65d14",
+            "bytes": 2629208
+          },
+          "startup-textures-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/startup-textures-tests",
+            "sha256": "e1e63c457687739e02901b3b10314056d00b2ed60f5c2128a41d53313f08a8bc",
+            "bytes": 5067608
+          },
+          "texture-psm1-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-psm1-tests",
+            "sha256": "e80fa921b2b44aa42b9c5cca032e5f332923224aa95087ccb3bcda49c0971524",
+            "bytes": 1699280
+          },
+          "load-queue-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/load-queue-tests",
+            "sha256": "75d8602efaeaaf97630912b7e8563aeb4d37bf69c71811bae49f7d219bedf712",
+            "bytes": 1846432
+          },
+          "asset-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/asset-tests",
+            "sha256": "7b2ab113e4c2e6d3fe9b106b32ff4d2ea8a7bbc0c27cc067ff961b6104f047c4",
+            "bytes": 596568
+          },
+          "xim-raw-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/xim-raw-tests",
+            "sha256": "6bb8cb2931676ccc09718bca128784e31893eb271726463251c885603b6680a7",
+            "bytes": 994272
+          },
+          "texture-snapshot-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/texture-snapshot-tests",
+            "sha256": "f12775bc1df048a609dc646649f3d7b89bf6bf330ecff84fee25b9cf45f785f1",
+            "bytes": 907144
+          },
+          "gs-texture-address-tests": {
+            "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-sealed-tests-v1/sanitize/gs-texture-address-tests",
+            "sha256": "1b36fd5a1dbe09e644e8b583bf1d5a08bc912af4e90c55482bc9eed6cbe745ca",
+            "bytes": 105864
+          }
+        },
+        "build_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/build-field-world-sanitize-sealed-tests.log",
+          "sha256": "0a8363419e997307860f1d09f801414d12536dc7ff2b8ea2c685c0dbe8faf373",
+          "bytes": 3700
+        },
+        "expanded_owned_scene_log": {
+          "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/ctest-field-world-sanitize-owned-scene.log",
+          "sha256": "29ae18a0880f76302b253221de3cf320e72790734a75a13a1f08fd7824b34282",
+          "bytes": 463
+        }
+      }
+    },
+    "full_python": {
+      "status": "passed",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "tests": 1262,
+      "skipped": 95,
+      "executed": 1167,
+      "log": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/full-python-field-world-integrated-v1.log",
+        "sha256": "286f7b922b0ffc6fdb99c3c8ecab9a5499dbdc0f7a37981c6c6aad9656bbf5d5",
+        "bytes": 128252
+      },
+      "python_source_commit": "469da08",
+      "note": "C++ GPU-test-only commit1208d5c does not change Python sources."
+    }
+  },
+  "inputs": {
+    "tests/data/retire-routes/newgame-scripted/title-pad.txt": {
+      "path": "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+      "bytes": 23,
+      "sha256": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689"
+    },
+    "tests/data/newgame-routes/newgame-chapter/name-pad.txt": {
+      "path": "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+      "bytes": 52,
+      "sha256": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31"
+    }
+  },
+  "commands": [
+    "cmake -S . -B build/texture-to-battle-release -DCMAKE_BUILD_TYPE=Release",
+    "cmake -S . -B build/texture-to-battle-debug -DCMAKE_BUILD_TYPE=Debug",
+    "cmake -S . -B build/texture-to-battle-sanitize -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_OBJCXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'",
+    "cmake --build build/texture-to-battle-BUILD --target okage-native texture-memory-tests texture-transfer-tests texture-handles-tests startup-textures-tests texture-psm1-tests load-queue-tests -j6",
+    "ctest --test-dir build/texture-to-battle-BUILD --output-on-failure -R '^(texture-memory|texture-transfer|texture-handles|startup-textures|texture-psm1|load-queue)-tests$'",
+    "build/texture-to-battle-BUILD/okage-native.app/Contents/MacOS/okage-native --game-data local/game-data-stage-v13 --save-directory OUT/saves --title-pad-script tests/data/retire-routes/newgame-scripted/title-pad.txt --name-pad-script tests/data/newgame-routes/newgame-chapter/name-pad.txt --input-log OUT/reads.jsonl --newgame-report OUT/report --frames 1600 --capture OUT/f.png",
+    "python3 tools/newgame_compare.py local/research/newgame-original-v1/analysis OUT/report --strict --json OUT/newgame-compare.json",
+    "python3 -I tools/field_prefix_compare.py local/research/texture-to-battle-v1/original-analysis OUT/report --inventory local/research/texture-to-battle-v1/comparator-v2/original-pins.json --json OUT/field-compare.json",
+    "python3 tools/retire_input_provenance.py check-reads local/game-data-stage-v13 OUT/reads.jsonl --manifest-sha256 1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6 --strict-stage"
+  ],
+  "coverage_unclaimed": [
+    "other fields/navigation branches",
+    "all other formations and battle classes",
+    "font/glyph/framebuffer capture writers beyond earlier evidence",
+    "fullGS palette/filter modes",
+    "cancellation after modeled field publication",
+    "fullgame/end playthrough",
+    "physicalPS2 media parity",
+    "performance"
+  ],
+  "frozen_prefix_source": {
+    "commit": "0574fa603e200578527d5ba5f16e5e48d8e824d4",
+    "files": {
+      "include/okage/startup_textures.hpp": {
+        "path": "include/okage/startup_textures.hpp",
+        "bytes": 20839,
+        "sha256": "bc6323f3c416af322e31b1d6cb9f8116413bceb5ee447155dde1dfeda4067841"
+      },
+      "include/okage/texture_handles.hpp": {
+        "path": "include/okage/texture_handles.hpp",
+        "bytes": 8520,
+        "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
+      },
+      "include/okage/texture_transfer.hpp": {
+        "path": "include/okage/texture_transfer.hpp",
+        "bytes": 2367,
+        "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
+      },
+      "src/assets.cpp": {
+        "path": "src/assets.cpp",
+        "bytes": 14408,
+        "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
+      },
+      "src/native_runtime.mm": {
+        "path": "src/native_runtime.mm",
+        "bytes": 252904,
+        "sha256": "6b2e6dc39d3d2925096b467ecc1bc040e582b4287e18e4f43457e309c5acff5b"
+      },
+      "src/startup_textures.cpp": {
+        "path": "src/startup_textures.cpp",
+        "bytes": 71082,
+        "sha256": "e3c66b97f59cdeb46c4dd3276b7dd189f725e7f710d9e965b97eb2cbf65b5e65"
+      },
+      "src/texture_handles.cpp": {
+        "path": "src/texture_handles.cpp",
+        "bytes": 21665,
+        "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
+      },
+      "src/texture_transfer.cpp": {
+        "path": "src/texture_transfer.cpp",
+        "bytes": 11455,
+        "sha256": "62c7cf758ad3e229dc1eb2e8d543f122fe526f0799f797d30e2d8ae7103f15f0"
+      },
+      "tests/texture_handles_tests.cpp": {
+        "path": "tests/texture_handles_tests.cpp",
+        "bytes": 30259,
+        "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f"
+      },
+      "tests/texture_psm1_tests.cpp": {
+        "path": "tests/texture_psm1_tests.cpp",
+        "bytes": 17198,
+        "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2"
+      },
+      "tests/texture_transfer_tests.cpp": {
+        "path": "tests/texture_transfer_tests.cpp",
+        "bytes": 30353,
+        "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706"
+      }
+    },
+    "note": "Frozen checkpoint accepted as component evidence by second-pass reviewer; source has since advanced."
+  },
+  "source_commit": "1208d5c831a5a30d1d21a3015b5d6a143274149a",
+  "historical_runs": {
+    "release": {
+      "binary": {
+        "path": "build/texture-to-battle-release/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 3624256,
+        "sha256": "159b0313ac310be14aa9d21f13257a28251772834dc6fdc755b1068ce740f85e",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/release-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    },
+    "debug": {
+      "binary": {
+        "path": "build/texture-to-battle-debug/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 12516144,
+        "sha256": "63555d9154842308cfbe9570f596670df511b318b28327b3857028028933ad84",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/debug-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    },
+    "sanitize": {
+      "binary": {
+        "path": "build/texture-to-battle-sanitize/okage-native.app/Contents/MacOS/okage-native",
+        "bytes": 38346944,
+        "sha256": "2f03b0772b5954aa1f20ab254dff1c1e4aff073fb9a53cd4b9418d730c169a53",
+        "retained_binary": false,
+        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
+      },
+      "output_root": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-final",
+      "prefix_checkpoints_present": 7,
+      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
+    }
+  },
+  "current_runs": {
+    "release": {
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/metadata.json",
+        "sha256": "17dc57e7087ead8a5c65baec539cabf6224841fe855bdec386daf8f05cb279f2",
+        "bytes": 43583
+      },
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/okage-native",
+        "sha256": "bbe5acd87e033e1d0f276fa83254a8740e72ae20c3fc36809a3ffc2e6dd0e1a2",
+        "bytes": 3723936
+      },
+      "output_inventory": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/output-files-sha256.json",
+        "sha256": "c783cf66ce4adbf73e059e778cdd2948344b17b2f2a974da01c431d93ae75c0b",
+        "bytes": 160262
+      },
+      "comparison": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-comparison-v1.json",
+        "sha256": "aa5b9a413592d5f5de17ce1d43852c2e33deb1a76ecc9422de9af88db87ac854",
+        "bytes": 134286
+      },
+      "regressions": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-regressions-v1.json",
+        "sha256": "aa11f24e6c6116effd30fa8e97a8a732f1df2e916afb6f323312a747fb84cb7a",
+        "bytes": 2391
+      },
+      "runtime_sources_still_equal": true,
+      "command": [
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/okage-native",
+        "--game-data",
+        "local/game-data-stage-v13",
+        "--save-directory",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/saves",
+        "--title-pad-script",
+        "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+        "--name-pad-script",
+        "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+        "--input-log",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/reads.jsonl",
+        "--input-journal",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/input-journal.jsonl",
+        "--newgame-report",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/report",
+        "--frames",
+        "6000",
+        "--capture",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/frame.png"
+      ],
+      "native_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "activation_frame": 2400,
+      "attempted_ticks": 6000,
+      "completed_ticks": 6000,
+      "specialized_controls": "Title/name pads are separately pinned and their actual applied latches appear in the general journal. All ticks after the final scripted pulse are released.",
+      "nonzero_latches": [
+        {
+          "kind": "tick_attempt",
+          "frame": 616,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 698,
+          "held": 32768,
+          "pressed": 32768
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 700,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 810,
+          "held": 32,
+          "pressed": 32
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 812,
+          "held": 8192,
+          "pressed": 8192
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 814,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 816,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 818,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 820,
+          "held": 4096,
+          "pressed": 4096
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 822,
+          "held": 64,
+          "pressed": 64
+        }
+      ],
+      "image": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/frame.png",
+        "sha256": "60baf9a794e6af257671fb4b5ebf2fd385f398ef3530b81e79eb686de303ed69",
+        "bytes": 241576
+      },
+      "resource_events_at_activation": 2442,
+      "rng_draws_at_activation": 11876
+    },
+    "debug": {
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/metadata.json",
+        "sha256": "9237f24818c9d86d1d20ca30f5c822059c861f64631d399f76a8929b0b886b48",
+        "bytes": 43530
+      },
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/okage-native",
+        "sha256": "f08e70861f6c76edaf7487120a941eedd7f088342a8a0a1afa5b9895fbf0f534",
+        "bytes": 12844192
+      },
+      "output_inventory": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/output-files-sha256.json",
+        "sha256": "92b5490a566dc1ef93b10ae19213ab31374c167fddc121a154d8b328d8a368a8",
+        "bytes": 160263
+      },
+      "comparison": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-comparison-v1.json",
+        "sha256": "272f99ebed0eb93d5f6fac6576b4c90a6cfa61cfe268bb36b6ec92b554afb383",
+        "bytes": 134286
+      },
+      "regressions": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-regressions-v1.json",
+        "sha256": "efd5feea2e88b92ea3de82d8a39e937951aa337c62628295aee40c02d50ef6ea",
+        "bytes": 2375
+      },
+      "runtime_sources_still_equal": true,
+      "command": [
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/okage-native",
+        "--game-data",
+        "local/game-data-stage-v13",
+        "--save-directory",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/saves",
+        "--title-pad-script",
+        "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+        "--name-pad-script",
+        "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+        "--input-log",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/reads.jsonl",
+        "--input-journal",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/input-journal.jsonl",
+        "--newgame-report",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/report",
+        "--frames",
+        "6000",
+        "--capture",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/frame.png"
+      ],
+      "native_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "activation_frame": 2375,
+      "attempted_ticks": 6000,
+      "completed_ticks": 6000,
+      "specialized_controls": "Title/name pads are separately pinned and their actual applied latches appear in the general journal. All ticks after the final scripted pulse are released.",
+      "nonzero_latches": [
+        {
+          "kind": "tick_attempt",
+          "frame": 611,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 693,
+          "held": 32768,
+          "pressed": 32768
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 695,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 805,
+          "held": 32,
+          "pressed": 32
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 807,
+          "held": 8192,
+          "pressed": 8192
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 809,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 811,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 813,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 815,
+          "held": 4096,
+          "pressed": 4096
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 817,
+          "held": 64,
+          "pressed": 64
+        }
+      ],
+      "image": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/frame.png",
+        "sha256": "2e9a0edd7c00c8cabd6b1c57ae9b6eafa366b938c76a6a53aec1807e179609de",
+        "bytes": 241615
+      },
+      "resource_events_at_activation": 2442,
+      "rng_draws_at_activation": 11876
+    },
+    "sanitize": {
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/metadata.json",
+        "sha256": "9903d6813dcc2e12c2b032b48749664a2c447abadea3eb587eaca70e5bede21f",
+        "bytes": 43763
+      },
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/okage-native",
+        "sha256": "153ac1609e54620292b1eacef11992f5fcb0e5afd5ca924eed4c419ccc46124d",
+        "bytes": 39368576
+      },
+      "output_inventory": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/output-files-sha256.json",
+        "sha256": "595790b5fd8554709e3cdf664949d3baca49a8f01c924b3213ca8c468dabb832",
+        "bytes": 160264
+      },
+      "comparison": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-comparison-v1.json",
+        "sha256": "106f8edad77758a94d0a45bce1fece0169e0e0fb34d2ff77f346fcac49e38161",
+        "bytes": 134286
+      },
+      "regressions": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-regressions-v1.json",
+        "sha256": "deb323ac2783486a0ebf9516950063624e1cc39733ec3294b7c7e5ba006fc2dd",
+        "bytes": 2399
+      },
+      "runtime_sources_still_equal": true,
+      "command": [
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/okage-native",
+        "--game-data",
+        "local/game-data-stage-v13",
+        "--save-directory",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/saves",
+        "--title-pad-script",
+        "tests/data/retire-routes/newgame-scripted/title-pad.txt",
+        "--name-pad-script",
+        "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
+        "--input-log",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/reads.jsonl",
+        "--input-journal",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/input-journal.jsonl",
+        "--newgame-report",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/report",
+        "--frames",
+        "6000",
+        "--capture",
+        "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/frame.png"
+      ],
+      "native_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "activation_frame": 2015,
+      "attempted_ticks": 6000,
+      "completed_ticks": 6000,
+      "specialized_controls": "Title/name pads are separately pinned and their actual applied latches appear in the general journal. All ticks after the final scripted pulse are released.",
+      "nonzero_latches": [
+        {
+          "kind": "tick_attempt",
+          "frame": 610,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 692,
+          "held": 32768,
+          "pressed": 32768
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 694,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 804,
+          "held": 32,
+          "pressed": 32
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 806,
+          "held": 8192,
+          "pressed": 8192
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 808,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 810,
+          "held": 2048,
+          "pressed": 2048
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 812,
+          "held": 64,
+          "pressed": 64
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 814,
+          "held": 4096,
+          "pressed": 4096
+        },
+        {
+          "kind": "tick_attempt",
+          "frame": 816,
+          "held": 64,
+          "pressed": 64
+        }
+      ],
+      "image": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/frame.png",
+        "sha256": "2a35a64b76e1e116cceba21f1ea35d85b07e7edef8bfa35be08adb04dd72c4c7",
+        "bytes": 241596
+      },
+      "resource_events_at_activation": 2442,
+      "rng_draws_at_activation": 11876
+    }
+  },
+  "world_preparation": {
+    "status": "Runtime integrated through first cold field activation;62 strict component checkpoints identical inRelease/Debug/ASan.",
+    "helper_evidence": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-handle-incarnation.json",
+    "source_observer_commit": "b9f7286",
+    "evidence_root": "local/research/texture-to-battle-v1/field-world-original-v1",
+    "observed": "10XMD,4XTA,32replacement images,206uploads,5cache hits;62new checkpoints resource/RNG/VRAM agree full/minimal;complementary/repeat stability observed;all62 paired-fill masks extracted with0failures; repeat exact91checkpoints and64rawRAM dumps",
+    "not_claimed": [
+      "field retirement/reentry",
+      "positive navigation",
+      "incremental host-metadata failure timing",
+      "successful saved-field Restore ownership",
+      "battle/return ownership",
+      "shared GS rendering",
+      "image/audio/temporal/all-node parity",
+      "Chapter2 result/newSaveRestore"
+    ],
+    "verification": {
+      "path": "local/research/texture-to-battle-v1/field-world-original-v1/verification.json",
+      "sha256": "075ce58112ac0100dd889707170424cca89608cc770751564b4858324087be16",
+      "bytes": 2877
+    },
+    "full_output_inventory": {
+      "path": "local/research/texture-to-battle-v1/field-world-original-v1/output-files-sha256.json",
+      "sha256": "be3ec24b7b14750ae7e812f54746b798b85892917b7f114a9898607551f97321",
+      "bytes": 412684
+    },
+    "known_helper_finding": "Record-incarnation fix1965596 independently accepted; corrected ResourceTextureOwner now used by runtime world loading.",
+    "record_fix_validation": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-record-incarnation.json",
+      "sha256": "60dba15452d9434dd3026496a7f75b88834c8166b4798c53c4295aa8ae2d0798",
+      "bytes": 5535
+    },
+    "xta_source_audit": "Initial variant preserves TEX0 throughactivation; source selection/restoration formula is retained in xta-binding-audit.json. Exact shared-GS bindings/sampling remain open."
+  },
+  "current_run_commands": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-checkpoint-validation-v1.json",
+    "sha256": "0bebda4407bce993c263e136d48bee8e69b1071472baff18d90f2829a66b9fd8",
+    "bytes": 40470
+  },
+  "prefix_runs_source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
+  "current_builds": {
+    "release": {
+      "runtime_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/okage-native",
+        "sha256": "bbe5acd87e033e1d0f276fa83254a8740e72ae20c3fc36809a3ffc2e6dd0e1a2",
+        "bytes": 3723936
+      },
+      "runtime_sources_still_equal": true,
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-release-v1/metadata.json",
+        "sha256": "17dc57e7087ead8a5c65baec539cabf6224841fe855bdec386daf8f05cb279f2",
+        "bytes": 43583
+      }
+    },
+    "debug": {
+      "runtime_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/okage-native",
+        "sha256": "f08e70861f6c76edaf7487120a941eedd7f088342a8a0a1afa5b9895fbf0f534",
+        "bytes": 12844192
+      },
+      "runtime_sources_still_equal": true,
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-debug-v1/metadata.json",
+        "sha256": "9237f24818c9d86d1d20ca30f5c822059c861f64631d399f76a8929b0b886b48",
+        "bytes": 43530
+      }
+    },
+    "sanitize": {
+      "runtime_source_commit": "469da081795067b021e42eb17fea8526036de2ff",
+      "binary": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/okage-native",
+        "sha256": "153ac1609e54620292b1eacef11992f5fcb0e5afd5ca924eed4c419ccc46124d",
+        "bytes": 39368576
+      },
+      "runtime_sources_still_equal": true,
+      "metadata": {
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-integrated-sanitize-v1/metadata.json",
+        "sha256": "9903d6813dcc2e12c2b032b48749664a2c447abadea3eb587eaca70e5bede21f",
+        "bytes": 43763
+      }
+    }
+  },
+  "historical_helper_checks": {
     "release": {
       "status": "passed",
       "count": 11,
@@ -242,140 +1254,7 @@
       }
     }
   },
-  "inputs": {
-    "tests/data/retire-routes/newgame-scripted/title-pad.txt": {
-      "path": "tests/data/retire-routes/newgame-scripted/title-pad.txt",
-      "bytes": 23,
-      "sha256": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689"
-    },
-    "tests/data/newgame-routes/newgame-chapter/name-pad.txt": {
-      "path": "tests/data/newgame-routes/newgame-chapter/name-pad.txt",
-      "bytes": 52,
-      "sha256": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31"
-    }
-  },
-  "commands": [
-    "cmake -S . -B build/texture-to-battle-release -DCMAKE_BUILD_TYPE=Release",
-    "cmake -S . -B build/texture-to-battle-debug -DCMAKE_BUILD_TYPE=Debug",
-    "cmake -S . -B build/texture-to-battle-sanitize -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_OBJCXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'",
-    "cmake --build build/texture-to-battle-BUILD --target okage-native texture-memory-tests texture-transfer-tests texture-handles-tests startup-textures-tests texture-psm1-tests load-queue-tests -j6",
-    "ctest --test-dir build/texture-to-battle-BUILD --output-on-failure -R '^(texture-memory|texture-transfer|texture-handles|startup-textures|texture-psm1|load-queue)-tests$'",
-    "build/texture-to-battle-BUILD/okage-native.app/Contents/MacOS/okage-native --game-data local/game-data-stage-v13 --save-directory OUT/saves --title-pad-script tests/data/retire-routes/newgame-scripted/title-pad.txt --name-pad-script tests/data/newgame-routes/newgame-chapter/name-pad.txt --input-log OUT/reads.jsonl --newgame-report OUT/report --frames 1600 --capture OUT/f.png",
-    "python3 tools/newgame_compare.py local/research/newgame-original-v1/analysis OUT/report --strict --json OUT/newgame-compare.json",
-    "python3 -I tools/field_prefix_compare.py local/research/texture-to-battle-v1/original-analysis OUT/report --inventory local/research/texture-to-battle-v1/comparator-v2/original-pins.json --json OUT/field-compare.json",
-    "python3 tools/retire_input_provenance.py check-reads local/game-data-stage-v13 OUT/reads.jsonl --manifest-sha256 1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6 --strict-stage"
-  ],
-  "coverage_unclaimed": [
-    "other fields/navigation branches",
-    "all other formations and battle classes",
-    "font/glyph/framebuffer capture writers beyond earlier evidence",
-    "fullGS palette/filter modes",
-    "cancellation after modeled field publication",
-    "fullgame/end playthrough",
-    "physicalPS2 media parity",
-    "performance"
-  ],
-  "frozen_prefix_source": {
-    "commit": "0574fa603e200578527d5ba5f16e5e48d8e824d4",
-    "files": {
-      "include/okage/startup_textures.hpp": {
-        "path": "include/okage/startup_textures.hpp",
-        "bytes": 19651,
-        "sha256": "a786de6932d982d8bd2487a0fde1d1879d5301247eb1910c88f4543cc083633f"
-      },
-      "include/okage/texture_handles.hpp": {
-        "path": "include/okage/texture_handles.hpp",
-        "bytes": 8520,
-        "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
-      },
-      "include/okage/texture_transfer.hpp": {
-        "path": "include/okage/texture_transfer.hpp",
-        "bytes": 2367,
-        "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
-      },
-      "src/assets.cpp": {
-        "path": "src/assets.cpp",
-        "bytes": 14408,
-        "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
-      },
-      "src/native_runtime.mm": {
-        "path": "src/native_runtime.mm",
-        "bytes": 244429,
-        "sha256": "1e7de31330c4f6cca23cc3fd863d60972391cda56a3f679e3fd97fbab8b43371"
-      },
-      "src/startup_textures.cpp": {
-        "path": "src/startup_textures.cpp",
-        "bytes": 66654,
-        "sha256": "c5a6b03f65a1f39f6091abab17cc8ec600e495d9002f8b846994cd58a04147bb"
-      },
-      "src/texture_handles.cpp": {
-        "path": "src/texture_handles.cpp",
-        "bytes": 21665,
-        "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
-      },
-      "src/texture_transfer.cpp": {
-        "path": "src/texture_transfer.cpp",
-        "bytes": 11455,
-        "sha256": "62c7cf758ad3e229dc1eb2e8d543f122fe526f0799f797d30e2d8ae7103f15f0"
-      },
-      "tests/texture_handles_tests.cpp": {
-        "path": "tests/texture_handles_tests.cpp",
-        "bytes": 30259,
-        "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f"
-      },
-      "tests/texture_psm1_tests.cpp": {
-        "path": "tests/texture_psm1_tests.cpp",
-        "bytes": 17198,
-        "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2"
-      },
-      "tests/texture_transfer_tests.cpp": {
-        "path": "tests/texture_transfer_tests.cpp",
-        "bytes": 30353,
-        "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706"
-      }
-    },
-    "note": "Frozen checkpoint accepted as component evidence by second-pass reviewer; source has since advanced."
-  },
-  "source_commit": "196559659af0f32fb4857981798692869adc1857",
-  "historical_runs": {
-    "release": {
-      "binary": {
-        "path": "build/texture-to-battle-release/okage-native.app/Contents/MacOS/okage-native",
-        "bytes": 3624256,
-        "sha256": "159b0313ac310be14aa9d21f13257a28251772834dc6fdc755b1068ce740f85e",
-        "retained_binary": false,
-        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
-      },
-      "output_root": "local/research/texture-to-battle-v1/sessions/release-prefix-final",
-      "prefix_checkpoints_present": 7,
-      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
-    },
-    "debug": {
-      "binary": {
-        "path": "build/texture-to-battle-debug/okage-native.app/Contents/MacOS/okage-native",
-        "bytes": 12516144,
-        "sha256": "63555d9154842308cfbe9570f596670df511b318b28327b3857028028933ad84",
-        "retained_binary": false,
-        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
-      },
-      "output_root": "local/research/texture-to-battle-v1/sessions/debug-prefix-final",
-      "prefix_checkpoints_present": 7,
-      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
-    },
-    "sanitize": {
-      "binary": {
-        "path": "build/texture-to-battle-sanitize/okage-native.app/Contents/MacOS/okage-native",
-        "bytes": 38346944,
-        "sha256": "2f03b0772b5954aa1f20ab254dff1c1e4aff073fb9a53cd4b9418d730c169a53",
-        "retained_binary": false,
-        "note": "Hash recorded before execution; build output later rebuilt. Source is frozen0574fa6, not current build path content."
-      },
-      "output_root": "local/research/texture-to-battle-v1/sessions/sanitize-prefix-final",
-      "prefix_checkpoints_present": 7,
-      "source_binding": "dirty source hashes above; builds completed before runs; no source edits during runs"
-    }
-  },
-  "current_runs": {
+  "historical_prefix_current_runs": {
     "release": {
       "source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
       "binary": {
@@ -470,44 +1349,7 @@
       }
     }
   },
-  "world_preparation": {
-    "status": "helper/oracle integrated; runtime world ownership not integrated",
-    "helper_evidence": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-handle-incarnation.json",
-    "source_observer_commit": "b9f7286",
-    "evidence_root": "local/research/texture-to-battle-v1/field-world-original-v1",
-    "observed": "10XMD,4XTA,32replacement images,206uploads,5cache hits;62new checkpoints resource/RNG/VRAM agree full/minimal;complementary/repeat stability observed;all62 paired-fill masks extracted with0failures; repeat exact91checkpoints and64rawRAM dumps",
-    "not_claimed": [
-      "runtime world owner",
-      "image/audio parity",
-      "temporal parity",
-      "Chapter2 result",
-      "new Save/Restore"
-    ],
-    "verification": {
-      "path": "local/research/texture-to-battle-v1/field-world-original-v1/verification.json",
-      "sha256": "075ce58112ac0100dd889707170424cca89608cc770751564b4858324087be16",
-      "bytes": 2877
-    },
-    "full_output_inventory": {
-      "path": "local/research/texture-to-battle-v1/field-world-original-v1/output-files-sha256.json",
-      "sha256": "be3ec24b7b14750ae7e812f54746b798b85892917b7f114a9898607551f97321",
-      "bytes": 412684
-    },
-    "known_helper_finding": "Reproduced same-record/same-allocation stale raw-payload provenance; fixed by record incarnation serial in1965596, integrated Release/Debug/ASan tests pass; independent fix review requested, runtime use remains pending.",
-    "record_fix_validation": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-record-incarnation.json",
-      "sha256": "60dba15452d9434dd3026496a7f75b88834c8166b4798c53c4295aa8ae2d0798",
-      "bytes": 5535
-    },
-    "xta_source_audit": "Initial variant does not overwrite TEX0; all4 sidecar-return checkpoints preserve original TEX0; native current_=original_ agrees. Typed selection/restoration audit pending."
-  },
-  "current_run_commands": {
-    "path": "local/research/texture-to-battle-v1/prefix-helper-integrated-comparisons.json",
-    "sha256": "3b9721b9f860aa621f5d15b7f48d60e29bde7993a87e508a5ca66920096bde8a",
-    "bytes": 5808
-  },
-  "prefix_runs_source_commit": "15fd08b197ab87e1d503237ea7bef6458e454227",
-  "current_builds": {
+  "historical_record_fix_builds": {
     "release": {
       "binary": {
         "path": "local/research/texture-to-battle-v1/bin/okage-native-record-incarnation-release",
@@ -535,5 +1377,37 @@
       "source_commit": "196559659af0f32fb4857981798692869adc1857",
       "status": "built; new record serial regression covered by integrated CTests, no native field-runtime helper use yet"
     }
+  },
+  "historical_prefix_run_commands": {
+    "path": "local/research/texture-to-battle-v1/prefix-helper-integrated-comparisons.json",
+    "sha256": "3b9721b9f860aa621f5d15b7f48d60e29bde7993a87e508a5ca66920096bde8a",
+    "bytes": 5808
+  },
+  "record_fix_review": {
+    "path": "/Users/user/src/okage/okage-shadow-king/docs/reviews/cycle-001-r1-correction-review.txt",
+    "sha256": "f7598fdc1ae246088e2384c6239ea2e4832782bc0bce7b20cf2397d1aaed9436",
+    "bytes": 2742,
+    "disposition": "accepted/closed at1965596; no full-port acceptance"
+  },
+  "world_checkpoint": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-checkpoint-validation-v1.json",
+    "sha256": "0bebda4407bce993c263e136d48bee8e69b1071472baff18d90f2829a66b9fd8",
+    "bytes": 40470,
+    "implementation_commit": "ac4a27a",
+    "comparator_commit": "469da08",
+    "gpu_test_commit": "1208d5c",
+    "review": "Review-ready bounded world checkpoint; second-pass reviewer acceptance pending."
+  },
+  "preservation": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/main-preservation-audit-world-v1.json",
+    "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
+    "bytes": 2057
+  },
+  "overnight_cutoff": "2025-11-03T15:00:00Z",
+  "battle_source_audit": {
+    "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
+    "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
+    "bytes": 11989,
+    "scope": "Read-only static source audit; observed old constructor onlyformation1/stage17, noChapter2runtime proof."
   }
 }
