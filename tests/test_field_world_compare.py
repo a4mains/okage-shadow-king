@@ -179,6 +179,75 @@ class CompareControls(unittest.TestCase):
     def test_equal(self):
         code,r=self.run_cmp();self.assertEqual((code,r.get('error')),(0,None));self.assertFalse(r['whole_raw_table_parity'])
 
+    def rewrite_source_events(self, transform, extra_metadata_checkpoint=None):
+        for run in ('world-fill00', 'world-fillff'):
+            directory = self.f.original / 'runs' / run
+            values = transform(cmp.source_events(directory / 'events.jsonl'))
+            indices = {event['i']: n for n, event in enumerate(values)}
+            self.assertEqual(len(indices), len(values))
+            for event in values:
+                if event['ev'] == 'exit':
+                    event['enter'] = indices[event['enter']]
+                event['i'] = indices[event['i']]
+            jsonl(directory / 'events.jsonl', values)
+            meta = cmp.obj(directory / 'run-meta.json')
+            meta['events'] = len(values)
+            if extra_metadata_checkpoint is not None:
+                meta['checkpoints'].append(extra_metadata_checkpoint)
+            dump(directory / 'run-meta.json', meta)
+        self.f.repin()
+
+    def test_early_duplicate_checkpoint_with_valid_pair_metadata_and_pins(self):
+        def duplicate(values):
+            marker = copy.deepcopy(next(e for e in values if e['ev'] == 'checkpoint' and e['name'] == 'field-map-loaded'))
+            marker['i'] = -1
+            at = next(n for n, e in enumerate(values) if e['ev'] == 'enter' and e['name'] == 'field_map_load')
+            values.insert(at, marker)
+            return values
+        self.rewrite_source_events(duplicate)
+        code, result = self.run_cmp()
+        self.assertEqual(code, 2, result)
+        self.assertIn('checkpoint', result['error'])
+
+    def test_later_duplicate_checkpoint_with_valid_pair_metadata_and_pins(self):
+        def duplicate(values):
+            at = next(n for n, e in enumerate(values) if e['ev'] == 'checkpoint' and e['name'] == 'field-map-loaded')
+            marker = copy.deepcopy(values[at]); marker['i'] = -1
+            values.insert(at + 1, marker)
+            return values
+        self.rewrite_source_events(duplicate)
+        self.assertEqual(self.run_cmp()[0], 2)
+
+    def test_reordered_checkpoint_markers_with_valid_pair_metadata_and_pins(self):
+        def reorder(values):
+            positions = [n for n, e in enumerate(values) if e['ev'] == 'checkpoint' and e['name'] in ('field-map-loaded', 'world-xmd_load_path-0001')]
+            a, b = positions
+            values[a], values[b] = values[b], values[a]
+            return values
+        self.rewrite_source_events(reorder)
+        self.assertEqual(self.run_cmp()[0], 2)
+
+    def test_omitted_checkpoint_marker_with_valid_pair_metadata_and_pins(self):
+        self.rewrite_source_events(lambda values: [e for e in values if not (e['ev'] == 'checkpoint' and e['name'] == 'field-map-loaded')])
+        self.assertEqual(self.run_cmp()[0], 2)
+
+    def test_undeclared_world_checkpoint_marker_with_valid_pair_metadata_and_pins(self):
+        def insert(values):
+            at = next(n for n, e in enumerate(values) if e['ev'] == 'enter' and e['name'] == 'field_map_load')
+            values.insert(at, {'i': -1, 'vb': 0, 'ev': 'checkpoint', 'name': 'world-unexpected-0001', 'pc': '0x1344b4'})
+            return values
+        self.rewrite_source_events(insert)
+        self.assertEqual(self.run_cmp()[0], 2)
+
+    def test_non_world_checkpoint_markers_are_outside_world_scope(self):
+        def insert(values):
+            at = next(n for n, e in enumerate(values) if e['ev'] == 'enter' and e['name'] == 'field_map_load')
+            values.insert(at, {'i': -1, 'vb': 0, 'ev': 'checkpoint', 'name': 'diagnostic-outside-world', 'pc': '0x1344b4'})
+            return values
+        self.rewrite_source_events(insert, extra_metadata_checkpoint='diagnostic-outside-world')
+        code, result = self.run_cmp()
+        self.assertEqual((code, result.get('error')), (0, None))
+
     def test_class1_selector_not_normalized(self):
         self.mutate(self.f.native,'state.json',lambda x:x.update(reserve_class=1));self.assertEqual(self.run_cmp()[0],1)
 

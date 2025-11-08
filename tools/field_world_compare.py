@@ -166,8 +166,17 @@ def verify_events(events, meta):
     return entered
 
 def source_boundaries(events, cps):
-    selected = {e['name']: e for e in events if e['ev'] == 'checkpoint' and e['name'] in cps}
-    need(list(selected) == cps, 'source checkpoint events disagree with run metadata')
+    markers = []
+    for event in events:
+        if event['ev'] != 'checkpoint':
+            continue
+        name = event.get('name')
+        need(isinstance(name, str), 'source checkpoint name malformed')
+        if name in ENDPOINTS or name.startswith('world-'):
+            markers.append(event)
+    need([event['name'] for event in markers] == cps,
+         'source checkpoint marker sequence/multiplicity disagrees with run metadata')
+    selected = {event['name']: event for event in markers}
     counts = collections.Counter()
     expected = []
     armed = False
