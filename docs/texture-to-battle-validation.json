@@ -8,8 +8,8 @@
   "source": {
     "CMakeLists.txt": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/CMakeLists.txt",
-      "sha256": "0a9591787b91423a99bafc0fc688bf25ad14c606603ce49e94f24a0a11187d53",
-      "bytes": 38800
+      "sha256": "2da57dba4bcc8e167ab483f6713132aa949df0aaa4d654909c661319ff9eaa70",
+      "bytes": 39021
     },
     "include/okage/field.hpp": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/field.hpp",
@@ -113,8 +113,8 @@
     },
     "tests/test_field_world_compare.py": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_world_compare.py",
-      "sha256": "175803967b51b572103cf13758913e6e4ec004e7edfb53512133ba7deab9200d",
-      "bytes": 18435
+      "sha256": "a2f5d92993b09543d5623236276d578453eef41576f87776717771a565b4aed7",
+      "bytes": 22440
     },
     "tests/test_field_prefix_compare.py": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_prefix_compare.py",
@@ -143,8 +143,8 @@
     },
     "tools/field_world_compare.py": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_world_compare.py",
-      "sha256": "86bf9c2ef03f4182ca7dad2230960e20a8182e651a678aab97967fc74a586e21",
-      "bytes": 35653
+      "sha256": "cef050a44e8a5ef0be5e65415f6e5f844280b1c806aa35d360239d30734cbc3d",
+      "bytes": 36200
     },
     "tools/play-oracle/startup.cpp": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/play-oracle/startup.cpp",
@@ -160,6 +160,21 @@
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_prefix_extract.py",
       "sha256": "41229ec95a0cb952a33fef2b5fd4c5cd8ded72de431471826d1fd3f6ab89bcbe",
       "bytes": 28236
+    },
+    "include/okage/model_ranges.hpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/model_ranges.hpp",
+      "sha256": "74c64535ff1732d96235083b8eae55cfff119ea2e7f3db2886018573907aa81a",
+      "bytes": 2666
+    },
+    "src/model_ranges.cpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/model_ranges.cpp",
+      "sha256": "bd32661e4666746a0348db4b04312f147c64cf4c869fc5ef7b997245b52d45fb",
+      "bytes": 3621
+    },
+    "tests/model_ranges_tests.cpp": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/model_ranges_tests.cpp",
+      "sha256": "7fec1728c369a012afad98a805becfd1e5acb8a2cc6d0987a5e0df36be32391a",
+      "bytes": 8511
     }
   },
   "inherited_state": {
@@ -591,6 +606,9 @@
     },
     "full_python": {
       "status": "passed",
+      "tests": 1268,
+      "skipped": 95,
+      "executed": 1173,
       "command": [
         "python3",
         "-m",
@@ -600,16 +618,13 @@
         "tests",
         "-v"
       ],
-      "tests": 1262,
-      "skipped": 95,
-      "executed": 1167,
       "log": {
-        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/full-python-field-world-integrated-v1.log",
-        "sha256": "286f7b922b0ffc6fdb99c3c8ecab9a5499dbdc0f7a37981c6c6aad9656bbf5d5",
-        "bytes": 128252
+        "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/r2-checkpoint-multiplicity-v1/full-python.log",
+        "sha256": "d37f4f3c05698d0bf9bece1f2c13e0c74f5c115c079d4efb941fc753d4f6956d",
+        "bytes": 128949
       },
-      "python_source_commit": "469da08",
-      "note": "C++ GPU-test-only commit1208d5c does not change Python sources."
+      "python_source_commit": "be0da98",
+      "note": "Subsequent C++-only model allocator/wiring changes do not alter Python sources."
     }
   },
   "inputs": {
@@ -706,7 +721,7 @@
     },
     "note": "Frozen checkpoint accepted as component evidence by second-pass reviewer; source has since advanced."
   },
-  "source_commit": "1208d5c831a5a30d1d21a3015b5d6a143274149a",
+  "source_commit": "7585548a5756268c5d418fd7e0a04552d7dcbf0c",
   "historical_runs": {
     "release": {
       "binary": {
@@ -1396,18 +1411,60 @@
     "implementation_commit": "ac4a27a",
     "comparator_commit": "469da08",
     "gpu_test_commit": "1208d5c",
-    "review": "Review-ready bounded world checkpoint; second-pass reviewer acceptance pending."
+    "review": "C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
   },
   "preservation": {
     "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/main-preservation-audit-world-v1.json",
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2025-11-03T15:00:00Z",
+  "overnight_cutoff": "2025-11-15T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
     "bytes": 11989,
     "scope": "Read-only static source audit; observed old constructor onlyformation1/stage17, noChapter2runtime proof."
+  },
+  "frozen_world_checkpoint": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-checkpoint-validation-v1.json",
+    "sha256": "0bebda4407bce993c263e136d48bee8e69b1071472baff18d90f2829a66b9fd8",
+    "bytes": 40470,
+    "implementation_commit": "ac4a27a",
+    "comparator_commit": "469da08",
+    "gpu_test_commit": "1208d5c",
+    "review": "C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
+  },
+  "current_runtime_evidence_note": "Last native replay is frozen469da08 runtime withac4a27a implementation, accepted9b628a0. Laterbe0da98 is comparator correction; 56e490c/7585548 add an unused runtime helper and its check wiring. No new lifecycle/sampling outcome claimed.",
+  "r2_correction": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/r2-checkpoint-multiplicity-v1/validation.json",
+    "sha256": "35689fdef0e51336b1f7a91de180781084068ec7115e0e78b56a88062c4df37a",
+    "bytes": 2531
+  },
+  "model_ranges_helper": {
+    "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/model-ranges-integrated-v1/validation.json",
+    "sha256": "c02eb4a3ebf86da95b3eba273428065e7ea04375f18c76ee4d1f0ce2fba42187",
+    "bytes": 3802
+  },
+  "world_review": {
+    "path": "/Users/user/src/okage/okage-shadow-king/docs/reviews/cycle-002-first-field-checkpoint-review.txt",
+    "sha256": "1e93499a674534f0b43bf25ba951f586a352c7e6f69f910d0831546bdbe7c8c9",
+    "bytes": 4164
+  },
+  "new_source_audits": {
+    "model_group_allocator_cache": {
+      "path": "local/research/model-group-source-review-v1/audit.json",
+      "sha256": "20e894f1535735d82cfb440c3ab047d5fa03ffda69e583f3b53e465df4be7153",
+      "bytes": 26214
+    },
+    "model_texture_registers": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/model-texture-register-source-audit-v1/audit.txt",
+      "sha256": "cd35769143e8748e5be5e6a30bb420cbf055eb5aa9d4530297b3fbba5c4a66c9",
+      "bytes": 15957
+    },
+    "field_dialogue_gs_writes": {
+      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-dialogue-gs-audit-v1/audit.json",
+      "sha256": "43adb39e5aaa9a79837a5dd1818e3933a47d4b740f8cb9c1a22bdf7d49af0a68",
+      "bytes": 24679
+    }
   }
 }
