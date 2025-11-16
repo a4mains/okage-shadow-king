@@ -1,7 +1,6 @@
 #include "okage/texture_transfer.hpp"
 
 #include <algorithm>
-#include <array>
 #include <stdexcept>
 #include <string>
 
@@ -20,38 +19,6 @@ std::uint32_t bits_per_pixel(std::uint32_t psm) {
     if (psm == 19 || psm == 0x1b) return 8;
     if (psm == 0x14 || psm == 0x24 || psm == 0x2c) return 4;
     reject("unsupported pixel storage format " + std::to_string(psm));
-}
-
-struct NibbleSlot {
-    std::uint32_t address;
-    std::uint8_t nibble;
-};
-
-constexpr std::uint8_t psmt4_block_table[8][4] = {
-    {0, 2, 8, 10}, {1, 3, 9, 11}, {4, 6, 12, 14}, {5, 7, 13, 15},
-    {16, 18, 24, 26}, {17, 19, 25, 27}, {20, 22, 28, 30}, {21, 23, 29, 31}};
-
-std::optional<NibbleSlot> psmt4_slot(std::uint32_t tbp, std::uint32_t tbw,
-                                     std::uint32_t x, std::uint32_t y) {
-    if (tbp > 0x3fff || tbw > 0x3f || x > 2047 || y > 2047) return std::nullopt;
-    const std::uint32_t page = x / 128u + ((y / 128u) * (tbw * 64u)) / 128u;
-    const std::uint32_t px = x % 128u, py = y % 128u;
-    const std::uint32_t block = psmt4_block_table[py / 16u][px / 32u];
-    const std::uint32_t bx = px % 32u, by = py % 16u;
-    const std::uint32_t column = by / 4u, cy = by % 4u;
-    const std::uint32_t shift = (bx & 0x18u) + ((cy & 2u) << 1);  // 0..28, multiple of 4
-    const std::uint32_t sub = ((cy >> 1) ^ column) & 1u;
-    const std::uint32_t ix = bx & 7u, iy = cy & 1u;
-    const std::uint32_t word = (ix & 1u) | (iy << 1) | ((ix & 2u) << 1) | (((ix >> 2) ^ sub) << 3);
-    const std::uint32_t base = (tbp * 256u + page * 8192u) + block * 256u + column * 64u + word * 4u;
-    return NibbleSlot{(base + shift / 8u) & 0x3fffffu, static_cast<std::uint8_t>((shift >> 2) & 1u)};
-}
-
-std::optional<NibbleSlot> psmt4h_slot(std::uint32_t psm, std::uint32_t tbp, std::uint32_t tbw,
-                                      std::uint32_t x, std::uint32_t y) {
-    const auto word = gs_texture_byte_address(0, tbp, tbw, x, y);
-    if (!word) return std::nullopt;
-    return NibbleSlot{*word + 3u, static_cast<std::uint8_t>(psm == 0x2c ? 1 : 0)};
 }
 
 constexpr std::uint32_t clut_scratch_bytes = 2048;
@@ -75,16 +42,15 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
     const auto pixels = static_cast<std::uint32_t>(pixels64);
 
     if (bits == 4) {
-        std::vector<NibbleSlot> slots(pixels);
+        std::vector<GsTexelAddress> slots(pixels);
         for (std::uint32_t i = 0; i < pixels; ++i) {
             const std::uint32_t x = t.dsax + i % t.rrw, y = t.dsay + i / t.rrw;
-            const auto slot = t.psm == 0x14 ? psmt4_slot(t.tbp, t.tbw, x, y)
-                                            : psmt4h_slot(t.psm, t.tbp, t.tbw, x, y);
+            const auto slot = gs_texel_address(t.psm, t.tbp, t.tbw, x, y);
             if (!slot) reject("pixel address outside the supported coordinate range");
             slots[i] = *slot;
         }
         for (std::uint32_t i = 0; i < pixels; ++i)
-            memory.write_nibble(slots[i].address, slots[i].nibble,
+            memory.write_nibble(slots[i].byte_address, slots[i].shift / 4u,
                                 static_cast<std::uint8_t>(data[i / 2] >> ((i & 1u) * 4u)));
         return {data.size(), pixels};
     }
@@ -92,23 +58,22 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
     if (t.psm == 0x1b) {
         std::vector<std::uint32_t> high(pixels);
         for (std::uint32_t i = 0; i < pixels; ++i) {
-            const auto word = gs_texture_byte_address(0, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
-            if (!word) reject("pixel address outside the supported coordinate range");
-            high[i] = *word + 3u;
+            const auto address = gs_texel_address(t.psm, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
+            if (!address) reject("pixel address outside the supported coordinate range");
+            high[i] = address->byte_address;
         }
         for (std::uint32_t i = 0; i < pixels; ++i) memory.write_bytes(high[i], data.subspan(i, 1));
         return {data.size(), pixels};
     }
 
-    const std::uint32_t address_psm = t.psm == 1 ? 0 : t.psm;
     const std::uint32_t bpp = bits / 8;
     // Resolve every address first so a rejected pixel leaves memory untouched.
     std::vector<std::uint32_t> addresses(pixels);
     for (std::uint32_t i = 0; i < pixels; ++i) {
-        const auto address = gs_texture_byte_address(
-            address_psm, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
+        const auto address = gs_texel_address(
+            t.psm, t.tbp, t.tbw, t.dsax + i % t.rrw, t.dsay + i / t.rrw);
         if (!address) reject("pixel address outside the supported coordinate range");
-        addresses[i] = *address;
+        addresses[i] = address->byte_address;
     }
     std::uint8_t partial = 0;
     for (std::uint32_t i = 0; i < pixels; ++i) {

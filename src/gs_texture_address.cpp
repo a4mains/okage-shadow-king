@@ -57,7 +57,47 @@ std::uint32_t address8(std::uint32_t tbp, std::uint32_t tbw,
     const auto byte_lane = ((ix & 8u) >> 2u) | ((local_y & 2u) >> 1u);
     return (page_base(tbp, page) + block * 256u + band + column_word * 4u + byte_lane) & gs_address_mask;
 }
+
+constexpr std::uint8_t psmt4_block_table[8][4] = {
+    {0, 2, 8, 10}, {1, 3, 9, 11}, {4, 6, 12, 14}, {5, 7, 13, 15},
+    {16, 18, 24, 26}, {17, 19, 25, 27}, {20, 22, 28, 30}, {21, 23, 29, 31}};
+
+GsTexelAddress address4(std::uint32_t tbp, std::uint32_t tbw,
+                        std::uint32_t x, std::uint32_t y) noexcept {
+    const std::uint32_t page = x / 128u + ((y / 128u) * (tbw * 64u)) / 128u;
+    const std::uint32_t px = x % 128u, py = y % 128u;
+    const std::uint32_t block = psmt4_block_table[py / 16u][px / 32u];
+    const std::uint32_t bx = px % 32u, by = py % 16u;
+    const std::uint32_t column = by / 4u, cy = by % 4u;
+    const std::uint32_t shift = (bx & 0x18u) + ((cy & 2u) << 1);  // 0..28, multiple of 4
+    const std::uint32_t sub = ((cy >> 1) ^ column) & 1u;
+    const std::uint32_t ix = bx & 7u, iy = cy & 1u;
+    const std::uint32_t word = (ix & 1u) | (iy << 1) | ((ix & 2u) << 1) | (((ix >> 2) ^ sub) << 3);
+    const std::uint32_t base = (tbp * 256u + page * 8192u) + block * 256u + column * 64u + word * 4u;
+    return GsTexelAddress{(base + shift / 8u) & gs_address_mask, static_cast<std::uint8_t>(shift & 4u), 4};
+}
+
 } // namespace
+
+std::optional<GsTexelAddress> gs_texel_address(
+    std::uint32_t psm,
+    std::uint32_t tbp,
+    std::uint32_t tbw,
+    std::uint32_t x,
+    std::uint32_t y) noexcept {
+    if (tbp > 0x3fffu || tbw > 0x3fu || x > 2047u || y > 2047u) return std::nullopt;
+    switch (psm) {
+        case 0: return GsTexelAddress{address32(tbp, tbw, x, y), 0, 32};
+        case 1: return GsTexelAddress{address32(tbp, tbw, x, y), 0, 24};
+        case 19: return GsTexelAddress{address8(tbp, tbw, x, y), 0, 8};
+        case 20: return address4(tbp, tbw, x, y);
+        // The high formats alias byte 3 of the aligned PSMCT32 word.
+        case 27: return GsTexelAddress{address32(tbp, tbw, x, y) + 3u, 0, 8};
+        case 36: return GsTexelAddress{address32(tbp, tbw, x, y) + 3u, 0, 4};
+        case 44: return GsTexelAddress{address32(tbp, tbw, x, y) + 3u, 4, 4};
+        default: return std::nullopt;
+    }
+}
 
 std::optional<std::uint32_t> gs_texture_byte_address(
     std::uint32_t psm,
