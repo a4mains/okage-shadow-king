@@ -92,8 +92,9 @@ void exhaustion_preserves_reached_texture_load() {
             f.handles.handle_live(handle),
             "retiring unrelated full model range cannot sweep unbound successful load");
 }
-void first_instance_retires_shared_group() {
+void shared_instances_resolve_current_numeric_group() {
     auto fixture = std::make_unique<Fixture>(); auto& f = *fixture;
+    const auto prefix = f.groups.insert("earlier-range", 1, {}).range;
     const auto& shared = f.groups.insert("shared-three-model-xmd", 3, f.load({"body", "eye"}));
     const auto lease = shared.range;
     const int body = shared.textures.slots[0].handle, eye = shared.textures.slots[1].handle;
@@ -106,18 +107,23 @@ void first_instance_retires_shared_group() {
             "first reached member removes whole group and ordered bindings before last instance");
     require(retained_bytes && retained_bytes->size() == xim().size(),
             "submitted immutable bytes may survive logical group retirement");
-    const auto& replacement = f.groups.insert("new-three-model-xmd", 3, f.load({"replacement"}));
-    require(replacement.range.first == lease.first && replacement.range.serial != lease.serial,
-            "whole retired range is immediately available with new incarnation");
+    require(f.groups.retire(prefix), "free earlier range before replacement allocation");
+    const auto& replacement = f.groups.insert("new-four-model-xmd", 4, f.load({"replacement"}));
+    require(replacement.range.first < lease.first &&
+            replacement.range.first + replacement.range.count > lease.first,
+            "replacement range contains the old instance's numeric model ID in its interior");
     const int replacement_handle = replacement.textures.slots[0].handle;
     f.handles.clear_events(); f.groups.retire_instance(400);
-    require(retired(f.handles).empty() && f.groups.find(replacement.range) &&
-            f.handles.handle_live(replacement_handle),
-            "late shared instance cannot delete a reused model ID or its texture");
-    f.groups.bind_instance(3, replacement.range); f.groups.bind_instance(400, replacement.range);
+    require(retired(f.handles) == std::vector<int>{replacement_handle} &&
+            !f.groups.find(replacement.range) && !f.handles.handle_live(replacement_handle),
+            "late shared instance removes current containing group after numeric ID reuse");
+    const auto& fresh = f.groups.insert("another-shared-group", 3, f.load({"fresh"}));
+    const int fresh_handle = fresh.textures.slots[0].handle;
+    f.handles.clear_events();
+    f.groups.bind_instance(3, fresh.range); f.groups.bind_instance(400, fresh.range);
     f.groups.retire_instance(3); f.groups.retire_instance(400);
-    require(retired(f.handles) == std::vector<int>({replacement_handle}),
-            "repeated shared cleanup issues one reached handle retirement");
+    require(retired(f.handles) == std::vector<int>({fresh_handle}),
+            "later shared cleanup misses once no current group contains the numeric ID");
 }
 void individual_associated_before_main() {
     auto fixture = std::make_unique<Fixture>(); auto& f = *fixture;
@@ -131,6 +137,31 @@ void individual_associated_before_main() {
             "1b8448 removes auxiliary group before ordered main bindings");
     f.groups.retire_instance(639);
     require(retired(f.handles) == expected, "retiring inactive individual instance has no effects");
+}
+void associated_and_main_passes_resolve_current_ids() {
+    auto fixture = std::make_unique<Fixture>(); auto& f = *fixture;
+    const auto prefix = f.groups.insert("earlier-range",1,{}).range;
+    const auto old_shadow = f.groups.insert("old-shadow",1,f.load({"old-shadow"})).range;
+    const auto old_main = f.groups.insert("old-main",1,f.load({"old-main"})).range;
+    f.groups.bind_instance(4,old_main,old_shadow);
+    require(f.groups.retire(old_shadow) && f.groups.retire(prefix), "earlier cleanup releases shadow and lower range");
+    const auto& shadow = f.groups.insert("replacement-shadow-range",2,f.load({"new-shadow"}));
+    require(shadow.range.first == 0 && old_shadow.first == 1,
+            "old auxiliary ID now lies inside a different current group");
+    f.handles.clear_events(); f.groups.retire_associated();
+    require(retired(f.handles) == std::vector<int>{shadow.textures.slots[0].handle} &&
+            !f.groups.find(shadow.range) && f.groups.find(old_main),
+            "associated pass resolves numeric auxiliary ID against current containing group");
+    require(f.groups.retire(old_main), "earlier shared cleanup releases main ID before main pass");
+    const auto& main = f.groups.insert("replacement-main-range",3,f.load({"new-main"}));
+    require(main.range.first == 0 && old_main.first == 2,
+            "old main ID now lies inside a different current group");
+    f.handles.clear_events(); f.groups.retire_main();
+    require(retired(f.handles) == std::vector<int>{main.textures.slots[0].handle} &&
+            !f.groups.find(main.range),
+            "main pass resolves numeric model ID rather than retaining a stale host lease");
+    const auto fresh = f.groups.insert("fresh",1,{}).range;
+    f.groups.bind_instance(4,fresh);
 }
 void associated_main_and_xta_order() {
     auto fixture = std::make_unique<Fixture>(); auto& f = *fixture;
@@ -272,13 +303,14 @@ int main() {
     try {
         bootstrap_and_ranges();
         exhaustion_preserves_reached_texture_load();
-        first_instance_retires_shared_group();
+        shared_instances_resolve_current_numeric_group();
         individual_associated_before_main();
+        associated_and_main_passes_resolve_current_ids();
         associated_main_and_xta_order();
         explicit_unused_retirement_and_reset();
         normalized_prefix_independent_registration();
         stale_lease_and_instance_guards();
-        std::cout << "model group tests passed (8 source ownership scenarios)\n";
+        std::cout << "model group tests passed (9 source ownership scenarios)\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
