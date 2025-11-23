@@ -26,7 +26,8 @@ public:
     void tick(BattleUiPadInput,std::span<std::uint8_t>,const GameDataTables&,
         SceneFade&,Animation&,FieldProjection&,RetiringSceneEffects*,BattleUiShared&,
         unsigned& image_counter,const SineTable&,GameRandom&,
-        const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish);
+        const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish,
+        const std::function<void(bool)>& publish_result = {});
     void tick_save(BattleUiPadInput,std::span<std::uint8_t>,const GameDataTables&,
         SceneFade&,const Texture& captured_background,const SineTable&,GameRandom&,
         const std::function<void(unsigned)>& sound,const std::function<void(bool)>& publish_result);

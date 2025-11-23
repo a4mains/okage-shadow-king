@@ -344,7 +344,8 @@ RestoreSession::RestoreSession(SceneClearColor& c,SceneFade& f,BattleUiShared& u
 RestoreSession::~RestoreSession()=default;
 void RestoreSession::tick(BattleUiPadInput input,std::span<std::uint8_t> variables,const GameDataTables& tables,
     SceneFade& fade,Animation& camera,FieldProjection& projection,RetiringSceneEffects* retiring,BattleUiShared& ui,
-    unsigned& image_counter,const SineTable& sine,GameRandom& random,const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish) {
+    unsigned& image_counter,const SineTable& sine,GameRandom& random,const std::function<void(unsigned)>& sound,const std::function<void(bool)>& finish,
+    const std::function<void(bool)>& publish_result) {
     auto& p=*impl_;check(p.live,"Dead Restore resource");const bool unlink=p.manager&&p.dead;
     if(p.phase==0){if(!p.manager||unlink)p.phase=1;}else if(p.phase==1){fade.immediate(0);finish(p.completed);}else throw std::runtime_error("Restore parent phase");
     (void)image_counter;camera.tick_channels();projection.submit_empty_resource_frame(true,p.settings.cached_depth_min,p.settings.cached_depth_max);
@@ -356,6 +357,7 @@ void RestoreSession::tick(BattleUiPadInput input,std::span<std::uint8_t> variabl
     else if(p.manager){
         p.frame={};p.frame.manager_ran=true;p.frame.state_in=p.shared.state;
         p.first(input,sound);p.frame.state_out=p.shared.state;
+        if(p.dead&&publish_result)publish_result(p.completed);
         p.second(variables,tables);p.frame.update_state_out=p.shared.state;
         if(p.dead)p.destroy_window();
     } else p.frame={};
