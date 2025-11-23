@@ -205,22 +205,31 @@ struct Session {
         if(!out||!draws)throw std::runtime_error("Restore route report write failed");
     }
     std::vector<std::pair<std::string,unsigned>> newgame_checkpoint_frames;
+    unsigned field_resource_cycle=0,chapter_resource_cycle=0;
+    fs::path chapter_report_root() const {
+        return chapter_resource_cycle<=1?newgame_report:newgame_report/("chapter-"+std::to_string(chapter_resource_cycle));
+    }
+    fs::path field_report_root() const {
+        return field_resource_cycle<=1?newgame_report:newgame_report/("field-"+std::to_string(field_resource_cycle));
+    }
     void newgame_checkpoint(const char* name,bool marker=true) {
         if(marker)startup_textures->note_checkpoint(name);
         newgame_checkpoint_frames.emplace_back(name,frame);
         if(newgame_report.empty())return;
-        okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::Newgame);
-        write_newgame_session(newgame_report/name/"session.json");
+        const auto root=chapter_report_root();fs::create_directories(root);
+        okage::write_title_checkpoint_report(*startup_textures,root/name,name,random.state,okage::CheckpointSchema::Newgame);
+        write_newgame_session(root/name/"session.json");
         if(std::string_view(name)=="field-constructor-entry")write_newgame_route();
     }
     void field_checkpoint(const char* name) {
         startup_textures->note_checkpoint(name);
         newgame_checkpoint_frames.emplace_back(name,frame);
         if(newgame_report.empty())return;
-        okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::Field);
-        write_newgame_session(newgame_report/name/"session.json");
+        const auto root=field_report_root();fs::create_directories(root);
+        okage::write_title_checkpoint_report(*startup_textures,root/name,name,random.state,okage::CheckpointSchema::Field);
+        write_newgame_session(root/name/"session.json");
         if(std::string_view(name)=="ui-prefix-published") {
-            std::ofstream out(newgame_report/"field-route.json",std::ios::binary);
+            std::ofstream out(root/"field-route.json",std::ios::binary);
             out<<"{\"route\":\"newgame-field-prefix\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
             bool first=true;
             for(const auto& [n,f]:newgame_checkpoint_frames){out<<(first?"":",")<<"\""<<n<<"\":"<<f;first=false;}
@@ -230,14 +239,16 @@ struct Session {
     }
     std::vector<std::pair<std::string,unsigned>> world_checkpoint_frames;
     unsigned world_xmd_count=0,world_xta_count=0,world_image_count=0;
+    std::map<std::string,std::shared_ptr<okage::SceneModelAsset>> owned_actor_assets;
     void world_checkpoint(const std::string& name) {
         startup_textures->note_checkpoint(name.c_str());
         world_checkpoint_frames.emplace_back(name,frame);
         if(newgame_report.empty())return;
-        okage::write_title_checkpoint_report(*startup_textures,newgame_report/name,name,random.state,okage::CheckpointSchema::FieldWorld);
-        write_newgame_session(newgame_report/name/"session.json");
+        const auto root=field_report_root();fs::create_directories(root);
+        okage::write_title_checkpoint_report(*startup_textures,root/name,name,random.state,okage::CheckpointSchema::FieldWorld);
+        write_newgame_session(root/name/"session.json");
         if(name=="field-activation-return") {
-            std::ofstream out(newgame_report/"world-route.json",std::ios::binary);
+            std::ofstream out(root/"world-route.json",std::ios::binary);
             out<<"{\"route\":\"newgame-field-world\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
             for(std::size_t i=0;i<world_checkpoint_frames.size();++i)
                 out<<(i?",":"")<<"\""<<world_checkpoint_frames[i].first<<"\":"<<world_checkpoint_frames[i].second;
@@ -264,10 +275,11 @@ struct Session {
         const auto reader=texture_reader(path.parent_path());
         const auto& resource=startup_textures->load_field_model(path.filename().string(),asset.model.textures,reader,[&]{
             world_checkpoint(numbered_world_checkpoint("xmd_load",ordinal));
-        });
+        },unsigned(asset.model.models.size()));
+        asset.resource_group=resource.range;
         asset.textures=resource.textures.slots;
         world_checkpoint(numbered_world_checkpoint("xmd_load_path",ordinal));
-        if(resource.textures.xmd.first<0 || resource.textures.xmd.aborted)
+        if((!asset.model.textures.empty() && resource.textures.xmd.first<0) || resource.textures.xmd.aborted)
             throw std::runtime_error("Field model loader failed before motion/XTA construction: "+path.string());
         if(asset.motion) {
             startup_textures->load_field_sidecar(sidecar,reader,[&]{
@@ -363,7 +375,7 @@ struct Session {
     std::optional<std::int32_t> name_previous_length;
     unsigned startup_selector=0,restore_storage_latency_ms=0;
     //0x1bdaf0 of the mode node: GameModeParent frees its dead allocation after release_child returns.
-    enum class PendingNodeFree{None,Startup,Title,Restore,NameEntry,Chapter} pending_node_free=PendingNodeFree::None;
+    enum class PendingNodeFree{None,Startup,Title,Restore,NameEntry,Chapter,Field} pending_node_free=PendingNodeFree::None;
     void observe_node_free(bool dead_before) {
         if(!dead_before||game_mode->has_dead_allocation()||pending_node_free==PendingNodeFree::None||!startup_textures)return;
         switch(pending_node_free) {
@@ -392,6 +404,11 @@ struct Session {
                 startup_textures->free_chapter_wrappers();
             }
             break;
+        case PendingNodeFree::Field:
+            if(title_modeled(okage::ResourceStage::FieldResourcesRetired)) {
+                startup_textures->free_field_wrappers();world_checkpoint("field-wrapper-free");
+            }
+            break;
         default:break;
         }
         pending_node_free=PendingNodeFree::None;
@@ -409,7 +426,6 @@ struct Session {
             //0x102218 in the Restore resource child's first tick frees the reclaim-pending water job.
             if(retiring_effects)for(const unsigned slot:retiring_effects->last_reclaimed)o.note_effect_reclaim(int(slot));
             if(restore_traversal==0)restore_checkpoint("first-layout"); //return of S's 0x100f90 (layout ran)
-            if(restore->saved_slots_present()){o.mark_unmodeled("saved-slot display is not modeled");return;}
         }
         const auto& f=restore->last_frame();
         if(!f.manager_ran) {
@@ -430,7 +446,7 @@ struct Session {
         if(restore->dead()) {
             //D: 11e480 published (4,0,0); 120b48 (manager-destroy), then 199458 window death.
             o.restore_manager_death();
-            restore_checkpoint("cancel-death"); //entry of 120b48, before its rows
+            restore_checkpoint(pending_game_command[0]==3?"saved-death":"cancel-death"); //entry of 120b48, before its rows
             o.note_ui("manager-destroy",10);
             o.note_ui("window-death",restore_window);
         }
@@ -791,12 +807,35 @@ struct Session {
             const auto path=event_directory/"hat"/"a.xmd";
             auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
             auto camera=readData(event_directory/"hatcam.xmt");
-            auto object=std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),
-                readData(motion),readActorTextures(xta),true);
+            std::shared_ptr<okage::SceneModelAsset> asset;
+            if(title_modeled(okage::ResourceStage::FieldActive)) {
+                const auto found=owned_actor_assets.find("hat");
+                if(startup_textures->models().actor("hat")) {
+                    if(found==owned_actor_assets.end())throw std::runtime_error("Hat registration has no retained authored metadata");
+                    asset=found->second;
+                } else {
+                    asset=std::make_shared<okage::SceneModelAsset>();
+                    asset->model=okage::read_xmd(readData(path));
+                    asset->motion=std::make_shared<const std::vector<std::uint8_t>>(readData(motion));
+                    okage::ImmutableTextureBytes sidecar;
+                    if(fs::exists(xta)) {
+                        sidecar=std::make_shared<const std::vector<std::uint8_t>>(readData(xta));
+                        asset->animation=okage::read_xta({reinterpret_cast<const char*>(sidecar->data()),sidecar->size()});
+                    }
+                    own_field_model(path,*asset,sidecar); // 133e60 -> 1babf8("hat", flags0x80), no shadow
+                    startup_textures->models().register_actor("hat",{*asset->resource_group,{}});
+                    owned_actor_assets.emplace("hat",asset);
+                }
+            }
+            auto object=asset?std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,true):
+                std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),readActorTextures(xta),true);
             object->visible=false;
-            renderer->add_actor({object.get(),path,-7});
+            if(asset)renderer->add_actor({object.get(),path,-7,{}, {},asset->textures,true,{},true});
+            else renderer->add_actor({object.get(),path,-7});
             auto* actor=object.get();actor_objects.push_back(std::move(object));
             actor_bindings.push_back({-7,actor,false,bind_instance(-7)});
+            if(asset && startup_textures->models().allocate_instance(*asset->resource_group,{},0x80)!=unsigned(actor_bindings.back().instance))
+                throw std::runtime_error("Hat source/host instance allocation disagrees");
             return okage::FieldEventActor{actor,std::move(camera)};
         };
         field->scene_fade=[this](unsigned percent,int mode){scene_fade.script_request(percent,mode);};
@@ -831,6 +870,7 @@ struct Session {
         field->request_chapter=[this](unsigned chapter_id,std::uint32_t payload) {
             if(!game_mode)throw std::runtime_error("Chapter request requires global mode owner");
             pending_game_command={14,chapter_id,payload}; //1248d8; constructor consumes later.
+            if(title_modeled(okage::ResourceStage::FieldActive))startup_textures->note_command(14,chapter_id,payload);
         };
         field->set_save_caption=[this](std::string_view caption) {
             if(caption.size()>=0x14)throw std::runtime_error("Save location caption extent");
@@ -1190,6 +1230,8 @@ struct Session {
         const bool alternate=variables[12]!=0;
         f->prefix_modeled=title_modeled(okage::ResourceStage::FieldConstructorEntry);
         if(f->prefix_modeled) {
+            ++field_resource_cycle;world_checkpoint_frames.clear();
+            world_xmd_count=world_xta_count=world_image_count=0;
             startup_textures->construct_field_mode(selection[1],selection[2]);
             field_checkpoint("field-constructor-return");
         }
@@ -1305,6 +1347,8 @@ struct Session {
                         }
                     }
                     own_field_model(path,*asset,sidecar);f.map_assets[i]=std::move(asset);
+                    if(f.map_assets[i]->model.models.size()!=1)
+                        throw std::runtime_error("1bb9d8 map definition has multiple models after reached allocation");
                 }
             }
             const auto root=field_root,textures=effect_textures;
@@ -1318,16 +1362,27 @@ struct Session {
                 w.objects=std::make_unique<okage::MapObjects>(w.map,w.map_assets);
                 if(!w.jobs.checkpoint())return;
                 std::vector<okage::SceneActor> scene_actors;
+                std::map<std::string,std::pair<std::shared_ptr<okage::SceneModelAsset>,okage::ImmutableTextureBytes>> actor_cache;
                 const auto add=[&](int alias,const std::string& model) {
                     const auto path=root/"OBJ"/(field_asset_component(model)+".XPF")/"a.xmd";
                     auto motion=path,texture=path;motion.replace_extension(".xmt");texture.replace_extension(".xta");
+                    auto key=model;
+                    std::transform(key.begin(),key.end(),key.begin(),[](unsigned char c){return char(std::tolower(c));});
                     auto asset=std::make_shared<okage::SceneModelAsset>();
-                    asset->model=okage::read_xmd(readData(path));
-                    asset->motion=std::make_shared<const std::vector<std::uint8_t>>(readData(motion));
                     okage::ImmutableTextureBytes sidecar;
-                    if(fs::exists(texture)) {
-                        sidecar=std::make_shared<const std::vector<std::uint8_t>>(readData(texture));
-                        asset->animation=okage::read_xta({reinterpret_cast<const char*>(sidecar->data()),sidecar->size()});
+                    const auto cached=actor_cache.find(key);
+                    if(w.prefix_modeled && cached!=actor_cache.end()) {
+                        asset=cached->second.first;sidecar=cached->second.second;
+                    } else {
+                        asset->model=okage::read_xmd(readData(path));
+                        asset->motion=std::make_shared<const std::vector<std::uint8_t>>(readData(motion));
+                        if(fs::exists(texture)) {
+                            sidecar=std::make_shared<const std::vector<std::uint8_t>>(readData(texture));
+                            asset->animation=okage::read_xta({reinterpret_cast<const char*>(sidecar->data()),sidecar->size()});
+                        }
+                        const auto shadow=path.parent_path()/"shadow.xmd";
+                        if(fs::exists(shadow))asset->shadow=std::make_shared<const okage::ModelFile>(okage::read_xmd(readData(shadow)));
+                        if(w.prefix_modeled)actor_cache.emplace(key,std::make_pair(asset,sidecar));
                     }
                     auto actor=std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation);
                     w.bindings.push_back({alias,actor.get(),alias!=-3});
@@ -1358,14 +1413,44 @@ struct Session {
         renderer->bind_map_effects(&field->map_effects());renderer->bind_effect_submissions(&field->effect_submissions());
         renderer->set_effect_light_tint(okage::field_effect_tint(f.stage));
         if(f.prefix_modeled) {
+            const auto map=okage::read_xmp(readData(f.map));
+            const auto instances=okage::map_instance_ids(map);
+            std::vector<unsigned> placement_counts(map.definitions.size());
+            for(std::size_t i=0;i<map.placements.size();++i) {
+                const auto definition=map.placements[i].definition();
+                ++placement_counts.at(definition); // includes effect-handler placements
+                if(instances[i]>=0 && f.map_assets.at(definition) &&
+                   startup_textures->models().allocate_instance(*f.map_assets[definition]->resource_group,{},map.placements[i].flags())!=unsigned(instances[i]))
+                    throw std::runtime_error("Map source/host instance allocation disagrees");
+            }
+            for(std::size_t i=0;i<f.map_assets.size();++i)
+                if(f.map_assets[i] && placement_counts[i]==0)
+                    startup_textures->models().retire(*f.map_assets[i]->resource_group); // 1bbf54
             renderer->set_material_environment(okage::decode_xim(*f.texenv_bytes));
             world_checkpoint("field-map-loaded");
             if(f.definition.music>0)music->select(f.definition.music); // 1322d4
             field->begin_prepare(f.definition,f.stage,f.collision);
             for(std::size_t i=0;i<f.actor_assets.size();++i) {
                 auto& input=f.actor_assets[i];
-                own_field_model(input.path,*input.asset,input.sidecar);
-                renderer->add_actor({actor_objects[i].get(),input.path,actor_bindings[i].alias,{}, {},input.asset->textures,true});
+                const auto key=input.path.parent_path().stem().string();
+                if(const auto* cached=startup_textures->models().actor(key)) {
+                    if(input.asset->resource_group!=cached->main)
+                        throw std::runtime_error("Cached actor metadata disagrees with source group");
+                } else {
+                    own_field_model(input.path,*input.asset,input.sidecar);
+                    if(input.asset->shadow) {
+                        if(!input.asset->shadow->textures.empty())throw std::runtime_error("Reached shadow texture table is not yet recovered");
+                        input.asset->shadow_group=startup_textures->models().insert("shadow.xmd",
+                            unsigned(input.asset->shadow->models.size()),okage::ResourceTextures{},false).range;
+                    }
+                    startup_textures->models().register_actor(key,{*input.asset->resource_group,input.asset->shadow_group});
+                    auto normalized=key;
+                    std::transform(normalized.begin(),normalized.end(),normalized.begin(),[](unsigned char c){return char(std::tolower(c));});
+                    owned_actor_assets.emplace(normalized,input.asset);
+                }
+                if(startup_textures->models().allocate_instance(*input.asset->resource_group,input.asset->shadow_group,0)!=unsigned(actor_bindings[i].instance))
+                    throw std::runtime_error("Actor source/host instance allocation disagrees");
+                renderer->add_actor({actor_objects[i].get(),input.path,actor_bindings[i].alias,{}, {},input.asset->textures,true,input.asset->shadow,true});
                 if(i<f.definition.npcs.size())field->prepare_next_npc(); // 1383e8, after this NPC's resources
             }
             field->finish_prepare();
@@ -1465,7 +1550,10 @@ struct Session {
         const bool chapter_handoff=field&&field->transition()&&field->transition()->ready&&
             field->chapter_selector()>=0&&pending_game_command[0]==14&&
             pending_game_command[1]==unsigned(field->chapter_selector());
-        if(!field||!renderer||(!chapter_handoff&&(!battle_return||!battle_capture_layer)))
+        const bool ordinary_handoff=field&&field->transition()&&field->transition()->ready&&
+            pending_game_command[0]==0&&game_mode&&game_mode->requested()&&
+            (*game_mode->requested())[0]==2;
+        if(!field||!renderer||(!chapter_handoff&&!ordinary_handoff&&(!battle_return||!battle_capture_layer)))
             throw std::runtime_error("Field retirement requires a complete mode handoff");
         if(retiring_effects) {
             const auto flags=retiring_effects->flags();
@@ -1473,9 +1561,14 @@ struct Session {
                 throw std::runtime_error("Prior resource effects still occupy field retirement pool");
         }
         field->validate_retirement();
-        if(startup_textures && startup_textures->stage()==okage::ResourceStage::FieldActive)
-            startup_textures->mark_unmodeled("101058 field retirement is not yet modeled");
         renderer.reset();
+        if(title_modeled(okage::ResourceStage::FieldActive)) {
+            startup_textures->retire_field_resources();
+            world_checkpoint("field-resource-retirement");
+            startup_textures->retire_field_manager();
+            world_checkpoint("field-manager-retirement");
+            owned_actor_assets.clear();
+        }
         retiring_effects.emplace(field->retire_effects());
         dialogue_active=false;opening.reset();choices={};narration={};controller={};clock={};
         text=okage::DialogueText({});text.fonts=fonts;
@@ -1692,6 +1785,10 @@ struct Session {
                 }
                 if(field||renderer||!actor_bindings.empty()||!actor_objects.empty()||map_objects)
                     throw std::runtime_error("Field borrowers survived mode retirement");
+                if(title_modeled(okage::ResourceStage::FieldResourcesRetired)) {
+                    startup_textures->free_field_resource_node();
+                    pending_node_free=PendingNodeFree::Field;
+                }
             },[this](okage::GameModeSelection selection){
                 if(battle||field||field_return||defeat_return||game_over||title||name_entry||restore||chapter||startup||!reset_camera)
                     throw std::runtime_error("Native mode construction has surviving scene owners");
@@ -1705,10 +1802,17 @@ struct Session {
                         //Restore continues Restore (mode 10) and New Game (mode 9) on the same owner.
                     } else startup_textures->mark_unmodeled("title successor differs from the requested mode");
                 }
+                if(selection[0]==2&&pending_game_command[0]==3) {
+                    pending_game_command={};
+                    if(title_modeled(okage::ResourceStage::RestoreWrappersFreed))startup_textures->note_command(0,0,0);
+                }
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
-                if(selection[0]==2&&pending_game_command[0]==0&&title_modeled(okage::ResourceStage::ChapterWrappersFreed)) {
+                if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)&&
+                   (title_modeled(okage::ResourceStage::ChapterWrappersFreed)||title_modeled(okage::ResourceStage::RestoreWrappersFreed)||
+                    title_modeled(okage::ResourceStage::FieldWrappersFreed))) {
+                    const bool chapter_entry=title_modeled(okage::ResourceStage::ChapterWrappersFreed);
                     startup_textures->enter_field_constructor(selection[1],selection[2]);
-                    newgame_checkpoint("field-constructor-entry");
+                    if(chapter_entry)newgame_checkpoint("field-constructor-entry");
                 }
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
                 if(selection[0]==2&&pending_game_command[0]==14) {
@@ -1716,8 +1820,8 @@ struct Session {
                     if(id<1||id>7)throw std::runtime_error("Unrecovered chapter image selection");
                     auto bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(field_root.parent_path()/"CMNDATA/2D"/(
                         "CHP_0"+std::to_string(id)+".XIM")));
-                    const bool modeled=title_modeled(okage::ResourceStage::NameEntryWrappersFreed);
-                    if(modeled)startup_textures->construct_chapter(id,*bytes);
+                    const bool modeled=title_modeled(okage::ResourceStage::NameEntryWrappersFreed)||title_modeled(okage::ResourceStage::FieldWrappersFreed);
+                    if(modeled){++chapter_resource_cycle;startup_textures->construct_chapter(id,*bytes);}
                     else if(startup_textures)startup_textures->mark_unmodeled("chapter constructed outside the modeled route");
                     chapter=std::make_unique<okage::ChapterSession>(variables,pending_game_command,selection,
                         scene_clear,scene_fade,ui_shared,[bytes,id](unsigned requested){
@@ -1953,7 +2057,6 @@ struct Session {
                     const auto bank=sound_banks.find(0);if(bank==sound_banks.end())throw std::runtime_error("Restore requires ALL bank");
                     bank->second->play(id,1.f,id==4?110:100);
                 },[this](bool loaded){
-                    pending_game_command={loaded?3u:4u,0,0};
                     if(loaded) {
                         const auto first=variables.begin()+0x844,end=std::find(first,first+8,0);
                         if(end==first+8)throw std::runtime_error("Restored player name lacks terminator");
@@ -1962,14 +2065,17 @@ struct Session {
                         game_mode->request({2,word(0x510),word(0x514)});
                     } else game_mode->request({8,1,0});
                     if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled) {
-                        //Wrapper phase 1 (D+2): 124930(root, 8, 1, 0). A loaded save is not modeled.
-                        if(!loaded&&title_modeled(okage::ResourceStage::RestoreManagerDead)&&game_mode->requested()) {
+                        if(title_modeled(okage::ResourceStage::RestoreManagerDead)&&game_mode->requested()) {
                             const auto r=*game_mode->requested(); //observed: what native queued
                             startup_textures->note_mode_request(r[0],r[1],r[2]);
                         }
-                        else startup_textures->mark_unmodeled("Restore result other than the empty-card Cancel");
+                        else startup_textures->mark_unmodeled("Restore mode request outside manager-death stage");
                     }
                     std::cout<<"Native Restore requested "<<(loaded?"saved field":"title")<<" frame="<<frame<<'\n';
+                },[this](bool loaded){
+                    pending_game_command={loaded?3u:4u,0,0};
+                    if(title_modeled(okage::ResourceStage::RestoreActive))
+                        startup_textures->note_command(pending_game_command[0],0,0);
                 });
             if(title_modeled(okage::ResourceStage::RestoreActive)||title_modeled(okage::ResourceStage::RestoreManagerDead))
                 observe_restore_tick();
@@ -2154,7 +2260,15 @@ struct Session {
                         if(!game_mode||request->scene<0||field->persistent_map_index()!=-1)
                             throw std::runtime_error("Chapter transition requires recovered destination/minimap state");
                         game_mode->request({2,std::uint32_t(request->scene),request->entrance});
-                    } else load_destination(*request,{input.held,128,128,input.pressed});
+                        if(title_modeled(okage::ResourceStage::FieldActive))
+                            startup_textures->note_mode_request(2,std::uint32_t(request->scene),request->entrance);
+                    } else {
+                        if(!game_mode||request->scene<0||field->persistent_map_index()!=-1||pending_game_command[0]!=0)
+                            throw std::runtime_error("Ordinary transition requires recovered destination/minimap/command state");
+                        game_mode->request({2,std::uint32_t(request->scene),request->entrance});
+                        if(title_modeled(okage::ResourceStage::FieldActive))
+                            startup_textures->note_mode_request(2,std::uint32_t(request->scene),request->entrance);
+                    }
                 }
                 catch(const std::exception& e) {
                     throw std::runtime_error("Native frame="+std::to_string(frame)+" destination scene="+

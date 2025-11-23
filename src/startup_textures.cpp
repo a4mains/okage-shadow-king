@@ -61,7 +61,7 @@ std::vector<std::uint8_t> read_elf_va(std::span<const std::uint8_t> elf, std::ui
     throw std::runtime_error("virtual address not backed by file contents");
 }
 
-StartupTextureOwner::StartupTextureOwner() : handles_(memory_), resources_(handles_) {}
+StartupTextureOwner::StartupTextureOwner() : handles_(memory_), resources_(handles_), models_(resources_) {}
 
 StartupTextureOwner::~StartupTextureOwner() {
     try {
@@ -344,6 +344,10 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
         for (auto& clut : filter_cluts_) clut = palette(256, {});
         checkpoint("capture-filter");
 
+        // 1004d0 -> 18e4c0: two real embedded one-model, zero-texture groups.
+        models_.insert("embedded-1fece0", 1, ResourceTextures{}, false);
+        models_.insert("embedded-1ffc90", 1, ResourceTextures{}, false);
+
         // Step 3 (100514 -> 1011d0 -> 103a88): 103718 loads the 31 shared effects through 18f7a8 ...
         note_phase(StartupTimelineEvent::Kind::PhaseBegin, "effect-uploads");
         for (const char* name : effect_names) {
@@ -434,6 +438,8 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::FieldWorldComplete: return "field-world-complete";
         case ResourceStage::FieldMapCommitted: return "field-map-committed";
         case ResourceStage::FieldActive: return "field-active";
+        case ResourceStage::FieldResourcesRetired: return "field-resources-retired";
+        case ResourceStage::FieldWrappersFreed: return "field-wrappers-freed";
         case ResourceStage::FieldUiPublished: return "field-ui-published";
         case ResourceStage::Unmodeled: return "unmodeled";
     }
@@ -487,6 +493,7 @@ void StartupTextureOwner::retire_image_list() {
     require_stage(ResourceStage::LogosConstructed, "logo resource retirement");
     for (int handle : image_list_) handles_.retire(handle);  // 1cca30(-1) is a no-op
     image_list_.clear();
+    models_.reset_instances_and_registrations(); // resource destructor1010f4
     advance(ResourceStage::LogosRetired);
 }
 
@@ -514,6 +521,7 @@ XmdLoadResult StartupTextureOwner::load_and_bind_model(const std::string& model,
     model_binding_.clear();
     model_slot_bytes_.clear();
     if (result.first < 0) return result;  // 12c350 returns early; no binding
+    title_model_ = models_.insert(model, 1, ResourceTextures{}, false).range;
     std::map<int, OwnedBytes> created;
     std::size_t read_index = 0;
     for (const auto& outcome : result.names) {
@@ -531,6 +539,7 @@ XmdLoadResult StartupTextureOwner::load_and_bind_model(const std::string& model,
                        std::to_string(i) + ",\"handle\":" + std::to_string(h) + "}");
         h = handles_.live_successor(h);
     }
+    models_.allocate_instance(*title_model_, {}, 0); // 12c350 -> 1b8a80
     return result;
 }
 
@@ -741,9 +750,11 @@ void StartupTextureOwner::retire_title_resources() {
     for (int handle : model_binding_) handles_.retire(handle);  // 1cca30 of -7/-1 is a no-op
     model_binding_.clear();
     model_slot_bytes_.clear();
+    if (title_model_) { models_.retire(*title_model_); title_model_.reset(); }
     // 1b5fd0 -> 1b2240: the image list in insertion order, then count = 0.
     for (int handle : image_list_) handles_.retire(handle);
     image_list_.clear();
+    models_.reset_instances_and_registrations(); // 1010f4, after material and image lists
     advance(ResourceStage::TitleResourcesRetired);
 }
 
@@ -788,8 +799,10 @@ void StartupTextureOwner::name_manager_death() {
 }
 
 void StartupTextureOwner::note_command(std::uint32_t a, std::uint32_t b, std::uint32_t c) {
-    if (stage_ != ResourceStage::NameEntryManagerDead && stage_ != ResourceStage::ChapterActive)
-        throw std::logic_error("published command outside the name-entry/chapter request");
+    if (stage_ != ResourceStage::NameEntryManagerDead && stage_ != ResourceStage::ChapterActive &&
+        stage_ != ResourceStage::RestoreActive && stage_ != ResourceStage::RestoreWrappersFreed &&
+        stage_ != ResourceStage::FieldActive)
+        throw std::logic_error("published command outside a modeled game manager");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"command\",\"command\":[" + std::to_string(a) + "," + std::to_string(b) +
                    "," + std::to_string(c) + "]}");
@@ -827,7 +840,8 @@ void StartupTextureOwner::free_name_entry_wrappers() {
 }
 
 int StartupTextureOwner::construct_chapter(unsigned chapter, const std::vector<std::uint8_t>& image) {
-    require_stage(ResourceStage::NameEntryWrappersFreed, "chapter construction");
+    if (stage_ != ResourceStage::NameEntryWrappersFreed && stage_ != ResourceStage::FieldWrappersFreed)
+        throw std::logic_error("chapter construction outside a retired mode");
     if (!image_list_.empty()) throw std::logic_error("chapter construction with a live image list");
     sync();
     lifecycle_push("{\"kind\":\"phase\",\"name\":\"mode2-0x133830-entry-command14-chapter" + std::to_string(chapter) + "\"}");
@@ -868,8 +882,10 @@ void StartupTextureOwner::free_chapter_wrappers() {
 }
 
 void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entrance) {
-    require_stage(ResourceStage::ChapterWrappersFreed, "second 133830 entry");
-    if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field constructor destination differs from the chapter request");
+    if (stage_ == ResourceStage::ChapterWrappersFreed) {
+        if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field constructor destination differs from the chapter request");
+    } else if (stage_ != ResourceStage::RestoreWrappersFreed && stage_ != ResourceStage::FieldWrappersFreed)
+        throw std::logic_error("133830 entry outside a retired mode");
     sync();
     lifecycle_push("{\"kind\":\"phase\",\"name\":\"mode2-0x133830-entry-command0\"}");
     advance(ResourceStage::FieldConstructorEntry);
@@ -878,7 +894,6 @@ void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entra
 // ---- Field: the ordinary-field common prefix  ----
 void StartupTextureOwner::construct_field_mode(unsigned scene, unsigned entrance) {
     require_stage(ResourceStage::FieldConstructorEntry, "133830 command-0 body");
-    if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field destination differs from active chapter request");
     sync();
     // 1151b8(node, 221980, 0x50): the resource child (100ef8 sets its +0x48 texenv handle to -1).
     field_ = FieldPrefixState{.atlas_global_24f730 = field_.atlas_global_24f730, .clut_class_2138c4 = field_.clut_class_2138c4};
@@ -993,13 +1008,14 @@ void StartupTextureOwner::begin_field_world() {
 
 const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_model(
     const std::string& name, std::span<const std::string> names,
-    const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return) {
-    require_stage(ResourceStage::FieldWorldLoading, "186c48 field model");
-    auto model = std::make_unique<WorldModelTextures>(WorldModelTextures{name, resources_.load_xmd(names, reader)});
+    const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return, unsigned model_count) {
+    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive)
+        throw std::logic_error("186c48 field model outside construction/active event");
+    auto textures = resources_.load_xmd(names, reader);
     sync();
     if (buffer_return) buffer_return();
-    world_models_.push_back(std::move(model));
-    const auto& result = *world_models_.back();
+    const auto& result = models_.insert(name, model_count, std::move(textures));
+    last_world_model_ = result.range;
     for (std::size_t i = 0; i < result.textures.slots.size(); ++i)
         lifecycle_push("{\"kind\":\"material\",\"model\":" + json_string(name) + ",\"slot\":" +
                        std::to_string(i) + ",\"handle\":" + std::to_string(result.textures.slots[i].handle) + "}");
@@ -1008,9 +1024,11 @@ const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_m
 
 void StartupTextureOwner::load_field_sidecar(const OwnedBytes& bytes,
     const TextureHandleOwner::FileReader& reader, const std::function<void()>& image_return) {
-    require_stage(ResourceStage::FieldWorldLoading, "1b6848 field sidecar");
-    if (world_models_.empty()) throw std::logic_error("Field XTA without a model");
-    resources_.load_xta(world_models_.back()->textures, bytes, reader, [&] {
+    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive)
+        throw std::logic_error("1b6848 field sidecar outside construction/active event");
+    auto* model = last_world_model_ ? models_.find(*last_world_model_) : nullptr;
+    if (!model) throw std::logic_error("Field XTA without a live model");
+    resources_.load_xta(model->textures, bytes, reader, [&] {
         sync();
         if (image_return) image_return();
     });
@@ -1034,6 +1052,37 @@ void StartupTextureOwner::activate_field() {
     sync();
     lifecycle_push("{\"kind\":\"field\",\"op\":\"activated\"}");
     advance(ResourceStage::FieldActive);
+}
+
+void StartupTextureOwner::retire_field_resources() {
+    require_stage(ResourceStage::FieldActive, "101058 field retirement");
+    note_mode_resource_retire(field_.scene, 2);
+    handles_.retire(field_.resource_48); // 1010bc, before map/model cleanup
+    models_.retire_associated();
+    models_.retire_main();
+    for (int handle : image_list_) handles_.retire(handle);
+    image_list_.clear();
+    models_.reset_instances_and_registrations(); // 1010f4, after all resource frees
+    last_world_model_.reset();
+    sync();
+    advance(ResourceStage::FieldResourcesRetired);
+}
+void StartupTextureOwner::retire_field_manager() {
+    require_stage(ResourceStage::FieldResourcesRetired, "133a38 field manager destructor");
+    note_mode_destroy(field_.scene, 2);
+    handles_.retire(field_.manager_60); // 133a64 -> 11fbc8 -> 1cca30
+    field_atlas_bytes_.reset(); field_texenv_bytes_.reset(); field_ruw_bytes_.reset();
+    field_.ruw_slot0_live = false;
+    sync();
+}
+void StartupTextureOwner::free_field_wrappers() {
+    require_stage(ResourceStage::FieldResourcesRetired, "field wrapper free");
+    note_mode_wrapper_free(field_.scene, 2, true);
+    advance(ResourceStage::FieldWrappersFreed);
+}
+void StartupTextureOwner::free_field_resource_node() {
+    require_stage(ResourceStage::FieldResourcesRetired, "field resource node free");
+    note_mode_wrapper_free(field_.scene, 2, false);
 }
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,
@@ -1317,7 +1366,11 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             std::ostringstream world;
             world << "{\"models\":[";
             bool first_model = true;
-            for (const auto& model : owner.world_models()) {
+            std::vector<const ModelResourceGroup*> active;
+            for (const auto& model : owner.world_models())
+                if (model->reported && !model->retired) active.push_back(model.get());
+            std::sort(active.begin(), active.end(), [](const auto* a, const auto* b) { return a->range.first < b->range.first; });
+            for (const auto* model : active) {
                 world << (first_model ? "" : ",") << "{\"name\":" << json_string(model->name) << ",\"handles\":[";
                 for (std::size_t i = 0; i < model->textures.slots.size(); ++i)
                     world << (i ? "," : "") << model->textures.slots[i].handle;
@@ -1328,6 +1381,32 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             for (std::size_t i = 0; i < images.size(); ++i) world << (i ? "," : "") << images[i].handle;
             world << "]}\n";
             std::ofstream(dir / "world.json", std::ios::binary) << world.str();
+            std::ostringstream groups;
+            groups << "{\"available\":" << owner.models().ranges().available_count() << ",\"free_ranges\":[";
+            bool comma = false;
+            for (const auto& [first, count] : owner.models().ranges().free_ranges()) {
+                groups << (comma ? "," : "") << "[" << first << "," << count << "]"; comma = true;
+            }
+            groups << "],\"groups\":["; comma = false;
+            for (const auto& group : owner.models().groups()) if (!group->retired) {
+                groups << (comma ? "," : "") << "{\"name\":" << json_string(group->name)
+                       << ",\"first\":" << group->range.first << ",\"count\":" << group->range.count
+                       << ",\"serial\":" << group->range.serial << "}"; comma = true;
+            }
+            groups << "],\"instances\":["; comma = false;
+            const auto& instances = owner.models().instances();
+            for (unsigned index = 0; index < instances.size(); ++index) if (instances[index]) {
+                const auto& instance = *instances[index];
+                groups << (comma ? "," : "") << "{\"instance\":" << index << ",\"main\":" << instance.main.first
+                       << ",\"shadow\":" << (instance.shadow ? std::to_string(instance.shadow->first) : "null") << "}"; comma = true;
+            }
+            groups << "],\"actor_registrations\":["; comma = false;
+            for (const auto& [name, registration] : owner.models().registrations()) {
+                groups << (comma ? "," : "") << "{\"name\":" << json_string(name) << ",\"main\":" << registration.main.first
+                       << ",\"shadow\":" << (registration.shadow ? std::to_string(registration.shadow->first) : "null") << "}"; comma = true;
+            }
+            groups << "]}\n";
+            std::ofstream(dir / "model-groups.json", std::ios::binary) << groups.str();
         }
         if (schema == CheckpointSchema::Field || schema == CheckpointSchema::FieldWorld) {
             // Field field.json: the prefix's source-visible words.

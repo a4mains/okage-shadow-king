@@ -589,8 +589,48 @@ int main() {
             };
             const auto cmd = first("command"), req = first("request", first("command"));
             require(cmd < req && req < first("resource-retire", cmd), "command, then request, then retirement");
-            o.mark_unmodeled("ordinary field constructor body");
-            require(o.stage() == ResourceStage::Unmodeled, "past the stop: unmodeled");
+            require(o.models().ranges().available_count() == 126,
+                    "two embedded startup groups survive title/name/chapter retirement");
+            const auto construct_world = [&](unsigned scene, unsigned entrance) {
+                o.construct_field_mode(scene, entrance);o.enter_field_worker();
+                o.load_field_atlas(std::make_shared<const std::vector<std::uint8_t>>(effect_xim({27,256,64,32},91)));
+                o.bind_field_atlas();
+                o.load_field_texenv(std::make_shared<const std::vector<std::uint8_t>>(effect_xim({19,256,64,64},92)));
+                o.load_field_ruw(std::make_shared<const std::vector<std::uint8_t>>(32,93));
+                o.publish_field_ui();o.begin_field_world();
+                const std::array<std::string,1> names{"world"};
+                const auto& model=o.load_field_model("world.xmd",names,[](std::string&)->std::optional<std::vector<std::uint8_t>> {
+                    return effect_xim({19,256,32,32},94);
+                },{});
+                const auto& shadow=o.models().insert("shadow.xmd",1,ResourceTextures{},false);
+                require(model.range.first==2 && shadow.range.first==3,
+                        "field allocations reuse title range after embedded groups");
+                o.models().bind_instance(20,model.range,shadow.range);
+                o.models().register_actor("WORLD",{model.range,shadow.range});
+                o.complete_field_world();o.commit_field_map();o.activate_field();
+                return model.textures.slots[0].handle;
+            };
+            const auto* memory_owner=&o.memory();
+            const auto startup_glyph=*o.handles().image(o.glyph_cache_handle());
+            for(unsigned cycle=0;cycle<2;++cycle) {
+                if(cycle)o.enter_field_constructor(74,1);
+                const int model=construct_world(cycle?74:72,cycle?1:0);
+                const int atlas=o.field_prefix().manager_60,env=o.field_prefix().resource_48;
+                const auto snapshot=o.memory().snapshot();
+                const auto env_allocation=*o.handles().image(env);
+                o.handles().clear_events();o.retire_field_resources();
+                require(!o.handles().handle_live(env) && !o.handles().handle_live(model) && o.handles().handle_live(atlas),
+                        "resource child retires env and models before parent atlas");
+                require(o.models().ranges().available_count()==126 && !o.models().actor("world"),
+                        "1010f4 resets registration after groups, preserving two embedded groups");
+                require(snapshot.allocation(env_allocation.id)->serial==env_allocation.serial,
+                        "in-flight immutable GS snapshot retains the prior allocation incarnation");
+                o.retire_field_manager();require(!o.handles().handle_live(atlas),"133a38 retires wrapper atlas");
+                o.free_field_resource_node();o.free_field_wrappers();
+                require(o.stage()==ResourceStage::FieldWrappersFreed && o.handles().live_handle_count()==36 &&
+                        &o.memory()==memory_owner && o.handles().image(o.glyph_cache_handle())==startup_glyph,
+                        "repeated field teardown preserves the startup owner and surviving handles");
+            }
         });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
         scenario([&] {

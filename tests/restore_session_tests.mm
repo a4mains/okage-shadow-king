@@ -159,6 +159,7 @@ void route(const Assets& assets, bool populated, bool load, bool observe_publica
 }  // namespace
 
 int main(int argc, char** argv) { @autoreleasepool { try {
+    if (argc == 1) { std::cout << "SKIP: Restore test requires owned COMMON_ROOT UI_ROOT FONT_DIRECTORY XDB_DIRECTORY\n"; return 77; }
     if (argc != 5) throw std::runtime_error("Usage: restore_session_tests COMMON_ROOT UI_ROOT FONT_DIRECTORY XDB_DIRECTORY");
     const Assets assets(argv[1], argv[2], argv[3], argv[4]);
     route(assets, true, true, true);

@@ -258,7 +258,9 @@ struct SceneRenderer::Impl {
             throw std::runtime_error("Scene actor already registered");
         const auto companion_path=binding.model_path.parent_path()/"shadow.xmd";
         std::optional<ModelFile> companion;
-        if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
+        if(binding.shadow_owned) {
+            if(binding.shadow_model)companion=*binding.shadow_model;
+        } else if(fs::exists(companion_path))companion=read_xmd(read(companion_path));
         auto name=binding.model_path.parent_path().stem().string();
         std::transform(name.begin(),name.end(),name.begin(),[](unsigned char c){return char(std::tolower(c));});
         if(binding.descriptor) {

@@ -14,6 +14,7 @@
 #include "okage/enemy.hpp"
 #include "okage/texture_handles.hpp"
 #include "okage/resource_textures.hpp"
+#include "okage/model_groups.hpp"
 #include "okage/texture_memory.hpp"
 
 namespace okage {
@@ -62,7 +63,10 @@ enum class ResourceStage : std::uint8_t {
     FieldWorldComplete,
     FieldMapCommitted,
     FieldActive,
+    FieldResourcesRetired,
+    FieldWrappersFreed,
     Unmodeled,
+                        // or game over): this lifecycle history cannot claim completeness afterward
 };
 const char* to_string(ResourceStage);
 // What the memory bytes/masks mean, separate from the lifecycle above.
@@ -268,18 +272,22 @@ public:
     void publish_field_ui();
     // 1bbac8 -> 186a50(1), before authored map-definition model loads.
     void begin_field_world();
-    struct WorldModelTextures {
-        std::string name;
-        ResourceTextures textures;
-    };
+    using WorldModelTextures = ModelResourceGroup;
     const WorldModelTextures& load_field_model(const std::string& name, std::span<const std::string> names,
-        const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return);
+        const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return,
+        unsigned model_count = 1);
     void load_field_sidecar(const OwnedBytes& bytes, const TextureHandleOwner::FileReader& reader,
                            const std::function<void()>& image_return);
     void complete_field_world(); // 132688 +0x30 store, only after all worker work succeeds
     void commit_field_map();
     void activate_field();       // 132720 returned
-    const std::vector<std::unique_ptr<WorldModelTextures>>& world_models() const noexcept { return world_models_; }
+    const auto& world_models() const noexcept { return models_.groups(); }
+    ModelGroupOwner& models() noexcept { return models_; }
+    const ModelGroupOwner& models() const noexcept { return models_; }
+    void retire_field_resources();
+    void retire_field_manager();   // 133a38: manager atlas, RUW slots
+    void free_field_resource_node();
+    void free_field_wrappers();
     const ResourceTextureOwner& resources() const noexcept { return resources_; }
     unsigned chapter_scene() const noexcept { return chapter_scene_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
@@ -338,7 +346,8 @@ private:
     Ps2TextureMemory memory_;
     TextureHandleOwner handles_;
     ResourceTextureOwner resources_;
-    std::vector<std::unique_ptr<WorldModelTextures>> world_models_;
+    ModelGroupOwner models_;
+    std::optional<ModelRangeLease> last_world_model_, title_model_;
     StartupCoverage coverage_{StartupCoverage::NotRun};
     bool started_{};
     std::array<StartupLayer, 3> layers_{};

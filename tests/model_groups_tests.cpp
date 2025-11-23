@@ -298,6 +298,23 @@ void stale_lease_and_instance_guards() {
     f.groups.retire_instance(0);
     require(retired(f.handles) == std::vector<int>{handle}, "successful current cleanup remains possible after guards");
 }
+void source_instance_cursors() {
+    auto fixture = std::make_unique<Fixture>(); auto& f = *fixture;
+    auto group=f.groups.insert("actor",1,{}).range;
+    require(f.groups.allocate_instance(group,{},0)==0 &&
+            f.groups.allocate_instance(group,{},0x100000)==639 &&
+            f.groups.allocate_instance(group,{},0)==1,"1b8a80 opposing cursors follow source flags");
+    f.groups.retire_instance(0);
+    group=f.groups.insert("replacement",1,{}).range;
+    require(f.groups.allocate_instance(group,{},0)==2,"individual deletion does not rewind the instance cursor");
+    f.groups.reset_instances_and_registrations();
+    require(f.groups.find(group),"instance reset does not reset model ranges");
+    for(unsigned i=0;i<639;++i)require(f.groups.allocate_instance(group,{},0)==i,"front cursor sequence");
+    rejects<std::runtime_error>([&]{f.groups.allocate_instance(group,{},0x100000);},
+                               "source backward allocation requires front < decremented back");
+    require(f.groups.allocate_instance(group,{},0)==639,"source front allocation can consume the last slot");
+    rejects<std::runtime_error>([&]{f.groups.allocate_instance(group,{},0);},"front pool exhaustion is explicit");
+}
 }
 int main() {
     try {
@@ -310,7 +327,8 @@ int main() {
         explicit_unused_retirement_and_reset();
         normalized_prefix_independent_registration();
         stale_lease_and_instance_guards();
-        std::cout << "model group tests passed (9 source ownership scenarios)\n";
+        source_instance_cursors();
+        std::cout << "model group tests passed (10 source ownership scenarios)\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

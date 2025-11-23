@@ -35,7 +35,9 @@ struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};
     std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> texture_bytes{};
     std::vector<ResourceTextureSlot> texture_slots{};
-    bool textures_owned=false;};
+    bool textures_owned=false;
+    std::shared_ptr<const ModelFile> shadow_model{};
+    bool shadow_owned=false;};
 class SceneRenderer {
     struct Impl;
 public:

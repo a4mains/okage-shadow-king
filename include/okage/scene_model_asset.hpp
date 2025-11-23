@@ -2,6 +2,7 @@
 #include "okage/model.hpp"
 #include "okage/texture_animation.hpp"
 #include "okage/resource_textures.hpp"
+#include "okage/model_ranges.hpp"
 
 namespace okage {
 struct SceneModelAsset {
@@ -9,6 +10,8 @@ struct SceneModelAsset {
     ImmutableTextureBytes motion;
     TextureAnimation animation;
     std::vector<ResourceTextureSlot> textures;
+    std::optional<ModelRangeLease> resource_group, shadow_group;
+    std::shared_ptr<const ModelFile> shadow;
 };
 using SceneModelAssets = std::vector<std::shared_ptr<const SceneModelAsset>>;
 }

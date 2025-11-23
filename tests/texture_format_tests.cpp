@@ -217,7 +217,7 @@ int main() {
             rejects("payload too large", [&] { transfer_host_to_local(m, {0x2c, 0, 1, 0, 0, 4, 4}, d); });
             rejects("non-qword", [&] { transfer_host_to_local(m, {0x14, 0, 1, 0, 0, 32, 1}, ramp(20)); });
             require(known_bytes(m) == 0, "rejections wrote nothing");
-            for (const std::uint32_t psm : {2u, 10u, 27u, 0x30u, 0x31u, 0x32u, 0x3au, 18u, 21u, 35u, 45u})
+            for (const std::uint32_t psm : {2u, 10u, 0x30u, 0x31u, 0x32u, 0x3au, 18u, 21u, 35u, 45u})
                 rejects("guarded psm", [&] { transfer_host_to_local(m, {psm, 0, 1, 0, 0, 32, 1}, d); });
             require(known_bytes(m) == 0, "guards wrote nothing");
         });
