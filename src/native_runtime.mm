@@ -1420,7 +1420,8 @@ struct Session {
                 const auto definition=map.placements[i].definition();
                 ++placement_counts.at(definition); // includes effect-handler placements
                 if(instances[i]>=0 && f.map_assets.at(definition) &&
-                   startup_textures->models().allocate_instance(*f.map_assets[definition]->resource_group,{},map.placements[i].flags())!=unsigned(instances[i]))
+                   startup_textures->models().allocate_instance(*f.map_assets[definition]->resource_group,{},
+                       okage::map_transform(map.placements[i],map.definitions[definition]).flags)!=unsigned(instances[i]))
                     throw std::runtime_error("Map source/host instance allocation disagrees");
             }
             for(std::size_t i=0;i<f.map_assets.size();++i)
