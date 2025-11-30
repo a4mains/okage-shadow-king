@@ -1,6 +1,7 @@
 #include "okage/input_log.hpp"
 #include "okage/battle_actor.hpp"
 #include "okage/battle_actor_math.hpp"
+#include "okage/scene_model_asset.hpp"
 #include "okage/event.hpp"
 #include "okage/shadow.hpp"
 #include <algorithm>
@@ -45,28 +46,51 @@ std::filesystem::path model_path(const std::filesystem::path& decoded,std::strin
     return decoded/"BTLDATA/BETA2"/(effect?"EFFECT":"UNIT")/(name+".XPF")/"a.xmd";
 }
 std::unique_ptr<FieldActor> model(const std::filesystem::path& path,const Float4& position,unsigned flags,
+                                const BattleModelAssetProvider& provider,
+                                std::shared_ptr<const SceneModelAsset>& owned,
                                 std::optional<Model>* shadow=nullptr) {
-    auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
-    TextureAnimation textures;
-    if(std::filesystem::exists(xta)) {
-        const auto data=read(xta);textures=read_xta({reinterpret_cast<const char*>(data.data()),data.size()});
-    }
     std::unique_ptr<FieldActor> actor;
-    if(std::filesystem::exists(motion))actor=std::make_unique<FieldActor>(read_xmd(read(path)),read(motion),std::move(textures),true,true);
-    else {
-        if(!textures.groups.empty())throw std::runtime_error("Static battle model texture animation is unrecovered");
-        actor=std::make_unique<FieldActor>(read_xmd(read(path)));
+    if(provider) {
+        owned=provider(path,flags);
+        if(!owned)throw std::runtime_error("Battle owned model provider returned no asset");
+        if(owned->motion)
+            actor=std::make_unique<FieldActor>(owned->model,*owned->motion,owned->animation,true,true);
+        else {
+            if(!owned->animation.groups.empty())throw std::runtime_error("Static battle model texture animation is unrecovered");
+            actor=std::make_unique<FieldActor>(owned->model);
+        }
+    } else {
+        auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");
+        TextureAnimation textures;
+        if(std::filesystem::exists(xta)) {
+            const auto data=read(xta);textures=read_xta({reinterpret_cast<const char*>(data.data()),data.size()});
+        }
+        if(std::filesystem::exists(motion))actor=std::make_unique<FieldActor>(read_xmd(read(path)),read(motion),std::move(textures),true,true);
+        else {
+            if(!textures.groups.empty())throw std::runtime_error("Static battle model texture animation is unrecovered");
+            actor=std::make_unique<FieldActor>(read_xmd(read(path)));
+        }
     }
     const auto selector=(flags>>5)&3;
     if(selector) {
-        const auto companion=path.parent_path()/"shadow.xmd";
-        if(std::filesystem::exists(companion)) {
-            if(!shadow)throw std::runtime_error("Battle shadow owner is missing");
-            const auto resource=read_xmd(read(companion));
-            if(resource.models.size()!=1)throw std::runtime_error("Battle shadow requires one model");
-            *shadow=bind_shadow_model(actor->model().models[0],resource.models[0]);
-        } else if(selector!=1)flags&=~0x60u;
+        if(provider) {
+            if(owned->shadow) {
+                if(!shadow)throw std::runtime_error("Battle shadow owner is missing");
+                if(owned->shadow->models.size()!=1)throw std::runtime_error("Battle shadow requires one model");
+                *shadow=bind_shadow_model(actor->model().models[0],owned->shadow->models[0]);
+            } else if(selector!=1)flags&=~0x60u;
+        } else {
+            const auto companion=path.parent_path()/"shadow.xmd";
+            if(std::filesystem::exists(companion)) {
+                if(!shadow)throw std::runtime_error("Battle shadow owner is missing");
+                const auto resource=read_xmd(read(companion));
+                if(resource.models.size()!=1)throw std::runtime_error("Battle shadow requires one model");
+                *shadow=bind_shadow_model(actor->model().models[0],resource.models[0]);
+            } else if(selector!=1)flags&=~0x60u;
+        }
     }
+    // 0x1bae40..58: absent cached shadow clears selector 2/3 bits, while
+    // selector 1 is allowed without a companion. Other requested flags survive.
     actor->render_flags=flags;
     actor->animation().set_channel(1,{position[0],position[1],position[2],1});
     return actor;
@@ -116,7 +140,7 @@ unsigned BattleRoster::register_entity(BattleActor* actor,Mutable record,unsigne
 }
 void BattleRoster::construct_party(const std::filesystem::path& decoded,Mutable variables,
                                   const GameDataTables& tables,BattleEntryContext& entry,
-                                  const std::function<std::uint32_t()>& random) {
+                                  const std::function<std::uint32_t()>& random,const BattleModelAssetProvider& provider) {
     if(party_done_||!actors_.empty()||variables.size()<0xd78)throw std::runtime_error("Battle party construction state");
     constexpr std::array<Float4,4> positions={Float4{37.5f,0,0,0},Float4{32.5f,0,-30,0},Float4{32.5f,0,30,0},Float4{37.5f,0,0,0}};
     constexpr std::array<unsigned,7> flags={0x200080,0x2000e0,0x2000e0,0x2000e0,0x2000e0,0x2000e0,0x2000a0};
@@ -130,7 +154,8 @@ void BattleRoster::construct_party(const std::filesystem::path& decoded,Mutable 
         metadata(a,tables.unit(unit_id));vector(c,0x60,positions[ordinal]);
         auto name=tables.unit_model_name(unit_id);
         if(source==0&&signed_half(entry.bytes(),0x34)==1)name="lucanb";
-        a.model_path=model_path(decoded,name);a.model=model(a.model_path,positions[ordinal],flags[source],&a.bound_shadow);
+        a.model_path=model_path(decoded,name);
+        a.model=model(a.model_path,positions[ordinal],flags[source],provider,a.model_asset,&a.bound_shadow); //0x15374c
         facing_and_channels(a,.25f);register_entity(&a,a.record,0);status_block(a);
         a.stat_bindings={a.record.subspan(8,4),a.record.subspan(0,1),a.record.subspan(0x4a,2),
             a.record.subspan(1,1),a.record.subspan(0x4c,2),a.record.subspan(0x4e,2)};
@@ -164,7 +189,7 @@ void BattleRoster::construct_party(const std::filesystem::path& decoded,Mutable 
 }
 void BattleRoster::construct_enemies(const std::filesystem::path& decoded,unsigned formation_index,
     std::span<const BattleFormationEntry> formation,const GameDataTables& tables,int entry_half32,
-    const std::function<std::uint32_t()>& random) {
+    const std::function<std::uint32_t()>& random,const BattleModelAssetProvider& provider) {
     if(!party_done_||enemies_done_||formation_index>=126||formation.size()+entities_.size()>battle_entity_count)
         throw std::runtime_error("Unrecovered special battle formation or enemy construction state");
     std::int32_t total=0;
@@ -180,7 +205,8 @@ void BattleRoster::construct_enemies(const std::filesystem::path& decoded,unsign
         const auto old_round=std::fegetround();if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Battle position rounding unavailable");
         const Float4 position={authored.x*5,0,authored.z*5,1};std::fesetround(old_round);
         vector(c,0x60,position);a.model_path=model_path(decoded,tables.unit_model_name(authored.unit_id));
-        a.model=model(a.model_path,position,0x2000e0,&a.bound_shadow);facing_and_channels(a,-.25f);select(a,1);a.model->tick_channels();
+        a.model=model(a.model_path,position,0x2000e0,provider,a.model_asset,&a.bound_shadow); //0x15b708, before warmup RNG.
+        facing_and_channels(a,-.25f);select(a,1);a.model->tick_channels();
         const auto warmup=(draw()>>5)&15;
         for(unsigned j=0;j<warmup;++j){a.model->tick_channels();a.model->evaluate_bones();}
         register_entity(&a,a.record,1);status_block(a);
@@ -194,8 +220,12 @@ void BattleRoster::construct_enemies(const std::filesystem::path& decoded,unsign
         put(c,0x190,0,2);
         initialize_battle_actor_timer(c.subspan(0x194,0x14),std::bit_cast<std::int32_t>(unit[10]),1,entry_half32,draw);
         common_tail(a);put(c,0x220,0xffff,2);put(c,0x132,0,1);
-        a.bag_path=model_path(decoded,"bag",true);a.bag=model(a.bag_path,position,0x200080);a.bag->visible=false;
-        a.box_path=model_path(decoded,"box",true);a.box=model(a.box_path,position,0x200080);a.box->visible=false;
+        //0x15b920/0x15b954: distinct hidden instances, after selector/timer RNG.
+        //Both pass 0x200080 (selector 0), even when BAG/BOX resource caches hit.
+        a.bag_path=model_path(decoded,"bag",true);
+        a.bag=model(a.bag_path,position,0x200080,provider,a.bag_asset);a.bag->visible=false;
+        a.box_path=model_path(decoded,"box",true);
+        a.box=model(a.box_path,position,0x200080,provider,a.box_asset);a.box->visible=false;
         put(c,0x20,0);total+=signed_half(c,0x16a);
     }
     put(root_.bytes,0x8074,std::uint32_t(total));put(root_.bytes,0x8078,std::uint32_t(total));enemies_done_=true;

@@ -11,6 +11,9 @@
 
 namespace okage {
 struct BattleHitServices;
+struct SceneModelAsset;
+using BattleModelAssetProvider = std::function<std::shared_ptr<const SceneModelAsset>(
+    const std::filesystem::path&, unsigned requested_flags)>;
 struct BattleActor {
     enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,EnemyDeath,PartyDeath};
     FirstCallback first_callback=FirstCallback::Roster;
@@ -30,6 +33,7 @@ struct BattleActor {
     bool dead_callback=false;
     bool enemy=false;
     bool cartesian_motion=false;
+    std::shared_ptr<const SceneModelAsset> model_asset,bag_asset,box_asset;
 };
 struct BattleEntityBinding {
     BattleActor* actor=nullptr;
@@ -71,10 +75,11 @@ class BattleRoster {
 public:
     explicit BattleRoster(BattleState& root):root_(root) {}
     void construct_party(const std::filesystem::path& decoded,std::span<std::uint8_t> variables,
-        const GameDataTables&,BattleEntryContext&,const std::function<std::uint32_t()>& random);
+        const GameDataTables&,BattleEntryContext&,const std::function<std::uint32_t()>& random,
+        const BattleModelAssetProvider& provider = {});
     void construct_enemies(const std::filesystem::path& decoded,unsigned formation_index,
         std::span<const BattleFormationEntry>,const GameDataTables&,int entry_half32,
-        const std::function<std::uint32_t()>& random);
+        const std::function<std::uint32_t()>& random,const BattleModelAssetProvider& provider = {});
     const auto& actors() const {return actors_;}
     const auto& entities() const {return entities_;}
 private:
