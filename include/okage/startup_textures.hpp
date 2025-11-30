@@ -99,7 +99,7 @@ struct StartupRandomDraw {
 };
 class StartupRandomStream {
 public:
-    static constexpr std::size_t log_limit = 1u << 16;
+    static constexpr std::size_t log_limit = 1u << 20;
     StartupRandomStream(GameRandom& random, bool record) : random_(&random), record_(record) {}
     std::uint32_t draw();
     void enter(StartupRngPhase phase) noexcept { phase_ = phase; }
