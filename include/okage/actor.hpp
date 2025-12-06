@@ -2,14 +2,16 @@
 #include "okage/animation.hpp"
 #include "okage/texture_animation.hpp"
 #include "okage/pose.hpp"
+#include <memory>
 #include <optional>
 namespace okage {
 class FieldActor {
 public:
     //1b64d8 without XMT owns four world/color channels and no motion context.
-    explicit FieldActor(ModelFile model);
+    explicit FieldActor(ModelFile model,std::shared_ptr<TextureBindings> packet_textures={});
     FieldActor(ModelFile model,Bytes motion,TextureAnimation textures,bool defer_transform_evaluation=false,
-               bool bone_only_initial_evaluation=false);
+               bool bone_only_initial_evaluation=false,
+               std::shared_ptr<TextureBindings> packet_textures={});
     FieldActor(const FieldActor&)=delete;
     FieldActor& operator=(const FieldActor&)=delete;
     void select_motion(unsigned entry);
@@ -20,7 +22,7 @@ public:
     void evaluate_world();
     Matrix4 world(const SineTable& sine) const;
     const ModelFile& model() const{return model_;}
-    const TextureBindings& textures() const{return textures_;}
+    const TextureBindings& textures() const{return *textures_;}
     const std::vector<Float4>& channels() const{return channels_;}
     Animation& animation(){return animation_;}
     const Animation& animation() const{return animation_;}
@@ -34,7 +36,7 @@ public:
     std::optional<unsigned> shadow_mode_override;
 private:
     ModelFile model_;
-    TextureBindings textures_;
+    std::shared_ptr<TextureBindings> textures_;
     Animation animation_;
     std::vector<Float4> channels_;
     unsigned motion_=0;

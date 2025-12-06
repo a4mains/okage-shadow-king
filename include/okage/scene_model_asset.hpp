@@ -12,6 +12,7 @@ struct SceneModelAsset {
     std::vector<ResourceTextureSlot> textures;
     std::optional<ModelRangeLease> resource_group, shadow_group;
     std::shared_ptr<const ModelFile> shadow;
+    std::shared_ptr<TextureBindings> packet_textures;
 };
 using SceneModelAssets = std::vector<std::shared_ptr<const SceneModelAsset>>;
 }
