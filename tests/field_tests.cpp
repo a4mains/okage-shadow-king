@@ -638,23 +638,56 @@ int main(){try {
         okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
-        unsigned heals=0;
+        unsigned heals=0,dispatches=0,draws=0;
+        std::array<unsigned,3> command{3,0,0};
         std::array<std::uint8_t,0x1000> vars{};
         scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
         scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
         scene.recover_party=[&]{++heals;};
+        scene.random_value=[&]{++draws;return 0u;};
+        scene.dispatch_game_command=[&]{
+            require(scene.exploration_ready()&&!scene.event_running());
+            if(dispatches==0)require(heals==1&&command[0]==3);
+            ++dispatches;command={};
+        };
         okage::FieldDefinition entry;entry.scene=74;entry.type=1;entry.startup=1;
         scene.enter(entry,stage,empty_map,0);
-        require(heals==1&&scene.pc()==52&&scene.event_running());
-        for(unsigned i=0;i<4&&scene.event_running();++i){scene.tick();require(heals==1);}
+        require(heals==1&&scene.pc()==52&&scene.event_running()&&dispatches==0&&command[0]==3);
+        for(unsigned i=0;i<4&&scene.event_running();++i){scene.tick();require(heals==1&&dispatches==0&&command[0]==3);}
         require(!scene.event_running()&&!scene.exploration_ready());
-        scene.tick();require(scene.exploration_ready()&&heals==1);
+        scene.tick();require(scene.exploration_ready()&&heals==1&&dispatches==0&&command[0]==3);
         scene.recover_party={};rejects([&]{scene.tick();});
-        scene.recover_party=[&]{++heals;};scene.tick();require(heals==2);
-        scene.tick();require(heals==2&&!scene.save_menu_active()&&!scene.battle_request());
+        require(dispatches==1&&command==std::array<unsigned,3>{}&&heals==1);
+        scene.recover_party=[&]{++heals;};scene.tick();require(heals==2&&dispatches==2);
+        scene.tick();require(heals==2&&dispatches==3&&draws==0&&!scene.save_menu_active()&&!scene.battle_request());
         okage::OpeningField unavailable(event,[](int){},[](int){return true;},player,false);
         unavailable.get_variable=scene.get_variable;unavailable.set_variable=scene.set_variable;
         rejects([&]{unavailable.enter(entry,stage,empty_map,0);});
+    }
+    {
+        auto event=startup;
+        put(event,40,0x00c00062);put(event,44,0);put(event,48,0x00200002);put(event,52,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
+        okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        std::array<std::uint8_t,0x1000> vars{};
+        scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
+        scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
+        unsigned dispatches=0,opens=0,draws=0;
+        scene.random_value=[&]{++draws;return 0u;};
+        scene.dispatch_game_command=[&]{require(opens==0||!scene.save_menu_active());++dispatches;};
+        scene.open_save_menu=[&]{require(dispatches==1);++opens;};
+        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
+        scene.prepare(entry,stage,empty_map);
+        scene.activate_entry(0,{},[&]{require(dispatches==0);});
+        require(dispatches==0&&scene.save_requested());
+        for(unsigned i=0;i<4&&scene.event_running();++i){scene.tick();require(dispatches==0);}
+        require(!scene.event_running()&&!scene.exploration_ready());
+        scene.tick();require(scene.exploration_ready()&&dispatches==0);
+        scene.tick();require(scene.save_menu_active()&&dispatches==1&&opens==1);
+        scene.tick();scene.tick();require(dispatches==1);
+        scene.close_save_menu();scene.tick();require(dispatches==1);
+        scene.tick();require(dispatches==2&&draws==0);
     }
     {
         auto event=startup;event.resize(60);put(event,4,28);
@@ -998,9 +1031,14 @@ int main(){try {
         entry.npcs.push_back(person);
         scene.enter(entry,exterior_stage,empty_map,0);scene.tick();
         manager.snap_target=false;manager.target_y=100;
+        unsigned dispatches=0;
+        scene.dispatch_game_command=[&]{
+            require(!scene.event_running()&&manager.target_y==100);
+            require(scene.interaction_alias()!=-8);++dispatches;
+        };
         scene.tick({0,128,128,0x40});
-        require(scene.event_running()&&scene.interaction_alias()==-8&&manager.target_y==99.5f);
-        scene.tick();require(manager.target_y==99.5f);
+        require(dispatches==1&&scene.event_running()&&scene.interaction_alias()==-8&&manager.target_y==99.5f);
+        scene.tick();require(dispatches==1&&manager.target_y==99.5f);
     }
     put(startup,40,0x144);put(startup,44,0);
     {

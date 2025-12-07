@@ -1180,6 +1180,7 @@ void OpeningField::tick(ExplorationInput input) {
     }
     if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
         if(exploration_handoff_) {
+            if(dispatch_game_command)dispatch_game_command(); // 133b04 -> 133450
             if(rest_requested_) {
                 if(!recover_party)throw std::runtime_error("Rest completion needs field party service");
                 recover_party();rest_requested_=false;

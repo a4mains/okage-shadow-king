@@ -111,6 +111,7 @@ public:
     void validate_retirement() const;
     RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
+    std::function<void()> dispatch_game_command;
     std::function<void()> open_save_menu;
     std::function<void()> recover_party;
     std::function<void(std::string_view)> set_save_caption;
