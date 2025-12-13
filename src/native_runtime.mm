@@ -221,18 +221,22 @@ struct Session {
         write_newgame_session(root/name/"session.json");
         if(std::string_view(name)=="field-constructor-entry")write_newgame_route();
     }
+    std::vector<std::pair<std::string,unsigned>> field_checkpoint_frames;
     void field_checkpoint(const char* name) {
         startup_textures->note_checkpoint(name);
-        newgame_checkpoint_frames.emplace_back(name,frame);
+        field_checkpoint_frames.emplace_back(name,frame);
+        const bool cold=field_resource_cycle==1 && chapter_resource_cycle==1 && startup_textures->field_prefix().constructor_command==0;
+        if(cold)newgame_checkpoint_frames.emplace_back(name,frame);
         if(newgame_report.empty())return;
         const auto root=field_report_root();fs::create_directories(root);
-        okage::write_title_checkpoint_report(*startup_textures,root/name,name,random.state,okage::CheckpointSchema::Field);
+        okage::write_title_checkpoint_report(*startup_textures,root/name,name,random.state,
+            cold?okage::CheckpointSchema::Field:okage::CheckpointSchema::FieldWorld);
         write_newgame_session(root/name/"session.json");
         if(std::string_view(name)=="ui-prefix-published") {
             std::ofstream out(root/"field-route.json",std::ios::binary);
-            out<<"{\"route\":\"newgame-field-prefix\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
+            out<<"{\"route\":\""<<(cold?"newgame-field-prefix":"ordinary-field-prefix")<<"\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
             bool first=true;
-            for(const auto& [n,f]:newgame_checkpoint_frames){out<<(first?"":",")<<"\""<<n<<"\":"<<f;first=false;}
+            for(const auto& [n,f]:(cold?newgame_checkpoint_frames:field_checkpoint_frames)){out<<(first?"":",")<<"\""<<n<<"\":"<<f;first=false;}
             out<<"}}\n";
             if(!out)throw std::runtime_error("Field field route report write failed");
         }
@@ -249,7 +253,8 @@ struct Session {
         write_newgame_session(root/name/"session.json");
         if(name=="field-activation-return") {
             std::ofstream out(root/"world-route.json",std::ios::binary);
-            out<<"{\"route\":\"newgame-field-world\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
+            const bool cold=field_resource_cycle==1 && chapter_resource_cycle==1 && startup_textures->field_prefix().constructor_command==0;
+            out<<"{\"route\":\""<<(cold?"newgame-field-world":"ordinary-field-world")<<"\",\"elf_sha256\":\""<<okage::startup_input_elf_sha256()<<"\",\"checkpoints\":{";
             for(std::size_t i=0;i<world_checkpoint_frames.size();++i)
                 out<<(i?",":"")<<"\""<<world_checkpoint_frames[i].first<<"\":"<<world_checkpoint_frames[i].second;
             out<<"}}\n";
@@ -822,12 +827,13 @@ struct Session {
                         sidecar=std::make_shared<const std::vector<std::uint8_t>>(readData(xta));
                         asset->animation=okage::read_xta({reinterpret_cast<const char*>(sidecar->data()),sidecar->size()});
                     }
+                    asset->packet_textures=std::make_shared<okage::TextureBindings>(asset->model,asset->animation);
                     own_field_model(path,*asset,sidecar); // 133e60 -> 1babf8("hat", flags0x80), no shadow
                     startup_textures->models().register_actor("hat",{*asset->resource_group,{}});
                     owned_actor_assets.emplace("hat",asset);
                 }
             }
-            auto object=asset?std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,true):
+            auto object=asset?std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,true,false,asset->packet_textures):
                 std::make_unique<okage::FieldActor>(okage::read_xmd(readData(path)),readData(motion),readActorTextures(xta),true);
             object->visible=false;
             if(asset)renderer->add_actor({object.get(),path,-7,{}, {},asset->textures,true,{},true});
@@ -845,6 +851,12 @@ struct Session {
         };
         if(map_objects)field->bind_map_scene(*map_objects);
         field->random_value=[this]{return random.next();};
+        field->dispatch_game_command=[this] {
+            if(pending_game_command[0]==3||pending_game_command[0]==4) {
+                pending_game_command={};
+                if(title_modeled(okage::ResourceStage::FieldActive))startup_textures->note_command(0,0,0);
+            }
+        };
         field->resolve_encounter_formation=[this](unsigned row,unsigned column) {
             if(!game_data)throw std::runtime_error("Natural encounter requires owned BKDATA");
             return game_data->encounter_formation(row,column);
@@ -1230,7 +1242,7 @@ struct Session {
         const bool alternate=variables[12]!=0;
         f->prefix_modeled=title_modeled(okage::ResourceStage::FieldConstructorEntry);
         if(f->prefix_modeled) {
-            ++field_resource_cycle;world_checkpoint_frames.clear();
+            ++field_resource_cycle;world_checkpoint_frames.clear();field_checkpoint_frames.clear();
             world_xmd_count=world_xta_count=world_image_count=0;
             startup_textures->construct_field_mode(selection[1],selection[2]);
             field_checkpoint("field-constructor-return");
@@ -1346,6 +1358,7 @@ struct Session {
                             asset->animation=okage::read_xta({reinterpret_cast<const char*>(sidecar->data()),sidecar->size()});
                         }
                     }
+                    asset->packet_textures=std::make_shared<okage::TextureBindings>(asset->model,asset->animation);
                     own_field_model(path,*asset,sidecar);f.map_assets[i]=std::move(asset);
                     if(f.map_assets[i]->model.models.size()!=1)
                         throw std::runtime_error("1bb9d8 map definition has multiple models after reached allocation");
@@ -1382,9 +1395,10 @@ struct Session {
                         }
                         const auto shadow=path.parent_path()/"shadow.xmd";
                         if(fs::exists(shadow))asset->shadow=std::make_shared<const okage::ModelFile>(okage::read_xmd(readData(shadow)));
+                        asset->packet_textures=std::make_shared<okage::TextureBindings>(asset->model,asset->animation);
                         if(w.prefix_modeled)actor_cache.emplace(key,std::make_pair(asset,sidecar));
                     }
-                    auto actor=std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation);
+                    auto actor=std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,false,false,asset->packet_textures);
                     w.bindings.push_back({alias,actor.get(),alias!=-3});
                     if(w.prefix_modeled)w.actor_assets.push_back({path,std::move(asset),std::move(sidecar)});
                     else scene_actors.push_back({actor.get(),path,alias});
@@ -1428,6 +1442,7 @@ struct Session {
                 if(f.map_assets[i] && placement_counts[i]==0)
                     startup_textures->models().retire(*f.map_assets[i]->resource_group); // 1bbf54
             renderer->set_material_environment(okage::decode_xim(*f.texenv_bytes));
+            renderer->set_shared_texture_owner(startup_textures->handles(),startup_textures->field_prefix().resource_48);
             world_checkpoint("field-map-loaded");
             if(f.definition.music>0)music->select(f.definition.music); // 1322d4
             field->begin_prepare(f.definition,f.stage,f.collision);
@@ -1563,6 +1578,8 @@ struct Session {
         }
         field->validate_retirement();
         renderer.reset();
+        retiring_effects.emplace(field->retire_effects()); //101240, before198550/texture frees
+        for(auto& window:ui_shared.registry)window.reset(); //1010a8 ->198550
         if(title_modeled(okage::ResourceStage::FieldActive)) {
             startup_textures->retire_field_resources();
             world_checkpoint("field-resource-retirement");
@@ -1570,7 +1587,6 @@ struct Session {
             world_checkpoint("field-manager-retirement");
             owned_actor_assets.clear();
         }
-        retiring_effects.emplace(field->retire_effects());
         dialogue_active=false;opening.reset();choices={};narration={};controller={};clock={};
         text=okage::DialogueText({});text.fonts=fonts;
         opacity={};closure={};
@@ -1803,16 +1819,12 @@ struct Session {
                         //Restore continues Restore (mode 10) and New Game (mode 9) on the same owner.
                     } else startup_textures->mark_unmodeled("title successor differs from the requested mode");
                 }
-                if(selection[0]==2&&pending_game_command[0]==3) {
-                    pending_game_command={};
-                    if(title_modeled(okage::ResourceStage::RestoreWrappersFreed))startup_textures->note_command(0,0,0);
-                }
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)&&
                    (title_modeled(okage::ResourceStage::ChapterWrappersFreed)||title_modeled(okage::ResourceStage::RestoreWrappersFreed)||
                     title_modeled(okage::ResourceStage::FieldWrappersFreed))) {
                     const bool chapter_entry=title_modeled(okage::ResourceStage::ChapterWrappersFreed);
-                    startup_textures->enter_field_constructor(selection[1],selection[2]);
+                    startup_textures->enter_field_constructor(selection[1],selection[2],pending_game_command[0]);
                     if(chapter_entry)newgame_checkpoint("field-constructor-entry");
                 }
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)) {begin_ordinary_field(selection);return;}
@@ -2232,7 +2244,7 @@ struct Session {
         if(field) {
             if(field_save&&field_save->dead()) {
                 field_save.reset();save_background.reset();save_capture_surface.reset();field->close_save_menu();
-                pending_game_command={0,0,0};scene_fade.request(1.f);
+                scene_fade.request(1.f);
                 std::cout<<"Native field Save retired frame="<<frame<<'\n';
             }
             try {if(!returned_this_tick)field->tick({input.held,128,128,input.pressed});}
@@ -2708,9 +2720,11 @@ static void capture(Session& session,const fs::path& path) {
     auto statePath=fs::path(path.string()+".json");
     const auto actorsPath=fs::path(path.string()+".actors-state.json");
     const auto shadowsPath=fs::path(path.string()+".shadow-submissions.json");
+    const auto samplingPath=fs::path(path.string()+".texture-sampling.json");
     if(fs::exists(path)||fs::is_symlink(path)||fs::exists(statePath)||fs::is_symlink(statePath))throw std::runtime_error("Refusing existing native capture");
     if(fs::exists(actorsPath)||fs::is_symlink(actorsPath))throw std::runtime_error("Refusing existing actor-state capture");
     if(fs::exists(shadowsPath)||fs::is_symlink(shadowsPath))throw std::runtime_error("Refusing existing shadow-submission capture");
+    if(fs::exists(samplingPath)||fs::is_symlink(samplingPath))throw std::runtime_error("Refusing existing texture-sampling capture");
     if(!path.parent_path().empty())fs::create_directories(path.parent_path());
     if(session.battle) {
         const auto battleActorsPath=fs::path(path.string()+".battle-actors.json");
@@ -2827,6 +2841,9 @@ static void capture(Session& session,const fs::path& path) {
          <<",\n  \"battle_capture_target\": "<<session.battle_capture_target
          <<",\n  \"close_frame\": "<<session.close_frame<<",\n  \"close_wait_release_frame\": "<<session.close_release_frame<<"\n}\n";
     if(!state)throw std::runtime_error("Cannot write native capture state");
+    if(session.renderer) {
+        std::ofstream sampling(samplingPath);session.renderer->write_texture_sampling_observation(sampling);
+    }
     std::ofstream actors(actorsPath);
     actors<<"{\n  \"version\": 1,\n  \"frame\": "<<session.frame<<",\n  \"actors\": [";
     bool firstActor=true;

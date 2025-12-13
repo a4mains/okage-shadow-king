@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <memory>
 #include <functional>
+#include <iosfwd>
 #include <utility>
 #ifdef __OBJC__
 @protocol MTLCommandBuffer;
@@ -85,6 +86,8 @@ public:
     void set_sort_depth_shift(unsigned);
     void set_stage_environment(const FieldOrdinaryLighting&,const FieldShadowSettings&,const Float4& sky);
     void set_material_environment(const Texture&);
+    void set_shared_texture_owner(const TextureHandleOwner&, int environment_handle = -1);
+    void write_texture_sampling_observation(std::ostream&) const;
     PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1,bool restore_shadow_alpha=true);
     PreparedFrame prepare_empty(const FieldProjectionFrame&);
     SubmittedFrame submit_prepared(const PreparedFrame&,const SceneUiPass* ui=nullptr,const SceneGpuPass* between_scene_and_ui=nullptr,std::optional<std::array<std::uint8_t,4>> execution_clear=std::nullopt,float execution_depth_clear=1.f);

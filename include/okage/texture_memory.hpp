@@ -171,6 +171,8 @@ class Ps2TextureSnapshot {
 public:
     Ps2TextureSnapshot() = default;
     bool valid() const noexcept { return static_cast<bool>(state_); }
+    std::span<const std::uint8_t> physical_bytes() const { return get().planes_->bytes; }
+    std::span<const std::uint8_t> known_nibbles() const { return get().planes_->defined; }
     TextureMemoryIdentity identity() const { return get().identity(); }
     bool allocator_initialized() const { return get().allocator_initialized(); }
     std::uint32_t available_count() const { return get().available_count(); }

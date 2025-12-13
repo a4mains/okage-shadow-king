@@ -12,6 +12,9 @@
 #include "shadow_metal.hpp"
 #include "ui_metal.hpp"
 #include "metal_preview_shader.hpp"
+#include "gs_texture_sampling_metal.hpp"
+#include "gs_material_shader.hpp"
+#include "okage/gs_texture_sampling.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -19,6 +22,8 @@
 #include <fstream>
 #include <mutex>
 #include <condition_variable>
+#include <iomanip>
+#include <sstream>
 namespace okage {
 namespace fs=std::filesystem;
 namespace {
@@ -31,11 +36,14 @@ std::vector<std::uint8_t> read(const fs::path& path) {
 struct SceneBackend {
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline,environmentPipeline;
+    id<MTLRenderPipelineState> gsMaterialPipeline,gsMaterialAddPipeline,gsMaterialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     id<MTLLibrary> library;
     explicit SceneBackend(id<MTLDevice> value):device(value) {
         NSError* error=nil;
-        library=[device newLibraryWithSource:[NSString stringWithUTF8String:shader] options:nil error:&error];
+        const auto source=std::string(gs_texture_sampling_metal_source)+shader+gs_material_shader;
+        auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
+        library=[device newLibraryWithSource:[NSString stringWithUTF8String:source.c_str()] options:options error:&error];
         if (!library) throw std::runtime_error(error.localizedDescription.UTF8String);
         auto descriptor=[MTLRenderPipelineDescriptor new];
         descriptor.vertexFunction=[library newFunctionWithName:@"field_vertex"];
@@ -86,6 +94,15 @@ struct SceneBackend {
         descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationReverseSubtract;
         materialSubtractPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
         if(!materialSubtractPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.fragmentFunction=[library newFunctionWithName:@"field_gs_material_fragment"];
+        gsMaterialSubtractPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!gsMaterialSubtractPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].rgbBlendOperation=MTLBlendOperationAdd;
+        gsMaterialAddPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!gsMaterialAddPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
+        descriptor.colorAttachments[0].destinationRGBBlendFactor=MTLBlendFactorOneMinusSourceAlpha;
+        gsMaterialPipeline=[device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        if(!gsMaterialPipeline)throw std::runtime_error(error.localizedDescription.UTF8String);
         auto depthState=[MTLDepthStencilDescriptor new]; depthState.depthCompareFunction=MTLCompareFunctionLessEqual; depthState.depthWriteEnabled=YES;
         depth=[device newDepthStencilStateWithDescriptor:depthState];
         depthState.depthCompareFunction=MTLCompareFunctionLessEqual;
@@ -114,7 +131,12 @@ std::shared_ptr<const SceneBackend> acquireBackend(id<MTLDevice> device) {
     return entry;
 }
 using Vertex=FieldRasterVertex;
-struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false,unculledFieldActor=false;};
+struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false,unculledFieldActor=false;
+    std::optional<GsTextureRegisters> gs_texture;int source_handle=-1;};
+struct SceneGsMemory {
+    Ps2TextureSnapshot snapshot;
+    id<MTLBuffer> bytes,known;
+};
 }
 struct SceneRenderer::PreparedFrame::Data {
     std::shared_ptr<const int> renderer;
@@ -126,6 +148,7 @@ struct SceneRenderer::PreparedFrame::Data {
     NSArray<id<MTLTexture>>* textures;
     std::size_t white_texture;
     bool field_projection,restore_shadow_alpha;
+    std::shared_ptr<const SceneGsMemory> gs;
 };
 struct SceneRenderer::SubmittedFrame::State {
     id<MTLDevice> device;
@@ -150,6 +173,7 @@ struct SceneRenderer::Impl {
         std::vector<std::optional<PreparedTextureState>> textures;
         std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
         std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
+        std::vector<std::optional<std::uint64_t>> originalTex0;
     };
     struct PartPreparation {
         std::vector<BlockPreparation> blocks;
@@ -163,6 +187,11 @@ struct SceneRenderer::Impl {
     std::vector<Input> inputs;
     std::vector<std::vector<PartPreparation>> preparation;
     std::vector<FieldShadowActor> shadowActors;
+    const TextureHandleOwner* sharedTextures=nullptr;
+    std::optional<std::uint64_t> environmentTex0;
+    int environmentHandle=-1;
+    std::shared_ptr<const SceneGsMemory> cachedGs;
+    std::string textureSamplingObservation="{\"shared_gs\":false}";
     FieldShadowSettings shadowSettings;
     FieldOrdinaryLighting ordinaryLighting;
     FieldShadowFrame shadowFrame;
@@ -188,6 +217,7 @@ struct SceneRenderer::Impl {
     std::shared_ptr<const SceneBackend> backend;
     id<MTLDevice> device;
     id<MTLRenderPipelineState> pipeline,effectPipeline,mapEffectPipeline,dustPipeline,darkEffectPipeline,materialPipeline,materialAddPipeline,materialSubtractPipeline,environmentPipeline;
+    id<MTLRenderPipelineState> gsMaterialPipeline,gsMaterialAddPipeline,gsMaterialSubtractPipeline;
     id<MTLDepthStencilState> depth,effectDepth,mapEffectDepth,materialDepth;
     NSMutableArray<id<MTLTexture>>* gpuTextures;
     id<MTLCommandQueue> queue;
@@ -244,6 +274,8 @@ struct SceneRenderer::Impl {
         mapEffectPipeline=backend->mapEffectPipeline;dustPipeline=backend->dustPipeline;
         darkEffectPipeline=backend->darkEffectPipeline;materialPipeline=backend->materialPipeline;
         environmentPipeline=backend->environmentPipeline;
+        gsMaterialPipeline=backend->gsMaterialPipeline;gsMaterialAddPipeline=backend->gsMaterialAddPipeline;
+        gsMaterialSubtractPipeline=backend->gsMaterialSubtractPipeline;
         materialAddPipeline=backend->materialAddPipeline;materialSubtractPipeline=backend->materialSubtractPipeline;
         depth=backend->depth;effectDepth=backend->effectDepth;
         mapEffectDepth=backend->mapEffectDepth;materialDepth=backend->materialDepth;
@@ -324,6 +356,52 @@ struct SceneRenderer::Impl {
         }
         return parts;
     }
+    std::uint64_t sourceTex0(const ResourceTextureSlot& slot,int palette) const {
+        if(!sharedTextures || !sharedTextures->handle_live(slot.handle) ||
+           sharedTextures->handle_serial(slot.handle)!=slot.handle_serial ||
+           sharedTextures->record_of(slot.handle)!=slot.record ||
+           sharedTextures->record_serial(slot.record)!=slot.record_serial)
+            throw std::runtime_error("Shared GS material has a stale handle/record incarnation");
+        const auto image=sharedTextures->image(slot.handle);
+        if(!image || image!=slot.image)throw std::runtime_error("Shared GS material image binding changed");
+        const auto allocation=sharedTextures->memory().allocation(image->id);
+        if(!allocation || allocation->serial!=image->serial)throw std::runtime_error("Shared GS material image allocation is stale");
+        std::uint64_t clut=0;
+        if(const auto descriptor=sharedTextures->palette(slot.handle,palette<0?0:palette)) {
+            const auto value=sharedTextures->memory().allocation(descriptor->id);
+            if(!value || value->serial!=descriptor->serial)throw std::runtime_error("Shared GS material CLUT allocation is stale");
+            clut=value->descriptor;
+        }
+        const auto value=allocation->descriptor;
+        return 0x20000006a8000000ull | (value&0x3fff) | (((value>>14)&63)<<14) |
+            (((value>>32)&63)<<20) | ((clut&0x3fff)<<37) | (((clut>>32)&63)<<51);
+    }
+    void prepareShared(const Input& input,std::vector<PartPreparation>& parts) {
+        if(!sharedTextures)return;
+        if(!input.texturesOwned)throw std::runtime_error("Shared GS renderer requires source-owned model slots");
+        for(std::size_t p=0;p<input.model.models.size();++p)
+            for(std::size_t b=0;b<input.model.models[p].blocks.size();++b) {
+                const auto& block=input.model.models[p].blocks[b];
+                auto& originals=parts[p].blocks[b].originalTex0;
+                originals.resize(block.textures.size());
+                for(std::size_t t=0;t<block.textures.size();++t) {
+                    const auto& state=block.textures[t];
+                    if(state.texture>=0)originals[t]=sourceTex0(input.textureSlots.at(state.texture),state.palette);
+                }
+            }
+    }
+    std::shared_ptr<const SceneGsMemory> captureGs() {
+        if(!sharedTextures)return {};
+        const auto& memory=sharedTextures->memory();
+        if(cachedGs && cachedGs->snapshot.identity()==memory.identity() &&
+           cachedGs->snapshot.storage_identity()==memory.storage_identity())return cachedGs;
+        auto result=std::make_shared<SceneGsMemory>();result->snapshot=memory.snapshot();
+        const auto bytes=result->snapshot.physical_bytes(),known=result->snapshot.known_nibbles();
+        result->bytes=[device newBufferWithBytes:bytes.data() length:bytes.size() options:MTLResourceStorageModeShared];
+        result->known=[device newBufferWithBytes:known.data() length:known.size() options:MTLResourceStorageModeShared];
+        if(!result->bytes||!result->known)throw std::runtime_error("Immutable shared GS Metal buffer allocation failed");
+        cachedGs=result;return result;
+    }
     id<MTLTexture> uploadTexture(const Texture& image) {
         auto td=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:image.width height:image.height mipmapped:NO];
         td.storageMode=MTLStorageModeShared;td.usage=MTLTextureUsageShaderRead;
@@ -336,6 +414,7 @@ struct SceneRenderer::Impl {
         auto [input,shadow]=actorInput(binding);
         auto images=inputTextures(input);
         auto prepared=inputPreparation(input);
+        prepareShared(input,prepared);
         auto uploaded=[NSMutableArray<id<MTLTexture>> arrayWithCapacity:images.size()];
         for(const auto& image:images)[uploaded addObject:uploadTexture(image)];
         inputs.reserve(inputs.size()+1);shadowActors.reserve(shadowActors.size()+1);
@@ -507,6 +586,16 @@ struct SceneRenderer::Impl {
                             draw.state={std::uint32_t(clamp>>4)&1023,std::uint32_t(clamp>>14)&1023,
                                 std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
+                            if(sharedTextures && ordinaryMaterial) {
+                                const auto selected=input.actor?input.actor->textures().images().at(textureBase+polygon.texture_state):state->texture;
+                                const auto& slot=input.textureSlots.at(selected);
+                                // Variant0 restores exact saved TEX0. Replacement
+                                // callbacks write only reg6 using default CLUT.
+                                const auto original=prepared.originalTex0.at(polygon.texture_state);
+                                if(!original)throw std::runtime_error("Shared GS original texture packet is unavailable");
+                                draw.gs_texture=GsTextureRegisters{selected==state->texture?*original:sourceTex0(slot,0),
+                                    0x60,clamp,0x8000008080ull};draw.source_handle=slot.handle;
+                            }
                             // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
                             // stores no alpha: RGB zero becomes transparent.
                             if((ordinaryMaterial||ordinaryInstance) && textures.at(draw.image).pixel_format==1)draw.state[6]|=2;
@@ -576,6 +665,12 @@ struct SceneRenderer::Impl {
                             Draw extra=draw;extra.first=std::uint32_t(vertices.size());extra.count=0;
                             extra.image=std::int32_t(*materialEnvironment);extra.materialBlend=0x44;
                             extra.state={0,1023,0,1023,2,2,5,3};
+                            if(sharedTextures) {
+                                if(!environmentTex0)throw std::runtime_error("Shared GS environment packet is unavailable");
+                                extra.gs_texture=GsTextureRegisters{*environmentTex0,0x60,
+                                    std::uint64_t(2)|(std::uint64_t(2)<<2)|(std::uint64_t(1023)<<14)|(std::uint64_t(1023)<<34),0x8000008080ull};
+                                extra.source_handle=environmentHandle;
+                            }
                             if(textures.at(*materialEnvironment).pixel_format==1)extra.state[6]|=2;
                             const auto source=ordinary_environment_source(std::bit_cast<float>(material->words[3]));
                             for(auto triangle:triangles)for(auto index:triangle) {
@@ -694,6 +789,18 @@ struct SceneRenderer::Impl {
     PreparedFrame snapshot(std::vector<Vertex> vertices,std::vector<Draw> draws,const FieldProjectionFrame* fieldProjection,bool restoreOpaqueAlpha=true) {
         auto data=std::make_shared<PreparedFrame::Data>();
         data->renderer=identity;data->vertices=std::move(vertices);data->draws=std::move(draws);
+        data->gs=captureGs();
+        std::ostringstream observation;observation<<"{\"shared_gs\":"<<(data->gs?"true":"false");
+        if(data->gs)observation<<",\"content_generation\":"<<data->gs->snapshot.identity().content_generation
+            <<",\"ownership_epoch\":"<<data->gs->snapshot.identity().ownership_epoch;
+        observation<<",\"draws\":[";bool comma=false;
+        for(const auto& draw:data->draws)if(draw.gs_texture) {
+            const auto& regs=*draw.gs_texture;
+            observation<<(comma?",":"")<<"{\"first\":"<<draw.first<<",\"count\":"<<draw.count<<",\"handle\":"<<draw.source_handle
+                <<",\"tex0\":\"0x"<<std::hex<<regs.tex0<<"\",\"tex1\":\"0x"<<regs.tex1
+                <<"\",\"clamp\":\"0x"<<regs.clamp<<"\",\"texa\":\"0x"<<regs.texa<<"\"}"<<std::dec;comma=true;
+        }
+        observation<<"]}";textureSamplingObservation=observation.str();
         data->shadows=shadowFrame;data->clear=clearRGB;data->textures=[gpuTextures copy];
         data->white_texture=whiteTexture;data->field_projection=fieldProjection!=nullptr;data->restore_shadow_alpha=restoreOpaqueAlpha;
         if(fieldProjection){data->shadow_mapping.offset_x=fieldProjection->shadow.center_x-320;
@@ -741,6 +848,14 @@ struct SceneRenderer::Impl {
         if(!command||!command.retainedReferences)throw std::runtime_error("Scene frame requires a retaining Metal command buffer");
         id<MTLBuffer> vertexBuffer=vertices.empty()?nil:[device newBufferWithBytes:vertices.data() length:vertices.size()*sizeof(Vertex) options:MTLResourceStorageModeShared];
         const bool hasEnvironment=std::any_of(draws.begin(),draws.end(),[](const auto& draw){return draw.count&&draw.materialBlend&&(draw.state[6]&4u);});
+        const bool hasGs=std::any_of(draws.begin(),draws.end(),[](const auto& draw){return draw.count&&draw.gs_texture.has_value();});
+        id<MTLBuffer> invalidGs=nil;
+        if(hasGs) {
+            if(!data.gs)throw std::runtime_error("Shared GS draw lost its immutable memory snapshot");
+            const std::uint32_t untouched=UINT32_MAX;
+            invalidGs=[device newBufferWithBytes:&untouched length:sizeof(untouched) options:MTLResourceStorageModeShared];
+            if(!invalidGs)throw std::runtime_error("Shared GS validation buffer allocation failed");
+        }
         id<MTLBuffer> invalidEnvironment=nil;
         if(hasEnvironment) {
             const std::uint32_t untouched=UINT32_MAX;
@@ -761,10 +876,16 @@ struct SceneRenderer::Impl {
             if(!draw.count)continue;
             [encoder setFrontFacingWinding:draw.mapMaterial?MTLWindingCounterClockwise:MTLWindingClockwise];
             [encoder setCullMode:draw.materialBlend&&!draw.unculledFieldActor?MTLCullModeBack:MTLCullModeNone];
-            [encoder setRenderPipelineState:draw.materialBlend?((draw.state[6]&4u)?environmentPipeline:draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
+            [encoder setRenderPipelineState:draw.gs_texture?(draw.materialBlend==0x48?gsMaterialAddPipeline:draw.materialBlend==0x42?gsMaterialSubtractPipeline:gsMaterialPipeline):draw.materialBlend?((draw.state[6]&4u)?environmentPipeline:draw.materialBlend==0x48?materialAddPipeline:draw.materialBlend==0x42?materialSubtractPipeline:materialPipeline):draw.subtractive?darkEffectPipeline:draw.dust?dustPipeline:draw.additive?mapEffectPipeline:draw.effect?effectPipeline:pipeline];
             [encoder setDepthStencilState:draw.depthAlways?effectDepth:draw.materialBlend?(draw.state[7]!=2?materialDepth:mapEffectDepth):(draw.additive||draw.dust||draw.subtractive)?mapEffectDepth:draw.effect?effectDepth:depth];
             [encoder setFragmentTexture:data.textures[draw.image<0 ? data.white_texture : draw.image] atIndex:0];
             [encoder setFragmentBytes:draw.state.data() length:sizeof(draw.state) atIndex:0];
+            if(draw.gs_texture) {
+                [encoder setFragmentBuffer:invalidGs offset:0 atIndex:1];
+                [encoder setFragmentBuffer:data.gs->bytes offset:0 atIndex:2];
+                [encoder setFragmentBuffer:data.gs->known offset:0 atIndex:3];
+                [encoder setFragmentBytes:&*draw.gs_texture length:sizeof(GsTextureRegisters) atIndex:4];
+            } else if(invalidEnvironment)[encoder setFragmentBuffer:invalidEnvironment offset:0 atIndex:1];
             [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:draw.first vertexCount:draw.count];
         }
         [encoder endEncoding];
@@ -805,6 +926,17 @@ struct SceneRenderer::Impl {
             const auto address=*static_cast<const std::uint32_t*>(invalidEnvironment.contents);
             if(address!=UINT32_MAX)throw std::runtime_error("Unrecovered environment sampled texture address outside owned image: x="+
                 std::to_string(address&0xffffu)+", y="+std::to_string(address>>16));
+        });
+        if(invalidGs)state->validators.push_back([invalidGs,memory=data.gs]{
+            const auto code=*static_cast<const std::uint32_t*>(invalidGs.contents);
+            if(code==UINT32_MAX)return;
+            if(code==0xfffffffeu||code==0xfffffffdu)throw std::runtime_error("Unsupported shared GS texture register/coordinate state code="+std::to_string(code));
+            const auto address=(code&0x7fffffu)>>1,nibble=code&1u;
+            const auto value=memory->snapshot.observe_nibble(address,std::uint8_t(nibble));
+            std::ostringstream message;message<<"Unknown shared GS "<<((code&0x800000u)?"CLUT":"texture")
+                <<" nibble address=0x"<<std::hex<<address<<std::dec<<" nibble="<<nibble<<" owner=";
+            if(value.allocation_owner)message<<*value.allocation_owner;else message<<"none";
+            throw std::runtime_error(message.str());
         });
         if(validatePass)state->validators.push_back(std::move(validatePass));
         if(uiValidation)state->validators.push_back([validation=std::move(*uiValidation),command]{
@@ -899,6 +1031,23 @@ void SceneRenderer::set_stage_environment(const FieldOrdinaryLighting& light,con
         for(auto& input:impl_->preparation)for(auto& part:input)for(auto& block:part.blocks)
             for(auto& polygon:block.mapBaseColors)polygon={};
     impl_->ordinaryLighting=light;impl_->shadowSettings=shadow;impl_->sky_factors=sky;
+}
+void SceneRenderer::set_shared_texture_owner(const TextureHandleOwner& owner,int environment) {
+    if(impl_->sharedTextures && impl_->sharedTextures!=&owner)
+        throw std::runtime_error("Shared GS renderer texture owner changed");
+    impl_->sharedTextures=&owner;
+    for(std::size_t i=0;i<impl_->inputs.size();++i)impl_->prepareShared(impl_->inputs[i],impl_->preparation[i]);
+    if(environment>=0) {
+        ResourceTextureSlot slot;slot.handle=environment;slot.handle_serial=owner.handle_serial(environment);
+        slot.record=owner.record_of(environment);slot.record_serial=owner.record_serial(slot.record);
+        slot.image=owner.image(environment);
+        impl_->environmentTex0=impl_->sourceTex0(slot,0);
+        impl_->environmentHandle=environment;
+    }
+}
+void SceneRenderer::write_texture_sampling_observation(std::ostream& out) const {
+    out<<impl_->textureSamplingObservation<<'\n';
+    if(!out)throw std::runtime_error("Shared GS texture observation write failed");
 }
 void SceneRenderer::set_material_environment(const Texture& image) {
     if(!image.width||!image.height||image.width>1024||image.height>1024||

@@ -881,13 +881,15 @@ void StartupTextureOwner::free_chapter_wrappers() {
     advance(ResourceStage::ChapterWrappersFreed);
 }
 
-void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entrance) {
+void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entrance, unsigned command) {
+    if(command!=0 && command!=3)throw std::logic_error("ordinary field constructor command is unrecovered");
     if (stage_ == ResourceStage::ChapterWrappersFreed) {
         if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field constructor destination differs from the chapter request");
     } else if (stage_ != ResourceStage::RestoreWrappersFreed && stage_ != ResourceStage::FieldWrappersFreed)
         throw std::logic_error("133830 entry outside a retired mode");
     sync();
-    lifecycle_push("{\"kind\":\"phase\",\"name\":\"mode2-0x133830-entry-command0\"}");
+    lifecycle_push("{\"kind\":\"phase\",\"name\":\"mode2-0x133830-entry-command"+std::to_string(command)+"\"}");
+    field_.constructor_command=command;
     advance(ResourceStage::FieldConstructorEntry);
 }
 
@@ -896,7 +898,9 @@ void StartupTextureOwner::construct_field_mode(unsigned scene, unsigned entrance
     require_stage(ResourceStage::FieldConstructorEntry, "133830 command-0 body");
     sync();
     // 1151b8(node, 221980, 0x50): the resource child (100ef8 sets its +0x48 texenv handle to -1).
-    field_ = FieldPrefixState{.atlas_global_24f730 = field_.atlas_global_24f730, .clut_class_2138c4 = field_.clut_class_2138c4};
+    const auto command=field_.constructor_command;
+    field_ = FieldPrefixState{.constructor_command=command,
+        .atlas_global_24f730 = field_.atlas_global_24f730, .clut_class_2138c4 = field_.clut_class_2138c4};
     field_.resource_created = true;
     lifecycle_push("{\"kind\":\"field\",\"op\":\"resource-create\"}");
     field_.switch_337e70 = 1;  // 1bafd0(1)
@@ -1070,9 +1074,10 @@ void StartupTextureOwner::retire_field_resources() {
 void StartupTextureOwner::retire_field_manager() {
     require_stage(ResourceStage::FieldResourcesRetired, "133a38 field manager destructor");
     note_mode_destroy(field_.scene, 2);
-    handles_.retire(field_.manager_60); // 133a64 -> 11fbc8 -> 1cca30
-    field_atlas_bytes_.reset(); field_texenv_bytes_.reset(); field_ruw_bytes_.reset();
+    field_ruw_bytes_.reset();
     field_.ruw_slot0_live = false;
+    handles_.retire(field_.manager_60); // 133a64 -> 11fbc8 -> 1cca30
+    field_atlas_bytes_.reset(); field_texenv_bytes_.reset();
     sync();
 }
 void StartupTextureOwner::free_field_wrappers() {

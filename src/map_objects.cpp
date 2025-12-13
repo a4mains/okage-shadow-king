@@ -94,7 +94,8 @@ MapObjects::MapObjects(const std::filesystem::path& path, std::span<const std::s
             textures=read_xta({reinterpret_cast<const char*>(bytes.data()),bytes.size()});
         }
         auto object=std::make_unique<FieldActor>(asset?asset->model:read_xmd(read(model)),
-            asset?Bytes(*asset->motion):Bytes(read(motion)),std::move(textures));
+            asset?Bytes(*asset->motion):Bytes(read(motion)),std::move(textures),false,false,
+            asset?asset->packet_textures:std::shared_ptr<TextureBindings>{});
         object->animation().set_channel(0,transform.rotation);
         object->animation().set_channel(1,transform.position);
         object->animation().set_channel(2,transform.scale);

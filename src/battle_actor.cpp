@@ -54,10 +54,10 @@ std::unique_ptr<FieldActor> model(const std::filesystem::path& path,const Float4
         owned=provider(path,flags);
         if(!owned)throw std::runtime_error("Battle owned model provider returned no asset");
         if(owned->motion)
-            actor=std::make_unique<FieldActor>(owned->model,*owned->motion,owned->animation,true,true);
+            actor=std::make_unique<FieldActor>(owned->model,*owned->motion,owned->animation,true,true,owned->packet_textures);
         else {
             if(!owned->animation.groups.empty())throw std::runtime_error("Static battle model texture animation is unrecovered");
-            actor=std::make_unique<FieldActor>(owned->model);
+            actor=std::make_unique<FieldActor>(owned->model,owned->packet_textures);
         }
     } else {
         auto motion=path,xta=path;motion.replace_extension(".xmt");xta.replace_extension(".xta");

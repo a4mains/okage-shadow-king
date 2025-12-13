@@ -237,7 +237,7 @@ public:
     void free_chapter_resource_node();
     void free_chapter_wrappers();
     // Entry of the second 133830 with command 0 (the Newgame stop).
-    void enter_field_constructor(unsigned scene, unsigned entrance);
+    void enter_field_constructor(unsigned scene, unsigned entrance, unsigned command = 0);
     // ---- Field: the ordinary-field common prefix  ----
     using OwnedBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
     // Source-visible state of the prefix, the field manager (the mode-2 node) and its resource child.
@@ -246,6 +246,7 @@ public:
         std::uint32_t switch_337e70{};
         bool job_queued{};               // 178578(132688, node, scene, 0)
         unsigned scene{}, entrance{};
+        unsigned constructor_command{};
         int w30{}, w34{};                // 132688 clears both; 131e7c sets +0x34; +0x30 only after 131d28 returns
         int manager_60{};
         int resource_48{-1};
