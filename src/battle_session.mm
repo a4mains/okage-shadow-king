@@ -220,6 +220,9 @@ struct BattleSession::Impl {
     MapEffects effects;
     EffectSubmissions effect_submissions;
     BattleRoster roster{root};
+    BattleResourceHooks resource_hooks;
+    BattlePreparedResources prepared_resources;
+    const bool owned_resources;
     const bool observe_loading;
     std::uint64_t load_job_id=0;
     // Last member: its destructor joins before any job-captured owners die.
@@ -227,23 +230,33 @@ struct BattleSession::Impl {
     void retire_root() {
         if(root_retired||jobs.pending()!=0||construction!=Construction::Complete)
             throw std::runtime_error("Battle root retirement ownership order");
-        for(const auto& actor:roster.actors())
+        for(const auto& actor:roster.actors()) {
             put(actor->storage,0x1c,word(actor->storage,0x1c)|0xc0000000u);
+            if(owned_resources&&resource_hooks.retire_actor)resource_hooks.retire_actor(*actor);
+        }
         ui.reset();
         ui_draw.reset();ui_geometry.reset();
         //14aac8: interface atlas, BTL.RUW slot0, then1b84b0 registrations.
+        if(owned_resources&&resource_hooks.retire_root)resource_hooks.retire_root();
         atlas=nil;window_owner.reset();ui_resources[0].reset();
         renderer->retire_instances();camera_channels.release_channel(0);
         root_retired=true;
     }
     Impl(unsigned f,int s,fs::path i,fs::path d,Bytes variables,BattleEntryContext& entry,Animation& channels,
          Bytes effect_data,fs::path textures,std::shared_ptr<const EffectTemplatePreparation> preparation,
-         std::size_t observation_capacity):
+         std::size_t observation_capacity,BattleResourceHooks hooks):
         formation(f),stage(s),input(std::move(i)),decoded(std::move(d)),
         alternate_interface(variables.size()>12&&variables[12]!=0),camera_channels(channels),
         effect_definitions(resolve_effect_references(read_efd(effect_data))),effect_textures(std::move(textures)),
-        effect_preparation(std::move(preparation)),observe_loading(observation_capacity!=0),
+        effect_preparation(std::move(preparation)),resource_hooks(std::move(hooks)),
+        owned_resources(bool(resource_hooks.prepare_resources)),observe_loading(observation_capacity!=0),
         jobs(observation_capacity) {
+        if(owned_resources) {
+            if(!resource_hooks.textures||!resource_hooks.model_asset||!resource_hooks.effect_textures)
+                throw std::runtime_error("Battle owned resource hooks require textures, model provider and verified effects");
+        } else if(resource_hooks.textures||resource_hooks.model_asset||resource_hooks.effect_textures||
+                  resource_hooks.retire_actor||resource_hooks.retire_root||resource_hooks.retire_resource||resource_hooks.complete_resources)
+            throw std::runtime_error("Battle resource hooks require main prepare_resources");
         if(variables.size()<0xd78)throw std::runtime_error("Battle shared variable extent");
         if(event_variable(variables,0x40005)!=0)
             throw std::runtime_error("Battle wrapper bypass branch is unrecovered");
@@ -264,7 +277,10 @@ struct BattleSession::Impl {
     void load() {
         @autoreleasepool {
             if(!jobs.checkpoint())return;
-            ui_resources[0]=std::make_shared<RuwResource>(read(input/"BTL.RUW"));
+            if(owned_resources) {
+                prepared_resources.ruw=std::make_shared<const std::vector<std::uint8_t>>(read(input/"BTL.RUW"));
+                ui_resources[0]=std::make_shared<RuwResource>(*prepared_resources.ruw);
+            } else ui_resources[0]=std::make_shared<RuwResource>(read(input/"BTL.RUW"));
             ui_definitions.emplace(read(input/"battle-ui.bin"));
             hud_definitions.emplace(read(input/"battle-hud.bin"));
             command_definitions.emplace(read(input/"battle-ui-commands.bin"));
@@ -281,9 +297,11 @@ struct BattleSession::Impl {
             auto header=word(atlas_bytes,0);header=(header&0xfc0fffff)|(0x1bu<<20);
             for(unsigned j=0;j<4;++j)atlas_bytes[j]=header>>(8*j);
             atlas=upload_ui_gs_texture(device,decode_xim(atlas_bytes));
+            if(owned_resources)prepared_resources.atlas=std::make_shared<const std::vector<std::uint8_t>>(std::move(atlas_bytes));
             if(!jobs.checkpoint())return;
             auto env_bytes=read(main/"texenv.xim");
             const auto env_image=decode_xim(env_bytes);environment=upload(env_image);
+            if(owned_resources)prepared_resources.environment=std::make_shared<const std::vector<std::uint8_t>>(std::move(env_bytes));
             environment_uv={.5f/1024,.5f/1024,(float(env_image.width)+.5f)/1024,
                 (float(env_image.height)+.5f)/1024};
             load_step.store(2);
@@ -298,13 +316,39 @@ struct BattleSession::Impl {
             const auto map_data=read_xmp(read(map));
             if(std::any_of(map_data.definitions.begin(),map_data.definitions.end(),[](const auto& d){return d.words[0x80/4]!=0;}))
                 throw std::runtime_error("Battle stage model collision-definition ownership is unrecovered");
-            objects=std::make_unique<MapObjects>(map);
-            if(!jobs.checkpoint())return;
-            renderer=std::make_shared<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
-            renderer->set_material_environment(env_image);
-            if(!jobs.checkpoint())return;
-            renderer->load_effect_textures(effect_textures);
-            renderer->bind_effect_submissions(&effect_submissions);
+            if(owned_resources) {
+                prepared_resources.map=map;
+                prepared_resources.map_assets.resize(map_data.definitions.size());
+                for(const auto& placement:map_data.placements)
+                    if(placement.handler()||map_data.definitions.at(placement.definition()).name=="effect$$.xmd")
+                        throw std::runtime_error("Battle stage effect placement ownership is unrecovered");
+                for(std::size_t i=0;i<map_data.definitions.size();++i) {
+                    const auto& definition=map_data.definitions[i];
+                    if(definition.name=="effect$$.xmd")continue;
+                    auto asset=std::make_shared<SceneModelAsset>();
+                    const auto path=map.parent_path()/definition.name;
+                    asset->model=read_xmd(read(path));
+                    if(definition.flags()&8) {
+                        auto motion=path,sidecar=path;motion.replace_extension(".xmt");sidecar.replace_extension(".xta");
+                        asset->motion=std::make_shared<const std::vector<std::uint8_t>>(read(motion));
+                        if(fs::exists(sidecar)||fs::is_symlink(sidecar)) {
+                            asset->sidecar=std::make_shared<const std::vector<std::uint8_t>>(read(sidecar));
+                            asset->animation=read_xta({reinterpret_cast<const char*>(asset->sidecar->data()),asset->sidecar->size()});
+                        }
+                    }
+                    asset->packet_textures=std::make_shared<TextureBindings>(asset->model,asset->animation);
+                    prepared_resources.map_assets[i]=std::move(asset);
+                    if(!jobs.checkpoint())return;
+                }
+            } else {
+                objects=std::make_unique<MapObjects>(map);
+                if(!jobs.checkpoint())return;
+                renderer=std::make_shared<SceneRenderer>(map,std::span<const SceneActor>{},objects.get());
+                renderer->set_material_environment(env_image);
+                if(!jobs.checkpoint())return;
+                renderer->load_effect_textures(effect_textures);
+                renderer->bind_effect_submissions(&effect_submissions);
+            }
             held_stage=read(package/"a.stg");
             const auto collision_path=package/"a.xcl";
             if(fs::exists(collision_path)||fs::is_symlink(collision_path))
@@ -1114,9 +1158,9 @@ BattleSession::BattleSession(unsigned formation,int stage,const fs::path& input,
                             const fs::path& decoded,Bytes variables,BattleEntryContext& entry,Animation& camera,
                             Bytes effect_data,const fs::path& effect_textures,
                             std::shared_ptr<const EffectTemplatePreparation> effect_preparation,
-                            std::size_t observation_capacity):
+                            std::size_t observation_capacity,BattleResourceHooks resource_hooks):
     impl_(std::make_unique<Impl>(formation,stage,input,decoded,variables,entry,camera,effect_data,
-                                effect_textures,std::move(effect_preparation),observation_capacity)) {}
+                                effect_textures,std::move(effect_preparation),observation_capacity,std::move(resource_hooks))) {}
 BattleSession::~BattleSession()=default;
 void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& projection,SceneClearColor& clear,
                          BattleUiContext context,unsigned frame,const fs::path& stage_report,const fs::path& ui_update_report,bool prepare_loading_frame) {
@@ -1317,20 +1361,48 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
     const auto rng_before=context.random.state;
     std::string error;
     try {
+        if(impl_->owned_resources) {
+            impl_->resource_hooks.prepare_resources(impl_->prepared_resources);
+            if(!impl_->prepared_resources.environment)
+                throw std::runtime_error("Battle prepared environment bytes were removed by resource hook");
+            SceneModelAssets assets(impl_->prepared_resources.map_assets.begin(),impl_->prepared_resources.map_assets.end());
+            impl_->objects=std::make_unique<MapObjects>(impl_->prepared_resources.map,assets);
+            impl_->renderer=std::make_shared<SceneRenderer>(impl_->prepared_resources.map,
+                std::span<const SceneActor>{},impl_->objects.get(),assets);
+            impl_->renderer->set_shared_texture_owner(*impl_->resource_hooks.textures,impl_->prepared_resources.environment_handle);
+            impl_->renderer->set_material_environment(decode_xim(*impl_->prepared_resources.environment));
+            impl_->renderer->load_effect_textures(*impl_->resource_hooks.effect_textures);
+            impl_->renderer->bind_effect_submissions(&impl_->effect_submissions);
+        }
         impl_->camera_channels.set_channel_mode(0,0x10);
         impl_->camera.emplace(*impl_->camera_sequence,1.f);impl_->load_step.store(4);
         const auto random=[&context]{return context.random.next();};
-        impl_->roster.construct_party(impl_->decoded,context.variables,context.tables,context.entry,random);
+        const BattleModelAssetProvider no_model_provider;
+        const auto& model_provider=impl_->owned_resources?impl_->resource_hooks.model_asset:no_model_provider;
+        impl_->roster.construct_party(impl_->decoded,context.variables,context.tables,context.entry,random,
+            model_provider);
         impl_->load_step.store(5);
         impl_->roster.construct_enemies(impl_->decoded,impl_->formation,impl_->battle_data->formation(impl_->formation),context.tables,
-            std::bit_cast<std::int16_t>(context.entry.parameters().argument2),random);
+            std::bit_cast<std::int16_t>(context.entry.parameters().argument2),random,
+            model_provider);
         unsigned alias=0;
         for(const auto& actor:impl_->roster.actors()) {
-            const auto bind=[&](const std::unique_ptr<FieldActor>& model,const fs::path& path) {
-                if(model)impl_->renderer->add_actor({model.get(),path,int(alias++),SceneActorDescriptor{model->render_flags,false}});
+            const auto bind=[&](const std::unique_ptr<FieldActor>& model,const fs::path& path,
+                                const std::shared_ptr<const SceneModelAsset>& asset) {
+                if(!model)return;
+                SceneActor scene{model.get(),path,int(alias++),SceneActorDescriptor{model->render_flags,false}};
+                if(impl_->owned_resources) {
+                    if(!asset)throw std::runtime_error("Battle renderer has no owned actor asset");
+                    scene.texture_slots=asset->textures;scene.textures_owned=true;
+                    scene.shadow_model=asset->shadow;scene.shadow_owned=true;
+                }
+                impl_->renderer->add_actor(scene);
             };
-            bind(actor->model,actor->model_path);bind(actor->bag,actor->bag_path);bind(actor->box,actor->box_path);
+            bind(actor->model,actor->model_path,actor->model_asset);
+            bind(actor->bag,actor->bag_path,actor->bag_asset);
+            bind(actor->box,actor->box_path,actor->box_asset);
         }
+        if(impl_->owned_resources&&impl_->resource_hooks.complete_resources)impl_->resource_hooks.complete_resources();
         impl_->load_step.store(6);impl_->construction=Impl::Construction::Complete;
     }catch(const std::exception& e){
         impl_->construction=Impl::Construction::Failed;impl_->construction_failure=std::current_exception();error=e.what();
@@ -1355,6 +1427,11 @@ void BattleSession::write_load_observation(std::ostream& destination) const {
     destination<<out.str();
     if(!destination)throw std::runtime_error("Cannot write battle loader observation");
 }
+void BattleSession::write_texture_sampling_observation(std::ostream& out) const {
+    if(impl_->construction!=Impl::Construction::Complete||impl_->resource_retired||!impl_->renderer)
+        throw std::runtime_error("Battle texture sampling observation requires a live prepared renderer");
+    impl_->renderer->write_texture_sampling_observation(out);
+}
 bool BattleSession::resource_live() const{return !impl_->resource_retired;}
 RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,FieldProjection& projection) {
     impl_->jobs.check();
@@ -1363,17 +1440,18 @@ RetiringSceneEffects BattleSession::retire_resource(BattleUiShared& shared,Field
         throw std::runtime_error("Battle retirement before independent GPU completion ownership");
     if(impl_->resource_retired||!impl_->root_retired||impl_->root_lifetime.linked()||impl_->jobs.pending()!=0)
         throw std::runtime_error("Battle resource retirement ownership order");
-    RetiringSceneEffects retired{std::move(impl_->effects),{}};retired.mark();
+    RetiringSceneEffects retired{std::move(impl_->effects),{}, {}};retired.mark();
     impl_->pending_render.reset();
     for(auto& window:shared.registry)window.reset();
     impl_->ui_draw.reset();impl_->ui_geometry.reset();
+    if(impl_->owned_resources&&impl_->resource_hooks.retire_resource)impl_->resource_hooks.retire_resource();
     impl_->effect_submissions.clear();
     impl_->renderer.reset();
     impl_->filter_renderer.reset();impl_->loading_renderer.reset();impl_->rendered_image.reset();
     impl_->objects.reset();impl_->collision.reset();
     impl_->environment=nil;impl_->atlas=nil;impl_->window_owner.reset();
     for(auto& resource:impl_->ui_resources)resource.reset();
-    impl_->held_stage.clear();impl_->stage_data.reset();
+    impl_->held_stage.clear();impl_->stage_data.reset();impl_->prepared_resources={};
     //Source filters1/2 are retained by Session, not these battle-owned slots.
     const auto clear=impl_->stage_settings->clear;
     impl_->stage_settings.emplace(clear);

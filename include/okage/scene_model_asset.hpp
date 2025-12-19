@@ -8,6 +8,7 @@ namespace okage {
 struct SceneModelAsset {
     ModelFile model;
     ImmutableTextureBytes motion;
+    ImmutableTextureBytes sidecar;
     TextureAnimation animation;
     std::vector<ResourceTextureSlot> textures;
     std::optional<ModelRangeLease> resource_group, shadow_group;

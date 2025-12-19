@@ -1,5 +1,7 @@
 #pragma once
 #include "okage/battle_entry.hpp"
+#include "okage/battle_actor.hpp"
+#include "okage/scene_model_asset.hpp"
 #include "okage/battle_state.hpp"
 #include "okage/effect.hpp"
 #include "okage/animation.hpp"
@@ -16,6 +18,23 @@
 namespace okage {
 class FieldProjection;
 struct SceneClearColor;
+struct BattlePreparedResources {
+    ImmutableTextureBytes ruw,atlas,environment;
+    std::filesystem::path map;
+    std::vector<std::shared_ptr<SceneModelAsset>> map_assets;
+    int environment_handle=-1;
+};
+using BattleEffectTextureBytes = std::array<std::vector<std::uint8_t>,31>;
+struct BattleResourceHooks {
+    const TextureHandleOwner* textures=nullptr;
+    std::function<void(BattlePreparedResources&)> prepare_resources;
+    BattleModelAssetProvider model_asset;
+    std::function<void(const BattleActor&)> retire_actor;
+    std::function<void()> retire_root,retire_resource;
+    std::shared_ptr<const BattleEffectTextureBytes> effect_textures;
+    // After all party/enemy source loads and render bindings, before ready.
+    std::function<void()> complete_resources;
+};
 struct BattleConstructionContext {
     std::span<std::uint8_t> variables;
     const GameDataTables& tables;
@@ -70,7 +89,7 @@ public:
                   BattleEntryContext& entry,Animation& scene_camera,Bytes effect_data,
                   const std::filesystem::path& effect_textures,
                   std::shared_ptr<const EffectTemplatePreparation> effect_preparation,
-                  std::size_t observation_capacity=0);
+                  std::size_t observation_capacity=0,BattleResourceHooks resource_hooks={});
     ~BattleSession();
     BattleSession(const BattleSession&)=delete;
     BattleSession& operator=(const BattleSession&)=delete;
@@ -91,6 +110,8 @@ public:
     void write_effect_observation(std::ostream&,unsigned frame) const;
     void write_actor_observation(std::ostream&,unsigned frame) const;
     void write_load_observation(std::ostream&) const;
+    // Main-owned renderer observation; unavailable until construction completes.
+    void write_texture_sampling_observation(std::ostream&) const;
     bool render_pending() const;
     void complete_render(unsigned frame);
     const Texture* rendered_image() const;
