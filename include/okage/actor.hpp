@@ -11,9 +11,11 @@ public:
     explicit FieldActor(ModelFile model,std::shared_ptr<TextureBindings> packet_textures={});
     FieldActor(ModelFile model,Bytes motion,TextureAnimation textures,bool defer_transform_evaluation=false,
                bool bone_only_initial_evaluation=false,
-               std::shared_ptr<TextureBindings> packet_textures={});
+               std::shared_ptr<TextureBindings> packet_textures={},
+               bool defer_initial_motion_evaluation=false);
     FieldActor(const FieldActor&)=delete;
     FieldActor& operator=(const FieldActor&)=delete;
+    void initialize_motion();
     void select_motion(unsigned entry);
     void tick_script();
     void tick_channels();
@@ -23,6 +25,9 @@ public:
     Matrix4 world(const SineTable& sine) const;
     const ModelFile& model() const{return model_;}
     const TextureBindings& textures() const{return *textures_;}
+    void configure_texture_source(const void* owner, TextureBindings::SourceRegisterResolver resolver) const {
+        textures_->configure_source_registers(owner,std::move(resolver));
+    }
     const std::vector<Float4>& channels() const{return channels_;}
     Animation& animation(){return animation_;}
     const Animation& animation() const{return animation_;}
@@ -41,6 +46,9 @@ private:
     std::vector<Float4> channels_;
     unsigned motion_=0;
     bool has_motion_=true;
+    bool motion_initialized_=false;
+    bool defer_transform_evaluation_=false;
+    bool bone_only_initial_evaluation_=false;
 };
 // Field actor construction may omit a collision body (STUN).
 struct ActorBinding {int alias;FieldActor* actor;bool collidable=true;int instance=-1;};
