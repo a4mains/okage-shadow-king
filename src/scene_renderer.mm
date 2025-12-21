@@ -133,10 +133,42 @@ std::shared_ptr<const SceneBackend> acquireBackend(id<MTLDevice> device) {
 using Vertex=FieldRasterVertex;
 struct Draw {std::uint32_t first,count;std::int32_t image;std::array<std::uint32_t,8> state;bool effect=false,additive=false,dust=false;std::uint64_t materialBlend=0;bool depthAlways=false,subtractive=false;unsigned phase=0;float nearClip=3;bool deferred=false;unsigned bucket=0,ordinal=0;bool mapMaterial=false,unculledFieldActor=false;
     std::optional<GsTextureRegisters> gs_texture;int source_handle=-1;};
+std::uint64_t source_tex0(const TextureHandleOwner& owner,const ResourceTextureSlot& slot,int palette) {
+    if(!owner.handle_live(slot.handle) ||
+       owner.handle_serial(slot.handle)!=slot.handle_serial ||
+       owner.record_of(slot.handle)!=slot.record ||
+       owner.record_serial(slot.record)!=slot.record_serial)
+        throw std::runtime_error("Shared GS material has a stale handle/record incarnation");
+    const auto image=owner.image(slot.handle);
+    if(!image || image!=slot.image)throw std::runtime_error("Shared GS material image binding changed");
+    const auto allocation=owner.memory().allocation(image->id);
+    if(!allocation || allocation->serial!=image->serial)throw std::runtime_error("Shared GS material image allocation is stale");
+    std::uint64_t clut=0;
+    if(const auto descriptor=owner.palette(slot.handle,palette<0?0:palette)) {
+        const auto value=owner.memory().allocation(descriptor->id);
+        if(!value || value->serial!=descriptor->serial)throw std::runtime_error("Shared GS material CLUT allocation is stale");
+        clut=value->descriptor;
+    }
+    const auto value=allocation->descriptor;
+    return 0x20000006a8000000ull | (value&0x3fff) | (((value>>14)&63)<<14) |
+        (((value>>32)&63)<<20) | ((clut&0x3fff)<<37) | (((clut>>32)&63)<<51);
+}
+TextureBindings::SourceRegisterResolver texture_source_resolver(const TextureHandleOwner& owner,
+                                                                    std::vector<ResourceTextureSlot> slots) {
+    return [owner=&owner,slots=std::move(slots)](int image,int palette) {
+        if(image<0 || std::size_t(image)>=slots.size())throw std::runtime_error("Source texture packet image outside owned slots");
+        return source_tex0(*owner,slots[image],palette);
+    };
+}
 struct SceneGsMemory {
     Ps2TextureSnapshot snapshot;
     id<MTLBuffer> bytes,known;
 };
+}
+void configure_scene_model_texture_source(const SceneModelAsset& asset,const TextureHandleOwner& owner) {
+    if(!asset.packet_textures)return;
+    if(asset.textures.size()!=asset.packet_textures->names().size())throw std::runtime_error("Source texture packet slot count");
+    asset.packet_textures->configure_source_registers(&owner,texture_source_resolver(owner,asset.textures));
 }
 struct SceneRenderer::PreparedFrame::Data {
     std::shared_ptr<const int> renderer;
@@ -173,7 +205,6 @@ struct SceneRenderer::Impl {
         std::vector<std::optional<PreparedTextureState>> textures;
         std::vector<std::optional<PolygonTextureCoordinates>> coordinates;
         std::vector<std::array<PreparedMapBaseColor,4>> mapBaseColors;
-        std::vector<std::optional<std::uint64_t>> originalTex0;
     };
     struct PartPreparation {
         std::vector<BlockPreparation> blocks;
@@ -181,7 +212,7 @@ struct SceneRenderer::Impl {
         std::vector<std::size_t> textureBases;
     };
     struct Input {fs::path path;ModelFile model;Matrix4 world;const FieldActor* actor=nullptr;std::optional<MapTransform> facing;std::optional<std::size_t> placement;bool visible=true;bool afterShadows=false;std::uint32_t flags=0;unsigned ordinal=0;bool special=false;std::optional<SceneActorDescriptor> descriptor{};
-        std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> textureBytes{};std::vector<ResourceTextureSlot> textureSlots{};bool texturesOwned=false;};
+        std::vector<std::shared_ptr<const std::vector<std::uint8_t>>> textureBytes{};std::vector<ResourceTextureSlot> textureSlots{};bool texturesOwned=false;std::shared_ptr<TextureBindings> packetTextures{};};
     const MapObjects* mapObjects=nullptr;
     SineTable sine=make_sine_table();
     std::vector<Input> inputs;
@@ -246,7 +277,7 @@ struct SceneRenderer::Impl {
             if(!assets.empty() && !asset)throw std::runtime_error("Owned map definition unavailable");
             inputs.push_back({file,object?object->model():asset?asset->model:read_xmd(read(file)),instance_matrix(transform.position,transform.rotation,transform.scale,sine),object,
                 (transform.flags&1)?std::optional<MapTransform>(transform):std::nullopt,index,(transform.flags&0x10000)==0});
-            if(asset){inputs.back().textureSlots=asset->textures;inputs.back().texturesOwned=true;}
+            if(asset){inputs.back().textureSlots=asset->textures;inputs.back().texturesOwned=true;inputs.back().packetTextures=asset->packet_textures;}
             inputs.back().flags=transform.flags;
             inputs.back().ordinal=transform.flags&0x100000?640+--back:nextFrontOrdinal++;
         }
@@ -313,7 +344,7 @@ struct SceneRenderer::Impl {
     }
     static std::vector<Texture> inputTextures(const Input& input) {
         std::vector<Texture> images;
-        const auto& names=input.actor ? input.actor->textures().names() : input.model.textures;
+        const auto& names=input.actor ? input.actor->textures().names() : input.packetTextures ? input.packetTextures->names() : input.model.textures;
         if(input.texturesOwned || !input.textureSlots.empty()) {
             if(input.textureSlots.size()!=names.size())throw std::runtime_error("Owned model slot count");
             for(const auto& slot:input.textureSlots) {
@@ -356,39 +387,15 @@ struct SceneRenderer::Impl {
         }
         return parts;
     }
-    std::uint64_t sourceTex0(const ResourceTextureSlot& slot,int palette) const {
-        if(!sharedTextures || !sharedTextures->handle_live(slot.handle) ||
-           sharedTextures->handle_serial(slot.handle)!=slot.handle_serial ||
-           sharedTextures->record_of(slot.handle)!=slot.record ||
-           sharedTextures->record_serial(slot.record)!=slot.record_serial)
-            throw std::runtime_error("Shared GS material has a stale handle/record incarnation");
-        const auto image=sharedTextures->image(slot.handle);
-        if(!image || image!=slot.image)throw std::runtime_error("Shared GS material image binding changed");
-        const auto allocation=sharedTextures->memory().allocation(image->id);
-        if(!allocation || allocation->serial!=image->serial)throw std::runtime_error("Shared GS material image allocation is stale");
-        std::uint64_t clut=0;
-        if(const auto descriptor=sharedTextures->palette(slot.handle,palette<0?0:palette)) {
-            const auto value=sharedTextures->memory().allocation(descriptor->id);
-            if(!value || value->serial!=descriptor->serial)throw std::runtime_error("Shared GS material CLUT allocation is stale");
-            clut=value->descriptor;
-        }
-        const auto value=allocation->descriptor;
-        return 0x20000006a8000000ull | (value&0x3fff) | (((value>>14)&63)<<14) |
-            (((value>>32)&63)<<20) | ((clut&0x3fff)<<37) | (((clut>>32)&63)<<51);
-    }
-    void prepareShared(const Input& input,std::vector<PartPreparation>& parts) {
+    void prepareShared(Input& input) {
         if(!sharedTextures)return;
         if(!input.texturesOwned)throw std::runtime_error("Shared GS renderer requires source-owned model slots");
-        for(std::size_t p=0;p<input.model.models.size();++p)
-            for(std::size_t b=0;b<input.model.models[p].blocks.size();++b) {
-                const auto& block=input.model.models[p].blocks[b];
-                auto& originals=parts[p].blocks[b].originalTex0;
-                originals.resize(block.textures.size());
-                for(std::size_t t=0;t<block.textures.size();++t) {
-                    const auto& state=block.textures[t];
-                    if(state.texture>=0)originals[t]=sourceTex0(input.textureSlots.at(state.texture),state.palette);
-                }
-            }
+        auto resolver=texture_source_resolver(*sharedTextures,input.textureSlots);
+        if(input.actor)input.actor->configure_texture_source(sharedTextures,std::move(resolver));
+        else {
+            if(!input.packetTextures)input.packetTextures=std::make_shared<TextureBindings>(input.model,TextureAnimation{});
+            input.packetTextures->configure_source_registers(sharedTextures,std::move(resolver));
+        }
     }
     std::shared_ptr<const SceneGsMemory> captureGs() {
         if(!sharedTextures)return {};
@@ -414,7 +421,7 @@ struct SceneRenderer::Impl {
         auto [input,shadow]=actorInput(binding);
         auto images=inputTextures(input);
         auto prepared=inputPreparation(input);
-        prepareShared(input,prepared);
+        prepareShared(input);
         auto uploaded=[NSMutableArray<id<MTLTexture>> arrayWithCapacity:images.size()];
         for(const auto& image:images)[uploaded addObject:uploadTexture(image)];
         inputs.reserve(inputs.size()+1);shadowActors.reserve(shadowActors.size()+1);
@@ -578,7 +585,7 @@ struct SceneRenderer::Impl {
                             throw std::runtime_error("Textured map polygon has no image");
                         if (textureEnabled && block.textures.at(polygon.texture_state).texture>=0) {
                             state=&block.textures.at(polygon.texture_state);
-                            draw.image=textureOffset+(input.actor ? input.actor->textures().images().at(textureBase+polygon.texture_state) : state->texture);
+                            draw.image=textureOffset+(input.actor ? input.actor->textures().images().at(textureBase+polygon.texture_state) : input.packetTextures ? input.packetTextures->images().at(textureBase+polygon.texture_state) : state->texture);
                             const auto& original=textures.at(textureOffset+state->texture);
                             auto& preparedState=prepared.textures.at(polygon.texture_state);
                             if(!preparedState)preparedState.emplace(*state,original.width,original.height);
@@ -587,13 +594,12 @@ struct SceneRenderer::Impl {
                                 std::uint32_t(clamp>>24)&1023,std::uint32_t(clamp>>34)&1023,
                                 std::uint32_t(clamp)&3,std::uint32_t(clamp>>2)&3,1,0};
                             if(sharedTextures && ordinaryMaterial) {
-                                const auto selected=input.actor?input.actor->textures().images().at(textureBase+polygon.texture_state):state->texture;
+                                const auto selected=input.actor?input.actor->textures().images().at(textureBase+polygon.texture_state):input.packetTextures?input.packetTextures->images().at(textureBase+polygon.texture_state):state->texture;
                                 const auto& slot=input.textureSlots.at(selected);
-                                // Variant0 restores exact saved TEX0. Replacement
-                                // callbacks write only reg6 using default CLUT.
-                                const auto original=prepared.originalTex0.at(polygon.texture_state);
-                                if(!original)throw std::runtime_error("Shared GS original texture packet is unavailable");
-                                draw.gs_texture=GsTextureRegisters{selected==state->texture?*original:sourceTex0(slot,0),
+                                const auto& packet=input.actor?input.actor->textures():*input.packetTextures;
+                                const auto tex0=packet.source_registers().at(textureBase+polygon.texture_state);
+                                if(!tex0)throw std::runtime_error("Shared GS texture packet register is unavailable");
+                                draw.gs_texture=GsTextureRegisters{*tex0,
                                     0x60,clamp,0x8000008080ull};draw.source_handle=slot.handle;
                             }
                             // Ordinary setup TEXA has TA0=128, AEM=1. PSM24
@@ -1036,12 +1042,12 @@ void SceneRenderer::set_shared_texture_owner(const TextureHandleOwner& owner,int
     if(impl_->sharedTextures && impl_->sharedTextures!=&owner)
         throw std::runtime_error("Shared GS renderer texture owner changed");
     impl_->sharedTextures=&owner;
-    for(std::size_t i=0;i<impl_->inputs.size();++i)impl_->prepareShared(impl_->inputs[i],impl_->preparation[i]);
+    for(auto& input:impl_->inputs)impl_->prepareShared(input);
     if(environment>=0) {
         ResourceTextureSlot slot;slot.handle=environment;slot.handle_serial=owner.handle_serial(environment);
         slot.record=owner.record_of(environment);slot.record_serial=owner.record_serial(slot.record);
         slot.image=owner.image(environment);
-        impl_->environmentTex0=impl_->sourceTex0(slot,0);
+        impl_->environmentTex0=source_tex0(owner,slot,0);
         impl_->environmentHandle=environment;
     }
 }

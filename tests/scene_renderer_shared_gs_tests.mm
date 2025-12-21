@@ -91,8 +91,8 @@ struct Scene {
     SceneRenderer renderer;
     FieldProjection projection;
     explicit Scene(ModelFile model,const std::vector<ResourceTextureSlot>& slots,Owned& owner,
-                   std::shared_ptr<TextureBindings> bindings={},TextureAnimation animation={})
-        :actor(make_actor(std::move(model),std::move(bindings),std::move(animation))) {
+                   std::shared_ptr<TextureBindings> bindings={},TextureAnimation animation={},bool initial_variant=false)
+        :actor(make_actor(std::move(model),std::move(bindings),std::move(animation),initial_variant)) {
         if(actor.has_motion()) {actor.animation().set_channel(4,{0,0,0,1});actor.animation().set_channel(5,{0,0,0,1});actor.evaluate();}
         SceneActor binding{&actor,"/nonexistent/shared-gs-fixture/m.xmd",-1,SceneActorDescriptor{0,false}};
         binding.texture_slots=slots;binding.textures_owned=true;binding.shadow_owned=true;
@@ -100,9 +100,10 @@ struct Scene {
         projection.load_stage(stage({1,1,1,1},{.25f,.25f,.25f,1},false));
         projection.begin_field();projection.begin_effects();projection.begin_deferred();projection.end_effects();
     }
-    static FieldActor make_actor(ModelFile model,std::shared_ptr<TextureBindings> bindings,TextureAnimation animation) {
+    static FieldActor make_actor(ModelFile model,std::shared_ptr<TextureBindings> bindings,TextureAnimation animation,bool initial_variant) {
         if(!bindings)return FieldActor(std::move(model));
         Data motion(56);put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);
+        if(initial_variant)put(motion,32,0x00000134);
         return FieldActor(std::move(model),motion,std::move(animation),false,false,std::move(bindings));
     }
     SceneRenderer::PreparedFrame prepare() {
@@ -207,12 +208,53 @@ static void saved_original_and_variant() {
     std::fill(palette.begin(),palette.end(),50);const auto later=owner.handles.create_palette(256,palette,uploaded);require(later&&uploaded);
     require(owner.handles.bind_palette(original_handle,1,later)==PaletteBindResult::Bound);
     require(source_tex0(owner,original_handle,1)!=expected_original);
+    scene.renderer.set_shared_texture_owner(owner.handles); // Must not recapture originals.
     bindings->select(0,0);const auto restored=scene.prepare();
     require(observed_register(scene.observation(),"tex0")==expected_original&&observed_register(scene.observation(),"clamp")==clamp);
     require(scene.renderer.render_prepared(restored).rgba==original_image.rgba);
     require(scene.renderer.render_prepared(original).rgba==original_image.rgba);
     owner.resources.retire_xmd(resource);owner.resources.retire_scene_images();
 }
+
+static void callback_time_source_packet() {
+    Owned owner;const auto model=quad();auto resource=owner.load(model,xim(19,8,8,{20,40,60,128}));
+    require(owner.resources.load_xta(resource,std::make_shared<const Data>(Data{'0','\n','=','v','\n'}),[&](std::string&)->std::optional<Data>{return xim(19,8,8,{100,110,120,128});}));
+    auto slots=resource.slots;slots.insert(slots.end(),resource.xta_variants.begin(),resource.xta_variants.end());
+    TextureAnimation animation{{0},{"v"}};auto packet=std::make_shared<TextureBindings>(model,animation);
+    SceneModelAsset asset;asset.model=model;asset.animation=animation;asset.textures=slots;asset.packet_textures=packet;
+    configure_scene_model_texture_source(asset,owner.handles);
+    // Real actor entry0 opcode34 immediately selects variant1. Configuration
+    // precedes construction, so the resolver runs at this exact callback.
+    Scene scene(model,slots,owner,packet,animation,true);
+    const auto old=scene.prepare();const auto old_image=scene.renderer.render_prepared(old);
+    const auto original_variant=observed_register(scene.observation(),"tex0");
+    require(center(old_image)==std::array<unsigned,4>{100,110,120,255});
+    Data palette(256*4);for(unsigned i=0;i<palette.size();i+=4){palette[i]=150;palette[i+1]=160;palette[i+2]=170;palette[i+3]=128;}
+    bool uploaded=false;const auto later=owner.handles.create_palette(256,palette,uploaded);require(later&&uploaded);
+    require(owner.handles.bind_palette(slots[1].handle,0,later)==PaletteBindResult::Bound);
+    const auto no_callback=scene.prepare();
+    require(observed_register(scene.observation(),"tex0")==original_variant);
+    require(scene.renderer.render_prepared(no_callback).rgba==old_image.rgba);
+    packet->select(0,1);const auto repeated=scene.prepare(); // Same image, new callback.
+    require(observed_register(scene.observation(),"tex0")!=original_variant);
+    require(center(scene.renderer.render_prepared(repeated))==std::array<unsigned,4>{150,160,170,255});
+    require(scene.renderer.render_prepared(old).rgba==old_image.rgba);
+    configure_scene_model_texture_source(asset,owner.handles); // Same owner no-op.
+    packet->select(0,0);require(center(scene.render())==std::array<unsigned,4>{20,40,60,255});
+    // Shared cache instances consume the same register packet, not independent
+    // per-renderer derivations. The second constructor has no initial callback.
+    packet->select(0,1);
+    Scene second(model,slots,owner,packet,animation);
+    require(center(second.render())==std::array<unsigned,4>{150,160,170,255});
+    require(second.render().rgba==scene.render().rgba);
+    packet->restore();require(center(second.render())==std::array<unsigned,4>{20,40,60,255});
+    auto missed=std::make_shared<TextureBindings>(model,animation);bool rejected=false;
+    try{Scene late(model,slots,owner,missed,animation,true);}catch(const std::runtime_error& e){
+        rejected=std::string(e.what())=="Source texture packet configured after selection/restore callback";
+    }
+    require(rejected);owner.resources.retire_xmd(resource);owner.resources.retire_scene_images();
+}
+
 static void direct_high_lane() {
     for(unsigned psm:{36u,44u}) {
         Owned owner;Data pixels(32,0x55);
@@ -284,6 +326,6 @@ static void owner_guard() {
     bool rejected=false;try{renderer.set_shared_texture_owner(other.handles);}catch(const std::runtime_error& e){rejected=std::string(e.what())=="Shared GS renderer texture owner changed";}
     require(rejected);
 }
-int main(){@autoreleasepool{try{physical_snapshot_lifetime();unknown_positive_tap();saved_original_and_variant();direct_high_lane();cross_owner_environment();owner_guard();
+int main(){@autoreleasepool{try{physical_snapshot_lifetime();unknown_positive_tap();saved_original_and_variant();callback_time_source_packet();direct_high_lane();cross_owner_environment();owner_guard();
     std::cout<<"Shared GS SceneRenderer: physical overwrite, immutable submitted/prepared lifetimes, exact nibble/owner guards, saved TEX0 restoration, direct high lanes, cross-owner ENV36/64 and owner guard passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
