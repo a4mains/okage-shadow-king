@@ -46,15 +46,45 @@ TextureBindings::TextureBindings(const ModelFile& model,TextureAnimation animati
         if (state.texture>=0 && std::size_t(state.texture)>=base_count_)
             throw std::runtime_error("Texture binding outside model");
         original_.push_back(state.texture);
+        original_palettes_.push_back(state.palette);
     }
     current_=original_;
+}
+void TextureBindings::configure_source_registers(const void* owner,SourceRegisterResolver resolver) const {
+    if(!owner || !resolver)throw std::runtime_error("Source texture packet resolver is unavailable");
+    if(source_) {
+        if(source_->owner_identity!=owner)throw std::runtime_error("Source texture packet owner changed");
+        return;
+    }
+    if(missed_source_callback_)throw std::runtime_error("Source texture packet configured after selection/restore callback");
+    SourceRegisters next{owner,std::move(resolver),{}, {}};
+    next.original.reserve(original_.size());
+    for(std::size_t i=0;i<original_.size();++i)
+        next.original.push_back(original_[i]<0?std::nullopt:
+            std::optional<std::uint64_t>(next.resolve(original_[i],original_palettes_[i])));
+    next.current=next.original;
+    source_=std::move(next);
+}
+const std::vector<std::optional<std::uint64_t>>& TextureBindings::source_registers() const {
+    if(!source_)throw std::runtime_error("Source texture packet is not configured");
+    return source_->current;
 }
 void TextureBindings::select(std::size_t group,std::size_t variant) {
     if (group>=animation_.groups.size() || variant>animation_.variants.size())
         throw std::runtime_error("XMT texture selection outside XTA table");
+    const auto selected=variant?static_cast<std::int32_t>(base_count_+variant-1):0;
+    const auto replacement=source_&&variant?
+        std::optional<std::uint64_t>(source_->resolve(selected,0)):std::nullopt;
+    if(!source_)missed_source_callback_=true;
     for (std::size_t i=0;i<current_.size();++i)
-        if (original_[i]==animation_.groups[group])
-            current_[i]=variant ? static_cast<std::int32_t>(base_count_+variant-1) : original_[i];
+        if (original_[i]==animation_.groups[group]) {
+            current_[i]=variant?selected:original_[i];
+            if(source_)source_->current[i]=variant?replacement:source_->original[i];
+        }
 }
-void TextureBindings::restore() { current_=original_; }
+void TextureBindings::restore() {
+    current_=original_;
+    if(source_)source_->current=source_->original;
+    else missed_source_callback_=true;
+}
 }
