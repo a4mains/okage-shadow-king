@@ -81,7 +81,9 @@ struct PlayerMovement {
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
-                 std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true);
+                 std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true,
+                 bool defer_actor_setup=false);
+    void setup_actor(std::size_t index);
     void tick(ExplorationInput input={});
     void load_effects(Bytes,std::shared_ptr<const EffectTemplatePreparation> prepared={});
     void load_map_effects(Bytes map,const EffectTextureSizes&);
@@ -99,7 +101,8 @@ public:
     void finish_prepare();
     void activate(unsigned entrance);
     void activate_entry(unsigned entrance,ExplorationInput input={},const std::function<void()>& after_activate={});
-    void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={});
+    void activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input={},
+                         const std::function<void()>& after_activate={});
     const std::optional<FieldTransition>& transition() const {return transition_;}
     const std::optional<FieldEncounter>& encounter() const {return encounter_;}
     const std::optional<FieldBattleRequest>& battle_request() const {return battle_request_;}
@@ -178,6 +181,9 @@ private:
     AtanTable angles_=make_atan_table();
     Float4 requested_target_{};
     std::vector<ActorBinding> actors_;
+    std::size_t actors_setup_=0;
+    bool defer_actor_setup_=false;
+    void setup_npc_pose(const FieldNpcDefinition& npc);
     std::vector<ActorBinding> map_objects_;
     FieldActor* actor(int alias) const;
     int group_=-2;

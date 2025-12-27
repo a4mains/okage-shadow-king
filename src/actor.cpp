@@ -27,34 +27,45 @@ FieldActor::FieldActor(ModelFile model,std::shared_ptr<TextureBindings> packet_t
     channels_=animation_.channel_outputs(); //Dirty world values remain deferred.
 }
 FieldActor::FieldActor(ModelFile model,Bytes motion,TextureAnimation textures,bool defer_transform_evaluation,
-                       bool bone_only_initial_evaluation,std::shared_ptr<TextureBindings> packet_textures):
+                       bool bone_only_initial_evaluation,std::shared_ptr<TextureBindings> packet_textures,
+                       bool defer_initial_motion_evaluation):
     model_(std::move(model)),textures_(texture_bindings(model_,std::move(textures),std::move(packet_textures))),
-    animation_(motion,channel_count(model_,motion)) {
+    animation_(motion,channel_count(model_,motion)),
+    defer_transform_evaluation_(defer_transform_evaluation),bone_only_initial_evaluation_(bone_only_initial_evaluation) {
     animation_.set_texture_callback([this](auto group,auto variant){textures_->select(group,variant);});
+    if(defer_initial_motion_evaluation)channels_=animation_.channel_outputs();
+    else initialize_motion();
+}
+void FieldActor::initialize_motion() {
+    if(!has_motion_||motion_initialized_)throw std::runtime_error("Actor motion initialization requires an uninitialized motion owner");
+    motion_initialized_=true;
     // 0x1b6654 -> 0x1b5bd8 -> 0x1b4da8(entry0) -> 0x1b5830.
     // No 0x1b7528 restore on this path: another instance's packet selection
     // survives until this initial script actually issues an opcode34 callback.
     animation_.start(0);animation_.tick_channels();
-    if(bone_only_initial_evaluation)evaluate_bones();else evaluate();
+    if(bone_only_initial_evaluation_)evaluate_bones();else evaluate();
     // Original instance construction 0x1b64d8 initializes transform channels.
     animation_.set_channel(0,{0,0,0,1});animation_.set_channel(1,{0,0,0,1});animation_.set_channel(2,{1,1,1,1});
-    if(!defer_transform_evaluation)evaluate();
+    if(!defer_transform_evaluation_)evaluate();
 }
 void FieldActor::select_motion(unsigned entry) {
     if(!has_motion_)throw std::runtime_error("Cannot select motion on a static actor");
+    if(!motion_initialized_)throw std::runtime_error("Actor motion selection before source initialization");
     // 0x1b6ff8 restores all model packet registrations before 0x1b7004
     // selects the motion context. Later opcode34 -> 0x1b7b28 -> 0x1b7610
     // changes only its group; variant0 restores that group's saved state.
     textures_->restore();animation_.select(entry);motion_=entry;
 }
-void FieldActor::tick_script(){if(has_motion_)animation_.tick_script();}
-void FieldActor::tick_channels(){if(has_motion_)animation_.tick_channels();}
-void FieldActor::evaluate(){channels_=animation_.values();}
+void FieldActor::tick_script(){if(has_motion_){if(!motion_initialized_)throw std::runtime_error("Actor script before source initialization");animation_.tick_script();}}
+void FieldActor::tick_channels(){if(has_motion_){if(!motion_initialized_)throw std::runtime_error("Actor channels before source initialization");animation_.tick_channels();}}
+void FieldActor::evaluate(){if(has_motion_&&!motion_initialized_)throw std::runtime_error("Actor evaluation before source initialization");channels_=animation_.values();}
 void FieldActor::evaluate_bones(){
+    if(has_motion_&&!motion_initialized_)throw std::runtime_error("Actor bone evaluation before source initialization");
     channels_=animation_.channel_outputs();
     for(std::size_t i=4;i<channels_.size();++i)channels_[i]=animation_.value(i);
 }
 void FieldActor::evaluate_world(){
+    if(has_motion_&&!motion_initialized_)throw std::runtime_error("Actor world evaluation before source initialization");
     for(std::size_t i=0;i<3;++i)channels_.at(i)=animation_.value(i);
 }
 Matrix4 FieldActor::world(const SineTable& sine) const{return instance_matrix(channels_.at(1),channels_.at(0),channels_.at(2),sine);}

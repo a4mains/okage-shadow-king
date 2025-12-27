@@ -25,8 +25,11 @@ std::uint32_t OpeningField::word(std::size_t at) const{return get(bytes_,at);}
 Float4 OpeningField::point(std::size_t at) const {
     Float4 p{0,0,0,1};for(unsigned i=0;i<3;++i){p[i]=std::bit_cast<float>(word(at+4*i));if(!std::isfinite(p[i]))throw std::runtime_error("Invalid field point");}return p;
 }
-OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::function<bool(int)> wait,std::span<const ActorBinding> actors,bool diagnostic):
-    bytes_(bytes.begin(),bytes.end()),script_(bytes,3),start_dialogue_(std::move(start)),wait_dialogue_(std::move(wait)) {
+OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::function<bool(int)> wait,std::span<const ActorBinding> actors,bool diagnostic,
+                           bool defer_actor_setup):
+    bytes_(bytes.begin(),bytes.end()),script_(bytes,3),defer_actor_setup_(defer_actor_setup),
+    start_dialogue_(std::move(start)),wait_dialogue_(std::move(wait)) {
+    if(diagnostic&&defer_actor_setup_)throw std::runtime_error("Diagnostic field requires immediate actor setup");
     actors_.assign(actors.begin(),actors.end());
     for(std::size_t i=0;i<actors_.size();++i) {
         const auto& binding=actors_[i];
@@ -36,13 +39,11 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
         if(binding.alias==-3) {
             if(binding.collidable||i+2!=actors_.size()||actors_.back().alias!=-1)
                 throw std::runtime_error("STUN requires no collision and construction immediately before HERO");
-            //0x134858 constructs STUN at(0,-2,0), then0x134980 hides it.
-            binding.actor->animation().set_channel(1,{0,-2,0,1});
-            binding.actor->visible=false;shadow_.emplace();
+            shadow_.emplace();
             shadow_->stun_position={0,-2,0,1};
         }
-        binding.actor->select_motion(1); //0x138220 NPC and0x134858 STUN/HERO setup.
     }
+    if(!defer_actor_setup_)for(std::size_t i=0;i<actors_.size();++i)setup_actor(i);
     if(!start_dialogue_ || !wait_dialogue_)throw std::runtime_error("Field requires dialogue services");
     script_.set_service_callback([this](auto op,auto a,auto b,auto pc){return service(op,a,b,pc);});
     if(!diagnostic)return;
@@ -60,6 +61,20 @@ OpeningField::OpeningField(Bytes bytes,std::function<void(int)> start,std::funct
         for(const auto& binding:actors_)binding.actor->evaluate();
     } else script_.start_at(0xb88);
     evaluate();
+}
+void OpeningField::setup_actor(std::size_t index) {
+    if(index!=actors_setup_||index>=actors_.size()||prepared_||activated_)
+        throw std::runtime_error("Field actor setup must follow source construction order once");
+    if(defer_actor_setup_&&(!preparing_||!definition_||
+       enemies_.size()!=std::min(index,definition_->npcs.size())))
+        throw std::runtime_error("Deferred actor setup must follow the preceding NPC constructor draw");
+    const auto& binding=actors_[index];
+    if(binding.alias==-3) {
+        //0x134858 constructs STUN at(0,-2,0), then0x134980 hides it.
+        binding.actor->animation().set_channel(1,{0,-2,0,1});binding.actor->visible=false;
+    }
+    binding.actor->select_motion(1); //0x138220 NPC and0x134858 STUN/HERO setup.
+    ++actors_setup_;
 }
 FieldActor* OpeningField::actor(int alias) const {
     if(alias==-7&&alias7_actor_)return alias7_actor_;
@@ -570,20 +585,25 @@ void OpeningField::begin_prepare(FieldDefinition definition,Bytes stg,Bytes xcl)
             throw std::runtime_error("Unrecovered field NPC construction: alias="+std::to_string(npc.alias)+
                 " model="+npc.model+" state="+std::to_string(npc.state)+" flags="+std::to_string(npc.flags)+
                 " bound="+std::to_string(object!=nullptr));
-        object->animation().set_channel(0,{0,npc.facing,0,1});object->animation().set_channel(1,npc.position);
-        object->visible=(npc.flags&2)==0;
-        // 0x131d28 -> 0x1baae8 writes a shadow selector, not collision or
-        // visibility flags. The second call takes precedence when both are set.
-        if(npc.flags&4)object->shadow_mode_override=2;
-        if(npc.flags&8)object->shadow_mode_override=6;
+        if(!defer_actor_setup_)setup_npc_pose(npc);
     }
     definition_=std::move(definition);player_.footstep_sound=definition_->footstep;player_.dust_effect=definition_->dust;
     preparing_=true;
+}
+void OpeningField::setup_npc_pose(const FieldNpcDefinition& npc) {
+    auto* object=actor(npc.alias);
+    object->animation().set_channel(0,{0,npc.facing,0,1});object->animation().set_channel(1,npc.position);
+    object->visible=(npc.flags&2)==0;
+    //0x131d28 ->0x1baae8: the second shadow selector takes precedence.
+    if(npc.flags&4)object->shadow_mode_override=2;
+    if(npc.flags&8)object->shadow_mode_override=6;
 }
 void OpeningField::prepare_next_npc() {
     if(!preparing_||prepared_||activated_||!definition_)
         throw std::runtime_error("Field NPC staging lifecycle");
     Rounding rounding;
+    if(actors_setup_<=enemies_.size())throw std::runtime_error("Field NPC draw before its actor source setup");
+    if(defer_actor_setup_&&enemies_.size()<definition_->npcs.size())setup_npc_pose(definition_->npcs[enemies_.size()]);
     initialize_one_npc(enemies_.size());
 }
 void OpeningField::finish_prepare() {
@@ -591,6 +611,7 @@ void OpeningField::finish_prepare() {
         throw std::runtime_error("Field NPC staging lifecycle");
     if(enemies_.size()!=definition_->npcs.size()||wanderers_.size()!=definition_->npcs.size())
         throw std::runtime_error("Field NPC preparation is incomplete");
+    if(actors_setup_!=actors_.size())throw std::runtime_error("Field actor preparation is incomplete");
     preparing_=false;
     prepared_=true;
 }
@@ -652,7 +673,8 @@ void OpeningField::activate(unsigned entrance) {
     const auto placement=field_entrance(staged_stg_,entrance);
     activate_pose(placement.position,placement.rotation,std::nullopt);
 }
-void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input) {
+void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,ExplorationInput input,
+                                  const std::function<void()>& after_activate) {
     if(!prepared_||!definition_||saved.scene!=definition_->scene)
         throw std::runtime_error("Field return activation scene mismatch");
     if(!std::all_of(saved.player_position.begin(),saved.player_position.end(),[](float v){return std::isfinite(v);})||
@@ -660,6 +682,7 @@ void OpeningField::activate_return(const FieldBattleReturnSnapshot& saved,Explor
        !std::all_of(saved.raw_camera_position.begin(),saved.raw_camera_position.end(),[](float v){return std::isfinite(v);}))
         throw std::runtime_error("Field return pose contains non-finite values");
     activate_pose(saved.player_position,saved.player_rotation,saved.raw_camera_position);
+    if(after_activate)after_activate();
     tick_callbacks(input,false);
 }
 void OpeningField::activate_entry(unsigned entrance,ExplorationInput input,const std::function<void()>& after_activate) {
@@ -1112,6 +1135,7 @@ void OpeningField::close_save_menu() {
     save_menu_active_=false;save_resuming_=true;
 }
 void OpeningField::tick(ExplorationInput input) {
+    if(actors_setup_!=actors_.size())throw std::runtime_error("Field tick before actor source setup complete");
     if(preparing_)throw std::runtime_error("Field tick before NPC preparation complete");
     if(save_menu_active_) {
         tick_callbacks(input,false,true,true);return;

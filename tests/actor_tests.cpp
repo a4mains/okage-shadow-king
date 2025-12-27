@@ -99,9 +99,61 @@ void shared_texture_validation_and_lifetime() {
     okage::FieldActor static_actor(model,fixed);require(&static_actor.textures()==fixed.get()&&!static_actor.has_motion());
     rejects([&]{okage::FieldActor static_actor(model,std::make_shared<okage::TextureBindings>(model,animation));});
 }
+void deferred_source_motion_initialization() {
+    const auto model=textured_model();const auto animation=texture_animation();
+    auto motion=texture_motion();put(motion,32,0x234); //entry0 selects group0 variant2.
+    auto packet=std::make_shared<okage::TextureBindings>(model,animation);
+    okage::FieldActor actor(model,motion,animation,true,true,packet,true);
+    require(actor.animation().pc()==0&&actor.motion()==0);
+    require(packet->images()==std::vector<std::int32_t>({0,1,0,-1}));
+    rejects([&]{actor.select_motion(1);});rejects([&]{actor.tick_script();});
+    rejects([&]{actor.tick_channels();});rejects([&]{actor.evaluate();});
+    rejects([&]{actor.evaluate_bones();});rejects([&]{actor.evaluate_world();});
+    // Configuration must still succeed after construction and rejected early
+    // operations: no initial opcode34 or restore has already escaped.
+    int owner=0;unsigned generation=1;
+    std::vector<std::pair<int,int>> lookups;
+    actor.configure_texture_source(&owner,[&](int image,int palette){
+        lookups.emplace_back(image,palette);
+        return (std::uint64_t(generation)<<32)|std::uint32_t(image+1);
+    });
+    require(lookups==std::vector<std::pair<int,int>>({{0,-1},{1,-1},{0,-1}}));
+    const auto saved=packet->source_registers();lookups.clear();generation=2;
+    actor.initialize_motion();
+    require(lookups==std::vector<std::pair<int,int>>({{3,0}}));
+    require(packet->images()==std::vector<std::int32_t>({3,1,3,-1}));
+    require(packet->source_registers()[0]==((std::uint64_t(2)<<32)|4u)&&
+            packet->source_registers()[2]==packet->source_registers()[0]);
+    require(actor.animation().value(1)==okage::Float4({0,0,0,1}));
+    rejects([&]{actor.initialize_motion();});require(lookups.size()==1);
+    const auto idle=texture_motion();
+    okage::FieldActor second(model,idle,animation,false,false,packet,true);
+    second.initialize_motion();require(packet->images()[0]==3&&lookups.size()==1);
+    generation=3;second.select_motion(1);
+    require(packet->source_registers()==saved&&lookups.size()==1);
+    second.tick_script();require(lookups.back()==std::pair<int,int>{2,0});
+    require(packet->source_registers()[0]==((std::uint64_t(3)<<32)|3u));
+    okage::FieldActor fixed(model);rejects([&]{fixed.initialize_motion();});
+
+    for(bool deferred_world:{false,true})for(bool bones_only:{false,true}) {
+        okage::FieldActor eager(model,motion,animation,deferred_world,bones_only);
+        okage::FieldActor staged(model,motion,animation,deferred_world,bones_only,{},true);
+        staged.initialize_motion();
+        require(eager.channels()==staged.channels()&&eager.animation().pc()==staged.animation().pc()&&
+                eager.animation().script_state()==staged.animation().script_state()&&
+                eager.textures().images()==staged.textures().images());
+        require(eager.animation().values()==staged.animation().values());
+    }
+    // Failed initialization retains reached callbacks, and cannot retry them.
+    auto invalid=motion;put(invalid,36,0x700034);
+    okage::FieldActor failed(model,invalid,animation,false,false,{},true);
+    rejects([&]{failed.initialize_motion();});require(failed.textures().images()[0]==3);
+    rejects([&]{failed.initialize_motion();});
+}
 }
 int main(){try {
     shared_texture_callbacks();private_texture_callbacks();shared_texture_validation_and_lifetime();
+    deferred_source_motion_initialization();
     std::vector<std::uint8_t> motion(56);
     put(motion,0,0x544d58);put(motion,4,24);put(motion,16,0xffffffff);
     put(motion,24,1);put(motion,32,48);put(motion,48,0x00a00002);
