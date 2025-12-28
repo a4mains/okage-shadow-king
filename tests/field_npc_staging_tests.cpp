@@ -231,6 +231,15 @@ int main() {try {
         require(legacy->draws==staged->draws,"later NPC callbacks retain the same random chain");
         rejects([&]{okage::OpeningField diagnostic(staged->motion,[](int){},[](int){return true;},staged->bindings,true,true);});
     }
+    {
+        auto batched=std::make_unique<Fixture>(std::vector<std::int32_t>{0,5},false,true);
+        batched->begin();batched->actors[0]->initialize_motion();batched->actors[1]->initialize_motion();
+        batched->field->setup_actor(0);rejects([&]{batched->field->setup_actor(1);});
+        require(batched->draws.empty(),"preinitialized next actor cannot bypass the preceding NPC draw");
+        batched->field->prepare_next_npc();batched->field->setup_actor(1);batched->field->prepare_next_npc();
+        require(batched->draws==std::vector<std::uint32_t>({0x20,0x40}),
+                "recovering from a rejected batch preserves exactly the real constructor draws");
+    }
     std::cout<<"field NPC staging tests passed\n";
     return 0;
 } catch(const std::exception& e) {std::cerr<<e.what()<<'\n';return 1;}}
