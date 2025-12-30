@@ -244,6 +244,22 @@ struct Session {
     std::vector<std::pair<std::string,unsigned>> world_checkpoint_frames;
     unsigned world_xmd_count=0,world_xta_count=0,world_image_count=0;
     std::map<std::string,std::shared_ptr<okage::SceneModelAsset>> owned_actor_assets;
+    unsigned battle_resource_cycle=0;
+    struct BattleOwnedInstance {const okage::SceneModelAsset* asset;unsigned instance;bool retired=false;};
+    std::vector<BattleOwnedInstance> battle_owned_instances;
+    std::size_t battle_retirement_cursor=0;
+    void battle_checkpoint(const std::string& name) {
+        startup_textures->note_checkpoint(name.c_str());
+        if(newgame_report.empty())return;
+        const auto root=newgame_report/"battle-cycles"/std::to_string(battle_resource_cycle)/name;
+        okage::write_title_checkpoint_report(*startup_textures,root,name,random.state,okage::CheckpointSchema::FieldWorld);
+        write_newgame_session(root/"session.json");
+        std::ofstream out(root/"battle-resource.json");
+        out<<"{\"stage\":\""<<okage::to_string(startup_textures->stage())<<"\",\"atlas\":"
+           <<startup_textures->battle_atlas_handle()<<",\"environment\":"<<startup_textures->battle_environment_handle()
+           <<",\"scope\":\"Native persistent resource observation; field.json is the prior field state, not battle metadata\"}\n";
+        if(!out)throw std::runtime_error("Battle resource observation write failed");
+    }
     void world_checkpoint(const std::string& name) {
         startup_textures->note_checkpoint(name.c_str());
         world_checkpoint_frames.emplace_back(name,frame);
@@ -276,24 +292,124 @@ struct Session {
         };
     }
     void own_field_model(const fs::path& path,okage::SceneModelAsset& asset,const okage::ImmutableTextureBytes& sidecar={}) {
+        const bool battle_load=title_modeled(okage::ResourceStage::BattleLoading);
+        const auto checkpoint=[&](const std::string& name){if(battle_load)battle_checkpoint(name);else world_checkpoint(name);};
         const auto ordinal=++world_xmd_count;
         const auto reader=texture_reader(path.parent_path());
         const auto& resource=startup_textures->load_field_model(path.filename().string(),asset.model.textures,reader,[&]{
-            world_checkpoint(numbered_world_checkpoint("xmd_load",ordinal));
+            checkpoint(numbered_world_checkpoint("xmd_load",ordinal));
         },unsigned(asset.model.models.size()));
         asset.resource_group=resource.range;
         asset.textures=resource.textures.slots;
-        world_checkpoint(numbered_world_checkpoint("xmd_load_path",ordinal));
+        checkpoint(numbered_world_checkpoint("xmd_load_path",ordinal));
         if((!asset.model.textures.empty() && resource.textures.xmd.first<0) || resource.textures.xmd.aborted)
             throw std::runtime_error("Field model loader failed before motion/XTA construction: "+path.string());
         if(asset.motion) {
             startup_textures->load_field_sidecar(sidecar,reader,[&]{
-                world_checkpoint(numbered_world_checkpoint("xta_image_load",++world_image_count));
+                checkpoint(numbered_world_checkpoint("xta_image_load",++world_image_count));
             });
             // A missing sidecar is still an observed 1b6848 return.
-            world_checkpoint(numbered_world_checkpoint("xta_load",++world_xta_count));
+            checkpoint(numbered_world_checkpoint("xta_load",++world_xta_count));
             for(const auto& slot:resource.textures.xta_variants)asset.textures.push_back(slot);
         }
+        okage::configure_scene_model_texture_source(asset,startup_textures->handles());
+    }
+    std::shared_ptr<const okage::SceneModelAsset> own_battle_actor(const fs::path& path,unsigned flags) {
+        auto& handles=startup_textures->handles();
+        const auto old_class=handles.reservation_class();handles.set_reservation_class(1);
+        struct Restore {okage::TextureHandleOwner& handles;unsigned prior;~Restore(){handles.set_reservation_class(prior);}} restore{handles,old_class};
+        auto key=path.parent_path().stem().string();
+        std::transform(key.begin(),key.end(),key.begin(),[](unsigned char c){return char(std::tolower(c));});
+        std::shared_ptr<okage::SceneModelAsset> asset;
+        if(const auto* registration=startup_textures->models().actor(key)) {
+            const auto found=owned_actor_assets.find(key);
+            if(found==owned_actor_assets.end()||found->second->resource_group!=registration->main)
+                throw std::runtime_error("Battle source registration has no retained authored owner");
+            asset=found->second;
+        } else {
+            asset=std::make_shared<okage::SceneModelAsset>();
+            asset->model=okage::read_xmd(readData(path));
+            auto motion=path,sidecar=path;motion.replace_extension(".xmt");sidecar.replace_extension(".xta");
+            if(fs::exists(motion)) {
+                asset->motion=std::make_shared<const std::vector<std::uint8_t>>(readData(motion));
+                if(fs::exists(sidecar)) {
+                    asset->sidecar=std::make_shared<const std::vector<std::uint8_t>>(readData(sidecar));
+                    asset->animation=okage::read_xta({reinterpret_cast<const char*>(asset->sidecar->data()),asset->sidecar->size()});
+                }
+            }
+            asset->packet_textures=std::make_shared<okage::TextureBindings>(asset->model,asset->animation);
+            own_field_model(path,*asset,asset->sidecar);
+            if((flags>>5)&3) {
+                const auto shadow=path.parent_path()/"shadow.xmd";
+                if(fs::exists(shadow)) {
+                    asset->shadow=std::make_shared<const okage::ModelFile>(okage::read_xmd(readData(shadow)));
+                    if(!asset->shadow->textures.empty())throw std::runtime_error("Battle shadow texture-table ownership is unrecovered");
+                    asset->shadow_group=startup_textures->models().insert("shadow.xmd",unsigned(asset->shadow->models.size()),{},false).range;
+                }
+            }
+            startup_textures->models().register_actor(key,{*asset->resource_group,asset->shadow_group});
+            owned_actor_assets.emplace(key,asset);
+        }
+        const auto instance=startup_textures->models().allocate_instance(*asset->resource_group,asset->shadow_group,flags);
+        battle_owned_instances.push_back({asset.get(),instance});
+        battle_checkpoint("actor-instance-"+std::to_string(battle_owned_instances.size()));
+        return asset;
+    }
+    okage::BattleResourceHooks battle_resource_hooks() {
+        okage::BattleResourceHooks hooks;
+        if(!title_modeled(okage::ResourceStage::FieldWrappersFreed))return hooks;
+        hooks.textures=&startup_textures->handles();hooks.effect_textures=verified_effect_textures;
+        hooks.prepare_resources=[this](okage::BattlePreparedResources& prepared) {
+            auto& handles=startup_textures->handles();
+            const auto old_class=handles.reservation_class();handles.set_reservation_class(1);
+            struct Restore {okage::TextureHandleOwner& handles;unsigned prior;~Restore(){handles.set_reservation_class(prior);}} restore{handles,old_class};
+            ++battle_resource_cycle;world_xmd_count=world_xta_count=world_image_count=0;
+            battle_owned_instances.clear();battle_retirement_cursor=0;owned_actor_assets.clear();
+            const auto selection=game_mode->current();
+            startup_textures->begin_battle(selection[1],std::clamp(std::bit_cast<std::int32_t>(selection[2]),1,23),
+                prepared.ruw,prepared.atlas,prepared.environment);
+            prepared.environment_handle=startup_textures->battle_environment_handle();
+            battle_checkpoint("battle-shared-resources");
+            const auto map=okage::read_xmp(readData(prepared.map));
+            if(prepared.map_assets.size()!=map.definitions.size())throw std::runtime_error("Battle prepared definition count");
+            for(std::size_t i=0;i<map.definitions.size();++i)if(prepared.map_assets[i]) {
+                auto& asset=*prepared.map_assets[i];
+                own_field_model(prepared.map.parent_path()/map.definitions[i].name,asset,asset.sidecar);
+                if(asset.model.models.size()!=1)throw std::runtime_error("Battle map definition has multiple models after reached allocation");
+            }
+            const auto ids=okage::map_instance_ids(map);std::vector<unsigned> counts(map.definitions.size());
+            for(std::size_t i=0;i<map.placements.size();++i) {
+                const auto definition=map.placements[i].definition();++counts.at(definition);
+                if(ids[i]>=0 && prepared.map_assets.at(definition) &&
+                   startup_textures->models().allocate_instance(*prepared.map_assets[definition]->resource_group,{},
+                       okage::map_transform(map.placements[i],map.definitions[definition]).flags)!=unsigned(ids[i]))
+                    throw std::runtime_error("Battle map source/host instance allocation disagrees");
+            }
+            for(std::size_t i=0;i<counts.size();++i)if(!counts[i]&&prepared.map_assets[i])
+                startup_textures->models().retire(*prepared.map_assets[i]->resource_group);
+            battle_checkpoint("battle-stage-loaded");
+        };
+        hooks.model_asset=[this](const fs::path& path,unsigned flags){return own_battle_actor(path,flags);};
+        hooks.complete_resources=[this]{startup_textures->complete_battle();battle_checkpoint("battle-worker-return");};
+        hooks.retire_actor=[this](const okage::BattleActor& actor) {
+            const auto count=actor.enemy?3u:1u;
+            if(battle_retirement_cursor+count>battle_owned_instances.size())
+                throw std::runtime_error("Battle child has no source constructor ownership");
+            auto& binding=battle_owned_instances[battle_retirement_cursor];
+            if(binding.retired||binding.asset!=actor.model_asset.get() || (actor.enemy&&
+               (battle_owned_instances[battle_retirement_cursor+1].asset!=actor.bag_asset.get()||
+                battle_owned_instances[battle_retirement_cursor+2].asset!=actor.box_asset.get())))
+                throw std::runtime_error("Battle child/source constructor order disagrees");
+            startup_textures->retire_battle_actor(binding.instance);binding.retired=true;
+            battle_retirement_cursor+=count;
+            battle_checkpoint("battle-actor-retirement-"+std::to_string(actor.entity_id));
+        };
+        hooks.retire_root=[this]{
+            if(battle_retirement_cursor!=battle_owned_instances.size())throw std::runtime_error("Battle source actor constructors survived child retirement");
+            startup_textures->retire_battle_root();battle_checkpoint("battle-root-retirement");};
+        hooks.retire_resource=[this]{startup_textures->retire_battle_resources();battle_checkpoint("battle-resource-retirement");
+            owned_actor_assets.clear();battle_owned_instances.clear();};
+        return hooks;
     }
     static std::string fbits(float v){char b[11];std::snprintf(b,sizeof b,"0x%x",std::bit_cast<std::uint32_t>(v));return b;}
     void write_newgame_session(const fs::path& path) {
@@ -380,7 +496,7 @@ struct Session {
     std::optional<std::int32_t> name_previous_length;
     unsigned startup_selector=0,restore_storage_latency_ms=0;
     //0x1bdaf0 of the mode node: GameModeParent frees its dead allocation after release_child returns.
-    enum class PendingNodeFree{None,Startup,Title,Restore,NameEntry,Chapter,Field} pending_node_free=PendingNodeFree::None;
+    enum class PendingNodeFree{None,Startup,Title,Restore,NameEntry,Chapter,Field,Battle} pending_node_free=PendingNodeFree::None;
     void observe_node_free(bool dead_before) {
         if(!dead_before||game_mode->has_dead_allocation()||pending_node_free==PendingNodeFree::None||!startup_textures)return;
         switch(pending_node_free) {
@@ -412,6 +528,11 @@ struct Session {
         case PendingNodeFree::Field:
             if(title_modeled(okage::ResourceStage::FieldResourcesRetired)) {
                 startup_textures->free_field_wrappers();world_checkpoint("field-wrapper-free");
+            }
+            break;
+        case PendingNodeFree::Battle:
+            if(title_modeled(okage::ResourceStage::BattleResourcesRetired)) {
+                startup_textures->free_battle_wrappers();battle_checkpoint("battle-wrapper-free");
             }
             break;
         default:break;
@@ -794,7 +915,7 @@ struct Session {
             if(released && !release_frame)release_frame=frame;
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
-        },actor_bindings,diagnostic);
+        },actor_bindings,diagnostic,title_modeled(okage::ResourceStage::FieldWorldLoading));
         field->render_projection=&projection;
         field->resolve_instance_alias=[this](int alias)->std::optional<int> {
             if(alias>=0||alias<=-int(instance_aliases.size())||alias==-2)return {};
@@ -946,10 +1067,13 @@ struct Session {
                 music->select(battle_return->secondary_music,false); // 0x12d768 -> 0x12d580.
                 retain_field_music=battle_return->secondary_music!=28; // 0x12da78.
                 pending_game_command={13,0,0}; // 0x1248d8; persists for field return.
+                if(title_modeled(okage::ResourceStage::FieldActive))startup_textures->note_command(13,0,0);
                 if(request.stage==-1)request.stage=field->default_battle_stage();
                 battle_entry.reset(request.entry_parameter,unsigned(request.rear_attack),
                     okage::event_variable(variables,0x80010)==0x83,request.return_token);
                 game_mode->request({3,request.formation,std::bit_cast<std::uint32_t>(request.stage)});
+                if(title_modeled(okage::ResourceStage::FieldActive))
+                    startup_textures->note_mode_request(3,request.formation,std::bit_cast<std::uint32_t>(request.stage));
                 return; // 0x124930 queues only; do not destroy the field here.
             }
             throw std::runtime_error("Native battle transition phase is unrecovered (field phase "+
@@ -1206,11 +1330,23 @@ struct Session {
         //133830 skips125ad0 for command13; all temporary game flags survive.
         scene_fade.immediate(0);scene_clear.rgb={0,0,0};scene_fade.color=0;
         okage::initialize_scene_ui(ui_shared);exterior_camera.snap_target=true;
-        current_scene=battle_return->scene;current_entrance=-1;pending_game_command={};
+        current_scene=battle_return->scene;current_entrance=-1;
+        const bool modeled=title_modeled(okage::ResourceStage::BattleWrappersFreed);
+        if(modeled)startup_textures->enter_field_constructor(current_scene,unsigned(current_entrance),13);
+        pending_game_command={};
         field_return=std::make_unique<FieldReturnLoad>(load_observation_trace!=nullptr);
         auto* f=field_return.get();const auto input=battle_input,decoded=field_root.parent_path();
+        f->prefix_modeled=modeled;
+        if(modeled) {
+            ++field_resource_cycle;world_checkpoint_frames.clear();field_checkpoint_frames.clear();
+            world_xmd_count=world_xta_count=world_image_count=0;
+            startup_textures->note_command(0,0,0);
+            startup_textures->construct_field_mode(current_scene,unsigned(current_entrance));
+            field_checkpoint("field-constructor-return");
+        }
         const auto owned_fonts=ui_fonts;const bool alternate=variables[12]!=0;
         f->jobs.enqueue([f,input,decoded,owned_fonts,alternate]{@autoreleasepool {
+            f->counter.store(0);f->prefix_ready.store(1,std::memory_order_release);
             if(!f->jobs.checkpoint())return;
             f->definitions.emplace(readData(input/"results-ui.bin"));
             f->text.emplace(readData(input/"results-text.bin"));
@@ -1220,11 +1356,18 @@ struct Session {
             if(bytes.size()<4)throw std::runtime_error("Field UI atlas header");
             unsigned header=0;for(unsigned i=0;i<4;++i)header|=unsigned(bytes[i])<<(8*i);
             header=(header&0xfc0fffff)|(0x1bu<<20);for(unsigned i=0;i<4;++i)bytes[i]=header>>(8*i);
-            f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(bytes));
+            f->atlas_bytes=std::make_shared<const std::vector<std::uint8_t>>(std::move(bytes));
+            f->atlas=std::make_shared<const okage::Texture>(okage::decode_xim(*f->atlas_bytes));
+            f->prefix_ready.store(2,std::memory_order_release);
             if(!f->jobs.checkpoint())return;
-            f->ruw=std::make_shared<okage::RuwResource>(readData(input/"FLD.RUW"));
+            f->texenv_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(decoded/"CMNDATA/2D/MAIN.XPF"/"texenv.xim"));
+            f->prefix_ready.store(3,std::memory_order_release);
             if(!f->jobs.checkpoint())return;
-            f->drawing=std::make_unique<okage::ResultsRenderer>(owned_fonts,f->atlas);
+            f->ruw_bytes=std::make_shared<const std::vector<std::uint8_t>>(readData(input/"FLD.RUW"));
+            f->ruw=std::make_shared<okage::RuwResource>(*f->ruw_bytes);
+            f->prefix_ready.store(4,std::memory_order_release);
+            if(!f->jobs.checkpoint())return;
+            if(!f->prefix_modeled)f->drawing=std::make_unique<okage::ResultsRenderer>(owned_fonts,f->atlas);
         }},{0x132688,0x131d28});
         std::cout<<"Native victory return queued scene="<<current_scene<<" frame="<<frame<<'\n';
     }
@@ -1301,6 +1444,7 @@ struct Session {
                     case 4:
                         startup_textures->load_field_ruw(f.ruw_bytes);field_checkpoint("ruw-loaded");
                         startup_textures->publish_field_ui();field_checkpoint("ui-prefix-published");
+                        if(!f.ordinary)f.drawing=std::make_unique<okage::ResultsRenderer>(ui_fonts,f.atlas);
                         f.ui_stage=1;
                         break;
                     default:throw std::logic_error("Invalid field prefix publication");
@@ -1398,7 +1542,7 @@ struct Session {
                         asset->packet_textures=std::make_shared<okage::TextureBindings>(asset->model,asset->animation);
                         if(w.prefix_modeled)actor_cache.emplace(key,std::make_pair(asset,sidecar));
                     }
-                    auto actor=std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,false,false,asset->packet_textures);
+                    auto actor=std::make_unique<okage::FieldActor>(asset->model,*asset->motion,asset->animation,false,false,asset->packet_textures,w.prefix_modeled);
                     w.bindings.push_back({alias,actor.get(),alias!=-3});
                     if(w.prefix_modeled)w.actor_assets.push_back({path,std::move(asset),std::move(sidecar)});
                     else scene_actors.push_back({actor.get(),path,alias});
@@ -1464,8 +1608,13 @@ struct Session {
                     std::transform(normalized.begin(),normalized.end(),normalized.begin(),[](unsigned char c){return char(std::tolower(c));});
                     owned_actor_assets.emplace(normalized,input.asset);
                 }
-                if(startup_textures->models().allocate_instance(*input.asset->resource_group,input.asset->shadow_group,0)!=unsigned(actor_bindings[i].instance))
+                const auto instance_flags=i<f.definition.npcs.size()?
+                    ((f.definition.npcs[i].model=="rkumo"||f.definition.npcs[i].model=="wkumo"||f.definition.npcs[i].model=="bkumo")?0x40060u:0xe0u):
+                    (actor_bindings[i].alias==-3?0xa0u:0xc0u);
+                if(startup_textures->models().allocate_instance(*input.asset->resource_group,input.asset->shadow_group,instance_flags)!=unsigned(actor_bindings[i].instance))
                     throw std::runtime_error("Actor source/host instance allocation disagrees");
+                actor_objects[i]->initialize_motion();
+                field->setup_actor(i);
                 renderer->add_actor({actor_objects[i].get(),input.path,actor_bindings[i].alias,{}, {},input.asset->textures,true,input.asset->shadow,true});
                 if(i<f.definition.npcs.size())field->prepare_next_npc(); // 1383e8, after this NPC's resources
             }
@@ -1525,7 +1674,10 @@ struct Session {
             projection.load_stage(f.stage);scene_clear.load_stage(f.stage);renderer->set_clear_rgb(scene_clear.rgb);
             if(f.definition.music>0)music->select(f.definition.music);
             scene_fade.request(1.f);battle_capture_target=0;
-            field->activate_return(*battle_return,input);
+            if(f.prefix_modeled){startup_textures->commit_field_map();world_checkpoint("field-map-committed");}
+            field->activate_return(*battle_return,input,[this,&f]{
+                if(f.prefix_modeled){startup_textures->activate_field();world_checkpoint("field-activation-return");}
+            });
             battle_followers_saved=false; //131a80 consumes the saved empty roster.
             //The parent commits before visiting resource then dead manager.
             //Keep its zero-opacity window registered for that final resource
@@ -1747,6 +1899,9 @@ struct Session {
                     write_load_observation("wrapper_free");
                     if(pending_battle)frame_event("free_with_prior",pending_battle->completion->frame());
                     battle.reset();
+                    if(title_modeled(okage::ResourceStage::BattleResourcesRetired)) {
+                        startup_textures->free_battle_resource_node();pending_node_free=PendingNodeFree::Battle;
+                    }
                     std::cout<<"Native battle wrapper freed frame="<<frame<<'\n';
                 }
                 if(defeat_return) {
@@ -1994,7 +2149,7 @@ struct Session {
                 okage::initialize_scene_ui(ui_shared);
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
                     field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation,
-                    load_observation_trace?8192:0);
+                    load_observation_trace?8192:0,battle_resource_hooks());
                 load_observation_written=false;
             });
             observe_node_free(dead_before);
@@ -2221,10 +2376,13 @@ struct Session {
                  },[this](unsigned slot){
                      if(!music||slot!=4)throw std::runtime_error("Victory jingle owner/slot unavailable");
                      music->select(33); //12e0b0(4), owned installed jingle slot4.
-                 },[this](std::array<std::uint32_t,3> command){pending_game_command=command;},
+                 },[this](std::array<std::uint32_t,3> command){pending_game_command=command;
+                     if(title_modeled(okage::ResourceStage::BattleActive))startup_textures->note_command(command[0],command[1],command[2]);},
                  [this](okage::GameModeSelection selection){
                      if(!game_mode)throw std::runtime_error("Battle mode-request owner missing");
                      game_mode->request(selection);
+                     if(title_modeled(okage::ResourceStage::BattleActive)||title_modeled(okage::ResourceStage::BattleRootRetired))
+                         startup_textures->note_mode_request(selection[0],selection[1],selection[2]);
                      std::cout<<"Native battle wrapper requested mode="<<selection[0]<<" frame="<<frame<<'\n';
                  }},
                 frame,battle_stage_report,battle_ui_update_report,deferred_battle_readback);
@@ -2843,6 +3001,8 @@ static void capture(Session& session,const fs::path& path) {
     if(!state)throw std::runtime_error("Cannot write native capture state");
     if(session.renderer) {
         std::ofstream sampling(samplingPath);session.renderer->write_texture_sampling_observation(sampling);
+    } else if(session.battle&&session.battle->resource_live()&&session.battle->observation()[2]==6) {
+        std::ofstream sampling(samplingPath);session.battle->write_texture_sampling_observation(sampling);
     }
     std::ofstream actors(actorsPath);
     actors<<"{\n  \"version\": 1,\n  \"frame\": "<<session.frame<<",\n  \"actors\": [";

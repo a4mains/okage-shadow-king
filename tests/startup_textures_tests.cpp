@@ -631,6 +631,73 @@ int main() {
                         &o.memory()==memory_owner && o.handles().image(o.glyph_cache_handle())==startup_glyph,
                         "repeated field teardown preserves the startup owner and surviving handles");
             }
+            {
+            const auto bytes=[](auto value){return std::make_shared<const std::vector<std::uint8_t>>(std::move(value));};
+            o.handles().set_reservation_class(1);
+            o.begin_battle(4,2,bytes(std::vector<std::uint8_t>(32,97)),
+                bytes(effect_xim({27,256,64,32},98)),bytes(effect_xim({19,256,64,64},99)));
+            const int atlas=o.battle_atlas_handle(),environment=o.battle_environment_handle();
+            const auto free_before_failure=o.models().ranges().available_count();
+            unsigned buffer_returns=0;bool rejected=false;
+            const std::array<std::string,1> missing{"missing"};
+            try {o.load_field_model("failed-model",missing,[](std::string&)->std::optional<std::vector<std::uint8_t>> {
+                return std::nullopt;
+            },[&]{++buffer_returns;});}catch(const std::runtime_error&){rejected=true;}
+            require(rejected&&buffer_returns==1&&o.models().ranges().available_count()==free_before_failure,
+                    "186c48 preserves failed texture effects/buffer boundary without fabricating183450 model registration");
+            const auto load=[&](const char* name,unsigned seed) {
+                const std::array<std::string,1> names{name};
+                const auto& group=o.load_field_model(name,names,[&](std::string&)->std::optional<std::vector<std::uint8_t>> {
+                    return effect_xim({19,256,32,32},seed);
+                },{});
+                return std::pair{group.range,group.textures.slots[0].handle};
+            };
+            const auto stage=load("stage",100),main=load("enemy",101);
+            const auto shadow=o.models().insert("shadow",1,{},false).range;
+            const auto bag=load("bag",102),box=load("box",103);
+            o.models().allocate_instance(stage.first,{},0);
+            const auto first=o.models().allocate_instance(main.first,shadow,0xc0);
+            o.models().allocate_instance(bag.first,{},0);o.models().allocate_instance(box.first,{},0);
+            const auto cached=o.models().allocate_instance(main.first,shadow,0xc0);
+            o.models().register_actor("enemy",{main.first,shadow});
+            o.complete_battle();
+            const auto submitted=o.memory().snapshot();
+            const auto held_main=*o.handles().image(main.second);
+            o.handles().clear_events();
+            const auto retirement_begin=o.lifecycle().size();
+            o.retire_battle_actor(first);o.retire_battle_actor(cached);
+            require(!o.handles().handle_live(main.second)&&o.handles().handle_live(bag.second)&&
+                    o.handles().handle_live(box.second)&&o.handles().handle_live(stage.second)&&o.handles().handle_live(atlas),
+                    "actor children remove shared main/shadow before root, preserving hidden companions and stage");
+            o.retire_battle_root();
+            require(!o.handles().handle_live(atlas)&&o.handles().handle_live(environment)&&
+                    o.handles().handle_live(bag.second)&&o.handles().handle_live(box.second),
+                    "14aac8 releases atlas while environment and hidden models remain for101058");
+            o.retire_battle_resources();
+            std::vector<int> retirement;
+            const std::string retire_prefix="{\"kind\":\"retire\",\"handle\":";
+            for(std::size_t i=retirement_begin;i<o.lifecycle().size();++i) {
+                const auto& event=o.lifecycle()[i];
+                if(event.starts_with(retire_prefix))retirement.push_back(std::stoi(event.substr(retire_prefix.size())));
+            }
+            if(retirement!=std::vector<int>{main.second,atlas,environment,stage.second,bag.second,box.second}) {
+                std::cerr<<"Observed battle retire handles:";for(int handle:retirement)std::cerr<<' '<<handle;
+                std::cerr<<" expected:";for(int handle:std::vector<int>{main.second,atlas,environment,stage.second,bag.second,box.second})std::cerr<<' '<<handle;
+                std::cerr<<'\n';
+            }
+            require(retirement==std::vector<int>{main.second,atlas,environment,stage.second,bag.second,box.second},
+                    "source child/root/resource retirement order, with no second cached-main release");
+            require(submitted.allocation(held_main.id)->serial==held_main.serial&&
+                    o.models().ranges().available_count()==126&&o.handles().live_handle_count()==36,
+                    "battle retirement preserves submitted allocation history and persistent boot owners");
+            o.free_battle_resource_node();o.free_battle_wrappers();
+            o.enter_field_constructor(70,unsigned(-1),13);
+            require(o.field_prefix().constructor_command==13 && &o.memory()==memory_owner,
+                    "victory return enters133830 command13 on the same physical memory owner");
+            construct_world(70,unsigned(-1));
+            require(o.field_prefix().constructor_command==13&&o.stage()==ResourceStage::FieldActive,
+                    "command13 common worker reconstructs and activates resources without a new pool");
+            }
         });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).
         scenario([&] {

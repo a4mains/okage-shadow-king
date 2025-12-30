@@ -51,7 +51,7 @@ unsigned ModelGroupOwner::allocate_instance(ModelRangeLease main, std::optional<
     if (front_ >= back_ || ((flags & 0x100000) && front_ + 1 >= back_))
         throw std::runtime_error("1b8a80 instance pool exhausted");
     const auto instance = flags & 0x100000 ? back_ - 1 : front_;
-    bind_instance(instance, main, shadow);
+    bind_instance(instance, main, ((flags>>5)&3)>=2?shadow:std::nullopt);
     if (flags & 0x100000) --back_; else ++front_;
     return instance;
 }

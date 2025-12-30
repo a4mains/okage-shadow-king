@@ -65,6 +65,11 @@ enum class ResourceStage : std::uint8_t {
     FieldActive,
     FieldResourcesRetired,
     FieldWrappersFreed,
+    BattleLoading,
+    BattleActive,
+    BattleRootRetired,
+    BattleResourcesRetired,
+    BattleWrappersFreed,
     Unmodeled,
                         // or game over): this lifecycle history cannot claim completeness afterward
 };
@@ -289,6 +294,17 @@ public:
     void retire_field_manager();   // 133a38: manager atlas, RUW slots
     void free_field_resource_node();
     void free_field_wrappers();
+    //14a118 applies immutable worker inputs on the persistent owning thread.
+    void begin_battle(unsigned formation, unsigned stage, const OwnedBytes& ruw,
+                      const OwnedBytes& atlas, const OwnedBytes& environment);
+    void complete_battle();
+    void retire_battle_actor(unsigned instance); //154118/15c1b0 ->1b8448
+    void retire_battle_root();
+    void retire_battle_resources();
+    void free_battle_resource_node();
+    void free_battle_wrappers();
+    int battle_environment_handle() const noexcept { return battle_environment_; }
+    int battle_atlas_handle() const noexcept { return battle_atlas_; }
     const ResourceTextureOwner& resources() const noexcept { return resources_; }
     unsigned chapter_scene() const noexcept { return chapter_scene_; }
     // 0x12a2d4 -> 124930(root, mode): the mode request in the frame the fade reaches zero.
@@ -377,6 +393,9 @@ private:
     int wrapper_atlas_{-1};  // wrapper+0x30 of the live mode-9/10 wrapper (Restore or name entry)
     FieldPrefixState field_;
     OwnedBytes field_atlas_bytes_, field_texenv_bytes_, field_ruw_bytes_;
+    OwnedBytes battle_atlas_bytes_, battle_environment_bytes_, battle_ruw_bytes_;
+    int battle_atlas_=-1, battle_environment_=-1;
+    unsigned battle_formation_=0, battle_stage_=0;
     unsigned chapter_scene_{};
     bool second_title_{};
     std::vector<std::uint32_t> session_draw_frames_;

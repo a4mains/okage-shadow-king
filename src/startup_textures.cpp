@@ -440,6 +440,11 @@ const char* to_string(ResourceStage s) {
         case ResourceStage::FieldActive: return "field-active";
         case ResourceStage::FieldResourcesRetired: return "field-resources-retired";
         case ResourceStage::FieldWrappersFreed: return "field-wrappers-freed";
+        case ResourceStage::BattleLoading: return "battle-loading";
+        case ResourceStage::BattleActive: return "battle-active";
+        case ResourceStage::BattleRootRetired: return "battle-root-retired";
+        case ResourceStage::BattleResourcesRetired: return "battle-resources-retired";
+        case ResourceStage::BattleWrappersFreed: return "battle-wrappers-freed";
         case ResourceStage::FieldUiPublished: return "field-ui-published";
         case ResourceStage::Unmodeled: return "unmodeled";
     }
@@ -605,7 +610,7 @@ void StartupTextureOwner::note_mode_destroy(unsigned selector, unsigned mode) {
 void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mode, bool mode_node) {
     require_modeled("wrapper free");
     sync();
-    const char* node = !mode_node ? "resource" : mode == 8 ? "mode8" : mode == 9 ? "mode9" : mode == 2 ? "mode2" : "mode10";
+    const char* node = !mode_node ? "resource" : mode == 8 ? "mode8" : mode == 9 ? "mode9" : mode == 2 ? "mode2" : mode == 3 ? "mode3" : "mode10";
     lifecycle_push(std::string("{\"kind\":\"mode\",\"op\":\"wrapper-free\",\"node\":\"") + node +
                    "\",\"mode\":" + std::to_string(mode) + ",\"selector\":" + std::to_string(selector) + "}");
 }
@@ -799,9 +804,10 @@ void StartupTextureOwner::name_manager_death() {
 }
 
 void StartupTextureOwner::note_command(std::uint32_t a, std::uint32_t b, std::uint32_t c) {
+    const bool return_clear=stage_==ResourceStage::FieldConstructorEntry && field_.constructor_command==13 && !a&&!b&&!c;
     if (stage_ != ResourceStage::NameEntryManagerDead && stage_ != ResourceStage::ChapterActive &&
         stage_ != ResourceStage::RestoreActive && stage_ != ResourceStage::RestoreWrappersFreed &&
-        stage_ != ResourceStage::FieldActive)
+        stage_ != ResourceStage::FieldActive && stage_ != ResourceStage::BattleActive && !return_clear)
         throw std::logic_error("published command outside a modeled game manager");
     sync();
     lifecycle_push("{\"kind\":\"mode\",\"op\":\"command\",\"command\":[" + std::to_string(a) + "," + std::to_string(b) +
@@ -882,8 +888,10 @@ void StartupTextureOwner::free_chapter_wrappers() {
 }
 
 void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entrance, unsigned command) {
-    if(command!=0 && command!=3)throw std::logic_error("ordinary field constructor command is unrecovered");
-    if (stage_ == ResourceStage::ChapterWrappersFreed) {
+    if(command!=0 && command!=3 && command!=13)throw std::logic_error("field constructor command is unrecovered");
+    if(command==13) {
+        require_stage(ResourceStage::BattleWrappersFreed,"133830 command13 entry");
+    } else if (stage_ == ResourceStage::ChapterWrappersFreed) {
         if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field constructor destination differs from the chapter request");
     } else if (stage_ != ResourceStage::RestoreWrappersFreed && stage_ != ResourceStage::FieldWrappersFreed)
         throw std::logic_error("133830 entry outside a retired mode");
@@ -1013,11 +1021,13 @@ void StartupTextureOwner::begin_field_world() {
 const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_model(
     const std::string& name, std::span<const std::string> names,
     const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return, unsigned model_count) {
-    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive)
+    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive && stage_ != ResourceStage::BattleLoading)
         throw std::logic_error("186c48 field model outside construction/active event");
     auto textures = resources_.load_xmd(names, reader);
     sync();
     if (buffer_return) buffer_return();
+    if(textures.xmd.aborted || (!names.empty()&&textures.xmd.first<0))
+        throw std::runtime_error("186c48 texture loading failed before183450 model registration");
     const auto& result = models_.insert(name, model_count, std::move(textures));
     last_world_model_ = result.range;
     for (std::size_t i = 0; i < result.textures.slots.size(); ++i)
@@ -1028,7 +1038,7 @@ const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_m
 
 void StartupTextureOwner::load_field_sidecar(const OwnedBytes& bytes,
     const TextureHandleOwner::FileReader& reader, const std::function<void()>& image_return) {
-    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive)
+    if (stage_ != ResourceStage::FieldWorldLoading && stage_ != ResourceStage::FieldActive && stage_ != ResourceStage::BattleLoading)
         throw std::logic_error("1b6848 field sidecar outside construction/active event");
     auto* model = last_world_model_ ? models_.find(*last_world_model_) : nullptr;
     if (!model) throw std::logic_error("Field XTA without a live model");
@@ -1088,6 +1098,64 @@ void StartupTextureOwner::free_field_wrappers() {
 void StartupTextureOwner::free_field_resource_node() {
     require_stage(ResourceStage::FieldResourcesRetired, "field resource node free");
     note_mode_wrapper_free(field_.scene, 2, false);
+}
+
+void StartupTextureOwner::begin_battle(unsigned formation, unsigned stage, const OwnedBytes& ruw,
+                                      const OwnedBytes& atlas, const OwnedBytes& environment) {
+    require_stage(ResourceStage::FieldWrappersFreed, "14a118 battle loader");
+    if(!ruw||!atlas||!environment)throw std::invalid_argument("Battle loader input bytes missing");
+    if(stage<1||stage>23)throw std::invalid_argument("Battle stage was not clamped by149e60");
+    battle_formation_=formation; battle_stage_=stage;
+    battle_ruw_bytes_=ruw;
+    lifecycle_push("{\"kind\":\"battle\",\"op\":\"ruw\",\"slot\":0,\"sha256\":"+json_string(sha256_hex(*ruw))+"}");
+    const OwnedRawXim atlas_xim(*atlas);
+    if(atlas_xim.layout().pixel_format!=27)throw std::invalid_argument("Battle atlas lacks PSM27 override");
+    battle_atlas_=handles_.load_xim(atlas_xim).handle;
+    battle_atlas_bytes_=atlas;
+    lifecycle_push("{\"kind\":\"battle\",\"op\":\"atlas\",\"handle\":"+std::to_string(battle_atlas_)+"}");
+    battle_environment_=handles_.load_xim(OwnedRawXim(*environment)).handle;
+    battle_environment_bytes_=environment;
+    lifecycle_push("{\"kind\":\"battle\",\"op\":\"texenv\",\"handle\":"+std::to_string(battle_environment_)+"}");
+    //152248 stage construction, after root atlas and resource texenv.
+    field_.clut_class_2138c4=0;
+    handles_.set_lower_case_file_names(true);
+    handles_.enable_name_cache();
+    last_world_model_.reset();
+    sync();advance(ResourceStage::BattleLoading);
+}
+void StartupTextureOwner::complete_battle() {
+    require_stage(ResourceStage::BattleLoading,"14a118 completion");
+    sync();advance(ResourceStage::BattleActive);
+}
+void StartupTextureOwner::retire_battle_actor(unsigned instance) {
+    require_stage(ResourceStage::BattleActive,"154118/15c1b0 actor destructor");
+    models_.retire_instance(instance);sync();
+}
+void StartupTextureOwner::retire_battle_root() {
+    require_stage(ResourceStage::BattleActive,"14aac8 root destructor");
+    note_mode_destroy(battle_formation_,3);
+    handles_.retire(battle_atlas_);battle_atlas_bytes_.reset();
+    battle_ruw_bytes_.reset();
+    models_.retire_associated();
+    sync();advance(ResourceStage::BattleRootRetired);
+}
+void StartupTextureOwner::retire_battle_resources() {
+    require_stage(ResourceStage::BattleRootRetired,"101058 battle resource destructor");
+    note_mode_resource_retire(battle_formation_,3);
+    handles_.retire(battle_environment_);
+    battle_environment_bytes_.reset();
+    models_.retire_associated();models_.retire_main();
+    for(int handle:image_list_)handles_.retire(handle);
+    image_list_.clear();models_.reset_instances_and_registrations();last_world_model_.reset();
+    sync();advance(ResourceStage::BattleResourcesRetired);
+}
+void StartupTextureOwner::free_battle_resource_node() {
+    require_stage(ResourceStage::BattleResourcesRetired,"battle resource node free");
+    note_mode_wrapper_free(battle_formation_,3,false);
+}
+void StartupTextureOwner::free_battle_wrappers() {
+    require_stage(ResourceStage::BattleResourcesRetired,"battle root wrapper free");
+    note_mode_wrapper_free(battle_formation_,3,true);advance(ResourceStage::BattleWrappersFreed);
 }
 
 void write_effect_preparation_report(const EffectTemplatePreparation& prepared, const EffectPreparationTrace& trace,

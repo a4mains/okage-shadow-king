@@ -315,6 +315,23 @@ void source_instance_cursors() {
     require(f.groups.allocate_instance(group,{},0)==639,"source front allocation can consume the last slot");
     rejects<std::runtime_error>([&]{f.groups.allocate_instance(group,{},0);},"front pool exhaustion is explicit");
 }
+void source_shadow_selectors() {
+    auto fixture=std::make_unique<Fixture>();auto& f=*fixture;
+    const auto main=f.groups.insert("cached-main",1,{}).range;
+    const auto shadow=f.groups.insert("cached-shadow",1,{},false).range;
+    const auto zero=f.groups.allocate_instance(main,shadow,0x80);
+    const auto one=f.groups.allocate_instance(main,shadow,0xa0);
+    const auto two=f.groups.allocate_instance(main,shadow,0xc0);
+    const auto three=f.groups.allocate_instance(main,shadow,0xe0);
+    require(!f.groups.instances()[zero]->shadow&&!f.groups.instances()[one]->shadow&&
+            f.groups.instances()[two]->shadow==shadow&&f.groups.instances()[three]->shadow==shadow,
+            "1b8c04 associates cached shadows only for selectors2/3, not0/1");
+    f.groups.retire_instance(zero);f.groups.retire_instance(one);
+    require(f.groups.find(shadow),"selector0/1 child cleanup cannot retire a merely cached shadow");
+    f.groups.retire_instance(two);
+    require(!f.groups.find(shadow),"first associated selector2 child actually retires the shadow group");
+    f.groups.retire_instance(three);
+}
 }
 int main() {
     try {
@@ -328,7 +345,8 @@ int main() {
         normalized_prefix_independent_registration();
         stale_lease_and_instance_guards();
         source_instance_cursors();
-        std::cout << "model group tests passed (10 source ownership scenarios)\n";
+        source_shadow_selectors();
+        std::cout << "model group tests passed (11 source ownership scenarios)\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
