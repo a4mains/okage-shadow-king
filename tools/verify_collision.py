@@ -64,7 +64,7 @@ def main():
     if at != len(expected):
         raise RuntimeError('Unexpected comparison trailing bytes')
     report = {
-        'scope': "HOME1C XCL relocation and sparse-grid candidate selection, not contact resolution or player movement",
+        'scope': 'HOME1C XCL relocation and sparse-grid candidate selection, not contact resolution or player movement',
         'original_functions': ['0x189028', '0x188f90', '0x189258'],
         'preconditions': 'Unpatched retail helpers run with owned XCL at synthetic base 0x900000; no captured RAM, OS or VU helpers. Six coordinates use f12..f17 and query mode uses a0.',
         'payload_bytes_exact': payload_size, 'query_cases_exact': len(counts),

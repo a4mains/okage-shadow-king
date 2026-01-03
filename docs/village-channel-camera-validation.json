@@ -1,5 +1,5 @@
 {
-  "scope": "Native music-channel control and startup camera freeze.",
+  "scope": "Native music-channel control and startup camera freeze. Full-game playability and full-scene fidelity are not established.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "builds": {
     "release": {
@@ -45,7 +45,7 @@
       },
       "image_sha256": "0c40598c08bf86f128074607c9161fa35c06c7887b555408ab33427c1bd061f3",
       "music_channels": {
-        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.",
+        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.\n\nThis audits request/flush/cancel and buffered driver gains, not live RPC timing,\nDMA, audible fidelity or whole-scene audio. Reference RAM is never native input.\n",
         "native_binary_sha256": "2848df8e6beac3ff21c6432eb847d863e63e8d6ebcebd769bbe444a1211aed4a",
         "probes": {
           "ee": {
@@ -101,7 +101,7 @@
         }
       },
       "camera": {
-        "scope": "Audit the village's final startup camera move and event handoff.",
+        "scope": "Audit the village's final startup camera move and event handoff.\n\nThe initial actor move starts one native frame late at destination construction.\nAlignment here is explicitly the subsequent camera-mode0 transition, not an\nassertion that dispatch-to-completion timing or whole-scene output matches.\n",
         "original_runs": {
           "reference-village-startup-300-v1": {
             "command": [
@@ -262,7 +262,7 @@
         "unresolved": "Native destination construction defers first actor advance by one frame; no whole-startup timing or rendered/audio equivalence claimed."
       },
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -494,7 +494,7 @@
       },
       "image_sha256": "0c40598c08bf86f128074607c9161fa35c06c7887b555408ab33427c1bd061f3",
       "music_channels": {
-        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.",
+        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.\n\nThis audits request/flush/cancel and buffered driver gains, not live RPC timing,\nDMA, audible fidelity or whole-scene audio. Reference RAM is never native input.\n",
         "native_binary_sha256": "193f2ac1f4d7b8435327208f340efb8709e25f38b9d930c1fe19ce9c9c36b5dd",
         "probes": {
           "ee": {
@@ -550,7 +550,7 @@
         }
       },
       "camera": {
-        "scope": "Audit the village's final startup camera move and event handoff.",
+        "scope": "Audit the village's final startup camera move and event handoff.\n\nThe initial actor move starts one native frame late at destination construction.\nAlignment here is explicitly the subsequent camera-mode0 transition, not an\nassertion that dispatch-to-completion timing or whole-scene output matches.\n",
         "original_runs": {
           "reference-village-startup-300-v1": {
             "command": [
@@ -711,7 +711,7 @@
         "unresolved": "Native destination construction defers first actor advance by one frame; no whole-startup timing or rendered/audio equivalence claimed."
       },
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -943,7 +943,7 @@
       },
       "image_sha256": "0c40598c08bf86f128074607c9161fa35c06c7887b555408ab33427c1bd061f3",
       "music_channels": {
-        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.",
+        "scope": "Compare native music-channel state with completed isolated EE/IOP probes.\n\nThis audits request/flush/cancel and buffered driver gains, not live RPC timing,\nDMA, audible fidelity or whole-scene audio. Reference RAM is never native input.\n",
         "native_binary_sha256": "75487814bc40c6483e76bac4c6bc81b9a38ffe1c8085badeff8bb44b55b1065e",
         "probes": {
           "ee": {
@@ -999,7 +999,7 @@
         }
       },
       "camera": {
-        "scope": "Audit the village's final startup camera move and event handoff.",
+        "scope": "Audit the village's final startup camera move and event handoff.\n\nThe initial actor move starts one native frame late at destination construction.\nAlignment here is explicitly the subsequent camera-mode0 transition, not an\nassertion that dispatch-to-completion timing or whole-scene output matches.\n",
         "original_runs": {
           "reference-village-startup-300-v1": {
             "command": [
@@ -1160,7 +1160,7 @@
         "unresolved": "Native destination construction defers first actor advance by one frame; no whole-startup timing or rendered/audio equivalence claimed."
       },
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
@@ -1357,7 +1357,7 @@
     "The prior native8260 baseline contains the missing camera freeze; it is superseded for boys regression checks by the explicitly supplied corrected baseline."
   ],
   "north_gate_release": {
-    "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+    "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -1672,7 +1672,7 @@
     },
     "limit": "Opening state matches in Release; presentation, whole camera and audio remain unvalidated.",
     "comparison": {
-      "scope": "Audit the first village conversation opening after native VIL bank replacement.",
+      "scope": "Audit the first village conversation opening after native VIL bank replacement.\n\nCompares119 controller returns and manager states from event32/message10008.\nIt does not establish closure, full camera/actor output, UI pixels or audio.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-boot-oracle",
@@ -1756,7 +1756,7 @@
     }
   },
   "native_conversation_closure": {
-    "scope": "Audit the first village conversation opening after native VIL bank replacement.",
+    "scope": "Audit the first village conversation opening after native VIL bank replacement.\n\nCompares119 opening controller returns and manager states for event32/message10008.\nOptional ending adds262 controller returns and300 manager entries through closure.\nFull camera/actor output, UI pixels and audio remain outside this comparison.\n",
     "original_run": {
       "command": [
         "build/play-research/okage-oracle/okage-boot-oracle",

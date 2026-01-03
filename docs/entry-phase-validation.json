@@ -4,7 +4,7 @@
   "builds": {
     "release": {
       "entry": {
-        "scope": "Compare the whole village startup from observed event dispatch through handoff.",
+        "scope": "Compare the whole village startup from observed event dispatch through handoff.\n\nNo fitted phase offset: original and native dispatch define frame zero. Actor\nroots and manager state must match exactly. The initial camera target Y is one\nfloat step different; the inactive retained blend rate also remains different.\n",
         "native_run": {
           "command": [
             "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -237,7 +237,7 @@
       },
       "image_sha256": "4e1250ca9e84e2a0537906ea814f910a82d5a25c2169ae022437bd6a804cbcc4",
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -428,7 +428,7 @@
     },
     "debug": {
       "entry": {
-        "scope": "Compare the whole village startup from observed event dispatch through handoff.",
+        "scope": "Compare the whole village startup from observed event dispatch through handoff.\n\nNo fitted phase offset: original and native dispatch define frame zero. Actor\nroots and manager state must match exactly. The initial camera target Y is one\nfloat step different; the inactive retained blend rate also remains different.\n",
         "native_run": {
           "command": [
             "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -661,7 +661,7 @@
       },
       "image_sha256": "4e1250ca9e84e2a0537906ea814f910a82d5a25c2169ae022437bd6a804cbcc4",
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -852,7 +852,7 @@
     },
     "sanitize": {
       "entry": {
-        "scope": "Compare the whole village startup from observed event dispatch through handoff.",
+        "scope": "Compare the whole village startup from observed event dispatch through handoff.\n\nNo fitted phase offset: original and native dispatch define frame zero. Actor\nroots and manager state must match exactly. The initial camera target Y is one\nfloat step different; the inactive retained blend rate also remains different.\n",
         "native_run": {
           "command": [
             "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
@@ -1085,7 +1085,7 @@
       },
       "image_sha256": "4e1250ca9e84e2a0537906ea814f910a82d5a25c2169ae022437bd6a804cbcc4",
       "boys": {
-        "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+        "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
         "native_run": {
           "command": [
             "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",
@@ -1285,7 +1285,7 @@
     "python_log": "local/research/entry-phase-python-tests-v2.log"
   },
   "north_gate": {
-    "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+    "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -1449,7 +1449,7 @@
     }
   },
   "village_dialogue": {
-    "scope": "Audit the first village conversation opening after native VIL bank replacement.",
+    "scope": "Audit the first village conversation opening after native VIL bank replacement.\n\nCompares119 opening controller returns and manager states for event32/message10008.\nOptional ending adds262 controller returns and300 manager entries through closure.\nFull camera/actor output, UI pixels and audio remain outside this comparison.\n",
     "original_run": {
       "command": [
         "build/play-research/okage-oracle/okage-boot-oracle",

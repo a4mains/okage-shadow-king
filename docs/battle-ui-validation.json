@@ -7,18 +7,18 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 11956,
-      "sha256": "f7565183f49bb88c3c85bbf7f69380ba7425cd93e0dd9ecb4c302226259b63c0"
+      "bytes": 41580,
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/battle_hud.hpp",
-      "bytes": 1674,
-      "sha256": "6a721561dbb07d202a989a07f7085ac72caeeeeebd2abc9586390d9ce3526010"
+      "bytes": 4804,
+      "sha256": "8a8b09a630cb409a8c58183d5c9229c89fe8f245b5878fee9f4680a1d6363649"
     },
     {
       "path": "include/okage/battle_interface.hpp",
-      "bytes": 1237,
-      "sha256": "6a06adb851b5538165950f2bb7811e84286f43a3c07bb720e4ded17e3d6c66c8"
+      "bytes": 3586,
+      "sha256": "b7c104d7037da08557b148d25fea38b920d399f0bba311ffe300e0747601e637"
     },
     {
       "path": "include/okage/battle_ui.hpp",
@@ -27,28 +27,28 @@
     },
     {
       "path": "include/okage/ui_window.hpp",
-      "bytes": 2883,
-      "sha256": "3d2024c315fd604701f152ead161b0dc354c543561f0ac330e321de9a376d036"
+      "bytes": 6736,
+      "sha256": "fb8c7f930e4cb455aa906fcfcbfb2c56a72251ad5222164048a80dd1c8f502d5"
     },
     {
       "path": "include/okage/game_state.hpp",
-      "bytes": 1879,
-      "sha256": "e68816021dd95251cebf08c93bb7fd43c747a8153cc9d1eea8aab81ab22ccde0"
+      "bytes": 3326,
+      "sha256": "647dd78f1b0a515806fc59dfad4a8c30184a404ff3d7f221f5fc642ac7738812"
     },
     {
       "path": "include/okage/ruw.hpp",
-      "bytes": 2428,
-      "sha256": "b5d6f8ffb2145e5621e73d956d182e1fa2e5b3b5f33625eca38010cabc8ad20e"
+      "bytes": 3616,
+      "sha256": "3af5147df03e0a89f1aa5a5ee70ed2c55b8b0504a9235618a7201d699cc94667"
     },
     {
       "path": "src/battle_hud.cpp",
-      "bytes": 13304,
-      "sha256": "069654c033e0e11a7dbc18c977ed1178a71c9d643f27e5d4ba118b6c0f58c6d9"
+      "bytes": 41959,
+      "sha256": "217afa3dfc5dd02a0ea2631ef1f0fc9f21318470b6646f4c23014070fc4a995a"
     },
     {
       "path": "src/battle_interface.cpp",
-      "bytes": 3295,
-      "sha256": "863ba7e76d4aa4f264d7861cb75559b5e36d9385a61acdda4a0e05aab67fc584"
+      "bytes": 4605,
+      "sha256": "b7d7472882f6c4bae998d2b6d0637775df20f302047eb9c700fa47fd4c034685"
     },
     {
       "path": "src/battle_ui.cpp",
@@ -57,63 +57,63 @@
     },
     {
       "path": "src/ui_window.cpp",
-      "bytes": 8317,
-      "sha256": "8d9f4bebe89822fe1c1ef5319f68515743374b1c3996c073b8ea5df6d3c1ee49"
+      "bytes": 10652,
+      "sha256": "5d86ca38ac9dbb82605edb51e19e9384c19071f202af1e2cb207f16d2b5211c6"
     },
     {
       "path": "src/game_state.cpp",
-      "bytes": 9568,
-      "sha256": "4ae6071be1912e0eef916f3bca1afb060ba52ff9f4d6751e6b73b35c3e5c8abd"
+      "bytes": 12957,
+      "sha256": "5b264de91d1d8f095b40fdbc2c7d61ca3a69b51eabf62872e11350a27e9e20e5"
     },
     {
       "path": "src/ruw.cpp",
-      "bytes": 10329,
-      "sha256": "4390ca2eabbc6f7a8d6bab3ea74dcbeebbc9a518443a6da77068d93597d0d8de"
+      "bytes": 14723,
+      "sha256": "42402dfe07441f3fcad1de1f78f81dfc44f8cd96ac434f7291ca88867ddfcadd"
     },
     {
       "path": "src/battle_session.hpp",
-      "bytes": 1530,
-      "sha256": "e651159d1acfba7e19bf5cbcd460ce893a7d5920a042dfb3f272d802f244a626"
+      "bytes": 5179,
+      "sha256": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f"
     },
     {
       "path": "src/battle_session.mm",
-      "bytes": 22973,
-      "sha256": "833cf6280909c3de4067a9673c94fa0db73fd1d0b6c1ea1535f4fdf7c80cb2ce"
+      "bytes": 98646,
+      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 101557,
-      "sha256": "9000a044cd13ec51f7627a34c3d5d6b9a00e10acb6151bb13f1b61e242af07b2"
+      "bytes": 275496,
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "tests/battle_hud_tests.cpp",
-      "bytes": 5694,
-      "sha256": "4413eb4d52c74484bca7bc5269e8a6c8f52da273585767a275e559d0e838e59d"
+      "bytes": 31018,
+      "sha256": "1bcf17c24457a98a9e979dc668d230f45afeb06318b37be16aad20fd42b46de6"
     },
     {
       "path": "tests/battle_ui_tests.cpp",
-      "bytes": 8795,
-      "sha256": "10fc9648e5055cda6afc4ce1366f9e9cc16b1d7d6e6cc5d2a7f2df3e5efcb99e"
+      "bytes": 30056,
+      "sha256": "f1d457e763f482557ebbedd638a16a62efa9fbdfd8e19da408f4e8ebd0065200"
     },
     {
       "path": "tests/ui_window_tests.cpp",
-      "bytes": 9610,
-      "sha256": "853b40505574a99e93b4c0daae8c37ca87794a1cb8d4c8c15e5e16c1127fc037"
+      "bytes": 28484,
+      "sha256": "b8cf93f5dcddca782b85a2bcdad28b7db9d7596bd8eeeb459beadc3949305cf0"
     },
     {
       "path": "tests/game_state_tests.cpp",
-      "bytes": 18561,
-      "sha256": "f53eb2c7a56ef2e22776f6d094929e3403c5a12ea0d7f30c7573295a793be4c6"
+      "bytes": 30923,
+      "sha256": "9578d7e15f528fe93ace1524427b292737be99f665c93819e463ae7aea6f7c20"
     },
     {
       "path": "tests/ruw_tests.cpp",
-      "bytes": 13331,
-      "sha256": "ba1070d7c4176bc053f3a1b2662a63b2c238d19ba58e9b75a7e1b6be2b7604a5"
+      "bytes": 26553,
+      "sha256": "b813fa08b467b8a8d0ce45e8417917fb606103bae46dd090d5cbd2d292914af7"
     },
     {
       "path": "tools/import_battle_hud.py",
-      "bytes": 6686,
-      "sha256": "5161b08580d2920b77fa0c128de61ea6ebd8fe5277781d21cfa4ba080d6b2503"
+      "bytes": 7616,
+      "sha256": "37cd976d7d9c7487b00cd0455c9febdf83e9a6d78e98229fd0e86171c60a6e44"
     },
     {
       "path": "tools/import_battle_ui.py",
@@ -122,8 +122,8 @@
     },
     {
       "path": "tools/import_battle_resources.py",
-      "bytes": 8456,
-      "sha256": "a3a54dccaaa4cd8cddb9b5570bd2464587de18d566c83fade69ddbb10730cf7f"
+      "bytes": 9572,
+      "sha256": "f3bd4ea05b724928540eeec4864c503440e731119666d4a1dbc167f49068c9db"
     },
     {
       "path": "tools/verify_ui_window.py",
@@ -138,22 +138,22 @@
     {
       "path": "tools/verify_battle_interface.py",
       "bytes": 11351,
-      "sha256": "b58bfad6cdcd0da434c67b5888f9c53d2f1f37bf43752c2d270e64a13ad18724"
+      "sha256": "85424e82d2c9662adf57f8e0720adec01bda8fa1081ae4740054e3eb06a11de6"
     },
     {
       "path": "tools/play-oracle/reference_battle_ui.hpp",
-      "bytes": 15545,
-      "sha256": "68862e1c077cbefacb2179c1fd46c19eb6abd0b6158f414d2fba8c421a2c4cbb"
+      "bytes": 15612,
+      "sha256": "9839427dba5862f692235c7772660ee00d40c470df8bf42579f39bd073c9b6b1"
     },
     {
       "path": "tools/play-oracle/boot.cpp",
-      "bytes": 41755,
-      "sha256": "4c6df1c31c915d54d2d188fd1e0052b602f10772a4d64b29e9360ba0c3fd53a9"
+      "bytes": 60571,
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736"
     },
     {
       "path": "tests/test_import_battle_hud.py",
-      "bytes": 7863,
-      "sha256": "302d399d77515b4beed7b0dddfa087a89c72475c66f582c71335613afad5e61d"
+      "bytes": 8935,
+      "sha256": "2c28ba56eb0577093f17ecde76f0db1241d0a43ab94f13eecd2a32358bc1a0b4"
     },
     {
       "path": "tests/test_import_battle_ui.py",
@@ -163,7 +163,7 @@
     {
       "path": "tests/test_verify_ui_window.py",
       "bytes": 9449,
-      "sha256": "3352d9230b2901297761cfd6b7965f84d9f188bc7dfe54b20b8150fcfe9b7eb2"
+      "sha256": "a5e9baa654987deff92cd3d0d16df62c642469fd652f460d5934404a54c7d0bd"
     },
     {
       "path": "tests/test_verify_battle_hud.py",
@@ -622,7 +622,7 @@
       "sha256": "f141c02984eca12d40106231eefec6366eb5fd5e2daabf12db266b5e85eff436"
     }
   ],
-  "run_evidence": [
+  "worker_evidence": [
     {
       "path": "local/worktrees/ui-unit-record-v1/local/validation-v1.json",
       "bytes": 6334,

@@ -4,7 +4,7 @@
   "objective_complete": false,
   "runtime_commit": "ffb9d77",
   "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
-  "scope": "Native ordinary inputs earn the map, finish bar/Julia/morning events, save story4, and cold-Restore with movement.",
+  "scope": "Native ordinary inputs earn the map, finish bar/Julia/morning events, save story4, and cold-Restore with movement. New segment is Release gameplay/persistence evidence, not original state/raster/audio parity. Native writer terminal0; restored session77295 live at2351, no exit claim.",
   "save": {
     "values": {
       "story": 4,
@@ -55,7 +55,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
     "exit_code": 0,
     "seconds_including_control_waits": 2246.222535792,
     "saves_after": {
@@ -86,7 +86,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs."
   },
   "saved_payload_comparison": {
     "bytes_compared": 3448,
@@ -611,7 +611,7 @@
   "restore_save_files_unchanged": true,
   "source_provenance_correction": "Full terminal v6 inputs.jsonl now pinned by story-four audit; earlier rumor report omitted its full identity. Exact held/pressed attempts1..18980 still pass.",
   "original_celebration_progression": {
-    "scope": "Independent original-only ordinary-input progression from exact failed-pair endpoint.",
+    "scope": "Independent original-only ordinary-input progression from exact failed-pair endpoint. Four bounded resumed runs; combined tape records sequential step labels only and was not executed as a single continuous VM run. Prior failed8263VBlank paired comparison remains unchanged. No guest mutation, native writes, save-card change or bar navigation.",
     "final": {
       "snapshot": "/Users/user/src/okage-shadow-king/local/research/village-return-v1/original-celebration-close-v1/endpoint.state.zip",
       "sha256": "876434b04bff1cb53e41e9bf6f82ce235265bd089b66717b5a0477dee3104343",
@@ -1162,14 +1162,14 @@
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 191019,
-      "sha256": "8c96897af76b822b90ea8e81e56c861dda6a705fbbde4b41d69d6326ecffa784",
+      "bytes": 275496,
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
       "scope": "whole immutable file"
     },
     {
       "path": "src/field.cpp",
-      "bytes": 81605,
-      "sha256": "4953a2125c78df796bd26362cc800dd313ec56e143652fb726a46ead2453170c",
+      "bytes": 87859,
+      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
       "scope": "whole immutable file"
     },
     {
@@ -1304,7 +1304,7 @@
     }
   ],
   "historical_save_note": "The immutable rumor audit retains its original save pathname/hash. Later ordinary Save replaced that copied File3. Manifest artifact resolves to a hash-identical preserved input copy, made from the unchanged original healed checkpoint. It is evidence only and not a new runtime input.",
-  "runs": {
+  "workers": {
     "field_shadow_roster": "Completed original-only progression; all four sessions terminal0, VM lease returned.",
     "sound_import_coverage": "Completed prior evidence review; missing full v6 input hash supplied by root audit.",
     "mode_observer": "Corrected Julia/home route completed and reviewed. Optional next-family read-only follow-up interrupted; no completed result accepted."

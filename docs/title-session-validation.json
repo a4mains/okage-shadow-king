@@ -2,17 +2,17 @@
   "schema": "okage-title-session-validation-v1",
   "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "Native integrated title entry, Start/Left/menu and next-mode boundary.",
+  "scope": "Native integrated title entry, Start/Left/menu and next-mode boundary. Component checks in three builds. No aligned original title comparison or full-playthrough proof.",
   "sources": [
     {
       "path": "CMakeLists.txt",
       "size": 27839,
-      "sha256": "16f57a2ac58e35b4dd5972904c02c3feeb2e007c4698dbc9bcb10bb42984abd0"
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/effect.hpp",
       "size": 12441,
-      "sha256": "54c45b36eb9c36c05746185d2ad251421eee8037a2a56a29a17ba3e453851d15"
+      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1"
     },
     {
       "path": "include/okage/field_projection.hpp",
@@ -22,7 +22,7 @@
     {
       "path": "include/okage/scene_renderer.hpp",
       "size": 8338,
-      "sha256": "a88d9ddb9d0c270be8a7e03513a160d2f3929f2d2fa2afc3a7466ea2ab11b989"
+      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
     },
     {
       "path": "include/okage/title_stream.hpp",
@@ -32,7 +32,7 @@
     {
       "path": "src/effect.cpp",
       "size": 62406,
-      "sha256": "c2fc47fb2c8296a73a0a020863673a5352d590d481b3745ef8ce6ee161e7b536"
+      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36"
     },
     {
       "path": "src/field_projection.cpp",
@@ -42,22 +42,22 @@
     {
       "path": "src/native_runtime.mm",
       "size": 165673,
-      "sha256": "13bac0a6fc216bbdf166fda0148ea623523cd7d2eb637d6a17be86bc7c92b906"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/scene_renderer.mm",
       "size": 62663,
-      "sha256": "5c393a15bc311303138cda1588038f2692380f4fc4f454114cad4db46f3d789e"
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "src/title_session.hpp",
       "size": 1248,
-      "sha256": "cf9dd137b01b9aee2970725b3051a6165138c74f928ea934257b9706b2df0292"
+      "sha256": "eb0559173236f5bf5d33ae659ea2a0a4adf270d62cb7c536db301f4b8ec4b0f2"
     },
     {
       "path": "src/title_session.mm",
       "size": 11822,
-      "sha256": "d8abbeed70f034e31b1a45623898a25d06eb2f94af05d8343d8763988bb4aec5"
+      "sha256": "52cf641c373dd4a8ad44cc365c1d9f9eacaa6682d434329fc15d34bac6d085cd"
     },
     {
       "path": "src/title_stream.cpp",
@@ -67,7 +67,7 @@
     {
       "path": "tests/effect_tests.cpp",
       "size": 55945,
-      "sha256": "3d260e9188971bdfaf97d702a2ac8d861bf21c02ee62387528ebcd45651fde0f"
+      "sha256": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
     },
     {
       "path": "tests/title_model_tests.mm",
@@ -748,7 +748,7 @@
       ],
       "binary_sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e",
       "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
-      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007.",
+      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007. No state/seed injection; intended next mode guard retained.",
       "exit_code": 1,
       "seconds": 0.09409683299999999,
       "name": "newgame-boundary-109200-v1",
@@ -842,7 +842,7 @@
       ],
       "binary_sha256": "7531f975cf2e9986e9015a676366b774ce3a7740a049ab555d94ce56300e8c7e",
       "source_revision": "5832add75ce92452304fd2e088f9a73f3e19eb54",
-      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007.",
+      "scope": "Same retained defeat prefix and title Start/Left; append normal confirm109006, release109007. No state/seed injection; intended next mode guard retained.",
       "exit_code": 1,
       "seconds": 67.501525292,
       "name": "newgame-boundary-109200-v2",
@@ -1159,7 +1159,7 @@
     {
       "path": "docs/title-validation.json",
       "size": 75163,
-      "sha256": "86881c642e716ae731e67faeec50a7b0d96afae51634f65fb31059953e220928"
+      "sha256": "da9533fb9c5ee508d3bde49053bad612ed7db66774213a6dd2da143096f298c3"
     },
     {
       "path": "local/research/title-session-v1/newgame-export-v2.run.json",
@@ -1226,7 +1226,7 @@
     "Sole user preview preserved on older immutable executable",
     "Failed boundary capture manifest is an unfinished JSON stream; retained PNGs and run.log are authoritative, endpoint artifacts absent"
   ],
-  "task_runs": {
+  "workers": {
     "field_shadow_roster": "completed renderer/hidden-model fixes; reviewed and integrated",
     "mode_observer": "completed bounded mode9 source recovery; read-only",
     "native_save_inventory": "completed original title reference inventory; read-only"

@@ -194,7 +194,7 @@ def main():
     report = {'schema': 'okage-headless-control-verification-v1',
               'native': str(native), 'native_sha256': digest(native),
               'game_data': str(game_data), 'tool_sha256': digest(Path(__file__)),
-              'scope': "Executed short cold startup and retained Session control; no gameplay, render fidelity, or loader timing equivalence",
+              'scope': 'Executed short cold startup and retained Session control; no gameplay, render fidelity, or loader timing equivalence',
               'cases': []}
     prelude = [(1, 64, 64)]
     cases = [

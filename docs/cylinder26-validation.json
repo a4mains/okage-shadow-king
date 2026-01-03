@@ -1,10 +1,10 @@
 {
-  "scope": "Effect26 native state, persistent shared UV animation and ordinary drawing; continued native basement progression.",
+  "scope": "Effect26 native state, persistent shared UV animation and ordinary drawing; continued native basement progression. No original raster/audio or full-game equivalence.",
   "implementation_base": "cf87268",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "isolated": {
     "native-release": {
-      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -77,7 +77,7 @@
       "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
     },
     "native": {
-      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -150,7 +150,7 @@
       "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
     },
     "model-sanitize": {
-      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+      "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -226,7 +226,7 @@
   "prior_geometry_regressions": {
     "native-release": {
       "map25": {
-        "scope": "Compare map-effect source geometry and bounded original transform execution.",
+        "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
         "cases": 5,
         "element_transforms": 40,
         "matrix_tolerance": 2e-05,
@@ -265,7 +265,7 @@
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "e08536ddfc5bd38a2973a383b60b78df19f0d83e479db5d3f468e7dc32d30cda",
@@ -341,7 +341,7 @@
     },
     "native": {
       "map25": {
-        "scope": "Compare map-effect source geometry and bounded original transform execution.",
+        "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
         "cases": 5,
         "element_transforms": 40,
         "matrix_tolerance": 2e-05,
@@ -380,7 +380,7 @@
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "8d12d1425d9ca8c418e8c62483fea840c2db0170072e803a1c844f7ae49b01e0",
@@ -456,7 +456,7 @@
     },
     "model-sanitize": {
       "map25": {
-        "scope": "Compare map-effect source geometry and bounded original transform execution.",
+        "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
         "cases": 5,
         "element_transforms": 40,
         "matrix_tolerance": 2e-05,
@@ -495,7 +495,7 @@
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "f56c4757545dc4eac178e4010c19cd404671010adc2738c40be18ba99927c532",
@@ -2076,7 +2076,7 @@
   ],
   "loading_timing": {
     "anchor": 61656,
-    "scope": "Retains the complete interval; explains observed loading offsets without fitting an anchor or inserting delays.",
+    "scope": "Retains the complete interval; explains observed loading offsets without fitting an anchor or inserting delays. Not full scheduler equivalence.",
     "spans": {
       "original": [
         {

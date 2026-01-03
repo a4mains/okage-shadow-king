@@ -1,5 +1,5 @@
 {
-  "scope": "Audit integrated native kitchen movement against paired original observations.",
+  "scope": "Audit integrated native kitchen movement against paired original observations.\n\nOriginal rendering precedes the player callback within a captured vblank.\nCompare callback state with native post-update state, and rendered channels with\nthe preceding native update. Derive the time anchor from handoff/counter state,\nnever by minimizing position or animation errors.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "original_frames": 180,
   "native_frames": 6000,

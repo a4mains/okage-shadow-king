@@ -3,8 +3,8 @@
   "reviewed_head": "74ec81e",
   "implementation_changes": false,
   "date": "2025-09-27",
-  "result": "Newgame accepted only within documented boundary; fixes-first Field planned",
-  "integration_resolution": "Primary integration complies with the review rules. No redo required.",
+  "result": "Newgame accepted only within documented boundary; fixes-first Field assigned",
+  "delegation_resolution": "Primary Opus integration complies with AGENTS. No worker redo required.",
   "rerun": {
     "retained_gates": "77/77 pass;4/4 behavior controls",
     "manifest_hashes": {
@@ -31,17 +31,32 @@
     "Timing helper defect is a direct helper repro, not a false pass of the actual pinned No route."
   ],
   "next_scope": "Field common ordinary-field prefix: second133830command0 through post131e7c/pre131e80; first fix timing witness and metadata.",
+  "prompt": {
+    "path": "T1I_GOAL_PROMPT.txt",
+    "sha256": "5995a3dd8e30d8725473dccf7f5f922031f3b3e66674a2db73099491cc47f8ae",
+    "bytes": 3819
+  },
   "prompt_characters_including_prefix_newline": 3942,
+  "brief": {
+    "path": "HANDOFF.md",
+    "sha256": "eb78b58fd8970966d45390a23f9eb84795c6f35e40e6912d0caac75693300df2",
+    "bytes": 21303
+  },
   "audited_sources": [
     {
+      "path": "AGENTS.md",
+      "sha256": "53c3873375b0443003e9f36c58910e6a63001aa45a2aeb57a4412f1b61cc9299",
+      "bytes": 703
+    },
+    {
       "path": "tools/newgame_gates.py",
-      "sha256": "681895ad5e9f90cf9d2638c5e54e3ed1361e3e04879851ea500eb52e64744ac6",
-      "bytes": 17826
+      "sha256": "b28def490eba3f8d5ccd8b99e203f6b23eebb83c7c5d65b25ce7d775d5538572",
+      "bytes": 17843
     },
     {
       "path": "tools/newgame_compare.py",
-      "sha256": "d9996824911dd5f736709f1623566312364cc1e252ede0a11c577681b58ab20f",
-      "bytes": 29569
+      "sha256": "55385c2564255db20943656fbbcd044173c571a1ee7cb3e752323eb121f5a2dc",
+      "bytes": 31575
     },
     {
       "path": "tools/newgame_control_exactness.py",
@@ -50,28 +65,28 @@
     },
     {
       "path": "tools/newgame_validation_manifest.py",
-      "sha256": "64e9e856351dcc8e3bc37a7e6ebbbcd806146c099674157e2bccce303f717a60",
-      "bytes": 13961
+      "sha256": "e623c96a7e7a6bb60f4ec0624e4902c9dac500e93cc8192f3c1f1a1f2c45739b",
+      "bytes": 14617
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "16b1c3d5f027bfe5081758990b390c32616e6cdd97c53afd8137c7e4ed758102",
-      "bytes": 240547
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "bytes": 275496
     },
     {
       "path": "src/startup_textures.cpp",
-      "sha256": "8338a7d7fcccc1b9b62c1ecceee43e2bc35ed01a1b2655848ca4d6ba6b19f767",
-      "bytes": 58168
+      "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+      "bytes": 80505
     },
     {
       "path": "src/texture_transfer.cpp",
-      "sha256": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f",
-      "bytes": 10830
+      "sha256": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+      "bytes": 9640
     },
     {
       "path": "src/texture_handles.cpp",
-      "sha256": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
-      "bytes": 19647
+      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
+      "bytes": 21665
     },
     {
       "path": "src/game_mode.cpp",
@@ -80,8 +95,8 @@
     },
     {
       "path": "docs/newgame-validation.json",
-      "sha256": "53a3e0b1041412060247572a4cd0eac29c639706b92da10cc94cfac1503f5305",
-      "bytes": 107197
+      "sha256": "1ecdfeee76641cbd35537913278cd8e40290ed2fdd43674001f0e4c8ce2d5973",
+      "bytes": 109865
     }
   ],
   "source_leads": [
@@ -225,19 +240,19 @@
       "exit": 0
     }
   ],
-  "runs": [
+  "workers": [
     {
-      "run": "mode_observer",
+      "agent": "/root/mode_observer",
       "scope": "Read-only runtime/lifetime/RNG review of1613ef1..74ec81e",
       "finding": "No concrete regression found. Effect reclaim observer is valid for this bounded first-name-traversal route, not a general per-traversal observer."
     },
     {
-      "run": "chapter_asset_import",
+      "agent": "/root/chapter_asset_import",
       "scope": "Read-only evidence/comparator/backend audit and handoff review",
       "finding": "Unwitnessed whole-sequence timing exception reproduced. Real No reference has witnesses. Manifest field-provenance and initial/post-fix binary-source wording need correction. NDEBUG and full external Play-tree provenance remain disclosed limits."
     },
     {
-      "run": "field_shadow_roster",
+      "agent": "/root/field_shadow_roster",
       "scope": "Read-only next-boundary/source audit and handoff review",
       "finding": "Use post131e7c/pre131e80 common field prefix. Distinct atlas manager+60 and environment resource+48. CLUT allocation-class selection is not reserved-handle queue. Availability does not mean loader completion. No material draft scope or acceptance defect."
     }

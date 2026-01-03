@@ -29,7 +29,7 @@ def main():
             first=next(i for i,(a,b) in enumerate(zip(data,original.read_bytes())) if a!=b)//unit
             raise RuntimeError(name+': mismatch at '+str(first))
         return {'name':name,'bytes':len(data),'sha256':sha(data),'exact':True}
-    report={'scope':"Pinned PCSX2 DSP kernels with direct voice start and fixed gains; no whole-device, reverb or hardware fidelity claim",
+    report={'scope':'Pinned PCSX2 DSP kernels with direct voice start and fixed gains; no whole-device, reverb or hardware fidelity claim',
             'reference_revision':REVISION,'reference_source_hashes':HASHES,'cases':[]}
     report['cases'].append(compare('gaussian-table','table',[]))
     bank=Path('local/audio-input/SNDDATA/BGM/EVS_MSH0.XV').read_bytes();_,body,tones=opening_samples(bank)

@@ -5,7 +5,7 @@
   "builds": {
     "native-release": {
       "shadow_callback": {
-        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.\n\nUses synthetic initial states and owned research RAM only in the oracle. This\ncovers follow, phase boundaries, STUN visibility/scale and shadow selectors,\nnot event54 initiation, sound/effect24, actor construction or shadow rendering.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -35,7 +35,7 @@
         "words_exact": 14014
       },
       "effect24": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -82,7 +82,7 @@
     },
     "native": {
       "shadow_callback": {
-        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.\n\nUses synthetic initial states and owned research RAM only in the oracle. This\ncovers follow, phase boundaries, STUN visibility/scale and shadow selectors,\nnot event54 initiation, sound/effect24, actor construction or shadow rendering.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -112,7 +112,7 @@
         "words_exact": 14014
       },
       "effect24": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -159,7 +159,7 @@
     },
     "model-sanitize": {
       "shadow_callback": {
-        "scope": "Compare the native HERO/STUN update callback with original0x135100.",
+        "scope": "Compare the native HERO/STUN update callback with original0x135100.\n\nUses synthetic initial states and owned research RAM only in the oracle. This\ncovers follow, phase boundaries, STUN visibility/scale and shadow selectors,\nnot event54 initiation, sound/effect24, actor construction or shadow rendering.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -189,7 +189,7 @@
         "words_exact": 14014
       },
       "effect24": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",

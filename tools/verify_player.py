@@ -75,7 +75,7 @@ def main():
     if final[2:4] != retail[boundary][2:4] or final[8:920] != retail[boundary][8:]:
         raise ValueError('Player transform/animation differs at the audio boundary')
     report = {
-        'scope': "Scripted HERO entrance and close-up with optional audio disabled; diagnostic startup, not player control",
+        'scope': 'Scripted HERO entrance and close-up with optional audio disabled; diagnostic startup, not player control',
         'elf_sha256': sha(Path('local/extracted/SCUS_971.29')),
         'native_app_sha256': sha(app),
         'reference_sha256': sha(reference), 'controller_sha256': sha(controller),

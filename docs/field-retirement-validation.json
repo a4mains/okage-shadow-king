@@ -4,75 +4,75 @@
   "implementation_revision": "3bf23f0681b3f2e0c40fb13f31af6014c6ee2068",
   "presentation_and_comparator_revision": "b641f70034f600ff712b04ecbef9b384517ddcd2",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "Native field destruction at 104446 and scheduler allocation removal at 104447; battle construction remains guarded at 104448.",
+  "scope": "Native field destruction at 104446 and scheduler allocation removal at 104447; battle construction remains guarded at 104448. Full port incomplete.",
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "sha256": "9aa64928e293cb67043cb7ed4fe671eb9d4ed68fac6da2d82768a055ee6b497e"
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/animation.hpp",
-      "sha256": "5445e3617780f2ea8c51a9521fa74d4499d728cc1188b71ac8580b5272daebd1"
+      "sha256": "5b55997654d2b788fbe13a83ffcda53cafd99565bcfc6990767fa7465095d032"
     },
     {
       "path": "include/okage/effect.hpp",
-      "sha256": "726f927c8078bcc9053f1227d29ffb1e94842390db8b5c37ee753321b266f5bf"
+      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1"
     },
     {
       "path": "include/okage/field.hpp",
-      "sha256": "ff56be1118d79df120b4b5aee1a15cd428643d4d1c09eae71cba5fa5c6f16f0e"
+      "sha256": "e63220e763f86872f9b447846bda8b63db1353c891b919e68476ca22711e8b6f"
     },
     {
       "path": "include/okage/field_projection.hpp",
-      "sha256": "9212fbee2f0379f6726e306bc7a246ec192b8bf70dc8c4e97bbf42d14414a750"
+      "sha256": "3b4f5d099c6d072bc7b168dbf0c394ccde668fa6bcf1c01abb4755df964ec32b"
     },
     {
       "path": "include/okage/game_mode.hpp",
-      "sha256": "8e1be76fb55bc9c42e2368ee2b9e08d7c9d3e696a3aff6dd00d24d0396477bbe"
+      "sha256": "0f1d01810c41f015356dbfc1c0e2fb0ea9784885771451568f9513c86b572a37"
     },
     {
       "path": "include/okage/scene_renderer.hpp",
-      "sha256": "77cacf0dcf46cedffbd829609f0cf0eabb0af0b458c341d0c2aefd98cc5c569c"
+      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
     },
     {
       "path": "src/animation.cpp",
-      "sha256": "2dc0b01099a003a111651e96dc5cb28b9fd42a58b5df0890156d68c182188dd7"
+      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81"
     },
     {
       "path": "src/effect.cpp",
-      "sha256": "467d3e2d8022c9026f99b14e1993edc90b59eda7c5bf29f0f25a9432403599e4"
+      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36"
     },
     {
       "path": "src/field.cpp",
-      "sha256": "31e102a82bf8dfe004e795796145cc166a07a1f9cefe2c7c7df022fd14cf61a8"
+      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16"
     },
     {
       "path": "src/field_projection.cpp",
-      "sha256": "36a050c5299f5432ca2bfb422b2349a8e85e1c2c43a67bb619b9fa2e09ca00c6"
+      "sha256": "4970771aadc0ec683a2f3431519ab1241f8a9ef69bf1f26df447213b5c5bb428"
     },
     {
       "path": "src/game_mode.cpp",
-      "sha256": "f05dae39aa2c283712bbc0908919f108399d1bd78f54c81c3d00c5fa9303437b"
+      "sha256": "07100537d7541b01d59c1a040e1c7b65cbd18639fecfc6286fc617dd8e5bd938"
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "8189dd3e254b2fc3e76f258dbe8183c6f17afa85fc2489c0fd6f7d84f8c8143e"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/scene_renderer.mm",
-      "sha256": "36161bb2d4f6d34cb0fc6a9197e39c0d5d128a32c46473e23b85ad092b105252"
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "tests/effect_tests.cpp",
-      "sha256": "1d39f5d009ccf6a41d0fc8d7e626b5e54581b1f9c6897e8bfa4a64f96a29f771"
+      "sha256": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
     },
     {
       "path": "tests/field_tests.cpp",
-      "sha256": "9f55910ff24e7db7fb93e933d6d51e57017697563ad08fda42fd4f24f1dd8c86"
+      "sha256": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32"
     },
     {
       "path": "tests/game_mode_tests.cpp",
-      "sha256": "ac356921dcc8ca94c82c2ca0f8ed0e351249995ecba7353b6cbea1f0af5842b3"
+      "sha256": "2540d4af36325d5a8c961eddbaab9461a5a1c08d9bbf588853697f43075412fb"
     },
     {
       "path": "tests/test_compare_game_mode.py",
@@ -84,11 +84,11 @@
     },
     {
       "path": "tools/play-oracle/boot.cpp",
-      "sha256": "882e0341404b03a3769b9338e3443dc1f47e8efecc199abe0560eea6f3d3901c"
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736"
     },
     {
       "path": "tools/play-oracle/reference_game_mode.hpp",
-      "sha256": "0f56ed5904b4eb5c720ee70a8ea6231fdd2a32e438aa35032a73baf37f266bd6"
+      "sha256": "bac703df46daec9ac1b74326c46a2d1be4f55e67cbae92f8e01a264763c76b09"
     }
   ],
   "runs": {
@@ -269,14 +269,14 @@
     "binary_sha256": "88d696f1699fa52fef3d297a3ac0bb1b3096c45d2fcb02e3b5f164eaefda2059",
     "view": {
       "path": "local/native-current-preview-104447-v2.png.view.png",
-      "sha256": "8189dd3e254b2fc3e76f258dbe8183c6f17afa85fc2489c0fd6f7d84f8c8143e"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     "view_dimensions": [
       1920,
       1440
     ],
     "endpoint_artifacts_equal": 57,
-    "desktop_inspection": "cgWindowNotFound from the automation; inspected saved AppKit view instead. Activated existing app with open -b, no new preview launched.",
+    "desktop_inspection": "CUA cgWindowNotFound; inspected saved AppKit view instead. Activated existing app with open -b, no new preview launched.",
     "retained_negative": {
       "path": "local/research/battle-retirement-integration-v1/close-preview-104447-v1.json",
       "sha256": "3109d259f5843209d183f2cda99ad337613bc224ed4f6c4de5a8cf0654837426"

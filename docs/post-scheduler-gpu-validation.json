@@ -63,7 +63,7 @@
           },
           "tick_pending": false,
           "composition_pending": false,
-          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false."
+          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false. Headless fallback waits on GPU without an AppKit/display event; this does not prove a display/VBlank gate."
         },
         "construction_frame": 104453
       },
@@ -113,7 +113,7 @@
           },
           "tick_pending": false,
           "composition_pending": false,
-          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false."
+          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false. Headless fallback waits on GPU without an AppKit/display event; this does not prove a display/VBlank gate."
         },
         "construction_frame": 104452
       },
@@ -156,7 +156,7 @@
           },
           "tick_pending": false,
           "composition_pending": false,
-          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false."
+          "scope": "Structural native event order; gpu_yield witnesses actual ready()==false. Headless fallback waits on GPU without an AppKit/display event; this does not prove a display/VBlank gate."
         }
       },
       "synchronous-105215-v1": {
@@ -299,7 +299,7 @@
     "new_original_vm_run": false,
     "new_python_suite_run": false,
     "original_fidelity": false,
-    "full_acceptance_met": false
+    "full_goal_complete": false
   },
   "evidence_sha256": {
     "local/research/battle-combat-entry-v1/original-live-v2/live.audio-index.json": "c5b66409fbe72d0d8df525f120c103acf38fbbd24dc4e96cb019b304b154bc66",
@@ -480,9 +480,9 @@
     "local/research/post-scheduler-gpu-v1/headless-110375-v1/native.png.camera.bin": "678ad6edd65d812d690c9c42e3c29290652041f2c885d3ac5735682624faa971",
     "local/research/post-scheduler-gpu-v1/headless-110375-v1/native.png.camera-state.bin": "62a331f5e3ca2634f1b4bfea5d3d2f260e0180b77b4bcb6a3beac376cdfc815d",
     "local/research/post-scheduler-gpu-v1/headless-110375-v1/native.png.actor-1.bin": "172b1d1dab0bc5aee522af1f3829964abcac7e3d52afc253067c522ece592151",
-    "src/native_runtime.mm": "d3e78f276e64a3cb3ea06df3bc69bfd5e63aae8f73cc110fbeaae05befe47f20",
-    "src/battle_session.hpp": "c365f86b62ad0baa4a70716d08ad5ed4d3a9ae1a2fe4c5181dad8e7514ecf9dc",
-    "src/battle_session.mm": "ed256e3126e1b3932d50d2e7de5c693bf78eb6299e7b0830bc70ae7dbff88614",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+    "src/battle_session.hpp": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f",
+    "src/battle_session.mm": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
     "include/okage/live_performance.hpp": "fe096b095e01865ecb1a0ee8af6cdff29273a0ee830ab5bed30c5c98c5fd8708",
     "src/live_performance.cpp": "d5a6f9e2eecde9a7cf88eadde93d65c1a1efdd28ea426108cc1c26c5624163eb",
     "tests/live_performance_tests.cpp": "9112ad7126d457153cf39b477d65bcaf47fde44c2f9c0980a6ae5322725c07b9",

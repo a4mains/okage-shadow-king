@@ -1,7 +1,7 @@
 {
   "schema": "okage-metal-backend-cache-validation-v1",
   "revision": "54a078c",
-  "scope": "Immutable native Metal library/pipeline/depth construction cached per exact strongly retained device identity; startup prewarm before first Session construction/tick.",
+  "scope": "Immutable native Metal library/pipeline/depth construction cached per exact strongly retained device identity; startup prewarm before first Session construction/tick. Asset reads, uploads, targets, queues and source readiness remain at original native owners.",
   "tests": [
     {
       "configuration": "Release",
@@ -43,7 +43,7 @@
       "exit_code": 0
     }
   ],
-  "runs": [
+  "workers": [
     {
       "commit": "dcc48cbe",
       "integrated": "dcc48cb",
@@ -73,6 +73,6 @@
     "source_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
     "saved_field_restored_frame": 109450,
     "endpoint_frame": 109775,
-    "scope": "Completed Release replay after pipeline caching; results dismissal and saved-field return execute."
+    "scope": "Completed Release replay after pipeline caching; results dismissal and saved-field return execute. This does not prove original timing or fidelity."
   }
 }

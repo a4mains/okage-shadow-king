@@ -8,23 +8,23 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "sha256": "ba0f18702ffea030ea14b594b0282bddef39850f3386ed78054c9a92ce7a1640",
-      "bytes": 10689
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+      "bytes": 41580
     },
     {
       "path": "include/okage/actor.hpp",
-      "sha256": "ac89d72d2dc42d409adebe1918f34fb4a6c0e0929d8ff89bbd2488ba9d48cbb1",
-      "bytes": 1815
+      "sha256": "e29552d3f14194a6d648f7514c36a525ffb890712720b3cd6796fa22e6c5d013",
+      "bytes": 2404
     },
     {
       "path": "include/okage/animation.hpp",
-      "sha256": "35e8318e3009b8ae073eaf990e406de89b2e70e30c9459554caa8f446140bcad",
-      "bytes": 3036
+      "sha256": "5b55997654d2b788fbe13a83ffcda53cafd99565bcfc6990767fa7465095d032",
+      "bytes": 4845
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "7ff76b4788e00ec0c82cdae545bb68a0c3fb63af0267b1b1feb1f3caf995864e",
-      "bytes": 1747
+      "sha256": "600c9484aebee6c815097f39ffa2674a4bd54f78b41340f46385a1dc6f45a90e",
+      "bytes": 4729
     },
     {
       "path": "include/okage/battle_actor_math.hpp",
@@ -33,23 +33,23 @@
     },
     {
       "path": "include/okage/battle_entry.hpp",
-      "sha256": "9ffb14d39260238ba7b3431b932dae18e6b62504693ba413d00ac5d3db2b72c1",
-      "bytes": 1130
+      "sha256": "a7960b5d514e91408bc8e5998909190f447755cbade316aa6402a1482dcbda73",
+      "bytes": 1222
     },
     {
       "path": "src/actor.cpp",
-      "sha256": "9a6ac2db7e06bd148c0bdcbeda4c0590b9281fa3721aca5b9c362b4b51a862f7",
-      "bytes": 2281
+      "sha256": "0e7d98d07238cf15a1bc9c0d8030aace4e484ddf2da6c6ea8b065cdcf47d7743",
+      "bytes": 4936
     },
     {
       "path": "src/animation.cpp",
-      "sha256": "734bf54692c56bc11a5a66ce716c3a723709e748df87c948d8cad8f0c1e312d4",
-      "bytes": 12574
+      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81",
+      "bytes": 19675
     },
     {
       "path": "src/battle_actor.cpp",
-      "sha256": "d933616bc2876df1f20977eb02630a60215c40ee7fa42212b82d123139fb69f9",
-      "bytes": 12763
+      "sha256": "f10dbb4819fa5aa0613a5c7e7a01976245659025bde7275aa6b8a78708f08b5e",
+      "bytes": 14632
     },
     {
       "path": "src/battle_actor_math.cpp",
@@ -58,28 +58,28 @@
     },
     {
       "path": "src/battle_entry.cpp",
-      "sha256": "786e9930586a3841881495241eed8d7d1e1083b47d24f2a4f235bf2fc125480b",
-      "bytes": 1568
+      "sha256": "33d6fd4ce4f5886c10198a0e8865d9628e4a1ff1a094916f075e605739d8e984",
+      "bytes": 1648
     },
     {
       "path": "src/battle_session.hpp",
-      "sha256": "63d7bebf755f6c16ddb7dce93fdac9dd370d36a0bb62da9ea608a87e455d6031",
-      "bytes": 1174
+      "sha256": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f",
+      "bytes": 5179
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "d168972ad1bc753514c14c43de45795bb1aed1b22fa31eccd1f2bf48b49ece90",
-      "bytes": 12553
+      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
+      "bytes": 98646
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "9704c351d486a47b2f30a3ed152e1315595d8beac39adcf49d2773212ae32efe",
-      "bytes": 100482
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "bytes": 275496
     },
     {
       "path": "tests/animation_tests.cpp",
-      "sha256": "96d172d37ae28f8771feddf9ea5ec0e66d19bca62287f828528e74beffee775c",
-      "bytes": 6717
+      "sha256": "008989d3b51bdb2256368dffc0e660ad9741e3730bc42097667fb08699decddc",
+      "bytes": 19280
     },
     {
       "path": "tests/battle_actor_math_tests.cpp",
@@ -108,8 +108,8 @@
     },
     {
       "path": "tools/play-oracle/boot.cpp",
-      "sha256": "5c8acf0f154bc340de44a6bd7687f36ddbfa052382f86250171400679187c025",
-      "bytes": 37402
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
+      "bytes": 60571
     },
     {
       "path": "tools/play-oracle/reference_battle_construction.hpp",
@@ -118,8 +118,8 @@
     },
     {
       "path": "tools/verify_battle_actor_math.py",
-      "sha256": "310b8a2d83e2edc849fc7eea0101f2332f7ec72c1204387e51b1442cecbd9872",
-      "bytes": 16136
+      "sha256": "5301c8e1c3cf12357978ada6d1a879a4e12da4cad5f9435a3ea8ee9bd5b3878d",
+      "bytes": 16351
     }
   ],
   "runs": {
@@ -912,7 +912,7 @@
         "Debug",
         "ASan+UBSan"
       ],
-      "scope": "Observed explicit-draw helper inputs only; selector replacement branches not observed; Stan timer+10 source literal distinguished from later overwrite."
+      "scope": "Observed explicit-draw helper inputs only; selector replacement branches not observed; Stan timer+10 source literal distinguished from later overwrite. No native game RNG repair."
     }
   },
   "tests": {

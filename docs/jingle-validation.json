@@ -1,5 +1,5 @@
 {
-  "scope": "JGL_GET sequencing and observed voice parameters; five fixed-condition DSP tones; original EE routing with recorded driver boundaries.",
+  "scope": "JGL_GET sequencing and observed voice parameters; five fixed-condition DSP tones; original EE routing with recorded driver boundaries. No whole-scene audio, RPC timing or shared-voice scheduling equivalence claim.",
   "assets": {
     "JGL_FLG.XSQ": "5cbfdeda457005fc4dea89774c5477c4bd25af0306cde566c50ef51afe3368a8",
     "JGL_STN.XSQ": "b9c66914a98995a4b428298f3f99b8c566257d02210957e02d3360a97a00f2e3",
@@ -179,7 +179,7 @@
     "exact": true
   },
   "dsp": {
-    "revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+    "revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
     "source_hashes": {
       "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
       "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -253,7 +253,7 @@
   },
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "bakery": {
-    "scope": "Compare bakery event30/message10015, with optional answers, confirmation lock and closure.",
+    "scope": "Compare bakery event30/message10015, with optional answers, confirmation lock and closure.\n\nUses observed event dispatch and pad polling. Does not establish bakery camera,\nrendering, audio fidelity or inventory persistence.\n",
     "original_run": {
       "command": [
         "build/play-research/okage-oracle/okage-boot-oracle",

@@ -1,5 +1,5 @@
 {
-  "scope": "Native EFD reference import and template16 state/quad support.",
+  "scope": "Native EFD reference import and template16 state/quad support. Reference57 composite expansion is explicitly unresolved. Interior loading, deferred scheduling/drawing and further gameplay remain incomplete.",
   "builds": [
     {
       "build": "native-release",
@@ -7,7 +7,7 @@
       "report": "local/interior-effects-native-release-v2/report.json",
       "report_sha256": "979fabb56dcf96490fff4d0686801c4da532752fec7bf498c9a20e87264cadb8",
       "validation": {
-        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.\n\nReference57 retains an explicitly unresolved composite element-count mismatch.\nNo deferred scheduling/drawing, interior loading or whole-scene RNG claim.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "headers": {
@@ -251,7 +251,7 @@
       "report": "local/interior-effects-native-v2/report.json",
       "report_sha256": "16eecea007ea13073170b07c5782cd65ceccea175e83bd0cd1d79ea46a8b8f12",
       "validation": {
-        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.\n\nReference57 retains an explicitly unresolved composite element-count mismatch.\nNo deferred scheduling/drawing, interior loading or whole-scene RNG claim.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "headers": {
@@ -495,7 +495,7 @@
       "report": "local/interior-effects-model-sanitize-v2/report.json",
       "report_sha256": "4223cfe5f32a86f8448a455aeaa17806736981d9a537cd6b64b2797fe04ad977",
       "validation": {
-        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.",
+        "scope": "Audit EFD reference headers, template98 smoke and template16 flame state.\n\nReference57 retains an explicitly unresolved composite element-count mismatch.\nNo deferred scheduling/drawing, interior loading or whole-scene RNG claim.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "headers": {

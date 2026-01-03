@@ -22,7 +22,7 @@ def main():
     if actual!=original.read_bytes():raise RuntimeError('RXWS original/native registration mismatch')
     report={'elf_sha256':ELF_HASH,'input':str(args.input),'input_sha256':hashlib.sha256(args.input.read_bytes()).hexdigest(),
             'exact':True,'compared_words':len(actual)//4,'sha256':hashlib.sha256(actual).hexdigest(),
-            'scope':"FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+            'scope':'FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices. No stream playback/timing claim.',
             'oracle':'Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots'}
     write_exact(args.output/'report.json',(json.dumps(report,indent=2)+'\n').encode());print(json.dumps(report,indent=2))
 

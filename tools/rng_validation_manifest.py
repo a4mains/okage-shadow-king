@@ -59,7 +59,8 @@ def main(out):
                 "build/startup-release/okage-native.app/Contents/MacOS/okage-native"]
     manifest = {
         "schema": "okage.rng.validation.v1",
-        "scope": "RNG: one Session RNG stream and required imported inputs through the startup prefix before executing 0x100618.",
+        "scope": "RNG: one Session RNG stream and required imported inputs through the startup prefix before "
+                 "executing 0x100618. Not title/model/XTA/field/battle history, sampling, tick37297, full T1 or the game.",
         "base_commit": "e709f21",
         "head_commit_at_generation": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",

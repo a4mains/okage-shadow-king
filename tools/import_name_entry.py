@@ -152,7 +152,7 @@ def import_elf(data):
         'strings': [{'source_vaddr': f'0x{address:08x}', 'bytes_hex': value.hex()}
                     for address, value in zip(STRING_ADDRESSES, strings)],
         'system_message_provider': 'GameDataTables::system_message for the source message lookups; no duplicate text table imported',
-        'scope': "Pointer-free interface/static literals only; keypad update semantics and controller behavior are not implemented.",
+        'scope': 'Pointer-free interface/static literals only; keypad update semantics and controller behavior are not implemented.',
     }
     return output, metadata
 

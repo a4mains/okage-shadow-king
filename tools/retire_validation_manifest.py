@@ -94,7 +94,10 @@ def main(out):
     evidence += [f"{cold}/align.txt", f"{cold}/binaries.sha256"]
     manifest = {
         "schema": "okage.retire.validation.v1",
-        "scope": "Retire: fixes-first acceptance/provenance; the persistent Session texture owner from the first 1296f8 title update through title retirement to entry of 124548 (successor body not run) on Start->Restore and Start->Left->New Game.",
+        "scope": "Retire: fixes-first acceptance/provenance; the persistent Session texture owner from the first 1296f8 "
+                 "title update through title retirement to entry of 124548 (successor body not run) on Start->Restore "
+                 "and Start->Left->New Game. Not Restore/name-entry construction, field/battle/XTA, prepared snapshots, "
+                 "sampling, tick37297, attract mode 11, full T1 or the game.",
         "base_commit": "962cf6f",
         "binaries_built_from": text(f"{V}/bin/source-head.txt"),
         "head_commit_at_generation": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),

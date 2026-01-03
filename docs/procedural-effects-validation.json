@@ -4,7 +4,7 @@
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "factories": {
     "native-release": {
-      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.\n\nUses explicit seeds and a synthetic one-element EFD in the original oracle.\nNative inputs are seeds and owned XIM dimensions, never captured vertices/RAM.\nExact ordered vertices include all attributes/tags and multiplicity. This does\nnot prove raster or session integration.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -159,7 +159,7 @@
       }
     },
     "native": {
-      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.\n\nUses explicit seeds and a synthetic one-element EFD in the original oracle.\nNative inputs are seeds and owned XIM dimensions, never captured vertices/RAM.\nExact ordered vertices include all attributes/tags and multiplicity. This does\nnot prove raster or session integration.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -314,7 +314,7 @@
       }
     },
     "model-sanitize": {
-      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.",
+      "scope": "Verify first-use procedural43/45/55/56/62 geometry, tags, UVs and RNG.\n\nUses explicit seeds and a synthetic one-element EFD in the original oracle.\nNative inputs are seeds and owned XIM dimensions, never captured vertices/RAM.\nExact ordered vertices include all attributes/tags and multiplicity. This does\nnot prove raster or session integration.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -471,7 +471,7 @@
   },
   "preparation": {
     "native-release": {
-      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "scope": "Verify native procedural preparation against complete original EFD import.\n\nChecks the noise grid, every RNG input state, final state, all66 cache records,\nplus ordered geometry/colors/UVs/tags of43/45/55/56/62 after template sharing.\nOther deterministic geometry and runtime programs are outside this comparison.\nThis explicit seed1/loaded-texture fixture does not prove cold-start fidelity.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -509,7 +509,7 @@
       "ordered_vertices_exact": 588
     },
     "native": {
-      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "scope": "Verify native procedural preparation against complete original EFD import.\n\nChecks the noise grid, every RNG input state, final state, all66 cache records,\nplus ordered geometry/colors/UVs/tags of43/45/55/56/62 after template sharing.\nOther deterministic geometry and runtime programs are outside this comparison.\nThis explicit seed1/loaded-texture fixture does not prove cold-start fidelity.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -547,7 +547,7 @@
       "ordered_vertices_exact": 588
     },
     "model-sanitize": {
-      "scope": "Verify native procedural preparation against complete original EFD import.",
+      "scope": "Verify native procedural preparation against complete original EFD import.\n\nChecks the noise grid, every RNG input state, final state, all66 cache records,\nplus ordered geometry/colors/UVs/tags of43/45/55/56/62 after template sharing.\nOther deterministic geometry and runtime programs are outside this comparison.\nThis explicit seed1/loaded-texture fixture does not prove cold-start fidelity.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -588,7 +588,7 @@
   "regressions": {
     "native-release": {
       "noise": {
-        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -647,7 +647,7 @@
         ]
       },
       "shadow": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [
@@ -747,7 +747,7 @@
     },
     "native": {
       "noise": {
-        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -806,7 +806,7 @@
         ]
       },
       "shadow": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [
@@ -906,7 +906,7 @@
     },
     "model-sanitize": {
       "noise": {
-        "scope": "Compare original effect noise initialization and its cube-face consumers.",
+        "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_run": {
           "command": [
@@ -965,7 +965,7 @@
         ]
       },
       "shadow": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [

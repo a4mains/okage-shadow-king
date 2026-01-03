@@ -1,6 +1,7 @@
 {
   "runtime_revision": "185731f",
-  "scope": "Common ordinary mode0 field actor material integration and reached exact-zero VU normal behavior.",
+  "previous_goal_turn": "No goal progress: prior viewport response reverified the existing full4:3 GUI. This checkpoint changes runtime material/lighting behavior and validates ordinary cold-save progression.",
+  "scope": "Common ordinary mode0 field actor material integration and reached exact-zero VU normal behavior. Full native port remains incomplete. Pinned emulator evidence is not physical PS2 proof.",
   "runs": {
     "release": {
       "run": "local/research/post-restore-v1/native-mode0-release-v3/run.json",
@@ -1217,7 +1218,7 @@
       }
     ],
     "schema": "okage-post-restore-checkpoint-audit-v1",
-    "scope": "Read-only audit of cold paired Restore v2 and fixed-anchor outdoor interval v1 evidence.",
+    "scope": "Read-only audit of cold paired Restore v2 and fixed-anchor outdoor interval v1 evidence. Latest mode0-specific renderer matrix is intentionally separate.",
     "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5"
   },
   "limitations": [
@@ -1275,10 +1276,10 @@
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "local/game-data-stage-v2/FLDDATA/OBJ/STUN.XPF/a.xmd": "8fc5dd71eac75745bdf12ea774b5f1e744a9c7cf3cf3fa7435741f3904218351",
     "local/game-data-stage-v2/FLDDATA/OBJ/GRM.XPF/a.xmd": "3a5b81daada47406aef96b4e21a8c04cedb9554ff185483ae62b6fa7a220c289",
-    "src/scene_renderer.mm": "386250575cce1c92b3a929a09224db0f1e8347ba0d5e171ad9e8a6d84f74c026",
-    "src/ordinary_lighting.cpp": "1a1328b5a13f2a1dc298509a9ba8896c8dbd8fc8c3d9de1f808cd2fb8661d7be",
-    "tests/scene_map_material_tests.mm": "fe8ac3fc0e6aebe604d8ca5f67e9658a5694ccdd3b9f3de9e16aff0019eda01d",
-    "tests/ordinary_lighting_tests.cpp": "4fde16b4bc1c26f014794f90da90359e1ce0417562b48c778c9551c83f4f5dc8",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
+    "tests/scene_map_material_tests.mm": "289a2b120de28fbd6135515cffa5a6ba13c56800e5a64553aa4c596d63a2f623",
+    "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
     "local/research/post-restore-v1/zero-normal-v1/release-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
     "local/research/post-restore-v1/zero-normal-v1/debug-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",
     "local/research/post-restore-v1/zero-normal-v1/sanitize-final.bin": "97904e36bc880c1db3506a2ab3556afde047b58e2980f83e6f96f431d963871c",

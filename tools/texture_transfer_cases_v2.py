@@ -9,7 +9,8 @@ textureTransfer2): kind (0 allocate+upload, 2 synthetic descriptor, 3 synthetic
 descriptor after a staged pre-upload, 4 two allocations then pre-upload and main
 upload), psm, w, h, x, y, tbp, tbw, pattern, seed, pre_lo, pre_len.  For kinds 3/4
 pre_lo is the pre-upload PSM and pre_len = pre_w | pre_h << 16.  The case list
-is code, not data, so the coverage claims in the startup texture-transfer coverage contract are checkable against it.  The first 122 cases are the
+is code, not data, so the coverage claims in the startup texture-transfer coverage contract and
+HANDOFF.md are checkable against it.  The first 122 cases are the
 Startup corpus unchanged (same order and seeds); the PSM1 cases (Title) follow.  Refuses to overwrite its outputs."""
 import json
 import os

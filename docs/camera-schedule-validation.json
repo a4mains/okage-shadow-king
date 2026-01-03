@@ -1,5 +1,5 @@
 {
-  "scope": "Check HOME1B original phase order, player camera queries and native script state.",
+  "scope": "Check HOME1B original phase order, player camera queries and native script state.\n\nThe 48-word observer is research-only. This does not establish raster, full pose,\nNPC, effects or audio fidelity, nor compare requested and blended camera targets.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "original_run": {
     "command": [
@@ -178,38 +178,38 @@
   "native_regressions": {
     "home1b": {
       "report": "local/research/home1b-father-talk-validation-v1.json",
-      "sha256": "ef20cf187fca18856ac1e1b80eadd6715c6161648e799cac244c9a1b251e7b6a",
-      "scope": "Audit successive HOME1B family conversation intervals."
+      "sha256": "af76aa6a64b08016036a0b534bf228452151157cd9af5b4040341b3ae1951661",
+      "scope": "Audit successive HOME1B family conversation intervals.\n\nOriginal save continuity fixes each native anchor. Requested pad times are not\nused as observation times. State equality is not a full raster/audio claim.\n"
     },
     "kitchen_movement": {
       "report": "local/research/camera-order-movement-validation-v3.json",
       "sha256": "314cada995386f6ee6e2d98fc0c2c57b13d8824d0f496cad98940162fd91fc53",
-      "scope": "Audit integrated native kitchen movement against paired original observations."
+      "scope": "Audit integrated native kitchen movement against paired original observations.\n\nOriginal rendering precedes the player callback within a captured vblank.\nCompare callback state with native post-update state; rendered roots precede\nmovement, while pose channels follow that frame's scene evaluation. The legacy\noption retains the old runtime's comparison for historical captures. Derive the\ntime anchor from handoff/counter state, never by minimizing spatial errors."
     },
     "dust": {
       "report": "local/research/camera-order-dust-validation-v1.json",
       "sha256": "6fd80b71f71247ced8f48c3f627c89085eb8d234dc036aa38720d5cc34e2c9c4",
-      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling."
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.\n\nDoes not compare whole-scene pixels, NPC/global RNG, camera trajectories or\noriginal/native root coordinates. Original field timing is independently observed.\n"
     },
     "north_gate": {
       "report": "local/research/camera-order-north-gate-validation-v1.json",
       "sha256": "9dc43b70fe053cec225c144f57bfde663b3e3faf38b6fe12c4377b66cc286539",
-      "scope": "Audit native north-gate event state/camera and animated screen feedback."
+      "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n"
     },
     "boys": {
       "report": "local/research/camera-order-boys-validation-v2.json",
       "sha256": "bc9c38d3613ebe0185f1dfcdb515f544e1b4ffab8896d3afd765fbb5f2ced1d0",
-      "scope": "Audit event69/message10002 opening and actor-target camera integration."
+      "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n"
     },
     "gate": {
       "report": "local/research/camera-order-gate-validation-v1.json",
       "sha256": "0528b736910f8cc9d8089ed54ecf68ee96699bfbe3885a769b85d33193bd04ee",
-      "scope": "Audit the native field gate event against two completed original captures."
+      "scope": "Audit the native field gate event against two completed original captures.\n\nChecks 440 manager samples and 186 scripted camera samples. Exploration camera\ntrajectories, complete movement, gate bone animation, sound and pixels are not\ncovered by these exact comparisons. No reference data is an application input.\n"
     },
     "system_message": {
       "report": "local/research/camera-order-system-validation-v2.json",
       "sha256": "7783b48b849e15194adc41ba7131f269560f5bacd82ff20fc95a5e9e3609cbb0",
-      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff."
+      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.\n\nCovers90 constructor words,180 controller returns,300 field-manager samples and\nobserved pressed latches. UI geometry, full rendering/audio, movement trajectories\nand cold game construction remain outside this comparison.\n"
     }
   },
   "doorway_numerical_limit": {

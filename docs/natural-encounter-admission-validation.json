@@ -445,7 +445,7 @@
     "local/research/natural-encounter-admission-v1/root-verification-v3.json": "9e8ecf61edbb309a822dac8067802145ee5d6e6e16105eefff4b2b8e2219f646",
     "local/research/natural-encounter-admission-v1/stage-collision-review.md": "77e3cfe24756ca3bd8d280163aed12ab707a21b8760d3d273ae38cb61b606ab0"
   },
-  "scope": "Ordinary natural transition executes through native battle construction.",
+  "scope": "Ordinary natural transition executes through native battle construction. Completed battle load, combat/return, original parity, startup determinism, full playthrough and shipping acceptance remain incomplete.",
   "v2": {
     "completed_ticks": 37313,
     "failed_attempt": 37314,

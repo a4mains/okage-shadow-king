@@ -30,7 +30,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
     "exit_code": 1,
     "seconds_including_control_waits": 1085.741267791,
     "saves_after": {
@@ -99,11 +99,11 @@
       0,
       0
     ],
-    "scope": "Original active cue29 memory reader, four source passes."
+    "scope": "Original active cue29 memory reader, four source passes. Only semaphore entry/exit stubbed. Research fixture only."
   },
   "loop_checks": {
     "release": {
-      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.",
+      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.\n\nRAM fixtures and emulator binaries are research-only. The runtime loads only the\nowned RXWS bank. This does not establish mixed audio, DMA timing or reverb parity.\n",
       "cue": 29,
       "source_offset": 232272,
       "source_size": 30288,
@@ -152,7 +152,7 @@
       }
     },
     "debug": {
-      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.",
+      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.\n\nRAM fixtures and emulator binaries are research-only. The runtime loads only the\nowned RXWS bank. This does not establish mixed audio, DMA timing or reverb parity.\n",
       "cue": 29,
       "source_offset": 232272,
       "source_size": 30288,
@@ -201,7 +201,7 @@
       }
     },
     "sanitize": {
-      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.",
+      "scope": "Compare a reached FORM loop with original source traversal and dry DSP.\n\nRAM fixtures and emulator binaries are research-only. The runtime loads only the\nowned RXWS bank. This does not establish mixed audio, DMA timing or reverb parity.\n",
       "cue": 29,
       "source_offset": 232272,
       "source_size": 30288,
@@ -286,7 +286,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "d892b9101f49114e08e1a3f025aa6770aae76a64bc25fc0f3cc62afeda69b2ab",
       "pad_sha256": "40561d3b1cfc576f288ed755a09fb739a062a1ad81e8bc103410f785b97a8e47",
-      "scope": "Original post-battle continuation through ordinary Confirm presses.",
+      "scope": "Original post-battle continuation through ordinary Confirm presses. Research reference only; no native inputs from source state.",
       "exit_code": 0,
       "seconds": 28.806669125,
       "endpoint_state_sha256": "04363628d01efaff69c0597ee75131c3309869a29c29344ec56905556dc2d938"
@@ -326,7 +326,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "b74d4d65da2af080079935e4da3fc5de8c098954793a2d1085df0bba9ed322d5",
       "pad_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1.",
+      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1. Different approach histories/HP; not complete state parity. Research reference only; no native inputs from source state.",
       "exit_code": 0,
       "seconds": 10.851650541,
       "endpoint_state_sha256": "fe3d9b207f594e77fe0af40f5c70ae9220b21300e1e296f281892f3136ca61b6"
@@ -366,7 +366,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "e491ef5513f212af952e9e256d0f8789725adcb8ea9da63b180f34e29d472d8f",
       "pad_sha256": "e5f842e30f8e7b4bde0238de7fcadf112cde03baac7f27dbdadf45f62bdf3378",
-      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1.",
+      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1. Different approach histories/HP; not complete state parity. Research reference only; no native inputs from source state.",
       "exit_code": 0,
       "seconds": 10.406080042000001,
       "endpoint_state_sha256": "a428f6b621d1cab45a9d369c11fa88ab2f389a3e4a158d3c2246903e60308ca6"
@@ -406,7 +406,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "e491ef5513f212af952e9e256d0f8789725adcb8ea9da63b180f34e29d472d8f",
       "pad_sha256": "26ec3ec4c35d5129f70022693f70fc064a1e6f396a076e777993a5d671a947d1",
-      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1.",
+      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1. Different approach histories/HP; not complete state parity. Research reference only; no native inputs from source state.",
       "exit_code": 0,
       "seconds": 14.894450417,
       "endpoint_state_sha256": "b74d4d65da2af080079935e4da3fc5de8c098954793a2d1085df0bba9ed322d5"
@@ -446,7 +446,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "e491ef5513f212af952e9e256d0f8789725adcb8ea9da63b180f34e29d472d8f",
       "pad_sha256": "e8532f62d344cd7c1184d51e89688acc5f4b3d81e8be345fd87e6df81de037ec",
-      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1.",
+      "scope": "Original valve interaction starting at Confirm; native anchor7648 corresponds to source1. Different approach histories/HP; not complete state parity. Research reference only; no native inputs from source state.",
       "exit_code": 0,
       "seconds": 21.141267791999997,
       "endpoint_state_sha256": "9b7186825954e3a0f15a10a1319675e9a5baef2f2490545a313cf8e2c2a214ea"
@@ -488,7 +488,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "04363628d01efaff69c0597ee75131c3309869a29c29344ec56905556dc2d938",
       "waypoints_sha256": "85419d4076d4e1fd3f8c571c897d8206a76a46ea3430aa40dd6dc5e7cab076ef",
-      "scope": "Research-only controller heuristic; ordinary movement to valve, no state edits or native state imports.",
+      "scope": "Research-only controller heuristic; ordinary movement to valve, no state edits or native state imports. Not recovered gameplay navigation.",
       "exit_code": 0,
       "seconds": 11.731463542,
       "endpoint.state.zip_sha256": "f427768eb6aa4c128fcf99d47fbd9151a5569b37fe461f8962355c352874fcdc",
@@ -531,7 +531,7 @@
       "binary_sha256": "b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac",
       "source_state_sha256": "f427768eb6aa4c128fcf99d47fbd9151a5569b37fe461f8962355c352874fcdc",
       "waypoints_sha256": "8d40816df18a825f9cee623b337f9eba611142585ed930c74253c8862fabefec",
-      "scope": "Research-only controller heuristic; ordinary movement to valve, no state edits or native state imports.",
+      "scope": "Research-only controller heuristic; ordinary movement to valve, no state edits or native state imports. Not recovered gameplay navigation.",
       "exit_code": 0,
       "seconds": 11.758325625000001,
       "endpoint.state.zip_sha256": "e491ef5513f212af952e9e256d0f8789725adcb8ea9da63b180f34e29d472d8f",
@@ -561,7 +561,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 1,
       "seconds_including_control_waits": 1342.595623333,
       "saves_after": {
@@ -592,7 +592,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 0,
       "seconds_including_control_waits": 6.986657292,
       "saves_after": {
@@ -623,7 +623,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 1,
       "seconds_including_control_waits": 87.62071562499999,
       "saves_after": {
@@ -1169,14 +1169,14 @@
       },
       {
         "path": "tools/diagnose_home1b_interval.py",
-        "bytes": 18765,
-        "sha256": "dbdd2cae72352a638bdd4703bfe2f5b77c25f33bb5525afae743ce5c1323819d",
+        "bytes": 18840,
+        "sha256": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b",
         "verification": "full"
       },
       {
         "path": "tools/play-oracle/boot.cpp",
         "bytes": 60571,
-        "sha256": "e60ae39f1d2daac2bb30ea28e4653a2d1ce1e17918be274030937bbd44a72898",
+        "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
         "verification": "full"
       },
       {
@@ -4416,8 +4416,8 @@
     },
     "isolated_field_evidence": {
       "schema": "okage-headless-observation-evidence-review-v1",
-      "scope": "Artifact inventory only.",
-      "run_commit": "3212ae86af4343cb6e83f894c4142c76b384a959",
+      "scope": "Artifact inventory only. The isolated executable was already built and exercised; this review did not run simulations or rebuild.",
+      "worker_commit": "3212ae86af4343cb6e83f894c4142c76b384a959",
       "implementation_commit": "c0bc0225cbb65d78f9fc5f06334681c759866eca",
       "isolated_build": "/Users/user/src/okage-shadow-king/local/worktrees/headless-observation-v1-build",
       "executable": {
@@ -4583,7 +4583,7 @@
           "sha256": "cab6df8dc8c47e0ad0bf262329fd178dd732e094dac2414007913b53fc24306b"
         }
       },
-      "limitations": "The field case demonstrates restored scene-74 status and a short ordinary movement on this native save."
+      "limitations": "The field case demonstrates restored scene-74 status and a short ordinary movement on this native save. It does not establish whole-game fidelity, renderer accuracy, or original-engine equivalence."
     }
   },
   "tests": {
@@ -4920,7 +4920,7 @@
     "load_request_pc": "0x2c14",
     "select_pc": "0x2c1c",
     "import": {
-      "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+      "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "music_id": 44,
       "table_address": 2078352,
@@ -4966,10 +4966,10 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs."
     },
     "replay": "local/research/progressed-church-v1/replay-through-music44-v1.txt",
-    "scope": "Explicit resource registration and owned assets; existing loading/sequence behavior unchanged.",
+    "scope": "Explicit resource registration and owned assets; existing loading/sequence behavior unchanged. Native-v5 completed13759 past the old13645 guard and score44 selection, event still running. Dry native consistency is not original audio fidelity.",
     "dry_checks": [
       {
         "build": "release",
@@ -5285,7 +5285,7 @@
         "v5_expected_and_current_binary_sha256": "8df077dc846a4ec43157323270a0876d1e3906c196311037a8eeb65b5a4cebad"
       },
       "schema": "native-music44-integration-audit-v1",
-      "scope": "Read-only comparison of retained native-v4 failure and native-v5 replay after reviewed resource 44 was staged."
+      "scope": "Read-only comparison of retained native-v4 failure and native-v5 replay after reviewed resource 44 was staged. No process was launched, and no game state or tracked files were changed."
     }
   },
   "artifacts_semantics": "Hashes identify artifacts at their stated checkpoint; build paths may be superseded only after associated processes terminate. Immutable captures and recorded live prefixes are preserved."

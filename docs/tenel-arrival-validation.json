@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Native village gate and Tenel arrival, owned-asset startup through92915.",
+  "scope": "Native village gate and Tenel arrival, owned-asset startup through92915. Bounded original observed-state comparisons; not full state, raster, audio, or complete gameplay equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "implementation_commit": "fd33b64",
   "native_binary": {
@@ -962,7 +962,7 @@
       "path": "local/research/village-gate-v1/live-idle-primary-review-v1.json",
       "sha256": "b3561675fb90b618eca7ccbfcdcbc312e881119e5c0326c42108f1ad25aa04b4"
     },
-    "second_pass_review": {
+    "worker_review": {
       "path": "local/research/village-gate-v1/live-idle-comparison-review-v1.json",
       "sha256": "2f6d9012ae5a5815da646413d1d7c59613ecdb06242b05539f92ffa0303bddf1"
     },
@@ -974,7 +974,7 @@
       "path": "local/native-tenel-live-92915-v1.png.view.png",
       "sha256": "ebf210bb3112798825775e24f537ffb2d988be87312dbc75f0061664871805c2"
     },
-    "scope": "300 actual AppKit ticks, 59.1861198294 ticks and draw callbacks per second, not presented FPS. 50/51 immediate endpoint artifacts equal; only device-audio metadata differs; PCM equal."
+    "scope": "300 actual AppKit ticks, 59.1861198294 ticks and draw callbacks per second, not presented FPS. 50/51 immediate endpoint artifacts equal; only device-audio metadata differs; PCM equal. Zero interval silence versus4800 later capture underrun. No listening claim."
   },
   "supporting_evidence": [
     {

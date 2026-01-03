@@ -242,7 +242,7 @@
     },
     "trace_source": {
       "path": "tools/play-oracle/reference_transition.hpp",
-      "sha256": "3b6de2e155a5237009229ab5a6cf14a37977f653ec4307c85d97062573cb5c6d"
+      "sha256": "6c3ef88dfb27101043c8e6b07cfad34b2e82a4173f4f69bb0a1b9ca469318f3d"
     },
     "record_words": 128,
     "total_records": 146,
@@ -498,7 +498,7 @@
       "member_meanings_assigned": false,
       "native_session_source": {
         "path": "src/native_runtime.mm",
-        "sha256": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328"
+        "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
       },
       "native_initial_backing": "Zeroed diagnostic variables, not recovered new-game initialization.",
       "scope": "Static dependency; authentic initialization and battle behavior remain unresolved."
@@ -510,7 +510,7 @@
   },
   "previous_entry_validation": {
     "path": "docs/first-ghost-entry-validation.json",
-    "sha256": "3f2a3d0cd7ccb1dae90962afd0c74773d063a538f3919ab57313da0feb92f820"
+    "sha256": "306ddc9bc3190950da98d10fc3806cf674b7e54e5c7ac643b2b288ced31e7767"
   },
   "limitations": [
     "The original completes the last-warning interval while native fails; no full fixed-interval comparison pass is available for that interval.",

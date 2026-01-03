@@ -2,17 +2,17 @@
   "date": "2021-10-16",
   "base_revision": "913d6bbddbcde41d94da0f2ba7f429388008796b",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "Reached service54 native integration and progression through69455; bounded original static semantics and retained helper corpora, failed full-interval original comparisons, native cross-build consistency.",
+  "scope": "Reached service54 native integration and progression through69455; bounded original static semantics and retained helper corpora, failed full-interval original comparisons, native cross-build consistency. No full-game or original raster/audio equivalence.",
   "source_sha256": {
-    "include/okage/effect.hpp": "5420996198d41eacdd026d8708bd65d7475ee7a3e1a064090d53774dacbb3c3d",
-    "include/okage/field.hpp": "2f375e9badda89e34306e13e412317df17cd6d3f4865926b0e29da989ebd633a",
-    "src/field.cpp": "e0c710991dc13d73aaef57489b12bb3046c62f574416e3f6ab8b28173295c9ce",
-    "src/field_shadows.cpp": "c1171900cd669bfafbdce3f53d983bb053e7d6fe8336e34464eea369ec60a5d9",
-    "tests/field_raster_tests.cpp": "91d49d483c7e90dd83fb8fc5c1b03b77615798b46bdbc7c432df71e8595b7601",
-    "tests/field_tests.cpp": "f238cf5661c7b538e49ca86a2f2d196c2d1610539ac2ddcec379fa07815ef3c3",
-    "tests/test_interval_observations.py": "70aef9a3f06e026600ea393f5a7454388fe743c1bcc8883694fdb5d27ad46319",
-    "tools/diagnose_home1b_interval.py": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520",
-    "tools/summarize_interval_report.py": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422"
+    "include/okage/effect.hpp": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
+    "include/okage/field.hpp": "e63220e763f86872f9b447846bda8b63db1353c891b919e68476ca22711e8b6f",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/field_shadows.cpp": "1b339436ae785f0bd9f8489aa6a84bf2503370009f3f7f863e90cd874fd496ec",
+    "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
+    "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
+    "tests/test_interval_observations.py": "d999616d4172a5316e0ab7cd1a4c216d9c73c8042da1ec7595c826336af07aa5",
+    "tools/diagnose_home1b_interval.py": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b",
+    "tools/summarize_interval_report.py": "c6a8aa745de7e92751334c70a71881c7bf98fd34299b4aa9e1e779e163083e0c"
   },
   "reports": {
     "local/research/service54-integration-v1/warm-sentiments-interval-v1.json": "abd063fe3318f3862e90fc520a3cf40d7f35866aa90c086df9eff98ecb32ff6c",

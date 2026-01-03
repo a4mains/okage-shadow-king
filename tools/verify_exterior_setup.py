@@ -59,7 +59,7 @@ def main():
             raise ValueError('Original/native mismatch: ' + name)
         compared.append({'name': name, 'offset': offset, 'exact_bytes': size})
     report = {
-        'scope': "Scene1 entry-zero settings and NPC enables; not construction, rendering or playability",
+        'scope': 'Scene1 entry-zero settings and NPC enables; not construction, rendering or playability',
         'scene': 1, 'entrance': 1, 'all_compared_bytes_exact': True,
         'compared': compared, 'settings': list(struct.unpack_from('<12I', actual, 0x400)),
         'inputs': [{'path': str(p), 'sha256': sha(p)} for p in

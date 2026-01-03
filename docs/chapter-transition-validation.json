@@ -164,7 +164,7 @@
       "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
       "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
       "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
-      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load.",
+      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load. Existing read-only game-mode observer; no guest writes.",
       "exit_code": -6,
       "seconds": 0.42536291699999995
     },
@@ -191,7 +191,7 @@
       "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
       "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
       "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
-      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load.",
+      "scope": "Unchanged four-VBlank held name-accept inputs; extended through chapter to ordinary field load. Existing read-only game-mode observer; no guest writes.",
       "exit_code": 0,
       "seconds": 24.992525875
     }
@@ -289,7 +289,7 @@
     "log": "local/research/chapter-session-v1/python-v1.log"
   },
   "component": {
-    "scope": "Component only: pair first completed chapter callback, source parent entry sees preceding update.",
+    "scope": "Component only: pair first completed chapter callback, source parent entry sees preceding update. Native109418 versus inferred source422. Earlier loading/title timing remains unaligned; not a whole-route fixed-anchor pass.",
     "native_rows": 290,
     "source_live_rows": 290,
     "counter_and_command_word_checks": 580,

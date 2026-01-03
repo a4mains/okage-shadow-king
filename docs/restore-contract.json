@@ -6,9 +6,9 @@
  },
  "baseline": {
   "title_contract": "docs/title-contract.json",
-  "title_sha256": "c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50",
+  "title_sha256": "c9e9dceba63875e2fd5940da86c11b3d16b8d6d3cb85cfc041d7bd6a426b353f",
   "retire_contract": "docs/retire-title-contract.json",
-  "retire_sha256": "dbfedfb97675d393fd23f292460cbe1814279b7d045f846a01c99c42ea2aa081",
+  "retire_sha256": "c36e62493f65eb6f360c2217bba530f36fa7a30d5222756cc74793e0fe305970",
   "retire_route": "restore",
   "start_state": {
    "live_allocations": 79,

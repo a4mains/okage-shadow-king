@@ -1,5 +1,5 @@
 {
-  "scope": "Audit HOME1B departure and HOME1A entrance1 as separate loading phases.",
+  "scope": "Audit HOME1B departure and HOME1A entrance1 as separate loading phases.\n\nChecks the observed input route, exit request/countdown, owned-data entrance and\npreserved exit flag. Host synchronous loading is not original loading timing.\nNo whole-scene, animation-phase, raster or audio equivalence is claimed.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_run": {
     "command": [

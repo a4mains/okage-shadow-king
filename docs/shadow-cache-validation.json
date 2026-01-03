@@ -1,13 +1,13 @@
 {
-  "scope": "Bounded native perspective/cache arithmetic and owned bone binding/rest matrices.",
+  "scope": "Bounded native perspective/cache arithmetic and owned bone binding/rest matrices. No field integration, animated shadow rendering, raster equivalence or new route proof.",
   "implementation_base_commit": "5597bf1",
   "implementation_uncommitted_at_handoff": false,
   "source_sha256": {
-    "include/okage/shadow.hpp": "a43fd71ae3dd3000d39d366073825235f75098f92b92a43cda6b2a2364212a04",
-    "src/shadow.cpp": "f12c42e64ea772ed32ac50e98391a554042bfd155dd49f17946e176181f5cf3a",
-    "src/assets_main.cpp": "6eb9292582f70217afc154cff845af0fae132da65af937c48c85971e5e321442",
-    "tests/shadow_tests.cpp": "cf7a4a7f01623d16686e9d8ad51d888ef546bdf148c311f5cd36d22a4fd94b18",
-    "tools/play-oracle/main.cpp": "289e6c438bb9395085d9115a0497d38c4edc41ed68c24cb72d74f74cf02a06e1",
+    "include/okage/shadow.hpp": "c98221453631e732781608ea30b88e0d50d3280b89e1317df9810ea5bd3295d2",
+    "src/shadow.cpp": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "tests/shadow_tests.cpp": "4934d18d6b26f955621a0f023ddb0821c8fd4cfa02208e5b38e5a9ab0f4e4bfe",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_shadow_cache.py": "de32664ccc288e9f87563bc41067bcca101aa3379342556ce720eb6374e8a0ad",
     "tools/verify_shadow_binding.py": "3ba8d2c5e31dda9e8b2489b37993759f305bd3ec20ebb5cc3f86e62487c2a7d9",
     "tests/test_shadow_cache.py": "e87fceb2c6b94fd752336f134766c117cdde2e9cb941eada2d5ba34366665e9b",
@@ -16,7 +16,7 @@
   "reports": {
     "cache": {
       "native-release": {
-        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.",
+        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.\n\nExplicit settings, matrices and vertices feed native arithmetic and original EE\nsetup plus VU1 entries0/2/6/8/12/18/16/20. No RAM snapshots, raster comparison or\nfield integration are involved. The two output caches include original clip flags\nand accumulated clip status, including the zero-W division boundary.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -50,7 +50,7 @@
         }
       },
       "native": {
-        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.",
+        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.\n\nExplicit settings, matrices and vertices feed native arithmetic and original EE\nsetup plus VU1 entries0/2/6/8/12/18/16/20. No RAM snapshots, raster comparison or\nfield integration are involved. The two output caches include original clip flags\nand accumulated clip status, including the zero-W division boundary.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -84,7 +84,7 @@
         }
       },
       "model-sanitize": {
-        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.",
+        "scope": "Compare full perspective setup and shadow VU1 camera/screen caches exactly.\n\nExplicit settings, matrices and vertices feed native arithmetic and original EE\nsetup plus VU1 entries0/2/6/8/12/18/16/20. No RAM snapshots, raster comparison or\nfield integration are involved. The two output caches include original clip flags\nand accumulated clip status, including the zero-W division boundary.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -120,7 +120,7 @@
     },
     "binding": {
       "native-release": {
-        "scope": "Compare owned shadow bone binding and rest matrices with original execution.",
+        "scope": "Compare owned shadow bone binding and rest matrices with original execution.\n\nOriginal bone/hierarchy/name loaders and0x1b6b40 share the main bone buffer;\n0x184a20 evaluates every shadow hierarchy slot. The probe enables unused slots\nfor comparison and does not claim runtime visibility flags or animated rendering.\n",
         "native_sha256": "b7c10c21d6c60556a187c341afc3bfc29a2b8519f48e705e6bd6bd420d31ca8c",
         "cases": [
           {
@@ -242,7 +242,7 @@
         ]
       },
       "native": {
-        "scope": "Compare owned shadow bone binding and rest matrices with original execution.",
+        "scope": "Compare owned shadow bone binding and rest matrices with original execution.\n\nOriginal bone/hierarchy/name loaders and0x1b6b40 share the main bone buffer;\n0x184a20 evaluates every shadow hierarchy slot. The probe enables unused slots\nfor comparison and does not claim runtime visibility flags or animated rendering.\n",
         "native_sha256": "544c5db7ab26370cc38088484cc638db1b6e7a041d489fc905dd3e0687b42cf7",
         "cases": [
           {
@@ -364,7 +364,7 @@
         ]
       },
       "model-sanitize": {
-        "scope": "Compare owned shadow bone binding and rest matrices with original execution.",
+        "scope": "Compare owned shadow bone binding and rest matrices with original execution.\n\nOriginal bone/hierarchy/name loaders and0x1b6b40 share the main bone buffer;\n0x184a20 evaluates every shadow hierarchy slot. The probe enables unused slots\nfor comparison and does not claim runtime visibility flags or animated rendering.\n",
         "native_sha256": "f6431d828e5181a5a8f8952fecdd98db597f2f0e52d75066a47f9eb950ce1b03",
         "cases": [
           {
@@ -488,7 +488,7 @@
     },
     "projection_regression": {
       "native-release": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -521,7 +521,7 @@
         "color_records_exact": 117
       },
       "native": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -554,7 +554,7 @@
         "color_records_exact": 117
       },
       "model-sanitize": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -589,7 +589,7 @@
     },
     "prism_regression": {
       "native-release": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -619,7 +619,7 @@
         "original_pass_headers_checked": 531
       },
       "native": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -649,7 +649,7 @@
         "original_pass_headers_checked": 531
       },
       "model-sanitize": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",

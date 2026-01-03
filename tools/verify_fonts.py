@@ -50,7 +50,7 @@ def main():
     write_exact(ee, ram[:32*1024*1024])
     word = lambda at: struct.unpack_from('<I', ram, at)[0]
     table = word(0x2003ec)
-    report = {'scope': "USA FNT import, glyph metrics, unit-scale normal-dialogue layout; flat rendering is a diagnostic, not faithful window/GS presentation",
+    report = {'scope': 'USA FNT import, glyph metrics, unit-scale normal-dialogue layout; flat rendering is a diagnostic, not faithful window/GS presentation',
               'native_sha256': digest(args.native.read_bytes()), 'elf_sha256': digest(elf.read_bytes()),
               'ram_sha256': digest(ram), 'fonts': []}
     palette = struct.unpack_from('<16I', ram, 0x2003f8)
@@ -112,7 +112,7 @@ def main():
     if (out/'glyphs.native').read_bytes() != (out/'glyphs.retail').read_bytes():
         raise ValueError('Original glyph placement mismatch')
     report['glyph_layout'] = {'cases': len(fixtures), 'exact': True, 'output_sha256': digest((out/'glyphs.native').read_bytes()),
-                             'scope': "Original 0x19c568, all supported printable single-byte glyphs in three fonts; unit scale, zero offsets, normal left bearing"}
+                             'scope': 'Original 0x19c568, all supported printable single-byte glyphs in three fonts; unit scale, zero offsets, normal left bearing'}
     trace = Path('local/reference-text-760-v2.bin')
     rows = list(struct.iter_unpack('<40I', trace.read_bytes()))
     expected_xy = {}
@@ -127,7 +127,7 @@ def main():
         raise ValueError('Original layout/cursor/clock mismatch')
     pam_png(Path(str(output)+'.pam'), out/'dialogue.png')
     report['continuous_replay'] = {'frames': len(actual), 'exact_words_per_frame': 13, 'output_sha256': digest(output.read_bytes()),
-                                   'scope': "Prior cursor/clock replay plus native x/y advancement; one captured initial state and observed public input calls"}
+                                   'scope': 'Prior cursor/clock replay plus native x/y advancement; one captured initial state and observed public input calls'}
     report['rendering_limit'] = 'Atlas and final-page PNGs are native diagnostic outputs. Window geometry, placement, fades, filtering, clipping, shadows and full original pixels are not validated.'
     (out/'report.json').write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps(report, indent=2))

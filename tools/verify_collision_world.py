@@ -55,7 +55,7 @@ def main():
     elf=Path('local/extracted/SCUS_971.29');oracle=Path('build/play-research/okage-oracle/okage-pose-oracle')
     digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     if digest(elf)!='2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5':raise RuntimeError('Unexpected ELF')
-    report={'scope':"Three-body registry, capsule dispatch, recursive pushing and outer map retries",
+    report={'scope':'Three-body registry, capsule dispatch, recursive pushing and outer map retries',
             'functions':['0x186fa0','0x187c60','0x187ea8'],'cases':[],
             'elf_sha256':digest(elf),'native_sha256':digest(args.native),
             'excluded':['other dynamic shape types','resource-driven registration','full original scene movement'],

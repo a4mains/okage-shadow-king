@@ -73,7 +73,7 @@ def main():
                                         (24, 10, 1, 0), (24, 10, -1, 1), (0, 10, 1, 1),
                                         (2147483647, 2147483520, 256, 1), (1, 0.1, 0.2, 1)):
         synthetic.append((0x8008, 0x10, 0, 1, 2, 17, target, f32(position), f32(step), f32(base)))
-    report = {'scope': "Text clock and 160-frame cursor/progress replay; native font layout, window controller and raw pad polling not included",
+    report = {'scope': 'Text clock and 160-frame cursor/progress replay; native font layout, window controller and raw pad polling not included',
               'capture_sha256': hashlib.sha256(capture).hexdigest(),
               'native_sha256': hashlib.sha256(args.native.read_bytes()).hexdigest(), 'clock_cases': []}
     for name, cases, expected_rows in (('opening', source, expected), ('synthetic', synthetic, None)):

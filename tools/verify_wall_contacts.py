@@ -66,7 +66,7 @@ def main():
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     if digest(elf) != '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5':
         raise RuntimeError('Unexpected retail ELF')
-    report = {'scope': "Fresh capsule-wall contacts: hit, flags, material, correction XYZW and normal XYZ",
+    report = {'scope': 'Fresh capsule-wall contacts: hit, flags, material, correction XYZW and normal XYZ',
               'function': '0x18bb10', 'elf_sha256': digest(elf), 'native_sha256': digest(args.native),
               'excluded': ['undefined normal W', 'stale failure metadata', 'cached/resumed queries',
                            'dynamic actor contacts', 'collision composition', 'app movement'],

@@ -1,9 +1,9 @@
 {
-  "scope": "Native Release night-road extension: uphill side probe23975 and main western route25655.",
+  "scope": "Native Release night-road extension: uphill side probe23975 and main western route25655. Original event15 entry is complete; native event15 entry remains in flight.",
   "report": "local/research/night-circus-west-follow-v1.json",
   "report_sha256": "fcfc5f3207a55d3fd3f188acaee414cb43244eefd50407a18b02dc04a7f0c848",
   "result": {
-    "scope": "Report field-interval differences without shifting their original time anchor.",
+    "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -376,7 +376,7 @@
         "report": "local/research/night-circus-fork-follow-v2.json",
         "report_sha256": "5a5be4222e87a3c1bafeff7f274efc1ce7e6aadcf14b16ba869bfc56ac789acb",
         "result": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [
@@ -679,7 +679,7 @@
         "report": "local/research/night-circus-path-follow-v1.json",
         "report_sha256": "bdb66ff40865934b15fbea2327e54153ad42c24ab00da825fafc24c1a424c6ee",
         "result": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [
@@ -1042,7 +1042,7 @@
         "report": "local/research/night-circus-approach-follow-v1.json",
         "report_sha256": "9dda1044085719431c2374e825ef6d7d638f5a5d0bdbb84143c578da941526d7",
         "result": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [
@@ -1526,7 +1526,7 @@
         "report": "local/research/night-circus-bend-follow-v1.json",
         "report_sha256": "0c0151b44a1b2f012478b3afe3bd346b6632239d1d14516235e910007129d556",
         "result": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [

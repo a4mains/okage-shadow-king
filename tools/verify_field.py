@@ -72,7 +72,7 @@ def main():
     if state['wait_release_frame'] != 227 or native_rows[-1][1:3] != (0xbe4, 0x36):
         raise ValueError('Unexpected native event continuation')
     report = {
-        'scope': "Native HOME1C segment 0xb88 through dialogue-gated camera move; event remains pending at actor opcode 0x36, not a playable scene or cold boot",
+        'scope': 'Native HOME1C segment 0xb88 through dialogue-gated camera move; event remains pending at actor opcode 0x36, not a playable scene or cold boot',
         'native_tool_sha256': digest(native), 'native_app_sha256': digest(app),
         'elf_sha256': digest(elf), 'script_sha256': digest(script), 'stg_sha256': digest(map_path.with_suffix('.stg')),
         'angle_table_entries': 4096, 'angle_table_exact': True,

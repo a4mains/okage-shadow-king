@@ -1,0 +1,197 @@
+Build a faithful, playable native Apple Silicon macOS port of Okage: Shadow King in /Users/user/src/okage/okage-shadow-king. Continue the existing implementation through a demonstrated start-to-finish native playthrough. A viewer, generated translation, emulator session or playable opening slice is an intermediate milestone. Begin engineering work after verifying the current state; this is an implementation goal, not a request for another feasibility report or plan. The user accepted G0's verified GPU hardware computation and waived timing; its bounded attempt is concluded without a speedup claim. Resume texture ownership and playable progression under this full-port goal. If invoked with GPU_ACCELERATION_GOAL_PROMPT.txt instead, stop at that narrower goal's G0 deliverable.
+
+PRODUCT, INPUTS AND AUTHORIZATION
+
+I own the game. Use /Users/user/Downloads/Complete/Okage - Shadow King (USA).zip, preserve the original, and keep local import reproducible. Prioritize decompilation and a native source port/adaptation. A proper static ahead-of-time recomp remains desirable but may follow the first faithful playable port; byte-matching decompilation is not required. /Users/user/src/games/README.md indexes mirrored projects for useful techniques and tooling, not proof that every project is checked out.
+
+Emulators are authorized for reverse engineering, debugging, tracing and differential tests. The delivered app must run independently of them and must not launch or bundle a PS2 emulator or interpret/JIT original EE, IOP or VU machine instructions. Translate game-specific vector operations and replace platform services natively. A native engine executing game event/script data is acceptable. Audit the shipping dependency graph. Do not ship PS2Recomp's interpreted IOP runtime unchanged or describe unvalidated generated C++ as a working recomp.
+
+Preserve authentic content, rules, progression, timing and presentation. Never invent replacement gameplay, silently succeed on unknown services, inject story flags, force encounters or disguise plausible output as validated behavior. Reference RAM, saves and captured vertices/output are research evidence only, never native runtime inputs or substitutes for persistence, rendering or audio. Do not fit seeds, insert compensating RNG draws or add unexplained timing delays to match a capture.
+
+Proceed autonomously with local implementation, dependency setup, builds, debugging, reversible experiments and focused checkpoint commits. Make routine engineering decisions without asking approval. Ask only for genuinely required missing input or actions outside this authorization, while continuing independent useful work. Use subagents, agents and workers autonomously when useful independent tasks can run in parallel; this is explicit authorization, including choosing smaller available models for bounded, readily verifiable work. Do not publish, push, upload assets or contact others without authorization.
+
+Keep images, assets, firmware, saves, captures, raw disassembly/research exports, generated game translations and downloaded tools ignored. Track independently written source/tools, reviewed metadata, provenance and reproducible research notes. Review dependency licenses before incorporating code.
+
+PARALLEL WORK AND MODEL CHOICE
+
+Actively identify useful parallel work at integration milestones. Keep the primary agent responsible for architecture, ambiguous reverse engineering, shared game-state semantics, integration and final verification. Delegate bounded profiling, regression tooling, asset/coverage inventory, import/build diagnostics, documentation reconciliation and independent review when they advance the playable port. Use a strong worker for difficult engineering and a smaller model for tasks with clear inputs, expected outputs and mechanical acceptance checks. Escalate ambiguous or repeatedly failing tasks instead of weakening requirements. Do not delegate merely to occupy slots or repeat completed research.
+
+Give each worker the relevant repository instructions, exact task, evidence paths, file ownership, acceptance criteria and constraints. Use isolated worktrees/build/output directories for independent mutations; read-only analysis can share the checkout. Do not let workers overwrite each other's files, assets, evidence or live executables. Keep original VM runs and shared research profiles/memory cards serialized through the primary agent. Avoid concurrent performance measurements or heavy jobs that invalidate timing results. Review patches and executed evidence before integration; worker confidence or a passing self-test alone does not prove original fidelity. Record active worker identities, live jobs and handoff state, and collect or explicitly stop them before losing coordination context.
+
+Start with a small team when tasks justify it: primary integration/reverse engineering, a performance worker measuring actual live CPU/GPU/presentation costs, and a smaller-model tooling/regression worker. Scale only with independent work and measured benefit. No additional permission is required for these local workers within the existing project scope. Keep visible native demonstrations after substantial integrations.
+
+Carry this authorization into resumed sessions and nested worker briefs. Workers may delegate independent subtasks when available capacity and ownership permit; the primary remains accountable for the combined result. Do not require renewed permission for each in-scope assignment.
+
+Treat delegation as an operating instruction, not merely permission: when an independent task will materially improve progress or review, assign it while the primary continues the critical path. Each assignment must return evidence, limitations and a concrete result. Select models from those actually available; use smaller workers for mechanically verifiable tasks and stronger workers for uncertain semantics. Keep reports concise and avoid redundant full-history context when a bounded brief suffices. Keep dependent steps with their owner; do not block integration waiting for unrelated workers.
+
+RESUME FROM VERIFIED STATE
+
+Current priority: T1i common ordinary-field loader prefix
+
+Fresh context: read T1I_GOAL_PROMPT.txt and HANDOFF.md,
+then only CURRENT in HANDOFF.md. T1h at74ec81e is reviewed and accepted through
+second133830 entry(command0,destination2/72/0). Its lead integration complied
+with delegation instructions; do not redo it through workers. Primary Opus owns
+shared semantics/integration and delegates useful independent tasks.
+Fix the unwitnessed sequence-timing exception and metadata first, then extend
+the SAME owner/RNG through constructor133830 and132688/131d28 common atlas/texenv/RUW work,
+stopping after131e7c publishes+34=1, before131e80/world loading. This is UI
+availability, not loader completion. Preserve safe jobs, exact input bytes,
+PSM27 lanes, distinct owners and source descriptors. Normal later play remains
+explicitly unmodeled. World/cache-on/XTA/actors/battle, saved-field Restore,
+snapshots/sampling and tick37297 remain later. G0 is accepted hardware proof
+only, performance unmeasured. The full-port goal continues after bounded T1i.
+
+Updated 2026-01-03. **G0 concluded by explicit user acceptance of verified GPU
+hardware computation.** Another agent is building a separate project on this Mac;
+the user waived a clean performance baseline and asked to move on. Actual Metal
+PSM0/19 address computation matches all356160 retained reference queries, changed
+order reuse and all13 preselected workload correctness checks, including2^20 per
+format. Release/Debug/ASan+UBSan each pass3 affected CTests; separate Metal API/shader
+validation passes;555 Python tests pass. Source commits1f553d0/269f2f7/36fe886/
+55a283e/79a33a0 are retained. Read HANDOFF.md and its manifest.
+
+**Performance is unmeasured.** No CPU selection pilot or official timing trial ran.
+No speedup, GPU-loss, crossover, FPS/loading benefit or measured negative verdict
+is claimed. The original1.20×/four-of-five protocol remains unchanged in
+docs/gpu-address-protocol-v1.json for separately requested future measurement.
+Raw evidence, deferred attempts1–4, both availability watches and user acceptance
+are retained under local/research/gpu-address-poc-v1. Only our timing watcher
+PID95225 was stopped (SIGTERM, terminal143) after the user's instruction; unrelated
+jobs and the paused preview were left alone. Independent workers reviewed the
+implementation/correctness/fairness and evidence; final conclusions are scoped to
+functional GPU hardware feasibility.
+
+**Next task of the separate full-port objective: T1 runtime texture ownership.**
+The tick37297 sampled-memory guard and gameplay behavior are unchanged. Bounded G0
+stops here; no gameplay integration or broad optimization was done. The full port
+remains incomplete. Sole preview PID63851/results-108575-v1 is preserved, with last
+documented pause116648 and unsaved state. Do not advance/close/replace it or open
+another native window. Partial edits in local/worktrees/texture-upload-v1
+(include/okage/texture_memory.hpp,src/texture_memory.cpp) and xim-raw-v1
+(include/okage/assets.hpp) remain untouched and unintegrated.
+
+**Source correction for T1:** the older lifecycle report conflates XTA loading
+with XMD image-table loading. `local/research/001b6a18.asm` selects extension at
+0x24a430 then calls1b6848;1b6848 parses text lines, sends '=' entries to1b6710 and
+other nonempty entries via numeric parsing to1b7430. The XMD route is separate:
+186c48→186aa8; `local/research/00186aa8.asm` tests the1fe310 switch, calls1cce78
+name lookup, skips upload on a hit, and names a newly uploaded handle via1cc4e0.
+`001b6710.c` instead uploads a named image and appends its handle. Recover actual
+cache/refcount/allocation events before using native per-placement upload order.
+This corrects the earlier report; the previous runtime/evidence checkpoint follows.
+
+Last verified implementation: Shared texture allocator/address primitives and original LUCAN packets
+
+Updated2026-01-03 on native library7c1c29d and oracle ad1801d. The runtime
+material implementation remainsd45c663; its v5 sampled-memory guard is unchanged.
+The preceding viewport answer was **NO PROGRESS** toward implementation. This
+continuation is **PROGRESS**: native platform components are implemented,
+original allocator/packet execution completed, and cross-build comparisons
+passed. No additional native gameplay frames were reached. Full start-to-finish
+playthrough, fidelity, interactive performance and shipping acceptance remain
+incomplete. Read `HANDOFF.md` and its validation manifest,
+then `HANDOFF.md` as needed.
+
+**Implemented:** `Ps2TextureMemory` has exact source4096-record FIFO allocation,
+all13 PSM block geometries/permutations/occupancy masks, descriptor packing,
+per-format search cursors, reference adjustment and conditional free. Initial
+bytes remain unknown and free preserves defined bytes. PSM24 low24-bit ownership
+and PSM8H/4HL/4HH high-byte/nibble ownership stay distinct; partial/split whole
+byte ownership throws. Source mask bits are not equal physical byte lanes.
+`gs_texture_byte_address` implements PSM0/19 byte addresses, rawTBW0..63,
+odd-row stride truncation and4MiB wrap. These are library components, NOT yet
+runtime image/CLUT uploads or shared-memory sampling.
+
+**Executed validation:**10,559 original allocator operation rows (1681mixed,
+18bounds,4109record exhaustion,4751all13formats) match descriptors/live/available/
+refs/full occupancy hashes/all64cursors in Release,Debug,ASan.356,160 PSM0/19
+addresses/build match pinned Play indexor8de4a71f5215ef38e357ac77a07948eb3424448f.
+Two affected CTests/build pass (78533/74525/26776 terminal0);548Python pass
+(35982 terminal0). Cross-build62836 terminal0; report
+`local/research/material-texture-ownership-v1/cross-build-v1/comparison.json`
+SHA29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061.
+Root rehashed54 comparison artifacts plus LUCAN provenance. Retain initial
+record-exhaustion native-v1 mismatch row4097 cursor4096vs4095; fixed empty-record
+check must precede cursor scanning. Source linked-node hashes are retained but
+not compared to native storage. Reuse unchanged completed corpora.
+
+**LUCAN original probe:** new `lucan-material-packet` uses pinned64MiB endpoint
+RAM SHA331f30d0a30040b0fa650697cb71d7c54d426d59bdb37b24c8e55c076e130cca,
+owned LUCAN XMD and verified empty research extension RAM for scratch/stack.
+Instance2/model4 is bound by all100 names/hierarchy records. Source world slice,
+1865d8/185fb0 selections,184d38 lists/preamble/footer/VIF execute unchanged.
+Original worker59283 and root integrated57685 terminal0; all3 packet artifacts
+are byte-identical.377DMA segments,414target qword cache observations,2GS packets.
+MSCAL0x116 updates31compact UVs; native arithmetic matches62words/build. Only
+6environment vertices/2triangles are emitted, all inside64x64 at this snapshot.
+Do NOT infer native failure pose parity or authored-to-compact-normal mapping.
+No raster/CLUT/full-scheduler proof. Packet SHA
+0a69ed28407feba741d72da5a2d444fd2cdedce44abe8a516636b544aac449c7;
+root output `material-texture-ownership-v1/lucan-integrated-v1/packet.json`.
+Immutable combined oracle `material-texture-ownership-v1/okage-pose-oracle-ad1801d`
+SHA9430a4e4e54bc0acfc2162903811836f4f4977713fcf079d0bb8dededc9dd4b5.
+Integrated default-stack allocator regression74925 terminal0 matches all3old
+outputs. All-format22017/address49093/source allocator62587 terminal0.
+
+**Next runnable milestone:** connect native shared texture memory to actual
+Session-owned resource lifecycle and renderer sampling, not an empty pool at
+battle entry. Startup1002f8→1cb088→1ce940 initializes metadata, then1cb1e8/
+1cdb80 reserve two640x224PSM0 color buffers and sharedPSM49depth. Global earlier
+loads/free/reuse and framebuffer writes may affect later neighboring bytes.
+Battle14a118 loads UI atlas,texenv,then stage/camera/party/enemies.
+Correction:1b6848/1b6710 is the XTA sidecar path; XMD image loading/cache lookup
+is186c48→186aa8→1cce78. Recover actual handle lifetimes before integration;
+101058/1b6f50/1b60c0 retire resources.
+Lifecycle review and initializer/transfer exports are under the new evidence
+folder (63282/81601/4603/34075/97299 terminal0). Preserve raw XIM indices/palette,
+recover18f7a8 image/CLUT ownership/upload, and retain exact prepared-frame memory
+generations. Reuse `transfer-exports/001cd928.asm` plus existing
+`battle-filter6-v1/001cd858.capstone.txt` for palette permutation; A2 source
+survives the cd928 call despite the decompiler signature omitting it.
+Other texel formats, palette cache state and actual duplicate/cache lifetime
+remain pending. No hard-coded grass padding, captured VRAM or invented zeros.
+
+**Preserved gameplay failure:** v5 still completes37296/fails37297 at sampled
+x36/y64 after natural contact37247formation10/stage1. Original endpoint is
+formation4/stage2; its queried byte belongs to neighboring handle36 grass, not
+a blanket padding rule. All earlier whole-interval state/image/audio differences,
+missing captures and startup/contact RNG variation remain. Preserve v3/v4/v5
+negatives and unchanged inputs/saves. After actual runtime integration, replay
+ordinary inputs and compare the complete fixed reached intervals before claiming
+progress through this battle. Prior checkpoint below retains commands/hashes.
+
+**Workers/window:** all3workers complete and collected: mode_observer allocator,
+chapter_asset_import lifecycle/addressing,field_shadow_roster LUCAN. All listed
+build/test/oracle/Ghidra jobs terminal0; no headless replay or reference VM live.
+Sole GUI PID63851/results-108575-v1 remains paused116648 with unsaved user state,
+full-height4:3. Do not replace its executable, advance it, close it or open
+another native window. Work stays local.
+
+EVIDENCE AND WORKING METHOD
+
+For each dependency: identify the unresolved behavior, recover bounded original evidence, implement, compare, integrate and continue. If a method fails, try a materially different justified method and retain negative evidence. At checkpoints state what newly works natively, the reproduction command, what remains uncertain and the immediate next implementation step. Reassess after substantial checkpoints to avoid repeatedly polishing isolated probes while integrated gameplay stands still.
+
+Bind addresses to retail ELF SHA256 2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5. Separate hypotheses, static recovery, compiled code and executed behavior. Compare integer/state logic exactly; justify floating-point/image/audio tolerances. Use consumed controller latches and fixed anchors. Do not shift anchors, crop failing prefixes, widen tolerances or compare only against native self-baselines to claim original fidelity. Original field-manager observations precede updates; use the preceding completed native frame where appropriate. Retain missing-observation counts. Similar images are not equivalence proof.
+
+Maintain and extend the emulator-versus-native differential pipeline using the same owned retail image and hash-verified extracted assets. Reuse existing original captures and verifier tools first. At substantial gameplay/rendering/audio integrations, replay the same ordinary controller inputs on both implementations, compare the complete reached interval, and report the first divergence plus totals and missing observations. Establish semantic anchors (scene entry, event PC, dialogue/battle transitions) and before/after-update conventions from evidence before comparison; do not realign a failing run into a pass. Record source hashes, binaries, emulator/backend revisions, configuration, commands and reference-save provenance. Reference saves may accelerate original research only; native runs must build state from owned assets and inputs or genuine native saves.
+
+Extend paired tooling to combine state/event/actor/RNG comparisons with corresponding frame images and aligned audio intervals, including useful side-by-side images or difference views for inspection. Preserve exact integer/state checks and justified numerical/raster/audio limits; a visually similar screenshot or agreement among native builds cannot replace original comparisons. Mark unsupported comparisons and existing fidelity debt explicitly. Keep isolated function probes for diagnosing new uncertainties, but prioritize integrated native route comparisons and longer playable coverage rather than repeatedly proving the same helpers. Emulator output is a pinned research reference, not proof of physical PS2 accuracy; investigate suspected emulator/backend artifacts before changing native behavior to match them. The shipped application remains independent of all research emulators and captured output.
+
+At each substantial gameplay, rendering or audio integration, produce or update a reproducible comparison bundle: source/run manifest, input and anchor definitions, complete state audit with first divergence, corresponding images with side-by-side/difference views, and corresponding audio segments with declared alignment and metrics. Reuse retained reference evidence when its scope still applies. Mark each channel passed, failed, captured-but-unaligned or not captured; missing or unaligned evidence is never a pass. Expose an inspectable visual comparison after substantial rendering integrations. Measure native interactive performance in a separate uncontended run so emulator execution and capture instrumentation do not distort it. Carry these delegation and comparison requirements through future goal-prompt refreshes; AGENTS.md also records them for subsequent workers.
+
+Run reference VMs sequentially because profiles and memory cards are shared. Use bounded captures and fresh outputs, retain job handles and poll actual completion instead of restarting timed-out observations. Never replace binaries used by live captures. Inspect the application's .run.json exit_code, not just the wrapper exit. Use observers appropriate to the actual roster/channel count; historical actor identities do not carry across scenes. Research snapshots remain oracle-only.
+
+Reuse build/play-research/okage-oracle/{okage-boot-oracle,okage-pose-oracle}, local/ghidra-project/Okage (SCUS_971.29), and existing local/research exports. See HANDOFF.md for pinned tools. The runtime field database is loose FLDDATA/FLDSET.XDB, not the archived copy. Preserve validated follow-before-interaction ordering, native sine arithmetic, field-entry height snap, choice-menu arming, message-driven flags and shared ordinary/deferred effect lifecycle.
+
+Replay native startup from owned assets and ordinary inputs using saved .run.json/.directions files. Preserve --render-from 11310 --render-until 11542 and preceding-frame/active-feedback guards until new gameplay needs different bounds. Simulation/audio/traces still advance every tick. This research optimization does not establish interactive FPS or fidelity; see HANDOFF.md.
+
+Run affected tests and regressions after changes; broaden only for failures or unresolved concerns. Existing builds: build/native-release, build/native and build/model-sanitize. Commands: cmake --build <directory> -j8; ctest --test-dir <directory> --output-on-failure. AGENTS.md requires python3 -m unittest discover -s tests -v after inspection-tool changes. Inspect actual results. Reuse unchanged large corpora rather than automatically rerunning them.
+
+COMPLETION GATE
+
+Deliver a launchable ARM64 macOS application with reproducible build, local owned-data import and launch instructions. Verify a fresh import/build and cold launch independent of research emulators, RAM, reference saves and prerecorded output. Audit dependencies for guest machine-code execution.
+
+Complete and document a start-to-finish native playthrough with working controls, graphics, audio, battles, progression, transitions and persistent saves. Verify save/load across process restarts. Test keyboard and an available controller, honestly reporting unavailable physical tests. Measure performance and game-speed behavior in representative exploration, battle and effects scenes. Record revision, input hashes, commands, playthrough checkpoints, coverage, regressions and known issues. Never claim unperformed playthroughs, listening checks or interaction tests. Without this evidence, the goal remains incomplete.
+
+Keep concise progress updates, focused commits and current HANDOFF.md, including exact commands, evidence, live jobs and the next runnable milestone. Refresh this prompt's resume section rather than appending competing starting points. A checkpoint, context reset, difficult subsystem or session boundary does not complete the objective. If progress truly requires unavailable input or an external change, report the concrete blocker, attempted alternatives, retained evidence and what would unlock it; keep pursuing independent useful work. Follow the goal system's status rules and never mark the full port complete on the strength of an intermediate milestone.

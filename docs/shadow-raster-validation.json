@@ -1,21 +1,21 @@
 {
   "base_commit": "8e72f03",
-  "scope": "Native Metal raster versus unchanged original shadow VU1 and pinned Play Vulkan GS, using explicit synthetic cache/depth/color/repeat fixtures.",
+  "scope": "Native Metal raster versus unchanged original shadow VU1 and pinned Play Vulkan GS, using explicit synthetic cache/depth/color/repeat fixtures. Not field integration or PS2 hardware validation.",
   "source_sha256": {
-    "src/shadow_metal.hpp": "a4ff5eeb0965c8e704db6290ada82490a2dea4220941a31fceaa6683137541ec",
-    "src/shadow_metal.mm": "ebd4c57f397faba3cd2ec9ac59e0aec85785ca4872bffd7385a7719501672ab0",
+    "src/shadow_metal.hpp": "1f2f63fb5fb0b09dcd95074a4843ec06543c2d2dc2facd01c153c2e408e95b5c",
+    "src/shadow_metal.mm": "0a5eaaf2a9fb7176e2b1395b065fee2436bdf9a2ce61fc09b3691594ca9a92f0",
     "tools/shadow_raster.mm": "b27d0ebca3d4940e2a4f35e8dbb2ecb5bbbed498b9f2fe6e0dd7eb4baec7d333",
     "tools/verify_shadow_raster.py": "9a38dbcdb323b1e9d0548b9a7baed2b44d7d1c4719e402202731c2432b973b2e",
     "tests/test_shadow_raster.py": "f49235c9ec82a70c2ddce83f1c571ab1a719ecea47c4919831ae4b6a1c7fa489",
-    "tools/play-oracle/main.cpp": "fa3ee6351281d59c575121a5691e80b50aceb7476283054e87704e229d959999",
-    "tools/play-oracle/reference_graphics.hpp": "ac77c52a19c702097b0492517d515c7b91bfa9ca5798d4ba0659d235a7fde940",
-    "tools/play-oracle/reference_graphics.mm": "4b319bcc6263df8b32c68991213288fdc213f6eae54cf61ee5ddd8310135da72",
-    "tools/play-oracle/CMakeLists.txt": "d4a0fedb7ed3e217371e74494972d1393aaf7305c487b325eabbb25c5f68ea15",
-    "CMakeLists.txt": "28e746776c2bed89e795abba38682d6207c0e8e7261a6ce64272a1bb8ac60d76"
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+    "tools/play-oracle/reference_graphics.hpp": "bc9eef2ec52b03fa7e10828d0ac80b8868b64677f55857b1e52f363beefa7978",
+    "tools/play-oracle/reference_graphics.mm": "38a7de5b50e4db7aa45be43919f61a4e1f1b5379b47295b712a9be8da36c379c",
+    "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
+    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
   },
   "reports": {
     "native-release": {
-      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.\n\nExplicit synthetic prism camera/screen caches, background depth/colors and repeat\ncounts feed both paths. This validates the raster stage, not field configuration,\nmodel assembly, complete original hardware fidelity or game progression.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -154,7 +154,7 @@
       ]
     },
     "native": {
-      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.\n\nExplicit synthetic prism camera/screen caches, background depth/colors and repeat\ncounts feed both paths. This validates the raster stage, not field configuration,\nmodel assembly, complete original hardware fidelity or game progression.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -293,7 +293,7 @@
       ]
     },
     "model-sanitize": {
-      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.",
+      "scope": "Compare native Metal shadow pixels with original VU1 and pinned Vulkan GS.\n\nExplicit synthetic prism camera/screen caches, background depth/colors and repeat\ncounts feed both paths. This validates the raster stage, not field configuration,\nmodel assembly, complete original hardware fidelity or game progression.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",

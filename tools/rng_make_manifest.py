@@ -47,7 +47,10 @@ def main():
     startup = os.path.join(main_co, 'local/research/startup-original-v1/runs/fill00-a')
     m = {
         'schema': 'okage.rng-original-manifest.v1',
-        'scope': "Independent original-execution reference of every libc rand() call (0x1f14b0) in the cold-start prefix up to (not executing) EE PC 0x100618, and of its products (noise-grid cells, procedural template geometry, shape-cache owners, template request order).",
+        'scope': 'Independent original-execution reference of every libc rand() call (0x1f14b0) in the cold-start prefix up to '
+                 '(not executing) EE PC 0x100618, and of its products (noise-grid cells, procedural template geometry, shape-cache '
+                 'owners, template request order). Unchanged retail SCUS_971.29 under the Play research VM. Research evidence '
+                 'only; not physical PS2 proof; never product input.',
         'source_commit': commit,
         'base_commit': 'e709f21',
         'play': {'revision': play_rev, 'path': 'references/Play (main checkout, ignored)',

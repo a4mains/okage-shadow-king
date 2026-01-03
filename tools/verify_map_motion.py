@@ -112,7 +112,7 @@ def main():
         artifacts.extend([binary, output])
         results.append({'build': build, 'exact_updates': updates})
     report = {
-        'scope': "Isolated native door motion driven by original motion-selection requests.",
+        'scope': 'Isolated native door motion driven by original motion-selection requests.',
         'elf_sha256': ELF_SHA,
         'reference_prefixes': [str(p) for p in prefixes],
         'instance': 18, 'channels': 10, 'exact_channel_words_per_update': 40,

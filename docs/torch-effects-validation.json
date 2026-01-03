@@ -1,5 +1,5 @@
 {
-  "scope": "Torch91 isolated state and flame-quad recovery.",
+  "scope": "Torch91 isolated state and flame-quad recovery. No claim of glow mesh, materials, drawing matrices, raster fidelity, interior loading, scene RNG or progression past47855.",
   "builds": [
     {
       "build": "native-release",
@@ -7,7 +7,7 @@
       "report_sha256": "94a330104fde8435eae146d711925ae1999e34984f0979bcda1ab209125e7b66",
       "app_sha256": "ffdddf5e7391fec69215e197270215c9d80f3524d2ec9538c066cb52aa32a687",
       "validation": {
-        "scope": "Compare native torch91 state and mutable flame quads with original execution.",
+        "scope": "Compare native torch91 state and mutable flame quads with original execution.\n\nFour isolated cases cover a full9900-tick loop, a negative job-depth override,\naxis-aligned and coincident camera positions. All state, packed flame XYZ and UV\nwords must match exactly. This excludes glow mesh, materials, camera-space draw\nmatrices, raster output, scene allocation/order and authentic startup RNG.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "bfb36477c6df742b34554286b1e83ae74d2c0118c907877f4044d01849f5dc42",
@@ -169,7 +169,7 @@
       "report_sha256": "9dff2cd02589629afea85ccf3e89b2b7f0ea265ae7f3c3f0e48c56110fa900bd",
       "app_sha256": "024436d1e21da6cd9c955625cd3e6b2fb12b5e798d8e02705941ec74180e1542",
       "validation": {
-        "scope": "Compare native torch91 state and mutable flame quads with original execution.",
+        "scope": "Compare native torch91 state and mutable flame quads with original execution.\n\nFour isolated cases cover a full9900-tick loop, a negative job-depth override,\naxis-aligned and coincident camera positions. All state, packed flame XYZ and UV\nwords must match exactly. This excludes glow mesh, materials, camera-space draw\nmatrices, raster output, scene allocation/order and authentic startup RNG.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "ba3e3e1b635ef18df4a87be25834ae8831c40987f11765cca4e88362e9f7dbb8",
@@ -331,7 +331,7 @@
       "report_sha256": "ef4ea2e3554c093719002b39f8173fe161f3d5bbaf73e5a2efbb608dce176dbf",
       "app_sha256": "a984bc5cb3c3b54684a2781795b0ac7a4ab1f57050d6b7883319501331993731",
       "validation": {
-        "scope": "Compare native torch91 state and mutable flame quads with original execution.",
+        "scope": "Compare native torch91 state and mutable flame quads with original execution.\n\nFour isolated cases cover a full9900-tick loop, a negative job-depth override,\naxis-aligned and coincident camera positions. All state, packed flame XYZ and UV\nwords must match exactly. This excludes glow mesh, materials, camera-space draw\nmatrices, raster output, scene allocation/order and authentic startup RNG.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "54523fd89385dda53c01d55178c1a9ac70155371ec9da5ec8e591ee2266253c8",

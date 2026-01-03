@@ -10,7 +10,7 @@
   "sha256": {
     "tools/play-oracle/reference_walk.hpp": "73b40016ec80305635160db1b9b94b22f840c3d82aaaf17f4fadee52ce351380",
     "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
-    "tools/play-oracle/boot.cpp": "2a321ccb76022ccd2519f5ec0d1f119dae5cebb830719de6f3065a49f7e88d10",
+    "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
     "tools/play-oracle/input_tests.cpp": "19b3bc8332043a0cedc8bf24b070ff1bf9062a2bc03d880b701df4829f8db08e",
     "local/research/circus-walk-input-tests-v2.log": "5112e187849de2d845a75525bc08fbef7a313ac155d796ceb659a2b96aa51c77",
     "local/research/circus-walk-python-tests-v2.log": "619fa236bd26b3751270d341acd64bf8a6415cc3ef9d24a593592577c4ffa551",
@@ -32,7 +32,7 @@
     "report": "local/research/circus-walk-replay-validation-v1.json",
     "report_sha256": "d5886815cb906786e48201dfa8b21ae98164f4e25f9a03bdfa8e0c236e85fe60",
     "result": {
-      "scope": "Plain input replay equals waypoint-controller trial on complete recorded trace prefixes through original frame239.",
+      "scope": "Plain input replay equals waypoint-controller trial on complete recorded trace prefixes through original frame239. Includes all requested inputs and stop/release at188. No claim about idle frames240..599, raster/audio, successful routefinding or native equivalence.",
       "runs": {
         "local/reference-night-circus-walk-600-v1": {
           "command": [
@@ -182,7 +182,7 @@
     "report": "local/research/circus-lower-replay-validation-v1.json",
     "report_sha256": "6d6e2678db19f6604c41b563909b52f34f90ac06e9cc0d40335892b8ce8e088c",
     "result": {
-      "scope": "Plain input replay equals waypoint-controller trial on all480 original frames, including event15 dispatch and controller stop/release.",
+      "scope": "Plain input replay equals waypoint-controller trial on all480 original frames, including event15 dispatch and controller stop/release. No raster/audio or native equivalence claim.",
       "runs": {
         "local/reference-night-circus-lower-walk-480-v1": {
           "command": [

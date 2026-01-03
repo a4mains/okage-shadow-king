@@ -40,7 +40,7 @@ def main():
             raise RuntimeError('Captured wait is not a continuous counter sequence')
     expected = b''.join(struct.pack('<4I', *row[12:]) for row in records)
     inputs = b''.join(struct.pack('<12I', *row[:12]) for row in records)
-    report = {'scope': "Dialogue wait callback and readiness getter, not native dialogue presentation",
+    report = {'scope': 'Dialogue wait callback and readiness getter, not native dialogue presentation',
               'capture_sha256': hashlib.sha256(capture).hexdigest(), 'cases': []}
     for name, data, result in (('opening', inputs, expected), ('synthetic', synthetic(), None)):
         source = args.output/(name+'.input.bin')

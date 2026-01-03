@@ -170,7 +170,7 @@ class BoundaryRouteAudioTests(unittest.TestCase):
             'channels': 2,
             'total_sample_frames': 30,
             'boundary': 'OnNewFrame after GS SetVBlank and PadHandler Update, before this iteration EE/IOP update',
-            'scope': "Offsets into emitted PCM; SPU output is block buffered.",
+            'scope': 'Offsets into emitted PCM; SPU output is block buffered. These are not audible-event times.',
             'vblanks': [
                 {'vblank_start': 1, 'sample_frame_offset': 0},
                 {'vblank_start': 2, 'sample_frame_offset': 10},
@@ -325,7 +325,7 @@ class BoundaryRouteAudioTests(unittest.TestCase):
 
         self.original_index.write_text(json.dumps({
             'sample_rate': 600, 'channels': 2, 'total_sample_frames': 30,
-            'boundary': 'OnNewFrame', 'scope': "block buffered",
+            'boundary': 'OnNewFrame', 'scope': 'block buffered',
             'vblanks': [
                 {'vblank_start': 1, 'sample_frame_offset': 0},
                 {'vblank_start': 2, 'sample_frame_offset': 10},

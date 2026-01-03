@@ -13,7 +13,7 @@ spec.loader.exec_module(module)
 
 def sample_report():
     return {
-        'scope': "Synthetic fixed-anchor interval.",
+        'scope': 'Synthetic fixed-anchor interval.',
         'elf_sha256': 'elf-hash',
         'native_run': {'exit_code': 0, 'binary_sha256': 'native-binary'},
         'original_run': {'exit_code': 0, 'binary_sha256': 'oracle-binary'},

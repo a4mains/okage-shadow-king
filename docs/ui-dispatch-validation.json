@@ -3,7 +3,7 @@
   "source_revision": "d4e8bf7d9bba7356d1056eea468982b77e218322",
   "base_revision": "87a514d",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "First dispatcher executed in owned-data diagnostic; clock, non-demo type3 callback, pad and live roster dependencies implemented.",
+  "scope": "First dispatcher executed in owned-data diagnostic; clock, non-demo type3 callback, pad and live roster dependencies implemented. Active battle scheduling remains guarded.",
   "first_dispatch": {
     "status": "pass",
     "builds": [
@@ -73,7 +73,7 @@
       "local/research/ui-dispatch-v1/battle-hud-v2.bin"
     ]
   },
-  "runs": {
+  "workers": {
     "pad": "local/worktrees/battle-ui-pad-v1/local/validation/report.json",
     "clock_guards": "local/worktrees/ui-clock-guards-v1/local/validation/report.json",
     "hud_refresh": "local/worktrees/hud-type3-v1/local/hud-type3-checks/report.json",
@@ -106,13 +106,13 @@
       "65087": "terminal0",
       "21409": "wrapper terminal0; app exit1"
     },
-    "runs_collected": true
+    "workers_collected": true
   },
   "bindings": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 12636,
-      "sha256": "1db64ec6a77a47631e2264e662c8048c8fd1f463b1f608a5fd5aec02eb58be45"
+      "bytes": 41580,
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "build/model-sanitize/CMakeCache.txt",
@@ -236,38 +236,38 @@
     },
     {
       "path": "docs/ui-first-updates-validation.json",
-      "bytes": 18498,
-      "sha256": "77fa13153bc843335f5a6f225d32e6fc646feb36a5c3dbcafaf6c6bd6ff880ec"
+      "bytes": 18502,
+      "sha256": "e3c0a882c58323460323123e10ad4b394dfa134ab8bee812b2148bee56e1e272"
     },
     {
       "path": "include/okage/battle_data.hpp",
-      "bytes": 1218,
-      "sha256": "45ae06d11183c451f729b8faa068fa0e5adb285148f7fe94dd5c5727f0c3bcb7"
+      "bytes": 1493,
+      "sha256": "01b89a4e14f5481f0cd5b6f14c97ed280da5daaecdcd9b69abe39e72b8f0d9f2"
     },
     {
       "path": "include/okage/battle_hud.hpp",
-      "bytes": 2433,
-      "sha256": "a783150bd782d05086f4e82225711c703e5969d3b3b63cca27ac2916974cbd02"
+      "bytes": 4804,
+      "sha256": "8a8b09a630cb409a8c58183d5c9229c89fe8f245b5878fee9f4680a1d6363649"
     },
     {
       "path": "include/okage/battle_interface.hpp",
-      "bytes": 1598,
-      "sha256": "c1a814e517e9d17980277d09a73113049ca66a89ec895532efdc0fb8332030a2"
+      "bytes": 3586,
+      "sha256": "b7c104d7037da08557b148d25fea38b920d399f0bba311ffe300e0747601e637"
     },
     {
       "path": "include/okage/battle_ui_pad.hpp",
-      "bytes": 1300,
-      "sha256": "cb8467c3fcacac5edbcf86de15004a0f8e2cf2e77ba65af709ac1166ad023ca8"
+      "bytes": 1377,
+      "sha256": "a3a56aa0f306c1399b2f34b1c5df59a4cf94e29faf1ac60165f599440789d9f9"
     },
     {
       "path": "include/okage/battle_ui_roster.hpp",
-      "bytes": 865,
-      "sha256": "e604d2d13a3833ed0107538088db0a166abea66d2f3ad4cd0cae8011caa1c0b0"
+      "bytes": 962,
+      "sha256": "d5a7ed14e71f33bc32f8a86b4fb71f66e3c81e93670414974f4afa54263cc006"
     },
     {
       "path": "include/okage/ui_window.hpp",
-      "bytes": 3697,
-      "sha256": "d812345a6101ff5b5b2ea2454d00e766a859b0a4125ccffa95e153cfdd9406c9"
+      "bytes": 6736,
+      "sha256": "fb8c7f930e4cb455aa906fcfcbfb2c56a72251ad5222164048a80dd1c8f502d5"
     },
     {
       "path": "local/battle-input-v1/BTL.RUW",
@@ -806,13 +806,13 @@
     },
     {
       "path": "src/battle_hud.cpp",
-      "bytes": 20565,
-      "sha256": "f85808ece042e526f134d80317b183f38ed4df131f3c2b3be88c0bb33f528201"
+      "bytes": 41959,
+      "sha256": "217afa3dfc5dd02a0ea2631ef1f0fc9f21318470b6646f4c23014070fc4a995a"
     },
     {
       "path": "src/battle_interface_update.cpp",
-      "bytes": 5410,
-      "sha256": "c10a6f96ab1d6daa6eadb5570a28e058becd334f07eab159257c7507dabd9737"
+      "bytes": 20468,
+      "sha256": "a214261092e0acce779bb3e739d609fb5a89d217914beffa0b48666b61d6983a"
     },
     {
       "path": "src/battle_ui_pad.cpp",
@@ -821,13 +821,13 @@
     },
     {
       "path": "src/battle_ui_roster.cpp",
-      "bytes": 2996,
-      "sha256": "6c060cdb2a083d02d298ce99321dee11e431a1e6063f0ddbefffaef3d236c382"
+      "bytes": 3472,
+      "sha256": "65a2f8594fcf9b4ad45a7ffeffd88578975e17d420ba652cf0906b946d1d84ca"
     },
     {
       "path": "src/ui_window.cpp",
-      "bytes": 9678,
-      "sha256": "7695a344f5e0403bbce8450cd4f0c489ce9037984147b495c742068f206fbdb8"
+      "bytes": 10652,
+      "sha256": "5d86ca38ac9dbb82605edb51e19e9384c19071f202af1e2cb207f16d2b5211c6"
     },
     {
       "path": "src/ui_window_clock.cpp",
@@ -836,8 +836,8 @@
     },
     {
       "path": "tests/battle_hud_tests.cpp",
-      "bytes": 17340,
-      "sha256": "e0a2516de1f33f2f9876cf2115aec47930c4a9f920dd044c05b76e66e28e96ad"
+      "bytes": 31018,
+      "sha256": "1bcf17c24457a98a9e979dc668d230f45afeb06318b37be16aad20fd42b46de6"
     },
     {
       "path": "tests/battle_ui_pad_tests.cpp",
@@ -846,18 +846,18 @@
     },
     {
       "path": "tests/battle_ui_roster_tests.cpp",
-      "bytes": 7885,
-      "sha256": "0ced18e550afbb5d5f5d8108c2843f963e76cb3e244cc2b6b20e9be2461cc0e5"
+      "bytes": 8714,
+      "sha256": "b266fc0ca3abef88373bb567efad120ae597861dd5f68525e39a47717c3e4803"
     },
     {
       "path": "tests/battle_ui_tests.cpp",
-      "bytes": 11836,
-      "sha256": "df09d813ad288567a1c40d117e35499ce9b60f5d9c297cd5f43f8948c2961e14"
+      "bytes": 30056,
+      "sha256": "f1d457e763f482557ebbedd638a16a62efa9fbdfd8e19da408f4e8ebd0065200"
     },
     {
       "path": "tests/test_import_battle_hud.py",
-      "bytes": 8812,
-      "sha256": "e0f7a2065fcd7691509dec709bcbf33beda00954984aa3b6da5899ca5426fe6e"
+      "bytes": 8935,
+      "sha256": "2c28ba56eb0577093f17ecde76f0db1241d0a43ab94f13eecd2a32358bc1a0b4"
     },
     {
       "path": "tests/test_verify_ui_first_update.py",
@@ -866,8 +866,8 @@
     },
     {
       "path": "tests/ui_window_tests.cpp",
-      "bytes": 27172,
-      "sha256": "2499f20c9ce87f94736880e498d9b64b0e3727b5a28c320cb817aade642d90a8"
+      "bytes": 28484,
+      "sha256": "b8cf93f5dcddca782b85a2bcdad28b7db9d7596bd8eeeb459beadc3949305cf0"
     },
     {
       "path": "tools/import_battle_hud.py",

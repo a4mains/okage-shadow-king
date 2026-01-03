@@ -1,10 +1,10 @@
 {
-  "scope": "Native effect6 state, lifetime, geometry/material and deferred rendering; integrated route to67568.",
+  "scope": "Native effect6 state, lifetime, geometry/material and deferred rendering; integrated route to67568. Does not prove full cutscene timing, raster/audio equality or full-game playability.",
   "implementation_base": "94104c3",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "isolated": {
     "native-release": {
-      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.\n\nOriginal execution uses research RAM; native probes use owned EFD/XIM assets\nand synthetic fixtures only. This does not prove raster pixels or scene timing.",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
@@ -75,7 +75,7 @@
       "material": "ALPHA0x42, TEST0x30000, ZBUF mask1: subtractive, depth ALWAYS, no writes"
     },
     "native": {
-      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.\n\nOriginal execution uses research RAM; native probes use owned EFD/XIM assets\nand synthetic fixtures only. This does not prove raster pixels or scene timing.",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
@@ -146,7 +146,7 @@
       "material": "ALPHA0x42, TEST0x30000, ZBUF mask1: subtractive, depth ALWAYS, no writes"
     },
     "model-sanitize": {
-      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.",
+      "scope": "Compare effect6's lifetime, ring geometry, deferred transforms and materials.\n\nOriginal execution uses research RAM; native probes use owned EFD/XIM assets\nand synthetic fixtures only. This does not prove raster pixels or scene timing.",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_sha256": {
         "6.input.bin": "c4bc2e0e0900c2b62d91587ea25e9c11f540cbdd943916f2357b45cd5ab4e0bf",
@@ -220,7 +220,7 @@
   "regressions": {
     "native-release": {
       "cylinder": {
-        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_sha256": {
           "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -293,7 +293,7 @@
         "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "4161d76e503e3f2c9a52c0e834321a4bc5abfcb5ecc6b1e61e0a58b3d07c5e06",
@@ -369,7 +369,7 @@
     },
     "native": {
       "cylinder": {
-        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_sha256": {
           "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -442,7 +442,7 @@
         "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "93c85363c5db859f74fb5b377d63b5421ca49c94989eab7332d3def704e98eea",
@@ -518,7 +518,7 @@
     },
     "model-sanitize": {
       "cylinder": {
-        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.",
+        "scope": "Compare native effect26 state, shared UV animation, geometry and materials.\n\nOriginal probes execute the positioned event service and bounded draw blocks.\nThis does not establish scene timing, RNG startup, raster or audio equivalence.\nResearch RAM is never an input to the native application.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "original_sha256": {
           "26.input.bin": "df87b64aced6fea436774cc473c545b96d5a963a792763e4864bc1297d3cd98e",
@@ -591,7 +591,7 @@
         "material": "ALPHA44/48, ZBUF mask1, TEST5000d/50000; both depth-tested"
       },
       "summon": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "c9733ad20ed91165a559790373fc09c6e7e528b5a5addaf84c5644215e5240af",
@@ -933,7 +933,7 @@
     "original_handler": "0x130850",
     "helper": "0x1346e0",
     "update": "0x135100",
-    "scope": "At the effect6 checkpoint this was static recovery only.",
+    "scope": "At the effect6 checkpoint this was static recovery only. Follow-up isolated updater matches637 snapshots in three builds; see HANDOFF CURRENT. Native service and integrated original comparison remain unimplemented.",
     "notes": [
       "Low mode1 starts HERO/STUN transition if unlocked/state0, sound0x17, attached effect24, bank4 variable2=1.",
       "State updater follows HERO transform and changes shadow projection/selector and STUN scale/visibility, not HERO opacity. Isolated ordering/boundaries now have three-build execution evidence; full integration remains pending.",

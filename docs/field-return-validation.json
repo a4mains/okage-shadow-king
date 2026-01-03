@@ -1,5 +1,5 @@
 {
-  "scope": "Native ordinary-input return from upstairs through FIELD_1D and Stan dialogue; JAM reveal rendering remains guarded.",
+  "scope": "Native ordinary-input return from upstairs through FIELD_1D and Stan dialogue; JAM reveal rendering remains guarded. This is not full-game or original visual/audio fidelity.",
   "implementation_commit": "c12c54e",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "runs": {
@@ -73,7 +73,7 @@
   "reached_failure": {
     "native_requested_tick": 76835,
     "message": "Actor instance render mode is unrecovered",
-    "scope": "Selected images only complete at75636 and75935; subsequent selected capture throws.",
+    "scope": "Selected images only complete at75636 and75935; subsequent selected capture throws. No final capture family or complete manifest.",
     "original_completed_through": 76835
   },
   "comparisons": {
@@ -125,6 +125,6 @@
       0.5,
       1.0
     ],
-    "scope": "Original observer only; seven retained control artifacts match baseline."
+    "scope": "Original observer only; seven retained control artifacts match baseline. Native JAM lighting remains guarded."
   }
 }

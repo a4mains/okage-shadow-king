@@ -107,7 +107,8 @@ def main():
                        'snapshot_sha256': {suffix: sha(Path(str(prefix)+suffix)) for suffix in
                            ['.world.bin', '.view.bin', '.camera.bin', '.bones.bin', '.hierarchy.bin', '.projection.bin']}})
         rows.append(result)
-    report = {'scope': "Instance matrices and selected model-to-view pose matrices for two captured opening frames.",
+    report = {'scope': 'Instance matrices and selected model-to-view pose matrices for two captured opening frames. '
+              'Not a native event/camera/actor update or full rendered-frame comparison.',
               'elf_sha256': sha(args.elf), 'native_sha256': sha(args.native), 'oracle_sha256': sha(args.oracle),
               'tolerance': 'abs(retail-native) <= 2e-5 + 2e-6*abs(retail)', 'instances': instances,'cameras':cameras,
               'snapshot': str(args.snapshot), 'draws_sha256': sha(args.snapshot/'draws.tsv'),

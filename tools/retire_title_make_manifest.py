@@ -81,7 +81,12 @@ def main(argv):
     runs = tree(ev, 'runs')
     m = {
         'schema': 'okage.retire.title-original-manifest.v1',
-        'scope': "Independent original-execution reference of the cold-boot title lifecycle continued past the Title stop (0x12c350 selector-1 return) through title updates, the Start/menu interaction, effect106 (water) creation/binding/removal request, title resource retirement, mode-8 destruction and wrapper frees, stopping at the ENTRY of 0x124548 (mode9/mode10 successor constructor) before its body executes, for the routes restore (Start, confirm default Restore) and newgame (Start, Left, confirm New Game).",
+        'scope': 'Independent original-execution reference of the cold-boot title lifecycle continued past the Title stop '
+                 '(0x12c350 selector-1 return) through title updates, the Start/menu interaction, effect106 (water) '
+                 'creation/binding/removal request, title resource retirement, mode-8 destruction and wrapper frees, '
+                 'stopping at the ENTRY of 0x124548 (mode9/mode10 successor constructor) before its body executes, for the '
+                 'routes restore (Start, confirm default Restore) and newgame (Start, Left, confirm New Game). Unchanged '
+                 'retail SCUS_971.29 under the Play research VM. Research evidence only; not physical PS2 proof; never product input.',
         'oracle_source_commit': commit,
         'play': {'revision': open(os.path.join(main_, 'references/Play/.git/refs/heads/master')).read().strip(),
                  'path': 'references/Play (main checkout, ignored)',

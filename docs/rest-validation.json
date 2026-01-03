@@ -1,7 +1,7 @@
 {
   "schema": "okage-rest-validation-v1",
   "runtime_commit": "0ed85d4",
-  "acceptance_met": false,
+  "goal_complete": false,
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "implemented": [
     "Field request10: immediate refresh15 and second refresh at field manager consumption after event completion/handoff",
@@ -29,7 +29,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 1,
       "seconds_including_control_waits": 100.417789083,
       "saves_after": {
@@ -59,7 +59,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 1,
       "seconds_including_control_waits": 19.393955332999997,
       "saves_after": {
@@ -89,7 +89,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 0,
       "seconds_including_control_waits": 21.186321958,
       "saves_after": {
@@ -119,7 +119,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 0,
       "seconds_including_control_waits": 58.753903333000004,
       "saves_after": {
@@ -149,7 +149,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 0,
       "seconds_including_control_waits": 58.257077959,
       "saves_after": {
@@ -181,7 +181,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "exit_code": 0,
       "seconds_including_control_waits": 13.383174458,
       "saves_after": {
@@ -636,8 +636,8 @@
   "artifact_hashes": [
     {
       "path": "docs/new-game-state-validation.json",
-      "bytes": 25135,
-      "sha256": "23d5a182e05af36ea302c1772dbd79b7915979bbcff9cf6d9ad4a376860f4e11"
+      "bytes": 25257,
+      "sha256": "d2970a1aa5a251344768d5f278a499cd79e65ac4f2514bd31e223522c308e515"
     },
     {
       "path": "local/extracted/SCUS_971.29",

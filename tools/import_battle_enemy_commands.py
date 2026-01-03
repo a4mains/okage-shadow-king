@@ -43,7 +43,7 @@ def import_data(elf):
                       'payload_sha256':sha256(payload), 'artifact_sha256':sha256(artifact),
                       'artifact_bytes':len(artifact), 'lookup_pc':'0x15c614..0x15c648',
                       'boundary_reference_pc':'0x15c214',
-                      'scope':"Static authored data; original helper has no row check; no RNG or chooser execution"}
+                      'scope':'Static authored data; original helper has no row check; no RNG or chooser execution'}
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)

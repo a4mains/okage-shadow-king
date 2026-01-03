@@ -1,7 +1,7 @@
 {
   "schema": "okage-native-title-dependencies-validation-v1",
   "implementation_revision": "3148c417f7809f3aa51ab521e7153404646427af",
-  "scope": "Source recovery, native component tests and owned-data regressions.",
+  "scope": "Source recovery, native component tests and owned-data regressions. TitleSession is not integrated, route guard108699 remains. No new original title/state/image/audio comparison or listening/performance claim. Historical negative logs retained; current binary hashes bind final builds, not overwritten earlier builds.",
   "results": {
     "builds": [
       "Release",
@@ -17,8 +17,8 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 27597,
-      "sha256": "b7697bd580e3a5be80e06e25daefd2ba0a11ea66f599f238348baa7a26a7a8eb"
+      "bytes": 41580,
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/title.hpp",
@@ -47,8 +47,8 @@
     },
     {
       "path": "src/image_metal.hpp",
-      "bytes": 1465,
-      "sha256": "f8bdf356b78a908628460aef670d8ade0e2b8f3cbe1f1db52a1d824a1cabd370"
+      "bytes": 1525,
+      "sha256": "1c0db1dfee17fdf38d75e4f1bfe8a40f33eeebea6287c7b9004a441af1898901"
     },
     {
       "path": "src/game_over_session.mm",
@@ -67,28 +67,28 @@
     },
     {
       "path": "include/okage/effect.hpp",
-      "bytes": 9014,
-      "sha256": "787dc32a8bc9c696f9a44b699f4384f101c4318ab800093a42ebbfdf3017ca3d"
+      "bytes": 10431,
+      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1"
     },
     {
       "path": "src/effect.cpp",
-      "bytes": 59470,
-      "sha256": "a0464facb6795068c91e8b302315a0e182aca0c9ca4eda36cb6709f44a94cf67"
+      "bytes": 62177,
+      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36"
     },
     {
       "path": "tests/effect_tests.cpp",
-      "bytes": 52001,
-      "sha256": "0b91567a285f9a1184f49afb6c2245c114028a7225ba7c3a95907e01eaf078c9"
+      "bytes": 56523,
+      "sha256": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
     },
     {
       "path": "include/okage/scene_renderer.hpp",
-      "bytes": 4048,
-      "sha256": "0560123be4860f62200b339dd7bdd821bd41b7322cc981e76c29db350f807851"
+      "bytes": 5003,
+      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
     },
     {
       "path": "src/scene_renderer.mm",
-      "bytes": 57330,
-      "sha256": "76ee4e941c6a0446842333453c7edada2faa127cb446af404f1aef922a907e0f"
+      "bytes": 75721,
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "tests/scene_renderer_actor_tests.mm",
@@ -117,8 +117,8 @@
     },
     {
       "path": "tools/import_title_resources.py",
-      "bytes": 13918,
-      "sha256": "c56de82c562aa93f085160a9d1918df3246415c77c0d3efb2602f4a8c727b20f"
+      "bytes": 13961,
+      "sha256": "52151b41ada8d5683c09299a510a2f1dad44a184acfeab0e8a8480dae13b8ad8"
     },
     {
       "path": "tests/test_import_title_resources.py",

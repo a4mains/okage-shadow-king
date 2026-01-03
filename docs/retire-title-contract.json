@@ -10,7 +10,7 @@
  },
  "baseline": {
   "title_contract": "docs/title-contract.json",
-  "title_sha256": "c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50",
+  "title_sha256": "c9e9dceba63875e2fd5940da86c11b3d16b8d6d3cb85cfc041d7bd6a426b353f",
   "live_allocations": 162,
   "live_handles": 111,
   "image_list": [

@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
   "updated": "2025-01-25",
-  "status": "complete_accepted_hardware_compute_only",
-  "acceptance_met": true,
+  "status": "complete_user_accepted_hardware_compute_only",
+  "goal_complete": true,
   "verdict": {
     "actual_metal_compute": true,
     "exact_supported_semantics_match": true,
     "end_to_end_speedup_demonstrated": null,
-    "performance_verdict": "unmeasured; baseline/trials deferred after the functional GPU hardware proof",
+    "performance_verdict": "unmeasured; user waived baseline/trials and accepted functional GPU hardware proof",
     "gameplay_acceleration_claim": false
   },
   "source_revision": "79a33a02a06fd82a013202e5fb404f74e11157f0",
   "source_sha256": {
-    "CMakeLists.txt": "10b2c8de9b3ac09255053cfc11f81b089b00f71015b5be0e5f3fca59308cea88",
+    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
     "include/okage/texture_address_batch.hpp": "dd2d66169447986e75ecbd321f6980114d783202b334b317dd1a4732780e6e6c",
-    "include/okage/gs_texture_address.hpp": "fdf69686b3b61c12d2ffff5dfe0f1236dbaefff817800ac2de88e40d0149ed14",
-    "src/gs_texture_address.cpp": "a0ef7fe94149722cb6b9c678bf7339394c5efbe6373fde5dd8713aad7400897c",
+    "include/okage/gs_texture_address.hpp": "4246c104ab5aace59a16fb9f82ba928257d354a893c30489147b830beb2a28fd",
+    "src/gs_texture_address.cpp": "86dcfd43b05d56945b54faf7e36972dda1053f8f5c50ceb0905a60a4ffcd761c",
     "src/texture_address_batch.cpp": "8428a0fc32c49e9d78e86ddf3896a5784c8c2cc41ca8bedef85f0176e97808e4",
     "src/texture_address_batch_metal.mm": "1485d5092de7089288c0e064e5f5dac718a6a7b16bc81c1a629ed88a9cd966f9",
     "tools/gpu_address_benchmark.cpp": "9f87daa3791f22b258792036abcc70451359643afd3b010ac90b0233bc278fd6",
-    "tools/run_gpu_address_poc.py": "1108674646f226ff5aa8ed268928b8c91eaf1b7c36d401185bcd4e8d12502a39",
+    "tools/run_gpu_address_poc.py": "6decefff0c4731731b219cbf93251f9717965fbcdd2b4dd904191344f30265f8",
     "tests/texture_address_batch_cases.hpp": "f68d6853135ef8db38d099781cb9f01d225e965d592c8ad9a9284dc87ae0997a",
     "tests/texture_address_batch_tests.cpp": "cdc75c59153525d72635b20f5872170961a5d8695f6ebc476720eda4e131fd92",
     "tests/test_gpu_address_poc.py": "cfae835a8645b2ee31bedc911678884904c7edf4817ae73114f38819ee49400b",
@@ -131,7 +131,7 @@
     "reference": "local/research/material-texture-ownership-v1/address-corpus-v1/play-addresses-v1.bin",
     "reference_sha256": "6c6c7e468d988ca9d5abb27897d965eb49761d1edcd5a8de2ec8585b2e2c124e",
     "comparison_manifest_sha256": "29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061",
-    "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+    "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
     "scope": "synthetic pinned-indexor reference; historical reference log empty; validation/source/binary bindings retained"
   },
   "correctness": {
@@ -158,7 +158,7 @@
   "performance": {
     "official_trials": 0,
     "samples": 0,
-    "cpu_selection_pilot": "not run; deferred",
+    "cpu_selection_pilot": "not run; user waived",
     "statistics": null,
     "crossover": null,
     "optional_refinements_used": 0,
@@ -182,7 +182,7 @@
     ]
   },
   "review": {
-    "run": "second-pass review",
+    "worker": "/root/review",
     "implementation_and_correctness": "independent read-only review; material fixes applied",
     "timing_and_final_claims": "passed final independent functional-only claims review; timing explicitly waived/unmeasured",
     "final_evidence": "local/research/gpu-address-poc-v1/independent-final-functional-review.json"
@@ -200,7 +200,7 @@
       "local/worktrees/texture-upload-v1",
       "local/worktrees/xim-raw-v1"
     ],
-    "next_full_port_task": "runtime texture ownership; tick37297 guard unchanged"
+    "next_full_port_task": "T1 runtime texture ownership; tick37297 guard unchanged"
   },
   "remaining": [],
   "raw_artifact_sha256": {
@@ -359,7 +359,7 @@
   },
   "acceptance": {
     "utc": "2025-01-25T05:25:04.451968+00:00",
-    "instruction": "timing baseline deferred: the machine is busy with another project's builds, the GPU concept is proved, and that is enough for now",
+    "instruction": "sorry, another agent is working on another project and building things such that you can't get a baseline and that's OK: move on because you have proved the concept of using the GPU hardware and that's good enough for now",
     "accepted": "actual Metal compute execution with exact CPU/reference agreement",
     "waived": [
       "CPU selection pilot",
@@ -373,6 +373,6 @@
       "exit_status": 143
     },
     "timing_processes_launched": 0,
-    "next_full_port_task": "runtime texture ownership, outside the bounded GPU proof"
+    "next_full_port_task": "T1 runtime texture ownership, outside bounded G0"
   }
 }

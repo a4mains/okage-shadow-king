@@ -1,5 +1,5 @@
 {
-  "scope": "Diagnostic only.",
+  "scope": "Diagnostic only. Full 170-word comparison still FAILS; no word excluded or replaced. All differences are retained API payloads behind cleared ping-pong flags.",
   "records": 91,
   "ticks": 14,
   "compared_words": 15470,

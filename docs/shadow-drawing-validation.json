@@ -4,7 +4,7 @@
   "builds": {
     "native-release": {
       "drawing": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [
@@ -102,7 +102,7 @@
         "native_material": "Subtractive, depth-tested/no-write, no culling"
       },
       "state": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -146,7 +146,7 @@
     },
     "native": {
       "drawing": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [
@@ -244,7 +244,7 @@
         "native_material": "Subtractive, depth-tested/no-write, no culling"
       },
       "state": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -288,7 +288,7 @@
     },
     "model-sanitize": {
       "drawing": {
-        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.",
+        "scope": "Verify native effect24 geometry factories, draw transforms/materials and UV sharing.\n\nShape3 compares exact triangle multisets because retail strip optimization changes\norder. Other geometry compares ordered vertices. No numerical tolerance is used.\nThis does not prove raster equivalence, global template-load RNG, or service54.\n",
         "original_runs": [
           {
             "command": [
@@ -386,7 +386,7 @@
         "native_material": "Subtractive, depth-tested/no-write, no culling"
       },
       "state": {
-        "scope": "Compare effect24 state and deformed ring heights with original execution.",
+        "scope": "Compare effect24 state and deformed ring heights with original execution.\n\nThe original uses actual HERO attachment construction and callback, with a\nsynthetic actor pose in research RAM. Native inputs are owned assets and that\npose only. This does not establish geometry drawing, raster fidelity, moving\nactor integration, sound or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",

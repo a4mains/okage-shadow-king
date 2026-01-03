@@ -70,7 +70,7 @@ def main():
                 raise RuntimeError('Record %d tick %d %s: native %08x original %08x' % (index, row[2], name, a, b))
     events = [r for r in rows if phases[r[1]] == 1]
     report = {
-        'scope': "Asset-initialized music sequencing only; no voice, mixer, device, or hardware fidelity claim",
+        'scope': 'Asset-initialized music sequencing only; no voice, mixer, device, or hardware fidelity claim',
         'sequence_sha256': sha(source),
         'driver_sha256': '7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2',
         'reference': str(args.reference), 'reference_sha256': sha(reference),

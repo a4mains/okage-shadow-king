@@ -1,9 +1,9 @@
 {
-  "scope": "Bounded native shadow projection math and prism geometry.",
+  "scope": "Bounded native shadow projection math and prism geometry. No runtime integration or raster equivalence.",
   "reports": {
     "projection": {
       "native-release": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -36,7 +36,7 @@
         "color_records_exact": 117
       },
       "native": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -69,7 +69,7 @@
         "color_records_exact": 117
       },
       "model-sanitize": {
-        "scope": "Compare native shadow projection setup/matrices with original packet generation.",
+        "scope": "Compare native shadow projection setup/matrices with original packet generation.\n\nExplicit synthetic views, light directions, heights, modes and transition factors\nfeed both implementations. Original EE/VU math and packet construction execute\nunchanged in a bounded arena. This does not execute the shadow VU1 renderer or\nprove GS/Metal pixels, field integration or service54 completion.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -104,7 +104,7 @@
     },
     "prism": {
       "native-release": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -134,7 +134,7 @@
         "original_pass_headers_checked": 531
       },
       "native": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",
@@ -164,7 +164,7 @@
         "original_pass_headers_checked": 531
       },
       "model-sanitize": {
-        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.",
+        "scope": "Compare native three-pass shadow prism geometry with original VU1 packets.\n\nExplicit synthetic camera/screen caches isolate draw selection and packet\ngeometry. Original microcode and XGKICK execute with a null graphics sink.\nThis does not validate cache production, shadow model skinning, pixels or field\nintegration. Native output contains geometry, never guest instructions.\n",
         "original_run": {
           "command": [
             "build/play-research/okage-oracle/okage-pose-oracle",

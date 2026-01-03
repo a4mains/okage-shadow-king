@@ -1,5 +1,5 @@
 {
-  "scope": "Native field ghost material integration through frame31835.",
+  "scope": "Native field ghost material integration through frame31835. Bounded state/channel and native build regressions; no full-scene raster/audio equivalence or battle completion.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "music_commit": "3564cb0",
   "binding": {
@@ -130,7 +130,7 @@
     }
   ],
   "material_helpers": {
-    "scope": "Compare material opacity/clamp helpers against pinned original EE execution.",
+    "scope": "Compare material opacity/clamp helpers against pinned original EE execution.\n\nThe original helper executes 0x17e020 and 0x17dfe8. Its caller multiplications\nare fixture preparation from static 0x17e058 recovery. This does not validate\nnormal lighting, VIF color-cache construction, texture sampling or rasterization.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "cases": 3600,
     "exact_words": 14400,
@@ -548,13 +548,13 @@
     "local/research/children-ghost-v1/tests-sanitize.log": "af8d93d0e9011709006b8467431937b285f9e12eb2590e12673d8659b0857c1d",
     "local/research/children-ghost-v1/tests-release-v2.log": "59f3deb432566eef90870f488d524cc50be597ce6ef5c328faf02b5f3bf1d599",
     "local/research/children-ghost-v1/python-tests.log": "7c755e7e90261475597eb83b3ef097db9f0e055a88f101587e4f5b0b573df629",
-    "include/okage/render.hpp": "a6eef85cd3d77031af8233e3694eb99cbf697f680a1deff79b119a6fe68304a5",
-    "src/render.cpp": "8d9d56bc2231a021b3462b1f84e22624ac66f10c55df24c8b6c409b1bc9e6886",
-    "src/assets_main.cpp": "e1965ebdb51539a4bab55659da8230415163be1427c76cb28b79419e3419d56c",
-    "src/scene_renderer.mm": "e702159a9a5c843b6c4895b2763f0c1ee9e30167866de4c1c886e5d987ae099a",
-    "src/metal_preview_shader.hpp": "c936202f73d81d9f6fd43fca6efec1730979009b965656f9b160ae1dfc27e59c",
-    "tools/play-oracle/main.cpp": "97dd56cc0eddb1c0cc13c459bc1910e4b9a4ad341973d7fa62c70ba6721e9101",
+    "include/okage/render.hpp": "f14752af407795333c4818961f38843bb1671dba33112188ec66408197b32df2",
+    "src/render.cpp": "e1cb6c6e2660e95c45f9653fd2e386e90b3461473d669507782dc31c1b6a39f7",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/metal_preview_shader.hpp": "9c4d3db4794a027eb7c4bc2fcb00f50d81314616a2514164d6aadf3ff1fda8fe",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_material.py": "635763c7dc4fef24020ac1539e7c6f29db0c6fb9470b2ff43ea854b62eebf624",
-    "tests/render_tests.cpp": "81604acb26d46affc644691d4fb643fd63c959797d64cc3b7a02270621312307"
+    "tests/render_tests.cpp": "76a194c8ef4c6c5f4ed99ba36d9dfb7972def3de011c975eb4e2cb56142b5ce7"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "scope": "Summoning element-state/positioned-service recovery, SET2 finite cue0, and native prefix regression.",
+  "scope": "Summoning element-state/positioned-service recovery, SET2 finite cue0, and native prefix regression. Gameplay after47855, complete effect geometry, deferred scheduling, raster/audio fidelity and full-game playability remain unverified. Interior map effects are the next integration dependency.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "state_validation": [
     {
@@ -368,7 +368,7 @@
     {
       "report": "local/finite-stream-set2-release-v2/report.json",
       "report_sha256": "8a154e5a660694e8166d14d758df7947fd4dac055a518c2d77c1a0041fa953d7",
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_binary_sha256": "0bf3028218a1ee80577e3d6ed21ddf2b981944bd1eb2e8e5116ce8089e2f3d61",
       "cases": [
         {
@@ -384,12 +384,12 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f"
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25"
     },
     {
       "report": "local/finite-stream-set2-native-v2/report.json",
       "report_sha256": "6772591019c7b7d89e383f23607b77663ddfa3cffa0eb48bc72d729d06056753",
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_binary_sha256": "1524ca93119a3c10ff9d995b100a64e839ef909a283b5211c9bca9a73fa111aa",
       "cases": [
         {
@@ -405,12 +405,12 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f"
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25"
     },
     {
       "report": "local/finite-stream-set2-model-sanitize-v2/report.json",
       "report_sha256": "780df50f1dcb20bceb40552ec7cab397a6e25ac7ff231f09727892deef064cad",
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_binary_sha256": "e03f36dc725a16e600d93987e28077b7e0e664e6f8009737732b2e36253f3792",
       "cases": [
         {
@@ -426,11 +426,11 @@
           "bytes_and_pcm_exact": true
         }
       ],
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f"
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25"
     }
   ],
   "native_regression": {
-    "scope": "Native regression only, not original fidelity.",
+    "scope": "Native regression only, not original fidelity. All37 outputs through47855 exactly match the pre-summoning-implementation baseline.",
     "baseline": "local/native-home2c-basement-three-verses-47855-release-v1.png",
     "new": "local/native-summon-regression-47855-release-v1.png",
     "run": {

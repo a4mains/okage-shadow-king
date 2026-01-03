@@ -80,5 +80,5 @@
     "local/research/natural-encounter-v1/contact-order-review-v1.md": "8abcf5e43c069a3b55268a32a6cb9769226f4c53d06723e397a43e01c2e1a695"
   },
   "next": "Implement source phase11/12/13 admission, preserving contact-frame remaining NPC/player callbacks, natural entry zero token, live rear state and phase13 implicit stage. Retain guards for unrecovered phase8/rear children; continue them as reached.",
-  "scope": "Owned table lookup executed."
+  "scope": "Owned table lookup executed. Natural native battle entry, deterministic startup and full-game completion are unproved."
 }

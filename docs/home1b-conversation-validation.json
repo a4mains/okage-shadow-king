@@ -1,5 +1,5 @@
 {
-  "scope": "Audit successive HOME1B family conversation intervals.",
+  "scope": "Audit successive HOME1B family conversation intervals.\n\nOriginal save continuity fixes each native anchor. Requested pad times are not\nused as observation times. State equality is not a full raster/audio claim.\n",
   "native_run": {
     "command": [
       "build/native-release/okage-native.app/Contents/MacOS/okage-native",

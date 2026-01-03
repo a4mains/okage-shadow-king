@@ -81,7 +81,7 @@ def main():
     integration = compare_scene(Path('local/reference-actor-820-v2.bin'),
                                 Path(str(capture)+'.actor.bin'), state['wait_release_frame'])
     report = {
-        'scope': "Native HOME1C diagnostic actor -8 segment; not cold startup or a playable opening",
+        'scope': 'Native HOME1C diagnostic actor -8 segment; not cold startup or a playable opening',
         'native_tool_sha256': sha(native), 'native_app_sha256': sha(app),
         'elf_sha256': sha(Path('local/extracted/SCUS_971.29')),
         'script_sha256': sha(script),

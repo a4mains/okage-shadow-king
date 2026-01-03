@@ -32,7 +32,7 @@
       "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
       "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
       "pad_sha256": "47322bb500929c31e858139a875068c8b650fdde28487d4a741ba3c5ba1b6a41",
-      "scope": "Unchanged name-accept input extended through ordinary field load/startup; original-only save for future research.",
+      "scope": "Unchanged name-accept input extended through ordinary field load/startup; original-only save for future research. Native never imports it.",
       "exit_code": 0,
       "seconds": 39.252157999999994,
       "command_file": "local/research/ordinary-field-v1/original-v1/run.json"
@@ -41,7 +41,7 @@
       "binary_sha256": "a50a12f4968eead31003e37ce26363036c847d8da8850df2a0bf702bd4e6d632",
       "input_state_sha256": "28d457a064301f66b8eac7df5e32d9e25de431ee4376668b0ddda898f08a6bf5",
       "pad_sha256": "66ffdb7417a96450bfcef036b8b8a9201bc036bb757234e1a0d48b71848d44a0",
-      "scope": "Original name-accept prefix plus native post-constructor held buttons mapped once by fixed constructor anchor109710=714; no delay fitting.",
+      "scope": "Original name-accept prefix plus native post-constructor held buttons mapped once by fixed constructor anchor109710=714; no delay fitting. Different inherited state/loading/RNG remain. Original-only endpoint save.",
       "exit_code": 0,
       "seconds": 40.806485208999995,
       "command_file": "local/research/ordinary-field-v1/original-v2/run.json"

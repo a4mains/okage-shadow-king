@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Newgame completion gates, evaluated mechanically from retained evidence.
+"""Newgame completion gates (T1H_GOAL_PROMPT.txt), evaluated mechanically from retained evidence.
 
 usage: newgame_gates.py [--json OUT]     (repository root)
 
@@ -136,7 +136,7 @@ def main(argv):
              f'{F}/sessions/{b}-fixed/compare.exit', '3', into=BEHAVIOUR)
         gate(f'control-tape No run vs dense No reference is not passed, {b}', 'comparator-behaviour',
              f'{NO}/{b}-control/dense-compare.exit', '3', into=BEHAVIOUR)
-    # Earlier texture gates on this source.
+    # Earlier T1 gates on this source.
     for b in ('release', 'sanitize'):
         gate(f'Restore light reference strict, {b}', 'earlier-gate', f'{F}/restore-{b}-scripted/light-compare.exit', '0')
         gate(f'Restore minimal-control exactness, {b}', 'earlier-gate', f'{F}/restore-{b}-scripted/io-timing.exit', '0')

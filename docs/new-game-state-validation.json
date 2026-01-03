@@ -171,12 +171,12 @@
     {
       "path": "include/okage/game_state.hpp",
       "size_bytes": 1449,
-      "sha256": "ddfc890586191041656e7c53843ffda4e8b6088625992077aeea6a00777ab504"
+      "sha256": "647dd78f1b0a515806fc59dfad4a8c30184a404ff3d7f221f5fc642ac7738812"
     },
     {
       "path": "src/game_state.cpp",
       "size_bytes": 6654,
-      "sha256": "d97c9764f59e7272b5a5df135777ef0bdea7a0446e1ae6e9b95fa71941728bea"
+      "sha256": "5b264de91d1d8f095b40fdbc2c7d61ca3a69b51eabf62872e11350a27e9e20e5"
     },
     {
       "path": "src/event.cpp",
@@ -186,12 +186,12 @@
     {
       "path": "src/native_runtime.mm",
       "size_bytes": 87066,
-      "sha256": "15b0ae850df5966eea62363f04695fb0e66203ef848122d037c7c4b89a2cf88e"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/assets_main.cpp",
       "size_bytes": 143976,
-      "sha256": "99a6e9cad55b21be3044ccb7e9c9dba12d928152d753ee468714aa3e3b13445a"
+      "sha256": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b"
     }
   ],
   "extraction_reader": {
@@ -605,12 +605,12 @@
         {
           "path": "tools/diagnose_home1b_interval.py",
           "size_bytes": 12300,
-          "sha256": "162c13855214726e1207276ede831a7115898d5b3dc5f44fbefc1a61f710e520"
+          "sha256": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b"
         },
         {
           "path": "tools/summarize_interval_report.py",
           "size_bytes": 14092,
-          "sha256": "97d67168ac9e1404228be34d1b42c81623848e229932ddbffc4cf407115e8422"
+          "sha256": "c6a8aa745de7e92751334c70a71881c7bf98fd34299b4aa9e1e779e163083e0c"
         }
       ],
       "scope_exclusions": [
@@ -681,13 +681,13 @@
       ],
       "aggregate_bytes": 16,
       "independently_recomputed_against_retained_observation": true,
-      "scope": "Selected native endpoint fields compared with an earlier decoded original save observation.",
+      "scope": "Selected native endpoint fields compared with an earlier decoded original save observation. Weaker provenance than the executed guarded helper corpus; no fresh snapshot extraction or whole-state equivalence claim.",
       "original_snapshot_is_native_input": false
     },
     "test_source": {
       "path": "tests/game_state_tests.cpp",
       "size_bytes": 9736,
-      "sha256": "af1e182d6ee57468c936e9e721d1b2e9db826c9d221b5d509cf7a6f520a0aa2a"
+      "sha256": "9578d7e15f528fe93ace1524427b292737be99f665c93819e463ae7aea6f7c20"
     }
   },
   "limits": [
@@ -700,7 +700,7 @@
   "research_oracle_source": {
     "path": "tools/play-oracle/main.cpp",
     "size_bytes": 237987,
-    "sha256": "d0f4248cd47b83773dabeabd70c235a68ca9bedd990f61f8c87532b5c56c1970"
+    "sha256": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811"
   },
   "native_commit": "1892353",
   "oracle_commit": "4f80cce",

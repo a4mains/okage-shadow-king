@@ -1,8 +1,8 @@
 {
-  "scope": "Owned shadow mode1 batch selection and first-use remapping.",
+  "scope": "Owned shadow mode1 batch selection and first-use remapping. No skinning, packet compilation, raster or field integration proof.",
   "reports": {
     "native-release": {
-      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.\n\nOriginal0x17ac20/0x17ac90/0x17b9d8 run on owned XMD inputs. Compare both\nmaterial passes, every batch boundary, source position map and remapped corner.\nThis does not execute skinning, the packet compiler or rasterization.\n",
       "native_sha256": "9329c4182d68b79f94fe0566d4beb58e30649508ea767bc130be2bf98df84062",
       "cases": [
         {
@@ -124,7 +124,7 @@
       ]
     },
     "native": {
-      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.\n\nOriginal0x17ac20/0x17ac90/0x17b9d8 run on owned XMD inputs. Compare both\nmaterial passes, every batch boundary, source position map and remapped corner.\nThis does not execute skinning, the packet compiler or rasterization.\n",
       "native_sha256": "8fcfd115797e59fec57b6db9393e5ef36c48eff9706152342212ffeb701b91cb",
       "cases": [
         {
@@ -246,7 +246,7 @@
       ]
     },
     "model-sanitize": {
-      "scope": "Compare native shadow batches with original mode1 source polygon selection.",
+      "scope": "Compare native shadow batches with original mode1 source polygon selection.\n\nOriginal0x17ac20/0x17ac90/0x17b9d8 run on owned XMD inputs. Compare both\nmaterial passes, every batch boundary, source position map and remapped corner.\nThis does not execute skinning, the packet compiler or rasterization.\n",
       "native_sha256": "9296719d39dfceb76cd82bd06dc8a3cb7d632a35e381660384e33ab685f4a343",
       "cases": [
         {

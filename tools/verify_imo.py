@@ -87,7 +87,7 @@ def main():
         if r[8:] != n[8:704]:
             raise ValueError('Original IMO channels differ at frame %d' % r[0])
     report = {
-        'scope': "Two-actor HOME1C segment and second message; diagnostic initial actor/window state, not cold boot or playable game",
+        'scope': 'Two-actor HOME1C segment and second message; diagnostic initial actor/window state, not cold boot or playable game',
         'elf_sha256': sha(Path('local/extracted/SCUS_971.29')),
         'native_tool_sha256': sha(native), 'native_app_sha256': sha(app),
         'actor_assets': {name: sha(base/name) for name in ('a.xmd', 'a.xmt', 'a.xta')},

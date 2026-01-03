@@ -96,7 +96,7 @@ def main():
              Path(str(prefix) + '.camera.bin'), Path(str(prefix) + '.camera-state.bin')]
     paths += [Path(str(original) + suffix) for suffix in ('.input', '.log', '.state.zip', '.layer0.png')]
     report = {
-        'scope': "STG anchored camera and native post-event handoff; not native movement or full scene fidelity",
+        'scope': 'STG anchored camera and native post-event handoff; not native movement or full scene fidelity',
         'elf_sha256': elf_hash,
         'native_sha256': hashlib.sha256(args.native.read_bytes()).hexdigest(),
         'original_functions': ['0x138c98', '0x138990', '0x138a50', '0x136aa8', '0x133a98'],

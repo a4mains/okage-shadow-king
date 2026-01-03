@@ -1,10 +1,10 @@
 {
  "schema": "okage.rng-original-manifest.v1",
- "scope": "Independent original-execution reference of every libc rand() call (0x1f14b0) in the cold-start prefix up to (not executing) EE PC 0x100618, and of its products (noise-grid cells, procedural template geometry, shape-cache owners, template request order).",
+ "scope": "Independent original-execution reference of every libc rand() call (0x1f14b0) in the cold-start prefix up to (not executing) EE PC 0x100618, and of its products (noise-grid cells, procedural template geometry, shape-cache owners, template request order). Unchanged retail SCUS_971.29 under the Play research VM. Research evidence only; not physical PS2 proof; never product input.",
  "source_commit": "e6467f1",
  "base_commit": "e709f21",
  "play": {
-  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout was not run from this isolated worktree)"
  },
@@ -19,18 +19,18 @@
   "cmake_build_type": "Debug",
   "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
   "osx_architectures": "arm64",
-  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk",
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk",
   "mode": "--rng-products (default Startup behaviour unchanged without the flag)"
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "8be042337aef6ca8225c1e5c5989dfbcf39281149c9ba0f97804b4d8edb9b8af",
-  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
+  "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/rng_capture.sh": "a521a572e576147dfcb3a2e6368f03b555ac9e6d7d452492c7730f1d4010970b",
   "tools/rng_original_extract.py": "3815bb7d5153e2ff51128b9e58432c707920c4580914b5f8cc4459eaef7bbb9b",
-  "tools/rng_compare.py": "59289fd275e911aeee377ff59d4ba50cf7ae7b9b8be3150f4c02fd3e594bba69",
-  "tools/rng_make_manifest.py": "9a307c0ca67f193cde3c3a4b5dc96427270a615a0f6fe0a5277458b57965192d",
-  "tests/test_rng_compare.py": "36ecba011de2f9e2bc12d13572be25d0c9a3260211a5cb466d2c219e71e153a7"
+  "tools/rng_compare.py": "2de0331e1f82e54f226101688a19b4f4259ae8a31a78956ce6b2074f14ebfce9",
+  "tools/rng_make_manifest.py": "4f3e2a48e572d7cd5c2a132ec47e29ee7a40df99c6255a8e3f5284dadc2d9cea",
+  "tests/test_rng_compare.py": "71c9bf7939d564973491f0006d660eecc83fc2c59f9758dfe9f5848781cf5c55"
  },
  "inputs": {
   "elf": {
@@ -49,7 +49,7 @@
   },
   "contract_json": {
    "path": "docs/startup-contract.json",
-   "sha256": "e4a189b4704f5262bea4ea874bc0e9fd731734b16761a2a7de8c239e1cf2cfcb",
+   "sha256": "3c6f3a41e409f775838791073f00c19d1696c10bc4085a855a845b3abe59d7d5",
    "use": "top-level step pcs only"
   },
   "functions_tsv": {
@@ -60,7 +60,7 @@
   "tes_efd_as_read_by_original": [
    {
     "sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
-    "bytes": 162156,
+    "bytes": 162173,
     "buf": "0x5e9790"
    }
   ],

@@ -2,7 +2,7 @@
   "scope": "12 original sky words, visible corrected7410 scene, unchanged simulation traces, three builds; no pixel equivalence",
   "reports": {
     "native": {
-      "scope": "Compare native sky translation to three original saved render states.",
+      "scope": "Compare native sky translation to three original saved render states.\n\nUses owned STG factors and captured original camera/sky channels. These are\n12 exact words, not full renderer, camera trajectory, or pixel equivalence.\nReference RAM is an auditor input only, never a native application input.\n",
       "exact_words": 12,
       "snapshots": [
         {
@@ -132,7 +132,7 @@
       }
     },
     "release": {
-      "scope": "Compare native sky translation to three original saved render states.",
+      "scope": "Compare native sky translation to three original saved render states.\n\nUses owned STG factors and captured original camera/sky channels. These are\n12 exact words, not full renderer, camera trajectory, or pixel equivalence.\nReference RAM is an auditor input only, never a native application input.\n",
       "exact_words": 12,
       "snapshots": [
         {
@@ -262,7 +262,7 @@
       }
     },
     "sanitize": {
-      "scope": "Compare native sky translation to three original saved render states.",
+      "scope": "Compare native sky translation to three original saved render states.\n\nUses owned STG factors and captured original camera/sky channels. These are\n12 exact words, not full renderer, camera trajectory, or pixel equivalence.\nReference RAM is an auditor input only, never a native application input.\n",
       "exact_words": 12,
       "snapshots": [
         {

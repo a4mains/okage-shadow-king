@@ -1,5 +1,5 @@
 {
-  "scope": "Compare inline event resource paths with original EE execution.",
+  "scope": "Compare inline event resource paths with original EE execution.\n\nThe isolated original disables only diagnostic logging at0x1c7910. Lookup,\ncopy/format helpers, callback and entry dispatch are unmodified. Whole resource\nloading, filesystem behavior and other string services are outside this probe.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_sha256": "e059ccca6ff349948a159127618b4846b265cb8bc2e43d1dd2662d1a27ee8bab",
   "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
@@ -261,7 +261,7 @@
   "exact_state_bytes": 18432,
   "build_reports": {
     "debug": {
-      "scope": "Compare inline event resource paths with original EE execution.",
+      "scope": "Compare inline event resource paths with original EE execution.\n\nThe isolated original disables only diagnostic logging at0x1c7910. Lookup,\ncopy/format helpers, callback and entry dispatch are unmodified. Whole resource\nloading, filesystem behavior and other string services are outside this probe.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_sha256": "58f1f1796846e77997444365ff17adc074eb1a9bb4c9d16ab76bb8a1b7fdfba1",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
@@ -523,7 +523,7 @@
       "exact_state_bytes": 18432
     },
     "sanitize": {
-      "scope": "Compare inline event resource paths with original EE execution.",
+      "scope": "Compare inline event resource paths with original EE execution.\n\nThe isolated original disables only diagnostic logging at0x1c7910. Lookup,\ncopy/format helpers, callback and entry dispatch are unmodified. Whole resource\nloading, filesystem behavior and other string services are outside this probe.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_sha256": "25f51fffe69a97656c442b308a950f1c2dee74a28da442efe1310857a6139292",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
@@ -786,7 +786,7 @@
     }
   },
   "entry": {
-    "scope": "Audit alternate village entry and optionally Annie's return conversation.",
+    "scope": "Audit alternate village entry and optionally Annie's return conversation.\n\nDispatch-aligned manager/HERO/camera state comparisons, not whole-scene raster,\naudio or completed conversation claims. Reads completed captures only.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -884,7 +884,7 @@
     "directory": "flddata/map/vil/"
   },
   "bakery_regression": {
-    "scope": "Compare bakery event30/message10015, with optional answers, confirmation lock and closure.",
+    "scope": "Compare bakery event30/message10015, with optional answers, confirmation lock and closure.\n\nUses observed event dispatch and pad polling. Does not establish bakery camera,\nrendering, audio fidelity or inventory persistence.\n",
     "original_run": {
       "command": [
         "build/play-research/okage-oracle/okage-boot-oracle",
@@ -1165,7 +1165,7 @@
     "actual_guard": "Native frame=14674 destination scene=0 entrance=4: Event string service not yet recovered at PC=920 a=0 b=256 payload=0"
   },
   "return_dialogue_opening": {
-    "scope": "Audit alternate village entry and optionally Annie's return conversation.",
+    "scope": "Audit alternate village entry and optionally Annie's return conversation.\n\nDispatch-aligned manager/HERO/camera state comparisons, not whole-scene raster,\naudio or completed conversation claims. Reads completed captures only.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -1304,7 +1304,7 @@
     }
   },
   "return_answer": {
-    "scope": "Audit alternate village entry and optionally Annie's return conversation.",
+    "scope": "Audit alternate village entry and optionally Annie's return conversation.\n\nDispatch-aligned manager/HERO/camera state comparisons, not whole-scene raster,\naudio or completed conversation claims. Reads completed captures only.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [
@@ -1611,15 +1611,15 @@
     "exact": true,
     "compared_words": 13,
     "sha256": "3319770924098b070c1786a63bc4c04efb5fde14dfeaa0e97f181c652d574be5",
-    "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+    "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices. No stream playback/timing claim.",
     "oracle": "Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots"
   },
   "sound_set11_finite": {
     "release": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "e059ccca6ff349948a159127618b4846b265cb8bc2e43d1dd2662d1a27ee8bab",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1654,10 +1654,10 @@
       ]
     },
     "debug": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "58f1f1796846e77997444365ff17adc074eb1a9bb4c9d16ab76bb8a1b7fdfba1",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1692,10 +1692,10 @@
       ]
     },
     "sanitize": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "25f51fffe69a97656c442b308a950f1c2dee74a28da442efe1310857a6139292",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

@@ -1,5 +1,5 @@
 {
-  "scope": "Historical v1/pre-fix HOME1B camera/player callback observation.",
+  "scope": "Historical v1/pre-fix HOME1B camera/player callback observation. See camera-schedule-validation.json for the expanded observer and subsequent native validation.",
   "original_run": {
     "command": [
       "build/play-research/okage-oracle/okage-boot-oracle",

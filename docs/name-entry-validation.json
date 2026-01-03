@@ -71,7 +71,7 @@
     ],
     "binary_sha256": "af6fa39a84c9658e9475f60397c28771c8f28d55196e70951973a94cd8e138fe",
     "source_revision": "89f741a87898b9f15b1ea11705d72583e258b62f",
-    "scope": "Retained ordinary defeat/title/New Game inputs plus explicit Start/confirm/Up/Yes at109350/360/370/380.",
+    "scope": "Retained ordinary defeat/title/New Game inputs plus explicit Start/confirm/Up/Yes at109350/360/370/380. No native state imported; UI source ordering fixes pending.",
     "exit_code": 1,
     "seconds": 70.071838792
   },
@@ -336,7 +336,7 @@
   },
   "component_comparisons": {
     "neutral-comparison-v1.json": {
-      "scope": "Neutral name-entry component, paired by callback ordinal.",
+      "scope": "Neutral name-entry component, paired by callback ordinal. Native seed1; original cold-title-menu. No loading/VBlank/RNG/audio equivalence claim. Final window buffers observed after ordinal201.",
       "callback_pairs": 201,
       "manager_excluded_raw_identity_offsets": [
         "0x0",
@@ -378,14 +378,14 @@
       }
     },
     "confirmation-comparison-v1.json": {
-      "scope": "Component-only exact consumed pad sequence from original; callback ordinal, no nativeRAM/saves.",
+      "scope": "Component-only exact consumed pad sequence from original; callback ordinal, no nativeRAM/saves. Original finalCross not consumed, confirmation remainsopen. No VBlank/RNG/audio match claim.",
       "callback_pairs": 291,
       "state_checks": 276741,
       "state_differences": 0,
       "first_differences": []
     },
     "accept-comparison-v2.json": {
-      "scope": "Component exact consumed pad callback sequence, through source death flag.",
+      "scope": "Component exact consumed pad callback sequence, through source death flag. No RAM/save runtimeinputs; callbackordinal only, no nativeVBlank/RNG/audio parity. Source second-return precedes windowdestructor; native observation follows same-traversal destructor, missingopacity reported.",
       "callback_pairs": 256,
       "state_checks": 243454,
       "state_differences": 0,
@@ -448,13 +448,13 @@
     "src/name_entry.cpp": "1e62421d23c9e4a4443bf7f66caad335e27aa6ea16d726df804b3bfeef616d8d",
     "src/name_entry_data.cpp": "7afffe607319cbdd968934d239759c7c3248412596e13ac50ed9dc3a8746981a",
     "src/name_entry_layout.cpp": "45a36f5bd529f82eebad872b44955fea21fea88fbaf3b6f6b9ada156bdba461e",
-    "src/name_entry_session.mm": "b3e5fd30e56fe59368a8c5fb27f2d4158814b71642f554cb450e4c6d7969b724",
-    "src/native_runtime.mm": "85b113bda61302e6a4aed69bb4be5f9e592a3b0b3aaf7387a4d0dce18dbb6d8f",
+    "src/name_entry_session.mm": "4f9b9e34d1a842de8e953ed9819da55819b0fd515de8b79b5785813117d7ed31",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
     "src/ui_geometry.cpp": "2e1cae3052d1721191a63b741f283363b3bb306f9c8d86cb272aeffdf3154959",
     "src/ui_metal.mm": "8201ab1b266c7578c211ca3605e2e81efd3cdc904112534de06ef65229949626",
-    "src/ui_window_layout.cpp": "bbe239a68533e8799087a4ba9d3ab5a98bd9c6fed42bfd69461981a4844dfd38",
+    "src/ui_window_layout.cpp": "eb492de18c7b040e067d88691be4caa0ed2b59f7540511b6927ab145cd0b3562",
     "tools/play-oracle/reference_name_entry.hpp": "3671cf5ded68c15015872befdd1cd1a157d71369433639ad7f0205c714a02ef3",
     "tools/play-oracle/reference_graphics.mm": "38a7de5b50e4db7aa45be43919f61a4e1f1b5379b47295b712a9be8da36c379c",
-    "tools/play-oracle/boot.cpp": "b2a2b36462acc97b68b1f922698879465b81b2a4044f1ab608afeb200f69625a"
+    "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736"
   }
 }

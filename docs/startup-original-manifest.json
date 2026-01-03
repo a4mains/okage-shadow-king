@@ -1,10 +1,10 @@
 {
  "schema": "okage.startup-original-manifest.v1",
- "scope": "Independent original-execution reference of the startup texture-resource prefix: unchanged retail SCUS_971.29 run from cold boot under the Play research backend (full VM, disc mounted, research HLE services) and stopped BEFORE EE PC 0x100618.",
+ "scope": "Independent original-execution reference of the startup texture-resource prefix: unchanged retail SCUS_971.29 run from cold boot under the Play research backend (full VM, disc mounted, research HLE services) and stopped BEFORE EE PC 0x100618. Research evidence only; not physical PS2 proof; never product input.",
  "source_commit": "1584dfc",
  "base_commit": "588a94a",
  "play": {
-  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified"
  },
@@ -23,12 +23,12 @@
   "cxx_version": "Apple clang version 17.0.0 (clang-1700.3.19.1), target arm64-apple-darwin25.0.0"
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "6c365b50a436678c2062777945ab642767f15e33ff0dc4e9156dc640a0938608",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
   "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/startup_capture.sh": "94792d8193bfafa3132c7d2a8114a64d337c0d6af753e72989bca7bd058f993e",
   "tools/startup_original_report.py": "725c16e76472547c522fd72f0ad3ae6f517b4fe293d322fca118138b1dd5239c",
-  "tools/startup_make_manifest.py": "9469ee1075b4e4adf09b1c28ecc63a4ce58d654984c0b7b619c8dfe29c9c2989",
+  "tools/startup_make_manifest.py": "4cdad7f7e6db6f7c9a2759058fc23977472c6f6e2a4b55206fd9ed2fc6e97b51",
   "tests/test_startup_original.py": "6bf7636c994e64fc0b4cdddaa7545274ffd203a5e31116ca6a329ade29503f04"
  },
  "inputs": {
@@ -48,7 +48,7 @@
   },
   "contract_json": {
    "path": "docs/startup-contract.json",
-   "sha256": "e4a189b4704f5262bea4ea874bc0e9fd731734b16761a2a7de8c239e1cf2cfcb"
+   "sha256": "3c6f3a41e409f775838791073f00c19d1696c10bc4085a855a845b3abe59d7d5"
   },
   "play_config": "fresh default configuration created in <cwd>/local/play-boot-config (no saved state, no pad input, no sound handler)"
  },

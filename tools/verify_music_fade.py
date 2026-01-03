@@ -33,7 +33,7 @@ def main():
               'words_per_tick': 7, 'exact': True, 'sha256': hashlib.sha256(actual).hexdigest(),
               'fields': ['current', 'target', 'step', 'stop_requested', 'gain_sent', 'left', 'right'],
               'original_functions': ['0x12d778', '0x12ce20', '0x12d470'],
-              'scope': "Original request/update/stop state with unrelated pending flags zero and active track3; research-only logging/RPC/load no-ops, main-thread predicate0 and recording driver gain/stop stubs."}
+              'scope': 'Original request/update/stop state with unrelated pending flags zero and active track3; research-only logging/RPC/load no-ops, main-thread predicate0 and recording driver gain/stop stubs. Does not validate RPC side effects or full-game timing.'}
     write_exact(args.output / 'report.json', (json.dumps(report, indent=2)+'\n').encode())
     print(json.dumps(report, indent=2))
 

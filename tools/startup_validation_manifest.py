@@ -64,7 +64,8 @@ def main(out):
     ]
     manifest = {
         "schema": "okage.startup.validation.v1",
-        "scope": "Startup: Session-owned startup texture lifetime through effects and fonts, pre-scheduler only.",
+        "scope": "Startup: Session-owned startup texture lifetime through effects and fonts, pre-scheduler only. "
+                 "Not full T1, not tick37297, not sampling, not the game.",
         "base_commit": base, "head_commit_at_generation": head,
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "tracked_sources": {p: sha(ROOT / p) for p in sources},

@@ -3,13 +3,13 @@
   "checkpoint_date": "2022-10-29",
   "runtime_source_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
   "helper_test_checkpoint_revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
-  "scope": "First eligible native parent and child callback traversal.",
+  "scope": "First eligible native parent and child callback traversal. Runtime stops before resource layout, actor submission and framebuffer filter rendering. Strict retained UI comparison fails; no whole-original-traversal, temporal, layout, raster, audio or playable-battle parity claim.",
   "status": {
     "complete_requested_replay": false,
     "playable_battle": false,
     "original_ui_comparison": "fail",
     "runtime_replay_jobs_terminal": true,
-    "runtime_replay_exit_is_application_exit": "Application exit_code=1 in each run record; replay wrapper completion is not application success."
+    "runtime_replay_exit_is_application_exit": "Application exit_code=1 in each run record; orchestration wrapper completion is not application success."
   },
   "native_replays": {
     "release": {
@@ -229,7 +229,7 @@
     },
     "helpers": {
       "revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
-      "scope": "Source-driven isolated helper tests, not executed runtime layout integration.",
+      "scope": "Source-driven isolated helper tests, not executed runtime layout integration. Sprite helper was added after the runtime binaries below.",
       "files": [
         {
           "path": "include/okage/ui_layout_geometry.hpp",
@@ -954,7 +954,7 @@
     "status": "fail",
     "differences_per_build": 22,
     "explanation": "Five pre-existing timer numerators differ at four callback edges each; party record charge differs at two returns (81/79 original versus56/54 native). No other compared difference.",
-    "scope": "Source-gated first traversal only, originalvblank126; native frames104452/104450/104451 retained without fitting.",
+    "scope": "Source-gated first traversal only, originalvblank126; native frames104452/104450/104451 retained without fitting. Camera sampled at callback return and final UI return; actor before/after-first/after-second paired to original actual call boundaries.",
     "counts_per_build": {
       "actor_bytes": 3692,
       "record_bytes": 1840,
@@ -1011,9 +1011,9 @@
     }
   },
   "glyph_icon_helper": {
-    "scope": "19c568/19ca20 source-based known buffer and RNG order; not called by runtime layout yet.",
+    "scope": "19c568/19ca20 source-based known buffer and RNG order; not called by runtime layout yet. Exceptional/unknown cache values may reject earlier than original.",
     "source_revision": "637d28e56657b8b9ae428cc35a238181b0723778",
-    "run_report": {
+    "worker_report": {
       "path": "local/worktrees/ui-window-glyph-v1/local/ui-window-glyph-checks/report-v3.json",
       "bytes": 7716,
       "sha256": "c148c4b0fd1dfa53730e8a28a8e1af4beed10aec16451189047a6972ab643894"

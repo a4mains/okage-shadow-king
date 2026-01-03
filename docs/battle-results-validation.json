@@ -1,7 +1,7 @@
 {
   "schema": "okage-battle-results-validation-v1",
   "runtime_revision": "54a078c37925d3c8c693806a27c59677e30ac631",
-  "acceptance_met": false,
+  "goal_complete": false,
   "native_checks": [
     {
       "configuration": "Release",
@@ -15,7 +15,7 @@
         "sha256": "5af6e21bbf1ff255160b11c4e740e56ff6c52dd6bf003055ee63fa84a4be36a6"
       },
       "exit_code": 0,
-      "scope": "Affected component, UI, field and music tests; full native app built."
+      "scope": "Affected component, UI, field and music tests; full native app built. Only Release executed the long integrated results route."
     },
     {
       "configuration": "Debug",
@@ -29,7 +29,7 @@
         "sha256": "480987a580d039d7380523b2cfe2c4b96d400badd8056e931a342bd102f95870"
       },
       "exit_code": 0,
-      "scope": "Affected component, UI, field and music tests; full native app built."
+      "scope": "Affected component, UI, field and music tests; full native app built. Only Release executed the long integrated results route."
     },
     {
       "configuration": "ASan_UBSan",
@@ -43,7 +43,7 @@
         "sha256": "78bfb4a685716688d9774ea8305ebb20d66951f3f044c0bef4e0bddb034ddf88"
       },
       "exit_code": 0,
-      "scope": "Affected component, UI, field and music tests; full native app built."
+      "scope": "Affected component, UI, field and music tests; full native app built. Only Release executed the long integrated results route."
     }
   ],
   "python": {
@@ -97,7 +97,7 @@
       "scene": 96,
       "dialogue_pc": "0x5b4"
     },
-    "scope": "Successful ordinary-input victory/results confirmation, child retirement and saved-field return."
+    "scope": "Successful ordinary-input victory/results confirmation, child retirement and saved-field return. The state comparator requests all600 source rows; it compares275 and leaves325 post-child rows unsupported. It does not establish original fidelity."
   },
   "comparison": {
     "anchor": 107976,
@@ -223,7 +223,7 @@
       "original_money": 11,
       "native_money": 14
     },
-    "scope": "Original and native notice confirmation comparison covers600 parent-entry frames and has2825 field differences."
+    "scope": "Original and native notice confirmation comparison covers600 parent-entry frames and has2825 field differences. The preceding-native sampling boundary is explicit. Native display currency14 differs from original11; no fidelity pass is implied."
   },
   "interactive_return": {
     "observation": {
@@ -232,7 +232,7 @@
     },
     "executed": true,
     "paused_frame": 112126,
-    "scope": "Actual native preview Session resumed via keyboard, level notice and final results confirmed, field and next dialogue visually inspected."
+    "scope": "Actual native preview Session resumed via keyboard, level notice and final results confirmed, field and next dialogue visually inspected. No exact live input tape or original state comparison; failed fixed replay remains failure."
   },
   "startup_replay": {
     "run": {
@@ -260,7 +260,7 @@
       "sha256": "b9d801990886da96af3f5c704b09a7140e4b3f7aa35e32e71812317d39a0da0a"
     },
     "endpoint_visually_inspected": true,
-    "scope": "Native startup, ordinary recorded inputs, authentic battle victory and initial results animation."
+    "scope": "Native startup, ordinary recorded inputs, authentic battle victory and initial results animation. Reward confirmation and saved-field activation are implemented but not yet demonstrated."
   },
   "historical_dismissal_attempt": {
     "original_run": {

@@ -6,7 +6,7 @@
     "cf98ed3",
     "5e1c4f4"
   ],
-  "scope": "Shared field channel integration.",
+  "scope": "Shared field channel integration. Structural original map layout559groups exact; source-derived scalar alias behavior observed natively. Not full-game or whole-road fidelity.",
   "affected_ctests_per_build": 8,
   "python_tests": 543,
   "retained_mode_words_per_build": 630,

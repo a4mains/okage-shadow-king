@@ -1,6 +1,6 @@
 {
   "native": {
-    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "scope": "Compare native map-effect state against completed isolated original probes.\n\nDoes not start a reference VM or validate geometry, rendering, allocation order,\nremoval lifetime, whole-scene scheduling or authentic startup RNG initialization.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
     "native_binary_sha256": "8ebdb2638c401def911609e670e4a5b14b9f65d48ac90f6df583e42af6f94323",
@@ -116,7 +116,7 @@
     ]
   },
   "native-release": {
-    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "scope": "Compare native map-effect state against completed isolated original probes.\n\nDoes not start a reference VM or validate geometry, rendering, allocation order,\nremoval lifetime, whole-scene scheduling or authentic startup RNG initialization.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
     "native_binary_sha256": "36046aba1875093de09a92545a0adcd16e94687e82277099d6dc736a17b80c72",
@@ -232,7 +232,7 @@
     ]
   },
   "model-sanitize": {
-    "scope": "Compare native map-effect state against completed isolated original probes.",
+    "scope": "Compare native map-effect state against completed isolated original probes.\n\nDoes not start a reference VM or validate geometry, rendering, allocation order,\nremoval lifetime, whole-scene scheduling or authentic startup RNG initialization.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
     "native_binary_sha256": "b61184c18cfc8ebc4dd5f4b5537942d2d80beaaccd6946546df2048b13250a24",

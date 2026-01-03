@@ -1,8 +1,8 @@
 {
   "schema": "okage-battle-resource-integration-validation-v1",
   "revision": "e7b784fa6e4e0232d6af208673a134e7181e47c6",
-  "acceptance_met": false,
-  "scope": "Ordered UI resource ownership wired before native callbacks; optional scene/UI shared-target Metal bridge tested.",
+  "goal_complete": false,
+  "scope": "Ordered UI resource ownership wired before native callbacks; optional scene/UI shared-target Metal bridge tested. Actual session stops at same-frame filter6.",
   "tests": {
     "configurations": [
       "Release",
@@ -27,18 +27,18 @@
   "evidence": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 18022,
-      "sha256": "5990c0728d6c7654e0a18aaace2fb9d1cec1f7a5fd6cd6610d9c2402060f085d"
+      "bytes": 41580,
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/scene_renderer.hpp",
-      "bytes": 1807,
-      "sha256": "0e530168c77f11cd91bca42e1b1684fceca0b05c5c148b24cf41321bade06b32"
+      "bytes": 5003,
+      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
     },
     {
       "path": "include/okage/ui_resource.hpp",
-      "bytes": 1056,
-      "sha256": "bb860abd8e33b0ee11eaa8390b5253a524bf5942de7b7d6a6d9450b59cb82ef8"
+      "bytes": 1141,
+      "sha256": "35cafd58c9c8641df6fb57e1d799039ae810895624c3ea23ec6d2361f7cee1fa"
     },
     {
       "path": "local/extracted/SCUS_971.29",
@@ -392,33 +392,33 @@
     },
     {
       "path": "src/battle_session.hpp",
-      "bytes": 1915,
-      "sha256": "69b0067eef7d879f6c5ed8bb1844dfe660a1ea8f267ed7a743623d9c431de517"
+      "bytes": 5179,
+      "sha256": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f"
     },
     {
       "path": "src/battle_session.mm",
-      "bytes": 35333,
-      "sha256": "7d11618508656b0a1c7234b5673c3a913f2c49dbe21e133479ea0ea646ec9f51"
+      "bytes": 98646,
+      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 102941,
-      "sha256": "6614a9dd77488d0d682ffdc716e53ee18e7ae6e0c70e0983beaf2c7e369de2b6"
+      "bytes": 275496,
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/scene_renderer.mm",
-      "bytes": 44681,
-      "sha256": "00fa6d4c37a62a6c5810ceb7addbc7b35cbf703641306605b9cc6200246e1b96"
+      "bytes": 75721,
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "src/ui_metal.hpp",
-      "bytes": 1313,
-      "sha256": "84562c51e272492371dd1fd1f50238ea6332847a03c95d335ababc3aa2eb4d94"
+      "bytes": 1413,
+      "sha256": "868354e38b3844fa5c45998de318a34b7864406db297055b64aa0ffe8c5dbd6f"
     },
     {
       "path": "src/ui_metal.mm",
-      "bytes": 14399,
-      "sha256": "aad256435a8aa0252f648a854c94b0b5ceed1859da2f87b5049962c992dc3ae4"
+      "bytes": 16651,
+      "sha256": "8201ab1b266c7578c211ca3605e2e81efd3cdc904112534de06ef65229949626"
     },
     {
       "path": "src/ui_resource.cpp",
@@ -427,8 +427,8 @@
     },
     {
       "path": "tests/scene_map_material_tests.mm",
-      "bytes": 11929,
-      "sha256": "959c12705fa3abd99f4181bbd2daa9488e0f1ba06743d9f97ee96ec519414f43"
+      "bytes": 53148,
+      "sha256": "289a2b120de28fbd6135515cffa5a6ba13c56800e5a64553aa4c596d63a2f623"
     },
     {
       "path": "tests/ui_resource_tests.cpp",

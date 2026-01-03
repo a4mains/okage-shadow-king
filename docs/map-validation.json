@@ -1,5 +1,5 @@
 {
-  "scope": "Inline XMP parsing and 12 transform floats plus merged flags; bit-exact comparison against relocated retail 0x1bbd28..0x1bbe3f fragment.",
+  "scope": "Inline XMP parsing and 12 transform floats plus merged flags; bit-exact comparison against relocated retail 0x1bbd28..0x1bbe3f fragment. Not model loading, effects, scene rendering, events or playability.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_sha256": "436efda80e24bf03ed7cf2acd748ba63f11d4683ac02583adaf76177daaf7b11",
   "oracle_sha256": "d8d95d8aae7560df9a0d357cc81b94dcf18d5d38e67f737db5c5831638d54a30",

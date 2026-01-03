@@ -63,7 +63,7 @@ def main():
     rows=list(struct.iter_unpack('<14I',expected))
     counts={str(flag):sum(r[0] and r[1]==flag for r in rows) for flag in (0,1,2,4)}
     if not all(counts.values()) or not any(not r[0] for r in rows):raise RuntimeError('Missing contact/rejection coverage')
-    report={'scope':"Capsule-pair helper hit, flags, correction XYZ and defined contact normals",
+    report={'scope':'Capsule-pair helper hit, flags, correction XYZ and defined contact normals',
             'functions':['0x18dbf8','0x18d098'],'cases':len(rows),'exact':True,'hits_by_flags':counts,
             'excluded':['correction W and normal W','stale failure fields','shape dispatch/registry/pushing','app movement'],
             'preconditions':'Synthetic capsule/record inputs; original helpers; no captured RAM, OS services or VU microprogram',

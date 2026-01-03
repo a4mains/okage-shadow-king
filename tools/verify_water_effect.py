@@ -134,7 +134,7 @@ def compare_water(geometry, uv, native, steps=STEPS):
             'original_packed_points_compared':checked,'native_logical_points':steps*1024,
             'original_duplicate_points_compared':steps*510,'coordinate_and_uv_words_compared':checked*3,
             'original_xyz_and_uv_tags_exact_zero':checked*2,
-            'source_header_assertions':{'passed':True,'scope':"Not observed in retained old capture",
+            'source_header_assertions':{'passed':True,'scope':'Not observed in retained old capture',
                 'steps_0_1':{'clamp_mode':2,'near_float_bits':'40400000'},
                 'steps_2_onward':{'clamp_mode':3,'near_float_bits':'41200000'}},
             'excluded_original_bits':{'count':checked*16,'per_point':16,'field':'Upper16 of second observer XYZ word only',

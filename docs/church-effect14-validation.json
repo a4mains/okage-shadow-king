@@ -94,7 +94,7 @@
     "result": "pass"
   },
   "sha256": {
-    "tools/play-oracle/main.cpp": "871708cb5bfdbc4e8666f15d971895e463bc422c37952a372b7fd910e8e5e2d2",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "local/research/church-service57-v1/audit-v1.json": "eac6c2ffae4296d0b0cb5ec18c7060933994b17ca7b155e54e01546166b9e23e",
     "local/research/church-service57-v1/source-recovery.txt": "b51607c7716d7a152b8484cd847501712cfe2f4ccb539f7c8c68ff5048f19778",
@@ -111,9 +111,9 @@
     "local/research/church-service57-v1/gap-export-v1/00104438.asm": "fe8ba813c81390fdc2c3ba4ae412fa7edc39536023e11f092608d005f381c464",
     "local/research/church-service57-v1/gap-export-v1/00110908.asm": "ffc93f7bc9d0655a1a74120aa777ae847a4e228e59a6d48344750f8e96cc68d3",
     "local/research/church-service57-v1/gap-export-v2/00111cf0.asm": "99e8e47ecd35f0feebca542787f2830db622cadd86922c357966107eb8a56d76",
-    "include/okage/effect.hpp": "a5c521ca5d563673a7f00fa324877d089e2501ebc7346ff17f725390323e2179",
-    "src/effect.cpp": "1b402d44dc63160d4b861be9c3f249db0b6d8ee0ba988f4497b326a53a9cdf66",
-    "src/assets_main.cpp": "eb9a9d7bb64c35202892456f786fca10a20ebae11a0e65cbf882570ef6e395c4",
+    "include/okage/effect.hpp": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
+    "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
     "local/research/church-service57-v1/compare-native14.py": "3e64eecd8cad95e25b52b59e0618dd080bb7f123b992164d3390089f62f6cb9e",
     "local/research/church-service57-v1/native-lifecycle-checks-v1/runs.json": "dac2c3de642aaeeadab99767b2d07a564482f7700f38381b5e282e5ce84de35f",
     "local/research/church-service57-v1/material-shape35-v1.txt": "0a94868c6036fc533d23bb6d341e2cbcbdb2bc2d29c223c4ef0ff3edf8416fd1",
@@ -137,7 +137,7 @@
     "scope": "Retained evidence review; no new execution"
   },
   "source_followup_review": {
-    "review": "Corrections after the run source report",
+    "review": "Primary corrections after worker source report",
     "corrections": [
       "Element3 rotation selector0; scale4 uses authored scaleW denominator",
       "0x200 clears time24..29, not scale; mask0xc0ffffff at0x10a7f0",
@@ -652,7 +652,7 @@
         "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "local/research/basement-summon-v1/after-chant.ram": "f7f6f52c4843ec404a6976578d2b4c1f0fbe549d987fd4c64f6bf428f886576f",
         "local/research/church-service57-v1/geometry-input-v1.bin": "8d90d1cfeb77681bee1cec46d160475f3d5e777401f2c870686394548d1f9505",
-        "tools/play-oracle/main.cpp": "871708cb5bfdbc4e8666f15d971895e463bc422c37952a372b7fd910e8e5e2d2"
+        "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811"
       },
       "outputs": {
         "local/research/church-service57-v1/geometry-original-v1.bin": "6ed53202fbd0be8f02122d605796f0b97626b7bb84c80e6b2cc830de834018f2",
@@ -751,11 +751,11 @@
       "local/research/church-service57-v1/geometry-comparison-sanitize-v1.json": "7aabc1c09f5c00371068c9e2b51249f96dd9ca3d5620f34047915031060c2c3f",
       "local/research/church-service57-v1/geometry-native-sanitize-v1.run.json": "37939b761425b471967e3d60c6b0764b37571e91dec417a1a065d44bd6fd1e58",
       "local/research/church-service57-v1/drawing-sanitize-tests-v1.log": "42b6c97deb8797da937cc0a17c4b5c65fce3d2be5eac95ee0a96347b4f84e6e5",
-      "src/effect.cpp": "1b402d44dc63160d4b861be9c3f249db0b6d8ee0ba988f4497b326a53a9cdf66",
-      "src/field.cpp": "c0ece7391ac04ca72c89bca7e048120c32783e48909a5123a44cbb55d61d4e63",
-      "src/assets_main.cpp": "eb9a9d7bb64c35202892456f786fca10a20ebae11a0e65cbf882570ef6e395c4",
-      "tests/field_tests.cpp": "110163221971229cd4a99e9c2366e55c408a7cac7ddba8e7fe50e029d654b2e1",
-      "tools/play-oracle/main.cpp": "871708cb5bfdbc4e8666f15d971895e463bc422c37952a372b7fd910e8e5e2d2",
+      "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+      "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+      "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+      "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
+      "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
       "local/research/church-service57-v1/geometry-input-v1.bin": "8d90d1cfeb77681bee1cec46d160475f3d5e777401f2c870686394548d1f9505",
       "local/research/church-service57-v1/geometry-original-v1.bin": "6ed53202fbd0be8f02122d605796f0b97626b7bb84c80e6b2cc830de834018f2",
       "local/research/church-service57-v1/geometry-original-v1.bin.packets.bin": "79c5625359f8ac6f2496d536d6087c9a8543bda9dcab89b4c5665fb2f39bb323",
@@ -1008,7 +1008,7 @@
         "native_binary_sha256": "545cca95cfe4c9d956d69e9030b7cd70a0c6c6639192ffa831fd605b1e851bc2",
         "summary": "local/research/post-jam-route-v1/tenel-church-reenter-summary.json",
         "comparison": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [
@@ -1385,7 +1385,7 @@
         "native_binary_sha256": "545cca95cfe4c9d956d69e9030b7cd70a0c6c6639192ffa831fd605b1e851bc2",
         "summary": "local/research/post-jam-route-v1/tenel-church-door-summary.json",
         "comparison": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [
@@ -1721,7 +1721,7 @@
         "native_binary_sha256": "545cca95cfe4c9d956d69e9030b7cd70a0c6c6639192ffa831fd605b1e851bc2",
         "summary": "local/research/post-jam-route-v1/tenel-church-door-align-summary.json",
         "comparison": {
-          "scope": "Report field-interval differences without shifting their original time anchor.",
+          "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
           "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
           "native_run": {
             "command": [

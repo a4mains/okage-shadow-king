@@ -1,5 +1,5 @@
 {
-  "scope": "Compare owned village map body construction with a completed original snapshot.",
+  "scope": "Compare owned village map body construction with a completed original snapshot.\n\nSnapshot data is only an auditor input. Checks the three map bodies' ordering,\ngeometry, position and body parameters; excludes NPC motion and collision pairs.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source_run": {
     "command": [

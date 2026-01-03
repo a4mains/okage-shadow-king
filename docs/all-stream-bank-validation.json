@@ -5,6 +5,6 @@
   "exact": true,
   "compared_words": 175,
   "sha256": "08874e5850b2b38d97a57748efa5967071fcb5c2526980db71238166f655429d",
-  "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+  "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices. No stream playback/timing claim.",
   "oracle": "Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots"
 }

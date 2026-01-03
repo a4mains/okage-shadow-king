@@ -113,7 +113,7 @@ def main():
                              bytes((i*37+shift*17+predictor*29)&255 for i in range(14)))
     synthetic[-15] = 1
     cases['synthetic'] = synthetic
-    report = {'scope': "Sample decode before pitch/envelope/mixing; PCSX2 equivalence, not hardware proof",
+    report = {'scope': 'Sample decode before pitch/envelope/mixing; PCSX2 equivalence, not hardware proof',
               'pcsx2_revision': REVISION, 'pcsx2_mixer_sha256': SOURCE_SHA256,
               'bank_sha256': sha(bank), 'body_offset': body_start, 'body_bytes': len(body),
               'body_sha256': sha(body), 'reference_spu_address': address,

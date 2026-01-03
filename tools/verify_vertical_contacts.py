@@ -54,7 +54,7 @@ def main():
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     if digest(elf) != '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5':
         raise RuntimeError('Unexpected retail ELF')
-    report = {'scope': "Fresh floor/ceiling queries, correction, surface ID, normal XYZ and selected polygon metadata",
+    report = {'scope': 'Fresh floor/ceiling queries, correction, surface ID, normal XYZ and selected polygon metadata',
               'functions': ['0x18a0e0', '0x18a640'],
               'excluded': ['cached/resumed queries', 'undefined normal W from retail stack',
                            'stale metadata when hit=false', 'wall/dynamic collision', 'app movement'],

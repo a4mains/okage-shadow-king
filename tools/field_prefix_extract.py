@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Extract the Field ordinary-field common-prefix original reference from `okage-startup-oracle --newgame-chapter
---field-prefix` captures.
+--field-prefix` captures (HANDOFF.md).
 
 usage: field_prefix_extract.py EVIDENCE_DIR --out ANALYSIS_DIR --rng RNG_JSONL --newgame-analysis NEWGAME_ANALYSIS
            [--regress-newgame RUN]

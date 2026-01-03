@@ -2,7 +2,7 @@
   "scope": "440 exact manager samples,186 exact scripted camera samples,HERO endpoint and unchanged7520-frame prefix in three builds; no whole-scene equivalence",
   "reports": {
     "native": {
-      "scope": "Audit the native field gate event against two completed original captures.",
+      "scope": "Audit the native field gate event against two completed original captures.\n\nChecks 440 manager samples and 186 scripted camera samples. Exploration camera\ntrajectories, complete movement, gate bone animation, sound and pixels are not\ncovered by these exact comparisons. No reference data is an application input.\n",
       "native_run": {
         "command": [
           "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -136,7 +136,7 @@
       }
     },
     "release": {
-      "scope": "Audit the native field gate event against two completed original captures.",
+      "scope": "Audit the native field gate event against two completed original captures.\n\nChecks 440 manager samples and 186 scripted camera samples. Exploration camera\ntrajectories, complete movement, gate bone animation, sound and pixels are not\ncovered by these exact comparisons. No reference data is an application input.\n",
       "native_run": {
         "command": [
           "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -270,7 +270,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit the native field gate event against two completed original captures.",
+      "scope": "Audit the native field gate event against two completed original captures.\n\nChecks 440 manager samples and 186 scripted camera samples. Exploration camera\ntrajectories, complete movement, gate bone animation, sound and pixels are not\ncovered by these exact comparisons. No reference data is an application input.\n",
       "native_run": {
         "command": [
           "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",

@@ -225,7 +225,7 @@ def audit_title_resources(disc_path, disc_report_path, elf_path, xpf_verificatio
     installed = install_audio_resources(audio_root, payloads) if install_audio else []
     return {
         'schema': 'okage-native-title-resource-import-v1',
-        'scope': "Pinned source/resource verification; XWH/XWB payload inventory, RXSNDDRV PCM gain-table provenance, and optional direct audio installation.",
+        'scope': 'Pinned source/resource verification; XWH/XWB payload inventory, RXSNDDRV PCM gain-table provenance, and optional direct audio installation. No decoding, playback, or title execution.',
         'disc': {'path': str(disc_path), 'sha256': actual_disc_hash,
                  'disc_index': str(disc_report_path), 'elf_sha256': ELF_HASH},
         'elf_strings': strings,

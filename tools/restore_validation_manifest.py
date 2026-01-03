@@ -46,7 +46,7 @@ SCOPE = ("Restore: fixes-first route-comparator coverage/causality (F1/F2); the 
          "observations; the 4,364 Restore-window draws are reconstructed by the recovered LCG between 109 observed RNG-state "
          "anchors (not individually hooked, call sites unobserved); manager rows combine observed input/state/pad words "
          "with derived per-traversal draw counts. Not image/audio parity, saved slots, loading, name entry, "
-         "field/battle/XTA, sampling, tick37297, the full texture port or the game.")
+         "field/battle/XTA, sampling, tick37297, full T1 or the game.")
 DRIVER = "RESTORE_VALIDATION=local/research/restore-ownership-validation-v3 tools/restore_validation_run.sh final"
 
 def main(out):

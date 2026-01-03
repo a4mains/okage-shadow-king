@@ -785,7 +785,7 @@ void StartupTextureOwner::enter_successor(unsigned mode) {
     advance(ResourceStage::SuccessorEntry);
 }
 
-// ---- Newgame: New Game name entry and Chapter 1  ----
+// ---- Newgame: New Game name entry and Chapter 1 (HANDOFF.md) ----
 int StartupTextureOwner::construct_name_entry(const std::vector<std::uint8_t>& atlas) {
     require_stage(ResourceStage::SuccessorEntry, "name-entry construction");
     if (successor_mode_ != 9) throw std::logic_error("name-entry construction for a non-New Game successor");
@@ -901,7 +901,7 @@ void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entra
     advance(ResourceStage::FieldConstructorEntry);
 }
 
-// ---- Field: the ordinary-field common prefix  ----
+// ---- Field: the ordinary-field common prefix (HANDOFF.md) ----
 void StartupTextureOwner::construct_field_mode(unsigned scene, unsigned entrance) {
     require_stage(ResourceStage::FieldConstructorEntry, "133830 command-0 body");
     sync();
@@ -1482,7 +1482,7 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             std::ofstream(dir / "model-groups.json", std::ios::binary) << groups.str();
         }
         if (schema == CheckpointSchema::Field || schema == CheckpointSchema::FieldWorld) {
-            // Field field.json: the prefix's source-visible words.
+            // Field field.json: the prefix's source-visible words (HANDOFF.md).
             const auto& f = owner.field_prefix();
             char tex0[24];
             std::snprintf(tex0, sizeof tex0, "0x%016llx", static_cast<unsigned long long>(f.tex0_332430));

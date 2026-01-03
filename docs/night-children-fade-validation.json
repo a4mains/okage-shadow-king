@@ -1,9 +1,9 @@
 {
-  "scope": "Native instance-alpha fade through frame32435.",
+  "scope": "Native instance-alpha fade through frame32435. Exact bounded alpha/state/channel and native-build comparisons, not full RGB lighting, GS pixels, original audio or battle completion.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "material_base_commit": "a2de70b",
   "alpha": {
-    "scope": "Compare native instance alpha to original VU1 lighting and packed-color output.",
+    "scope": "Compare native instance alpha to original VU1 lighting and packed-color output.\n\nThree directional lights have W=0; channel3 supplies ambient W. Original VU1\ninitialization, color upload, lighting and primitive emission execute unchanged.\nThis isolates alpha; it does not validate scene RGB lighting or final GS pixels.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "cases": 3604,
     "all_equal": true,
@@ -605,14 +605,14 @@
     "local/research/children-fade-v1/tests-debug.log": "99a488388b25a5a1d31b22679fba86edadb34e54381726429e66a4e5aefcd80c",
     "local/research/children-fade-v1/tests-sanitize.log": "8b1b097901c453347712338954be1f501b8475e7782e265240ffef36de6dbec7",
     "local/research/children-fade-v1/python-tests.log": "903a026459c7898eeb11d32a25a2246130cc17188194c32b4953add6c8a21107",
-    "include/okage/render.hpp": "87a53470e9df5ea8f28258102881b57cbd5d1a9df9853744881f6bf06c080f3e",
-    "src/field.cpp": "b51b08aba7cb408e20b300a0f0e68a2e0d46202dbf35ba84f12fece972f9dbb4",
-    "src/render.cpp": "97029b31159e6b64b30c882967f28a2a97be5b68c72a298228ddf87b283e8cb4",
-    "src/scene_renderer.mm": "aea8ad12b2116d6a686870cb8509c1310ec385bb5c11a68fc96eae680f7391f3",
-    "src/assets_main.cpp": "25f51bb3ef7067cd2c52144c7c488a72b5b526b171f941d86eed3c58e03916f2",
-    "tools/play-oracle/main.cpp": "cb5acd59fbb0859920f9318c7c626e2db92102394c4f9736998f453e803ce508",
+    "include/okage/render.hpp": "f14752af407795333c4818961f38843bb1671dba33112188ec66408197b32df2",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/render.cpp": "e1cb6c6e2660e95c45f9653fd2e386e90b3461473d669507782dc31c1b6a39f7",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_instance_alpha.py": "b9f7fada0b255fda810b49ad887e40e48bc815747aa893a140d26cfda978038c",
-    "tests/render_tests.cpp": "6beacfb9c020eb253aa575a022c0aeed5cc7b486ee1f7ec8b29966b66eb5cb5c",
-    "tests/field_tests.cpp": "6f44658135399852b007e74d019667f23fd0275d3e5c28abee9bc5d7e51d16bb"
+    "tests/render_tests.cpp": "76a194c8ef4c6c5f4ed99ba36d9dfb7972def3de011c975eb4e2cb56142b5ce7",
+    "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32"
   }
 }

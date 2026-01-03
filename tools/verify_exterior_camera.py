@@ -76,7 +76,7 @@ def main():
         commands.append(command)
         artifacts.extend([binary, output])
     report = {
-        'scope': "Original mode0 dispatcher 0x136d00, follow/target updates and unpatched collision services",
+        'scope': 'Original mode0 dispatcher 0x136d00, follow/target updates and unpatched collision services',
         'elf_sha256': '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5',
         'cases': names, 'record_words': 46,
         'output_word_indices': [1,4,7,8,10,14,18,19,20,21]+list(range(22,28))+list(range(36,44)),

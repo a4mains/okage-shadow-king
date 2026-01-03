@@ -59,7 +59,7 @@ def main():
         subprocess.run(command+['dialogue-opacity']+extra+[str(source), str(args.output/('opacity.'+label))], check=True)
     if (args.output/'opacity.native').read_bytes() != (args.output/'opacity.retail').read_bytes():
         raise ValueError('Original opacity mismatch')
-    report = {'scope': "Normal dialogue input/progression, frame cursor/layout and event wait; excludes full controller choices, audio/effects, field initialization and final window drawing",
+    report = {'scope': 'Normal dialogue input/progression, frame cursor/layout and event wait; excludes full controller choices, audio/effects, field initialization and final window drawing',
               'native_sha256': digest(args.native), 'controller_capture_sha256': digest(controller), 'text_capture_sha256': digest(text),
               'frames': len(frames), 'exact_words_per_frame': 23, 'frames_sha256': digest(args.output/'frames.bin'),
               'input': 'One initial captured state plus held/pressed pad words; no public resume/period actions or later state corrections',

@@ -1,14 +1,14 @@
 {
   "schema": "okage.texture-to-battle-validation.v1",
   "status": "INCOMPLETE",
-  "scope": "Complete six-package assignment; current bounded proof is cold New Game through first ordinary field world activation.",
+  "scope": "Complete six-package assignment; current bounded proof is cold New Game through first ordinary field world activation. All final gates remain incomplete.",
   "base_commit": "8e20f515abf991690c5a88d0ddc1f505419c2959",
   "worktree": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source": {
     "CMakeLists.txt": {
       "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/CMakeLists.txt",
-      "sha256": "2da57dba4bcc8e167ab483f6713132aa949df0aaa4d654909c661319ff9eaa70",
+      "sha256": "04c84a9f850579e802ecb40d74bb06a6b926058c2ca676219a64266cdb4f281b",
       "bytes": 39021
     },
     "include/okage/field.hpp": {
@@ -220,9 +220,9 @@
     },
     {
       "id": 6,
-      "required": "Final integrated Release/Debug/ASan/UBSan and GPU checks, full Python, fixed-anchor differential state/image/audio audit, second-pass review, focused local commits and documents",
+      "required": "Final integrated Release/Debug/ASan/UBSan and GPU checks, full Python, fixed-anchor differential state/image/audio audit, independent review, focused local commits and documents",
       "status": "incomplete",
-      "evidence": "18 affected integrated checks/build, expanded owned-input GPU battery, fullPython1262/95skip,62 world and earlier Newgame/Field payload regressions. Final gameplay, media, and full-port reviews remain open."
+      "evidence": "18 affected integrated checks/build, expanded owned-input GPU battery, fullPython1262/95skip,62 world and earlier Newgame/Field payload regressions. Final gameplay/media/full-goal review remain open."
     }
   ],
   "prefix": {
@@ -665,8 +665,8 @@
     "files": {
       "include/okage/startup_textures.hpp": {
         "path": "include/okage/startup_textures.hpp",
-        "bytes": 21365,
-        "sha256": "71b972a389d5e8749196a5b7ffdfe0aa6ec94e52632bcdc83ad6a99e0a5226f5"
+        "bytes": 22305,
+        "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68"
       },
       "include/okage/texture_handles.hpp": {
         "path": "include/okage/texture_handles.hpp",
@@ -685,13 +685,13 @@
       },
       "src/native_runtime.mm": {
         "path": "src/native_runtime.mm",
-        "bytes": 263134,
-        "sha256": "b82a8cb6a094bc3cc00dcd63bd64c9950740f1ac36fe721cbddcc15d40e53094"
+        "bytes": 275496,
+        "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
       },
       "src/startup_textures.cpp": {
         "path": "src/startup_textures.cpp",
-        "bytes": 76316,
-        "sha256": "0fc637d0232d17d6f769348b428e827be5db7f0d4d3d40c5f8de92412a8010da"
+        "bytes": 80505,
+        "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a"
       },
       "src/texture_handles.cpp": {
         "path": "src/texture_handles.cpp",
@@ -719,7 +719,7 @@
         "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706"
       }
     },
-    "note": "Frozen checkpoint accepted as component evidence by second-pass reviewer; source has since advanced."
+    "note": "Frozen checkpoint accepted as component evidence by independent supervisor; source has since advanced."
   },
   "source_commit": "7585548a5756268c5d418fd7e0a04552d7dcbf0c",
   "historical_runs": {
@@ -1133,7 +1133,7 @@
   },
   "world_preparation": {
     "status": "Runtime integrated through first cold field activation;62 strict component checkpoints identical inRelease/Debug/ASan.",
-    "helper_evidence": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-handle-incarnation.json",
+    "helper_worker_evidence": "/Users/user/src/okage/okage-shadow-king/local/research/resource-textures-v1/validation-handle-incarnation.json",
     "source_observer_commit": "b9f7286",
     "evidence_root": "local/research/texture-to-battle-v1/field-world-original-v1",
     "observed": "10XMD,4XTA,32replacement images,206uploads,5cache hits;62new checkpoints resource/RNG/VRAM agree full/minimal;complementary/repeat stability observed;all62 paired-fill masks extracted with0failures; repeat exact91checkpoints and64rawRAM dumps",
@@ -1399,10 +1399,10 @@
     "bytes": 5808
   },
   "record_fix_review": {
-    "path": "/Users/user/src/okage/okage-shadow-king/docs/reviews/cycle-001-r1-correction-review.txt",
+    "path": "/Users/user/src/okage/okage-shadow-king/docs/sol61-reviews/cycle-001-r1-correction-review.txt",
     "sha256": "f7598fdc1ae246088e2384c6239ea2e4832782bc0bce7b20cf2397d1aaed9436",
     "bytes": 2742,
-    "disposition": "accepted/closed at1965596; no full-port acceptance"
+    "disposition": "accepted/closed at1965596; no full-goal acceptance"
   },
   "world_checkpoint": {
     "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/field-world-checkpoint-validation-v1.json",
@@ -1411,7 +1411,7 @@
     "implementation_commit": "ac4a27a",
     "comparator_commit": "469da08",
     "gpu_test_commit": "1208d5c",
-    "review": "C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
+    "review": "Supervisor C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
   },
   "preservation": {
     "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/main-preservation-audit-world-v1.json",
@@ -1432,7 +1432,7 @@
     "implementation_commit": "ac4a27a",
     "comparator_commit": "469da08",
     "gpu_test_commit": "1208d5c",
-    "review": "C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
+    "review": "Supervisor C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
   },
   "current_runtime_evidence_note": "0040d8a actual shared-GS ordinary model/ENV renderer; new62 Release identical and7focusedchecks pass. Final6gates open; packet latching correction, actor initialization staging and battle/return integration underway, not yet final linked source.",
   "r2_correction": {
@@ -1446,7 +1446,7 @@
     "bytes": 3802
   },
   "world_review": {
-    "path": "/Users/user/src/okage/okage-shadow-king/docs/reviews/cycle-002-first-field-checkpoint-review.txt",
+    "path": "/Users/user/src/okage/okage-shadow-king/docs/sol61-reviews/cycle-002-first-field-checkpoint-review.txt",
     "sha256": "1e93499a674534f0b43bf25ba951f586a352c7e6f69f910d0831546bdbe7c8c9",
     "bytes": 4164
   },

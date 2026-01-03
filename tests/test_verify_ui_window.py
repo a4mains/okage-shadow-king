@@ -46,7 +46,7 @@ def native_from_windows(raw_windows):
         windows.append({'slot': slot, 'words': words})
     return {
         'schema': NATIVE_SCHEMA,
-        'scope': "198e38 and window configuration only; empty incoming streams and atlas, slots0/1; no layer constructors",
+        'scope': '198e38 and window configuration only; empty incoming streams and atlas, slots0/1; no layer constructors',
         'windows': windows,
     }
 

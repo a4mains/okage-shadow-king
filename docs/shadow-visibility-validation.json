@@ -1,5 +1,5 @@
 {
-  "scope": "Original bound construction and unmasked block visibility/sorting; explicit selected-block geometry API.",
+  "scope": "Original bound construction and unmasked block visibility/sorting; explicit selected-block geometry API. SceneRenderer integration and gameplay remain pending.",
   "base_revision": "d04a084",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "bounds_exact_per_build": 102,

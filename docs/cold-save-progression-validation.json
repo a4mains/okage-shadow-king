@@ -1,6 +1,6 @@
 {
   "runtime_revision": "c56d06b",
-  "scope": "Ordinary play from a genuine native saved bedroom through first battle.",
+  "scope": "Ordinary play from a genuine native saved bedroom through first battle. Releasev3 wins, applies results and restores scene96; v1/v2 failures retained. Not a full original comparison or full playthrough.",
   "runs": {
     "native-cold-progress-v1": {
       "command": [
@@ -240,9 +240,9 @@
     "local/research/post-restore-v1/native-cold-progress-v3/image.png.variables.bin": "3b02e6526b0e6586b937a24d6d4ed1a97d08f9eb4f2347ac0ab4aed514dbdc07",
     "local/research/post-restore-v1/native-cold-progress-v3/saves/bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
     "local/research/post-restore-v1/cold-battle-input-review.json": "547520f5a29c08ef3d6ca653eeb720f62f153b63b94425b6dbe613158d7702e3",
-    "src/native_runtime.mm": "52c02b95a0844e0bbeed28eeabe277963f8b3fa4131a61993865cbf3af41eb28",
-    "src/effect.cpp": "c2fc47fb2c8296a73a0a020863673a5352d590d481b3745ef8ce6ee161e7b536",
-    "src/field.cpp": "ad4612caec33ea75a3ecff30b30a1fa0c47dbda8cf50465241f037053e0bd7a1",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+    "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
     "src/title.cpp": "224491253d4fa53eebfaa20d0b5a45607942dd822c7d7202464772a5f56d386a",
     "local/research/post-restore-v1/field-handoff-release-0.log": "6559a48815e31a808c820e411b329ee934d6de378801a194563188e5042b82a0",
     "local/research/post-restore-v1/field-handoff-release-1.log": "5ef53d5c08f4b4c7789d374231574da9e30f1ee113dec9c986e02fd7bac76ef1",
@@ -276,7 +276,7 @@
   ],
   "battle_input_audit": {
     "schema": "okage-cold-battle-input-review-v1",
-    "scope": "Read-only audit of one native cold-Restore battle attempt.",
+    "scope": "Read-only audit of one native cold-Restore battle attempt. Not an original/native parity claim or victory proof.",
     "artifacts": {
       "run": {
         "path": "local/research/post-restore-v1/native-cold-progress-v2/run.json",
@@ -495,7 +495,7 @@
       "src/battle_session.mm"
     ],
     "native_cold_progress_v3": {
-      "scope": "Bounded follow-up using the final ordinary-confirm-tap replay.",
+      "scope": "Bounded follow-up using the final ordinary-confirm-tap replay. Not an input-only A/B test against v2.",
       "artifacts": {
         "run": {
           "path": "local/research/post-restore-v1/native-cold-progress-v3/run.json",

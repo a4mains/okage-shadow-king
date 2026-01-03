@@ -1,7 +1,7 @@
 {
-  "scope": "Original-only continuation beyond validated native Julia closure; native counterpart running.",
+  "scope": "Original-only continuation beyond validated native Julia closure; native counterpart running. Corrects the mistaken identification of MAN / alias-11 as Pudgy Man.",
   "opening": {
-    "scope": "Original ordinary-input continuation from Julia closure; native companion pending.",
+    "scope": "Original ordinary-input continuation from Julia closure; native companion pending. Research waypoint controller stops on next event, before waypoint arrival.",
     "reference": "local/reference-night-pudgy-walk-480-v1",
     "run": {
       "command": [
@@ -80,7 +80,7 @@
     }
   },
   "answer": {
-    "scope": "Original Pudgy Man invitation closure; next music54 script not yet executed.",
+    "scope": "Original Pudgy Man invitation closure; next music54 script not yet executed. Native continuation pending.",
     "reference": "local/reference-night-pudgy-answer-600-v1",
     "run": {
       "command": [
@@ -214,7 +214,7 @@
     ]
   },
   "resource54_import": {
-    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "music_id": 54,
     "table_address": 2078432,

@@ -1,5 +1,5 @@
 {
-  "scope": "Native mathematical construction of the retail sine table, and independently computed rest poses.",
+  "scope": "Native mathematical construction of the retail sine table, and independently computed rest poses. No captured table or RAM is a native input. Field-route validation is separate.",
   "provenance": {
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "initializer": "0x1b1d88",
@@ -12,7 +12,7 @@
   },
   "builds": {
     "native": {
-      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.\n\nReference outputs are comparison data only. The native sine command takes no\ninput file; the pose command reads owned models, never captured tables or RAM.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_binary_sha256": "371b974af0cee39a08159cf50fc34d74c8d7bb643ab6fd3c184c7f0f378cfcab",
       "sine_command": [
@@ -45,7 +45,7 @@
       }
     },
     "native-release": {
-      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.\n\nReference outputs are comparison data only. The native sine command takes no\ninput file; the pose command reads owned models, never captured tables or RAM.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_binary_sha256": "64fe678de9308731a3f18aaf4c19fd72b69e92cffe5198dc57390090b16c5d33",
       "sine_command": [
@@ -78,7 +78,7 @@
       }
     },
     "model-sanitize": {
-      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.",
+      "scope": "Audit native sine generation and optionally the existing retail rest-pose corpus.\n\nReference outputs are comparison data only. The native sine command takes no\ninput file; the pose command reads owned models, never captured tables or RAM.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_binary_sha256": "3192f0aedddc77426e5bc97ac24dc1686292d18f7f758c42e1dc71be967e0f90",
       "sine_command": [

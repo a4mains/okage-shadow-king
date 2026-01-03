@@ -10,7 +10,7 @@ import os
 import re
 import sys
 
-PLAY_REVISION = '4403687dc8d505911980b8a96b13701a10f91b70'
+PLAY_REVISION = '8de4a71f5215ef38e357ac77a07948eb3424448f'
 
 def fsha(path):
     h = hashlib.sha256()
@@ -60,7 +60,11 @@ def main():
     kinds = sorted(set(e['kind'] for e in tl) - {'phase'})
     m = {
         'schema': 'okage.title-original-manifest.v1',
-        'scope': "Independent original-execution reference of the cold-boot texture/handle lifecycle from power-on through storage readiness, both logos, logo resource retirement and title construction, stopping at the RETURN of 0x12c350 with selector 1 (paused at its return address, before the first 0x1296f8 title update).",
+        'scope': 'Independent original-execution reference of the cold-boot texture/handle lifecycle from power-on through '
+                 'storage readiness, both logos, logo resource retirement and title construction, stopping at the RETURN of '
+                 '0x12c350 with selector 1 (paused at its return address, before the first 0x1296f8 title update). '
+                 'Unchanged retail SCUS_971.29 under the Play research VM, neutral pad. Research evidence only; not physical '
+                 'PS2 proof; never product input.',
         'oracle_source_commit': commit,
         'base_commit': '5badd42',
         'play': {'revision': play_rev, 'path': 'references/Play (main checkout, ignored)',

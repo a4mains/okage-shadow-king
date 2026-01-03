@@ -2,7 +2,7 @@
   "schema": "okage.title.followup-review.v1",
   "review_date": "2025-06-08",
   "reviewed_commit": "962cf6fb201f2ea1f5f17665df31d78777def3f6",
-  "scope": "Read-only implementation/evidence review and Retire handoff; no runtime/tool edits.",
+  "scope": "Read-only implementation/evidence review and Retire handoff; no runtime/tool edits. Existing built executables reused, not rebuilt. Original execution was not rerun.",
   "commands": [
     {
       "command": "ctest --test-dir build/rng-release -R '^(startup-inputs-tests|rng-cold-start-inputs|title-again|effect-tests|field-tests|startup-textures-tests|texture-(transfer|psm1|snapshot|memory|handles|format)-tests|xim-raw-tests|asset-tests|gs-texture-address-tests)$' --output-on-failure",
@@ -109,27 +109,27 @@
     {
       "path": "include/okage/startup_textures.hpp",
       "matches": true,
-      "sha256": "114d085e862b646cf7b86863b4ca53b4c806c0827f4a8a37bfa0f076a823e519"
+      "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68"
     },
     {
       "path": "src/startup_textures.cpp",
       "matches": true,
-      "sha256": "fba87e4b6cbfddb0ef8e694ce8ba1ece13aa4a015d268b221a5db4c9a6542e65"
+      "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a"
     },
     {
       "path": "include/okage/texture_handles.hpp",
       "matches": true,
-      "sha256": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb"
+      "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
     },
     {
       "path": "src/texture_handles.cpp",
       "matches": true,
-      "sha256": "c5c45f919a0c144ff7e47951f0bc41d8069b4c3acdec338f7e9811a040d38d1d"
+      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
     },
     {
       "path": "include/okage/texture_memory.hpp",
       "matches": true,
-      "sha256": "9021fe89829927030dde8d707ec52a17a5c5dde16e2e0d491977811418d9cd5b"
+      "sha256": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935"
     },
     {
       "path": "src/texture_memory.cpp",
@@ -144,42 +144,42 @@
     {
       "path": "src/texture_transfer.cpp",
       "matches": true,
-      "sha256": "1e1b560413e8902e6c044b05a0990ab77c514b6583090853a156388c2edc880f"
+      "sha256": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1"
     },
     {
       "path": "src/assets.cpp",
       "matches": true,
-      "sha256": "a1b2fc3bdddbbed0e623466a76d56646bfb1392eb51f8eeb4131326b750421e3"
+      "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
     },
     {
       "path": "src/native_runtime.mm",
       "matches": true,
-      "sha256": "1057df69fa9f456d601f2cdcb014d1a6a9293d9474ba391f10471b7d4ab34e21"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/title_session.hpp",
       "matches": true,
-      "sha256": "f2c2ad243069e2607d1fa8439e0fb37a0775a9bbd4bde8194eefc104d8532e24"
+      "sha256": "eb0559173236f5bf5d33ae659ea2a0a4adf270d62cb7c536db301f4b8ec4b0f2"
     },
     {
       "path": "src/title_session.mm",
       "matches": true,
-      "sha256": "3ae5360ea2724ccf9f4b610f354bfb7c6e35610269c19cfd580801809dd18b7d"
+      "sha256": "52cf641c373dd4a8ad44cc365c1d9f9eacaa6682d434329fc15d34bac6d085cd"
     },
     {
       "path": "src/scene_renderer.mm",
       "matches": true,
-      "sha256": "68a05b5041673b3c40382bc639b1b8b083f15045a5a9c42527d526f574177980"
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "include/okage/scene_renderer.hpp",
       "matches": true,
-      "sha256": "7dac98b5b3a0af7492623d2e759c254074ba279be80d3d263ba4a564522c6813"
+      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
     },
     {
       "path": "CMakeLists.txt",
       "matches": true,
-      "sha256": "d35185937a616c00291085cb5b803cefea203516b70024c41112237ca4a4bf10"
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "tools/title_compare.py",
@@ -194,7 +194,7 @@
     {
       "path": "tools/title_regression_align.py",
       "matches": true,
-      "sha256": "4fd1e9d6662d1d744917e7737f238253ca97e2ab3180e9944bb136705de15acc"
+      "sha256": "c563ce58f07726b6aae8ec2d29bd7c62f35f5afe1e55f2718abd1d3ca32ddf7a"
     },
     {
       "path": "tools/title_contract.py",
@@ -204,17 +204,17 @@
     {
       "path": "tests/startup_textures_tests.cpp",
       "matches": true,
-      "sha256": "4407506491932d91a72b7973a9e78a73ebaadf2ddd7e9c24f74c523c71a29c2a"
+      "sha256": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375"
     },
     {
       "path": "tests/texture_handles_tests.cpp",
       "matches": true,
-      "sha256": "747c0c204929b0df1c06bc389eb41a3afd715a0a104c78946fa4f37ab7bc51a0"
+      "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f"
     },
     {
       "path": "tests/texture_psm1_tests.cpp",
       "matches": true,
-      "sha256": "aca9a29d48c708c3a3e2f0c09c24fef4f768e21e1b072f8da44f552abf4e47ac"
+      "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2"
     },
     {
       "path": "tests/test_title_compare.py",
@@ -229,22 +229,22 @@
     {
       "path": "tests/test_title_regression_align.py",
       "matches": true,
-      "sha256": "566d2981ae9eea631e863c40c185bf5c53da953f14f26132712b9a7acb7a0c04"
+      "sha256": "5947cedbdb5d9136850fdf03f303b8ad75697085ee875e88f24ae5d9b0b77a13"
     },
     {
       "path": "docs/title-original-manifest.json",
       "matches": true,
-      "sha256": "1790795955112c90e1123eea92c4eaf5ed0de2ae8cee6c23bf4a6e875e589b6a"
+      "sha256": "ff8c9efd4f2ea7e00956eb812a160a51fcfca2a1065d174a859d01aa50fcb7f0"
     },
     {
       "path": "docs/title-psm1-validation.json",
       "matches": true,
-      "sha256": "4fb0d569295c7625dc84c626cf168ca0250d482aab8bf562eb5f6931e3351a55"
+      "sha256": "df03535d1c478fb96d7745410ffaccc5a7c05b586330938c547819acc6db04cb"
     },
     {
       "path": "docs/title-contract.json",
       "matches": true,
-      "sha256": "c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50"
+      "sha256": "c9e9dceba63875e2fd5940da86c11b3d16b8d6d3cb85cfc041d7bd6a426b353f"
     },
     {
       "path": "local/research/title-shape-guard-v1/invalid-shape.out",

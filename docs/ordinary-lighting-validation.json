@@ -74,12 +74,12 @@
     ],
     "source_revision": "b24fdaa",
     "source_sha256": {
-      "include/okage/ordinary_lighting.hpp": "cbd49fbeaccebc75e09fe4fa14469a01982f2633d624d27cddc79181e84ea673",
-      "src/field.cpp": "c77ecc0b200bab2445c70b4ae53e21b85e579a2f245d3d415898b8f8456c43f7",
-      "src/ordinary_lighting.cpp": "c628a4ae5e6ed122cfabc94bdc8221d2ae8c1b6c9ddcbed5f832f7bf647f0858",
-      "src/scene_renderer.mm": "db51fa9fcf4baf7d245c1e664116dc1dcda847b08e0b20e7e2b21cb9dea3cdaf",
-      "tests/field_raster_tests.cpp": "eabb40e37c1e5203eacc542615883e707d5e4facf030a4e50ae968076c34140c",
-      "tests/ordinary_lighting_tests.cpp": "d1641ce5f86747b74dd02cff9a92ca2f773f167163abc288c327c0d96688c5d5",
+      "include/okage/ordinary_lighting.hpp": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11",
+      "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+      "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
+      "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+      "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
+      "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
       "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"
     },
     "status": "committed as b24fdaa; Release, Debug and ASan/UBSan validation logs retained below"
@@ -131,7 +131,7 @@
       ],
       "persistence": "Only finished intervals are written. Abrupt termination can leave the final interval absent.",
       "schema_version": 1,
-      "scope": "Interactive running intervals only; wall timings, not CPU or GPU timings.",
+      "scope": "Interactive running intervals only; wall timings, not CPU or GPU timings. AppKit draw callbacks are not compositor presentations or presented FPS.",
       "timings": "update_wall includes tick and refresh wall times; distributions overlap. Histogram bins have inclusive upper bounds; final bin is overflow. No per-frame samples retained.",
       "type": "metadata"
     },
@@ -693,7 +693,7 @@
     "build/native-release/okage-assets": "6de48b433d2170afb4cb1dc3ca64d5213edc621b998cc58a08cbca1a85060b1e",
     "build/native/okage-assets": "cfec16e1430ba8c0f2b757112938f9f170f6a7692d8ff95c3a59df06d1229d68",
     "build/play-research/okage-oracle/okage-pose-oracle": "224f6420bf9ec0175957a3a316dec90d56431c8730531968b6a86c440543f0b3",
-    "include/okage/ordinary_lighting.hpp": "cbd49fbeaccebc75e09fe4fa14469a01982f2633d624d27cddc79181e84ea673",
+    "include/okage/ordinary_lighting.hpp": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11",
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "local/native-jam-lighting-76835-release-v3.png": "a010a4a32095b7786e0047c069209f57c8dae36e1300cb0212da8fadde35427b",
     "local/native-jam-lighting-76835-release-v3.png.actor-1.bin": "47e3f7502076461098e82fc0894695e2523909315c23e94b41c718d8f24ff942",
@@ -817,11 +817,11 @@
     "local/research/stan-orders-pair-v3/commands.txt": "9794fa45e6818e1a2494ad951127e1e9fd92053154fcf53b30525c92c6f7c184",
     "local/research/stan-orders-pair-v3/interval.json": "0bbf4c014bd12025a80748173f69fe08c50a39c7c72f1be41e8ce7b909835d98",
     "local/research/stan-orders-pair-v3/summary.json": "b715ab98889d76475f95e9ab911c6d739b651df7c5804141069ab809ae112b75",
-    "src/field.cpp": "c77ecc0b200bab2445c70b4ae53e21b85e579a2f245d3d415898b8f8456c43f7",
-    "src/ordinary_lighting.cpp": "c628a4ae5e6ed122cfabc94bdc8221d2ae8c1b6c9ddcbed5f832f7bf647f0858",
-    "src/scene_renderer.mm": "db51fa9fcf4baf7d245c1e664116dc1dcda847b08e0b20e7e2b21cb9dea3cdaf",
-    "tests/field_raster_tests.cpp": "eabb40e37c1e5203eacc542615883e707d5e4facf030a4e50ae968076c34140c",
-    "tests/ordinary_lighting_tests.cpp": "d1641ce5f86747b74dd02cff9a92ca2f773f167163abc288c327c0d96688c5d5",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
+    "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
     "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"
   }
 }

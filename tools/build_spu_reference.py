@@ -6,8 +6,8 @@ import subprocess
 import urllib.request
 from verify_event import write_exact
 
-REVISION = '575ec0755367a204868a46ed9ba1d8229c0a429f'
-SOURCE_SHA256 = 'b4ae13154a528ee524b47dbde9d276fd37c47dd7c693a8b1e3f42de3a8070903'
+REVISION = '5b85d6a7585deff715aacd2c0e579a40642cfc25'
+SOURCE_SHA256 = '801684f06082b24d2e294b9937c1f5c1b5b53fa6c3b992674b565e8b208d05ee'
 
 def build():
     root = Path('local/research-audio/pcsx2-reference')
@@ -25,7 +25,7 @@ def build():
     text = data.decode()
     fragment = text[text.index('static const s32 tbl_XA_Factor'):text.index('static void __forceinline IncrementNextA')]
     prefix = '''// Research-only fixture incorporating GPL-3.0+ PCSX2 source.
-// Copyright 2002-2020 PCSX2 Dev Team; see COPYING.GPLv3.
+// Copyright 2002-2026 PCSX2 Dev Team; see COPYING.GPLv3.
 #include <algorithm>
 #include <cassert>
 #include <cstdint>

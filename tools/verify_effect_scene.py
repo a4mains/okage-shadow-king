@@ -74,7 +74,7 @@ def main():
                              'frames': 4600, 'event_pc': hex(pc), 'progress': progress})
     audio = json.loads(Path('local/native-effect-ui-4180-v1.png.audio.json').read_text())
     report = {
-        'scope': "Native type-30 scene integration and consistency; not original whole-scene timing or pixel equivalence",
+        'scope': 'Native type-30 scene integration and consistency; not original whole-scene timing or pixel equivalence',
         'frames': 5000, 'message': 10106, 'event_pc': '0xfdc', 'progress': 5,
         'all_three_builds_exact': True, 'cross_build_suffixes': family + ['.audio.json'],
         'previous_4080_prefix_exact': traces,

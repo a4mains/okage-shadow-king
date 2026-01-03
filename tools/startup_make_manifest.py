@@ -39,7 +39,9 @@ def main():
     analysis = json.load(open(os.path.join(ev, 'analysis/analysis.json')))
     m = {
         'schema': 'okage.startup-original-manifest.v1',
-        'scope': "Independent original-execution reference of the startup texture-resource prefix: unchanged retail SCUS_971.29 run from cold boot under the Play research backend (full VM, disc mounted, research HLE services) and stopped BEFORE EE PC 0x100618.",
+        'scope': 'Independent original-execution reference of the startup texture-resource prefix: unchanged retail SCUS_971.29 run '
+                 'from cold boot under the Play research backend (full VM, disc mounted, research HLE services) and stopped BEFORE '
+                 'EE PC 0x100618. Research evidence only; not physical PS2 proof; never product input.',
         'source_commit': commit,
         'base_commit': '588a94a',
         'play': {'revision': play_rev, 'path': 'references/Play (main checkout, ignored)', 'tree_cleanliness': 'not verified'},

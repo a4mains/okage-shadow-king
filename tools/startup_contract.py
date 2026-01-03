@@ -359,7 +359,7 @@ def build_events(elf, local):
     import os
     # ---- step 0: allocator and handle system init (pre-100428)
     B.ev('vram_allocator_init', 0, pc='0x1003d8', via='0x1cb088 -> 0x1ce940',
-         note='clears occupancy map and 64 per-PSM cursors, seeds 4096 FIFO nodes')
+         note='clears occupancy map and 64 per-PSM cursors, seeds 4096 FIFO nodes (see HANDOFF.md)')
     B.ev('handle_system_init', 0, pc='0x1003d8', via='0x1cb088 -> 0x1cc248 -> 0x1cbdf8(0x200,0x80)',
          records=0x200, extra_palettes=0x80, handle_ids=0x1000, reservation_class=0, palette_mode=0)
     # ---- step 1: 100428 -> 1cb1e8

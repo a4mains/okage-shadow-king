@@ -1,8 +1,8 @@
 {
-  "scope": "Owned motion1 shadow hierarchy matrices, source-position skinning and main-model texture selections over61 samples for HERO/MAM/IMO/PAP.",
+  "scope": "Owned motion1 shadow hierarchy matrices, source-position skinning and main-model texture selections over61 samples for HERO/MAM/IMO/PAP. No world/view composition, compiled batching, projected geometry, raster or field integration proof.",
   "reports": {
     "native-release": {
-      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.\n\nOriginal motion, bone binding/pose and shadow VU1 entries0/4/12/14 run on owned\nXMD/XMT assets. Skinning observes source positions in97-position windows, not\ncompiled draw batches. No raster, scene submission or gameplay fidelity claim.\n",
       "native_sha256": "42e254e5b41ec68106bb8026438f037c551c18acadc7d0d25acae9506d3d4372",
       "cases": [
         {
@@ -204,7 +204,7 @@
       ]
     },
     "native": {
-      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.\n\nOriginal motion, bone binding/pose and shadow VU1 entries0/4/12/14 run on owned\nXMD/XMT assets. Skinning observes source positions in97-position windows, not\ncompiled draw batches. No raster, scene submission or gameplay fidelity claim.\n",
       "native_sha256": "cce2f391405b24c494043dcca11eee75259c5b3b96b96a9c9387aea8ddd93099",
       "cases": [
         {
@@ -406,7 +406,7 @@
       ]
     },
     "model-sanitize": {
-      "scope": "Compare bound animated shadow matrices and source positions against original execution.",
+      "scope": "Compare bound animated shadow matrices and source positions against original execution.\n\nOriginal motion, bone binding/pose and shadow VU1 entries0/4/12/14 run on owned\nXMD/XMT assets. Skinning observes source positions in97-position windows, not\ncompiled draw batches. No raster, scene submission or gameplay fidelity claim.\n",
       "native_sha256": "2f9853675d22300f5b6ddffb9820ec1b4dcebedad9fbae14190c995fcb3e1394",
       "cases": [
         {

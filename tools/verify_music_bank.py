@@ -116,7 +116,7 @@ def main():
         print('expected',list(struct.iter_unpack('<6I',expected)))
         print('native',list(struct.iter_unpack('<6I',output.read_bytes())))
         raise RuntimeError('Original/native voice parameter mismatch')
-    report = {'scope':"Tone/sample/envelope/volume/pitch parameters for observed active voices; given original note/channel inputs, not a native scheduler or mixer",
+    report = {'scope':'Tone/sample/envelope/volume/pitch parameters for observed active voices; given original note/channel inputs, not a native scheduler or mixer',
               'bank_sha256':sha(bank),'iop_ram_sha256':sha(ram),'reference_trace_sha256':sha(trace),
               'fixture_sha256':sha(fixture),'output_sha256':sha(expected),'cases':cases,'exact':True}
     write_exact(args.output/'report.json',(json.dumps(report,indent=2)+'\n').encode())

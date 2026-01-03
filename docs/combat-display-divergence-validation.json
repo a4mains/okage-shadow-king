@@ -153,7 +153,7 @@
       ],
       "source_revision": "ec662860e2fe5aa220da09573387654b6e8a4166",
       "binary_sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b",
-      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575.",
+      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575. Policy=display. No alignment, seed/input changes, window, performance or original-fidelity claim. Instrumentation can change loading opportunities.",
       "exit_code": 0,
       "seconds": 33.65774175,
       "original_comparisons": [
@@ -339,7 +339,7 @@
       ],
       "source_revision": "ec662860e2fe5aa220da09573387654b6e8a4166",
       "binary_sha256": "4b4450d9c1c6666c95d6f02e843ee815162d0b71ef8fc99318ea4bfcc2b3108b",
-      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575.",
+      "scope": "Battle UI and RNG observer validation; retained fixed inputs to105575. Policy=cooperative. No alignment, seed/input changes, window, performance or original-fidelity claim. Instrumentation can change loading opportunities.",
       "exit_code": 0,
       "seconds": 28.475785916,
       "original_comparisons": [
@@ -1508,7 +1508,7 @@
         ]
       }
     },
-    "scope": "Exact algebraic RNG relation at actual105326 party entry."
+    "scope": "Exact algebraic RNG relation at actual105326 party entry. New270 steps independently accounted by resource cadence; old360 relation alone does not identify individual consumers. No seed changes or fitted alignment."
   },
   "compatibility_audit": "local/research/combat-display-divergence-v1/compatibility-audit.json",
   "evidence": [
@@ -3056,8 +3056,8 @@
   "source_files": [
     {
       "path": "src/battle_session.mm",
-      "bytes": 92025,
-      "sha256": "71b63ce7156b2659cf39cb5e5694223b9a7a9dd41314c481c36e2cdb7f593521"
+      "bytes": 98646,
+      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498"
     },
     {
       "path": "src/battle_interface_update.cpp",
@@ -3081,13 +3081,13 @@
     },
     {
       "path": "src/ui_window_glyph.cpp",
-      "bytes": 7640,
-      "sha256": "47e6c36b6c39962c272713f4948d0dd809f0e1bc60e343fbdabfa91dad02cc14"
+      "bytes": 7774,
+      "sha256": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2"
     },
     {
       "path": "include/okage/enemy.hpp",
-      "bytes": 1669,
-      "sha256": "213381c21b9d171289e0846cbb00f6a52d540388b72136e235127fd0c097d14c"
+      "bytes": 1898,
+      "sha256": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45"
     },
     {
       "path": "tools/compare_battle_live.py",

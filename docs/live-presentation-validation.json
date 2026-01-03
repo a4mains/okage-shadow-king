@@ -1,8 +1,8 @@
 {
-  "scope": "Live AppKit full-height 4:3 layout with provisional dialogue overlay; Session research capture regression and executed preview.",
+  "scope": "Live AppKit full-height 4:3 layout with provisional dialogue overlay; Session research capture regression and executed preview. No retail UI equivalence or post-layout performance claim.",
   "base_revision": "c70ce13",
   "sha256": {
-    "src/native_runtime.mm": "5d56f51821556df29cea0c18e5f4c49b59061a1dc43ad57e0ff69fc5cdcf1281",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
     "local/research/jam-lighting-v1/live-presentation-build-release-v1.log": "309ef32b37c52021b77a8112081594900f3a8418ed9b4c119ac41477efbf51d7",
     "local/research/jam-lighting-v1/live-presentation-ctest-release-v1.log": "4150c46d280df47a804b6c732cbad38fac39ae4bcc71cc889f69ea12b870ab8b",
     "local/research/jam-lighting-v1/live-layout-diagnostic-comparison-v1.json": "4eaeffe6d05022a7d597e3420fd44be78e46d92af684b68dbbd28872ab7792ee",
@@ -12,7 +12,7 @@
   "release_ctest_passed": 23,
   "diagnostic_artifacts_exact": 50,
   "visual_check": {
-    "method": "scripted AppKit screenshot",
+    "method": "CUA AppKit screenshot",
     "frame": 78335,
     "result": "Full-height scene and readable overlaid JAM dialogue; no separate lower diagnostic panel"
   },

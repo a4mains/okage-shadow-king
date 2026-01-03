@@ -17,7 +17,7 @@ def main():
     a.output.mkdir(parents=True, exist_ok=True)
     source = Path('local/effect-input/CMNDATA/2D/TES.EFD')
     ram = Path('local/text-validation-v4/opening600-ee.bin')
-    report = {'scope': "Type-30 allocation-derived element state and 300 animation updates; excludes attachment, rendering, scheduler behavior and whole-scene timing",
+    report = {'scope': 'Type-30 allocation-derived element state and 300 animation updates; excludes attachment, rendering, scheduler behavior and whole-scene timing',
               'reference_preconditions': 'Captured EE RAM, retail VU0 microprogram upload, clock enabled. Original allocator/animation unpatched. Pinned Play BIOS handles an allowlist of queries and uncontended semaphore calls; rescheduling is rejected.',
               'efd_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
               'ram_sha256': hashlib.sha256(ram.read_bytes()).hexdigest(),

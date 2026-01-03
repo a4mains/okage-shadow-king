@@ -51,7 +51,7 @@ def main():
     p.add_argument('--ram', type=Path, default=Path('local/research/opening600-ram.bin'))
     args = p.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    report = {'scope': "PME import, original message selection and text control semantics; no frame timing or font rendering",
+    report = {'scope': 'PME import, original message selection and text control semantics; no frame timing or font rendering',
               'native_sha256': hashlib.sha256(args.native.read_bytes()).hexdigest(),
               'banks': [], 'messages': [], 'controls': []}
     disc = Disc('local/disc/Okage - Shadow King (USA).bin')
@@ -125,7 +125,7 @@ def main():
     rows = list(struct.iter_unpack('<7I', integration.read_bytes()))
     if rows[-1][2:6] != (2, 0, 0, 2) or [r[3] for r in rows[-3:]] != [1, 0xffffffff, 0]:
         raise RuntimeError('Native text did not drive the recovered event wait')
-    report['integration'] = {'scope': "Unpaced native PME -> text commands -> event wait; pauses automatically resumed, layers assumed ready",
+    report['integration'] = {'scope': 'Unpaced native PME -> text commands -> event wait; pauses automatically resumed, layers assumed ready',
                              'steps': len(rows), 'signals_at_release': 2,
                              'output_sha256': hashlib.sha256(integration.read_bytes()).hexdigest(),
                              'retail_frame_timing_verified': False}

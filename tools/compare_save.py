@@ -366,7 +366,7 @@ def compare(source_save: dict[int, dict], source_parent: dict[int, int], native:
     report = {
         "schema": "okage-save-component-comparison-v1",
         "case": case,
-        "scope": "Field mode 2 Save owner state at source callback entry compared with native completed-tick observations.",
+        "scope": "Field mode 2 Save owner state at source callback entry compared with native completed-tick observations. This does not claim PS2 asynchronous storage-device or file-system parity.",
         "alignment": {
             "native_offset": native_offset,
             "source_interval": [0, source_stop],

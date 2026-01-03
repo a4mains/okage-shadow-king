@@ -1,5 +1,5 @@
 {
-  "scope": "Owned SET12 import, original EE RXWS registration/finite preparation and pinned dry DSP comparison.",
+  "scope": "Owned SET12 import, original EE RXWS registration/finite preparation and pinned dry DSP comparison. Integrated playback timing, reverb and physical listening are not established.",
   "import_manifest": {
     "path": "SNDDATA/SE/SET12.XWS",
     "lba": 196238,
@@ -14,15 +14,15 @@
     "exact": true,
     "compared_words": 11,
     "sha256": "f347d65969df39b73556e35abe987e85ba56244d43f2b53987be479a427f1527",
-    "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices.",
+    "scope": "FORM/FTXT/MARK/BRCH/BODY registration offsets, BODY extent, record count, all FORM lookups and two invalid indices. No stream playback/timing claim.",
     "oracle": "Original 0x174950/0x175038/0x174ff0/0x174be8/0x174f28; semaphore entry/exit no-ops, initially empty slots"
   },
   "builds": {
     "release": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "f19b1bccdf792ae80fb2c2534c45483a3fc85ee6586962d3b93a64f21cd63625",
       "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -45,10 +45,10 @@
       ]
     },
     "debug": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "c98db29f0d443c923cecb8b730b4fbbfddfba0bd305ef842b080e5b07aa60f85",
       "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -71,10 +71,10 @@
       ]
     },
     "sanitize": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "c1a840179d0d32e1f05b5500949563ee330b8b19dfd4a86246ebaec7caafbaf4",
       "oracle_sha256": "0af63c9726980c6ae5954e1efd7bf524c5421bedda809c53b491287af8a0e908",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

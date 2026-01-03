@@ -1,5 +1,5 @@
 {
-  "scope": "Owned SET15 finite audio and music47 import; native progression to67385.",
+  "scope": "Owned SET15 finite audio and music47 import; native progression to67385. Effect6 remains guarded. No full-game, raster, mixed-audio or loading-timing equivalence.",
   "implementation_base": "82fbb89",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "sound_import": {
@@ -10,7 +10,7 @@
     "destination": "local/audio-input/SNDDATA/SE/SET15.XWS"
   },
   "music_import": {
-    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "music_id": 47,
     "table_address": 2078376,
@@ -36,10 +36,10 @@
   },
   "finite_audio": {
     "release": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "e08536ddfc5bd38a2973a383b60b78df19f0d83e479db5d3f468e7dc32d30cda",
       "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -62,10 +62,10 @@
       ]
     },
     "native": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "8d12d1425d9ca8c418e8c62483fea840c2db0170072e803a1c844f7ae49b01e0",
       "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -88,10 +88,10 @@
       ]
     },
     "model-sanitize": {
-      "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+      "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "f56c4757545dc4eac178e4010c19cd404671010adc2738c40be18ba99927c532",
       "oracle_sha256": "48b2432c6ad225944f24927d80a49576f1f56679131055a228ef60c4c6fc848f",
-      "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

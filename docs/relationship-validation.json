@@ -1,8 +1,8 @@
 {
-  "scope": "156 bounded relationship cases, complete Annie window and event handoff, native post-conversation movement, in three builds.",
+  "scope": "156 bounded relationship cases, complete Annie window and event handoff, native post-conversation movement, in three builds. Does not prove full-game or visual/audio fidelity.",
   "reports": {
     "native": {
-      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow. Optional live comparison covers the first accepted answer\nand its next240 frames; it does not establish conversation completion or pixels.\n",
       "cases": 156,
       "exact_words": 2496,
       "original_run": {
@@ -111,7 +111,7 @@
       }
     },
     "release": {
-      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow. Optional live comparison covers the first accepted answer\nand its next240 frames; it does not establish conversation completion or pixels.\n",
       "cases": 156,
       "exact_words": 2496,
       "original_run": {
@@ -220,7 +220,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow.",
+      "scope": "Audit native LA metadata against bounded original handler/controller execution.\n\n156 cases cover all three choice indices,13 reviewed adjustment codes, signed\nclamping and overflow. Optional live comparison covers the first accepted answer\nand its next240 frames; it does not establish conversation completion or pixels.\n",
       "cases": 156,
       "exact_words": 2496,
       "original_run": {
@@ -357,7 +357,7 @@
   },
   "conversation": {
     "native": {
-      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "scope": "Audit Annie's complete window interval using five completed original captures.\n\nCompares1170 controller returns, subsequent1050 choice records and pressed-input\nlatches. Also checks the original event handoff and optional native movement.\nNo general input-held-duration, full-scene, audio or pixel equivalence is claimed.\n",
       "native_run": {
         "command": [
           "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -625,7 +625,7 @@
       }
     },
     "release": {
-      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "scope": "Audit Annie's complete window interval using five completed original captures.\n\nCompares1170 controller returns, subsequent1050 choice records and pressed-input\nlatches. Also checks the original event handoff and optional native movement.\nNo general input-held-duration, full-scene, audio or pixel equivalence is claimed.\n",
       "native_run": {
         "command": [
           "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -893,7 +893,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit Annie's complete window interval using five completed original captures.",
+      "scope": "Audit Annie's complete window interval using five completed original captures.\n\nCompares1170 controller returns, subsequent1050 choice records and pressed-input\nlatches. Also checks the original event handoff and optional native movement.\nNo general input-held-duration, full-scene, audio or pixel equivalence is claimed.\n",
       "native_run": {
         "command": [
           "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",

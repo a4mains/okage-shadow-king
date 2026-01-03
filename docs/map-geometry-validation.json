@@ -2,7 +2,7 @@
   "scope": "Template25 source geometry and bounded transform comparison; native exterior capture; not pixel fidelity or usable outdoor controls",
   "builds": [
     {
-      "scope": "Compare map-effect source geometry and bounded original transform execution.",
+      "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
       "cases": 5,
       "element_transforms": 40,
       "matrix_tolerance": 2e-05,
@@ -41,7 +41,7 @@
       "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
     },
     {
-      "scope": "Compare map-effect source geometry and bounded original transform execution.",
+      "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
       "cases": 5,
       "element_transforms": 40,
       "matrix_tolerance": 2e-05,
@@ -80,7 +80,7 @@
       "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c"
     },
     {
-      "scope": "Compare map-effect source geometry and bounded original transform execution.",
+      "scope": "Compare map-effect source geometry and bounded original transform execution.\n\nChecks template25's captured packet topology, quantized XYZ/UV/colors, GS state,\nand five synthetic job/camera cases. Does not validate raster pixels, live scene\nordering, effect updates or physical presentation. RAM is research input only.",
       "cases": 5,
       "element_transforms": 40,
       "matrix_tolerance": 2e-05,

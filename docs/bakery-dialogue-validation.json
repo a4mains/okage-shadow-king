@@ -1,5 +1,5 @@
 {
-  "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.",
+  "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.\n\nUses observed event dispatch and pad polling. Does not establish bakery camera,\nrendering, audio, jingle playback or conversation completion.\n",
   "original_run": {
     "command": [
       "build/play-research/okage-oracle/okage-boot-oracle",
@@ -297,7 +297,7 @@
   "prior_guard": "Old input schedule stops at14245/PC0x338. Corrected schedule reaches14245/PC0x330 and is expected to request jingle on14246; verify by execution.",
   "opening_other_builds": {
     "debug": {
-      "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.",
+      "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.\n\nUses observed event dispatch and pad polling. Does not establish bakery camera,\nrendering, audio, jingle playback or conversation completion.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-boot-oracle",
@@ -392,7 +392,7 @@
       }
     },
     "sanitize": {
-      "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.",
+      "scope": "Compare bakery event30/message10015, with optional answers and confirmation lock.\n\nUses observed event dispatch and pad polling. Does not establish bakery camera,\nrendering, audio, jingle playback or conversation completion.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-boot-oracle",

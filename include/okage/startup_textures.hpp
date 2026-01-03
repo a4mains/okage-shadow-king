@@ -243,7 +243,7 @@ public:
     void free_chapter_wrappers();
     // Entry of the second 133830 with command 0 (the Newgame stop).
     void enter_field_constructor(unsigned scene, unsigned entrance, unsigned command = 0);
-    // ---- Field: the ordinary-field common prefix  ----
+    // ---- Field: the ordinary-field common prefix (HANDOFF.md) ----
     using OwnedBytes = std::shared_ptr<const std::vector<std::uint8_t>>;
     // Source-visible state of the prefix, the field manager (the mode-2 node) and its resource child.
     struct FieldPrefixState {

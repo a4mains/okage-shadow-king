@@ -48,7 +48,7 @@ def main():
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     if digest(elf) != '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5':
         raise RuntimeError('Unexpected retail ELF')
-    report = {'scope': "Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals",
+    report = {'scope': 'Point/capsule map contacts with movement subdivision, ordered correction, first material IDs and final normals',
               'functions': ['0x187270', '0x187498'], 'elf_sha256': digest(elf), 'native_sha256': digest(args.native),
               'excluded': ['other shape types', 'point wall contacts', 'cached/resumed queries',
                            'undefined normal W', 'dynamic actor contacts', 'outer registry resolution', 'app movement'],

@@ -3,30 +3,30 @@
   "date": "2024-07-21",
   "runtime_revision": "258448d",
   "headless_verifier_revision": "862679b",
-  "acceptance_met": false,
-  "scope": "Native cold Save restore, first victory/chest, ordinary return home, new File2 Save, separate cold Restore and movement.",
+  "goal_complete": false,
+  "scope": "Native cold Save restore, first victory/chest, ordinary return home, new File2 Save, separate cold Restore and movement. Retained stdin control and reached negative67 stream-stop integration. Not a full original fidelity comparison, full playthrough or fresh-disc deployment.",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source_iop_RXSNDDRV_sha256": "7fe8b5a33c2f8700d1f964cf5ce2f66942f8f97d952e86e6dc0ad5d4f74becb2",
   "source_files": [
     {
       "path": "src/native_runtime.mm",
-      "bytes": 186727,
-      "sha256": "7d04117e6dc54585b890fb2a2cb598c696cf47c2bed92ef42445cb30c5869ca6"
+      "bytes": 275496,
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "src/field.cpp",
-      "bytes": 80313,
-      "sha256": "4ee13866523b87b1a9bff90c29c9e79778d0e1d41093e3be3681f4f5fda14d8d"
+      "bytes": 87859,
+      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16"
     },
     {
       "path": "include/okage/headless_control.hpp",
-      "bytes": 1782,
-      "sha256": "6b55c6ea619bc84bcc087820e62747ba8a384db2f679161eb10282aa1caa9331"
+      "bytes": 2432,
+      "sha256": "7b3b587df36799d817599d91158e098d9461b1777a900b97c5c597776e7310fc"
     },
     {
       "path": "tools/verify_headless_control.py",
-      "bytes": 9026,
-      "sha256": "69ee70401f462932eb598a81d915aaeed06177e68bd91273dfabddfa99b08029"
+      "bytes": 17927,
+      "sha256": "76435e6d133334340eca24da369536ad1b8d0458d9d951996b198b4c3eb08065"
     },
     {
       "path": "src/save_store.cpp",
@@ -177,7 +177,7 @@
         "endpoint_scene": 97,
         "endpoint_event_pc": "0xb4",
         "pending_opcode": "0x67",
-        "scope": "Controlled native Session from genuine native Save; stopped at unsupported authored stream-stop command.",
+        "scope": "Controlled native Session from genuine native Save; stopped at unsupported authored stream-stop command. No new Save yet.",
         "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
       },
       "command": {
@@ -213,7 +213,7 @@
       "result": {
         "binary_sha256": "2320110b532cc42b0c313f83729c97f3b9f8f1272251b1e7ef5dab87ff5af3a0",
         "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
-        "scope": "Native coldsave + retained ordinary controls; globalstreamstopintegration.",
+        "scope": "Native coldsave + retained ordinary controls; globalstreamstopintegration. No original runtime state inputs.",
         "exit_code": 1,
         "seconds_including_control_waits": 2027.5913942089999,
         "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
@@ -257,7 +257,7 @@
         "binary_sha256": "917759826d24ca5c8afed534604fb9f4409542f440bcd22b1cf3a259b2b0f1b3",
         "save_before": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "replayed_commands_sha256": "908f465dad4da78cb6aae9ac383899cef05136192746e0e3e125c5a262fb2554",
-        "scope": "Fresh native coldsave, v2 ordinary step commands through54018, extraDown selectingSave; prior captures omitted, no serializedstate.",
+        "scope": "Fresh native coldsave, v2 ordinary step commands through54018, extraDown selectingSave; prior captures omitted, no serializedstate. Includes title-stream ownership guard. Async jobs/RNG not fixed.",
         "exit_code": 0,
         "seconds_including_control_waits": 264.627298667,
         "save_after": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02"
@@ -332,7 +332,7 @@
           "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
           "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
         },
-        "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+        "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
         "exit_code": 0,
         "seconds_including_control_waits": 94.365588666,
         "saves_after": {

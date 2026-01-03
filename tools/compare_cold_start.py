@@ -442,7 +442,7 @@ def compare(source_header: dict, parents: dict[int, dict], callbacks: dict[int, 
     logo_has_diffs = any(not r["equal"] for r in ordinal)
     return {
         "schema": "okage-cold-start-comparison-v1",
-        "scope": "Fixed-anchor scheduler and mode8 callback-state comparison.",
+        "scope": "Fixed-anchor scheduler and mode8 callback-state comparison. No image or audio parity claim.",
         "source": {"schema": source_header["schema"], "elf_sha256": source_header.get("elf_sha256"),
                    "parent_rows": len(parents), "mode8_callback_rows": len(callbacks)},
         "fixed_anchor_parent_entry": parent_channel,

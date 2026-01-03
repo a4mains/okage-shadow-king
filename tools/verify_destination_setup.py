@@ -64,7 +64,7 @@ def main():
     subprocess.run(command, check=True)
     report = compare(args.log.read_text(), args.reference_ram.read_bytes(), output.read_bytes())
     report.update({
-        'scope': "Reached native destination setup identity and STG projection; not startup completion or playability",
+        'scope': 'Reached native destination setup identity and STG projection; not startup completion or playability',
         'elf_sha256': ELF_HASH, 'projection_command': command,
         'inputs': [{'path': str(p), 'sha256': sha(p)} for p in (args.log, args.native, stage, args.reference_ram)],
         'limits': ['Native log checks six reported setup values, not all constructor state or resource lifetimes',

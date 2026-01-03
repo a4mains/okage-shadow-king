@@ -8,38 +8,38 @@
   "sources": [
     {
       "path": "include/okage/field.hpp",
-      "bytes": 11159,
-      "sha256": "4687cd92dfdcba9b56c65b5b0850b231b85c503054b6f77badad93d5d313d1ac"
+      "bytes": 14577,
+      "sha256": "e63220e763f86872f9b447846bda8b63db1353c891b919e68476ca22711e8b6f"
     },
     {
       "path": "src/field.cpp",
-      "bytes": 73349,
-      "sha256": "2ced7760338ac419cfc64bbfa8568d7e761fdb553b9b5e0415edea9b171d8c99"
+      "bytes": 87859,
+      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 92751,
-      "sha256": "f8c69a4c213b47041b4116a1007c51088b01a05f6b09ca5d9941735b85e1f84c"
+      "bytes": 275496,
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "tests/field_tests.cpp",
-      "bytes": 75883,
-      "sha256": "4df4918311ef23e217d5b7d12da525bf6b42e00d2671b73037d6787c0babb280"
+      "bytes": 98989,
+      "sha256": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32"
     },
     {
       "path": "include/okage/battle_entry.hpp",
-      "bytes": 760,
-      "sha256": "a9c365430a664a1ac65205edb34f2a9c5c888ad371a08863eebd618f2869cac5"
+      "bytes": 1222,
+      "sha256": "a7960b5d514e91408bc8e5998909190f447755cbade316aa6402a1482dcbda73"
     },
     {
       "path": "src/battle_entry.cpp",
-      "bytes": 1136,
-      "sha256": "874dbadd18061ac6bc7f33585f6f9b41a9fd9fea50cff00068f752892d1e2b43"
+      "bytes": 1648,
+      "sha256": "33d6fd4ce4f5886c10198a0e8865d9628e4a1ff1a094916f075e605739d8e984"
     },
     {
       "path": "src/music.cpp",
-      "bytes": 12374,
-      "sha256": "9878ec23c4aab40661df2e56b34974a17f061d9744c2914ccefce60a9846da06"
+      "bytes": 13221,
+      "sha256": "4698ce6cad68478a2c53fa1509d841b98524075bebc951672516ebd06cfa2924"
     }
   ],
   "native_completed_frame": 104445,
@@ -139,7 +139,7 @@
     }
   },
   "comparison": {
-    "scope": "Native phase13 snapshot/command/entry-parameter tail vs persistent original104615 values, with lifetime review.",
+    "scope": "Native phase13 snapshot/command/entry-parameter tail vs persistent original104615 values, with lifetime review. Original later root selection independently agrees with native queued mode/formation/stage. No comparison of overwritten entry prefix, teardown timing, raster or audio.",
     "checks": [
       {
         "name": "saved_scene",
@@ -347,7 +347,7 @@
       "bytes": 401092,
       "sha256": "cf21f648e3a6fd55bfdec5461ef83460a0fa42e085d2fd83410e2842593398d5"
     },
-    "state": "Paused at104445 according to application log; The window lookup failed, desktop visibility unverified",
+    "state": "Paused at104445 according to application log; CUA window lookup failed, desktop visibility unverified",
     "launch": {
       "path": "local/demos/current-preview-104445-v1/live.json",
       "bytes": 5901,

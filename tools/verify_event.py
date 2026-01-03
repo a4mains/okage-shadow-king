@@ -63,7 +63,7 @@ def main():
         raise RuntimeError('Capture lacks a completed event entry')
     original_end = args.capture / ('0.end-' + rows[-1]['observation'] + '.field.bin')
     expected_pcs = struct.pack('<' + 'I'*len(rows), *(int(row['offset'], 16) for row in rows))
-    report = {'scope': "HOME1C entry-zero setup, not opening event playback",
+    report = {'scope': 'HOME1C entry-zero setup, not opening event playback',
               'elf_sha256': digest(elf), 'native_sha256': digest(args.native),
               'oracle_sha256': digest(args.oracle), 'cases': []}
 

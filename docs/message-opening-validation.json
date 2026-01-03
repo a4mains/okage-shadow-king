@@ -1,8 +1,8 @@
 {
-  "scope": "Message10001 logical opening and native conversation to first choice.",
+  "scope": "Message10001 logical opening and native conversation to first choice. No completed conversation, general window initialization, authentic UI, physical input or pixel fidelity.",
   "reports": {
     "native": {
-      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.",
+      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.\n\nReuses completed original evidence. Excludes general cold initialization, RUW\ngeometry/pixels, other message types, full conversation completion and audio.\n",
       "initialization_words": 90,
       "controller_frames": 120,
       "controller_words": 1200,
@@ -182,7 +182,7 @@
       }
     },
     "release": {
-      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.",
+      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.\n\nReuses completed original evidence. Excludes general cold initialization, RUW\ngeometry/pixels, other message types, full conversation completion and audio.\n",
       "initialization_words": 90,
       "controller_frames": 120,
       "controller_words": 1200,
@@ -291,7 +291,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.",
+      "scope": "Audit message10001 logical initialization,120 live controller frames and camera endpoint.\n\nReuses completed original evidence. Excludes general cold initialization, RUW\ngeometry/pixels, other message types, full conversation completion and audio.\n",
       "initialization_words": 90,
       "controller_frames": 120,
       "controller_words": 1200,

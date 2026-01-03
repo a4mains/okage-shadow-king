@@ -84,7 +84,8 @@ def compare(inputs, original, native):
             'compared_bytes_per_output': len(inputs), 'reset_bytes_per_row': RESET_SIZE,
             'preserved_bytes_per_row': ROW_SIZE - RESET_SIZE,
             'exact': True, 'independent_expected_layout': True,
-            'scope': "Entire rows, including prefix/suffix canaries and untouched root tail; reset primitive only, not whole new-game initialization.",
+            'scope': 'Entire rows, including prefix/suffix canaries and untouched root tail; '
+                     'reset primitive only, not whole new-game initialization.',
             'sha256': {name: hashlib.sha256(data).hexdigest() for name, data in
                        (('input', inputs), ('original', original), ('native', native))}}
 

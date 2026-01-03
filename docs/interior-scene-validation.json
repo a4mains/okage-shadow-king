@@ -1,5 +1,5 @@
 {
-  "scope": "Audit native interior allocation/submission order and retained route outputs.",
+  "scope": "Audit native interior allocation/submission order and retained route outputs.\n\nDoes not establish original raster equality, whole-scene RNG/phase, general cold\nstartup, or summoning geometry. Original RAM remains auditor-only input.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_run": {
     "command": [

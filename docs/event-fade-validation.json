@@ -1,5 +1,5 @@
 {
-  "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+  "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.\n\nThe original overlay-enable boundary is a no-op; its RGBA submission is recorded.\nThis validates callback arithmetic/state, not complete fade timing or GS blending.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "cases": 72,
   "exact_words": 432,
@@ -156,7 +156,7 @@
   },
   "build_reports": {
     "release": {
-      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.\n\nThe original overlay-enable boundary is a no-op; its RGBA submission is recorded.\nThis validates callback arithmetic/state, not complete fade timing or GS blending.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "cases": 72,
       "exact_words": 432,
@@ -184,7 +184,7 @@
       ]
     },
     "debug": {
-      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.\n\nThe original overlay-enable boundary is a no-op; its RGBA submission is recorded.\nThis validates callback arithmetic/state, not complete fade timing or GS blending.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "cases": 72,
       "exact_words": 432,
@@ -212,7 +212,7 @@
       ]
     },
     "sanitize": {
-      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.",
+      "scope": "Compare event0x4f color/target/hold/alpha state against original EE execution.\n\nThe original overlay-enable boundary is a no-op; its RGBA submission is recorded.\nThis validates callback arithmetic/state, not complete fade timing or GS blending.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "cases": 72,
       "exact_words": 432,
@@ -267,7 +267,7 @@
     }
   },
   "narration_continuation": {
-    "scope": "Audit alternate village entry and optionally Annie's return conversation.",
+    "scope": "Audit alternate village entry and optionally Annie's return conversation.\n\nDispatch-aligned manager/HERO/camera state comparisons, not whole-scene raster,\naudio or completed conversation claims. Reads completed captures only.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "native_run": {
       "command": [

@@ -1,5 +1,5 @@
 {
-  "scope": "Read-only actor output capture, seven exact endpoint roots, all eight visibility states, one retained hidden rotation difference.",
+  "scope": "Read-only actor output capture, seven exact endpoint roots, all eight visibility states, one retained hidden rotation difference. Not full-interval equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_run": {
     "command": [

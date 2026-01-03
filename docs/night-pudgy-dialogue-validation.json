@@ -1,5 +1,5 @@
 {
-  "scope": "Bounded native Pudgy invitation, approach, dialogue, first response and closure through frame29915.",
+  "scope": "Bounded native Pudgy invitation, approach, dialogue, first response and closure through frame29915. Native control returns and children become visible through ordinary inputs. State/channel agreement does not establish raster/audio fidelity or full-game playability.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "base_revision": "8111669",
   "runtime_worktree_change": "Headless render bounds committed as e4ca8ef; native binary unchanged from validated6b321cd... build.",
@@ -314,7 +314,7 @@
     "report": "local/research/pudgy-closure-state-v3.json",
     "sha256": "55c2adce6ae0cbf0a62fa3528590f8b4630e4ccda3da4670a9355bb12ca712d1",
     "result": {
-      "scope": "Read-only original snapshots compared with native outputs; never runtime inputs.",
+      "scope": "Read-only original snapshots compared with native outputs; never runtime inputs. Story bits and visibility match at all three snapshots, using recovered instance flag0x800 (retail0x1baa60). Child root positions match after closure only. Earlier hidden-actor capture positions differ: native channels() holds a stale render cache while animation values were set at entry; no hidden raw-channel equivalence claim.",
       "states": [
         {
           "reference": "reference-night-pudgy-choice-420-v1",

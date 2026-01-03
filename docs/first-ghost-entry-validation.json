@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Music resource 28 source mapping and bounded native checks; scene 96 entry plus three following dialogue intervals through tick 103895.",
+  "scope": "Music resource 28 source mapping and bounded native checks; scene 96 entry plus three following dialogue intervals through tick 103895. No original PCM, full-score, NPC/RNG, full-frame or whole-port parity claim.",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "music_mapping": {
     "id": 28,
@@ -59,11 +59,11 @@
     ],
     "implementation": {
       "path": "src/music.cpp",
-      "sha256": "9878ec23c4aab40661df2e56b34974a17f061d9744c2914ccefce60a9846da06"
+      "sha256": "4698ce6cad68478a2c53fa1509d841b98524075bebc951672516ebd06cfa2924"
     },
     "optional_bank_loading_source": {
       "path": "src/native_runtime.mm",
-      "sha256": "13333971d36ab80300dafac2b6166a0dbef8fec28752153604a78336ec64d328"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     }
   },
   "native_dry_1200": {
@@ -86,7 +86,7 @@
           "path": "local/research/church-water-v1/music28-dry-v1/release.pcm",
           "sha256": "242ec462757cfa11ce6eb5d9d157ef3362033e450b71eafe0b02bd87555e0b43"
         },
-        "bytes": 83228,
+        "bytes": 275496,
         "ticks": 1200,
         "binary_sha256_recorded": "eb388cc747f4057fb08562a5e07c4487e9bf9df10615204d11d44d91627c8bf4",
         "music_source_sha256_recorded": "512f049f6a36da699d981852910caa2f52935ceae1d719c0819983af69d1fdc5"
@@ -487,7 +487,7 @@
       "segment_frame_count_difference": 18700,
       "segment_frame_count_difference_unit": "sample frames; not a duration"
     },
-    "scope": "Nominal pre-EE/IOP versus completed-native-tick labels; diagnostic 640×224 crop, not AppKit presentation."
+    "scope": "Nominal pre-EE/IOP versus completed-native-tick labels; diagnostic 640\u00d7224 crop, not AppKit presentation."
   },
   "latest_endpoint": {
     "metadata": {

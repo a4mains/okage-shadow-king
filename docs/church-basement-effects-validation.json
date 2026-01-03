@@ -1,5 +1,5 @@
 {
-  "scope": "Native effects90/105 bounded constructor/update state and105 packed UV validation.",
+  "scope": "Native effects90/105 bounded constructor/update state and105 packed UV validation. Effect106, full drawing packets, raster, audio and completed scene97 entry remain unvalidated.",
   "base_commit": "0036cee",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "builds": {
@@ -27,7 +27,7 @@
       "native_run": "local/native-tenel-church-aisle-101615-release-v1.run.json",
       "summary": "local/research/post-jam-route-v1/tenel-church-aisle-summary.json",
       "comparison": {
-        "scope": "Report field-interval differences without shifting their original time anchor.",
+        "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "native_run": {
           "command": [
@@ -295,7 +295,7 @@
       "native_run": "local/native-tenel-church-aisle-up-101735-release-v1.run.json",
       "summary": "local/research/post-jam-route-v1/tenel-church-aisle-up-summary.json",
       "comparison": {
-        "scope": "Report field-interval differences without shifting their original time anchor.",
+        "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "native_run": {
           "command": [
@@ -563,7 +563,7 @@
       "native_run": "local/native-tenel-church-basement-approach-101915-release-v1.run.json",
       "summary": "local/research/post-jam-route-v1/tenel-church-basement-approach-summary.json",
       "comparison": {
-        "scope": "Report field-interval differences without shifting their original time anchor.",
+        "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original manager/camera records and player payloads are reported,\nnever interpreted as matching observations or filled with synthetic records.\nAgreement covers observed values only; coverage is reported independently.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "native_run": {
           "command": [
@@ -901,10 +901,10 @@
     "local/native-tenel-church-aisle-up-101735-release-v1.run.json": "abfaa9aaec7052ea258a0b3810c997d5a20467d7b0d0529d1d86f9ebcf3d17f3",
     "local/research/post-jam-route-v1/tenel-church-basement-approach-summary.json": "1249418434f653df33607be59bfbaac2089377f0088823106224aaa5d5ca2bc4",
     "local/native-tenel-church-basement-approach-101915-release-v1.run.json": "3b8ba7da4efe29f1cc994410204494433326c62e51412623ab1b973c0a9ae86d",
-    "src/effect.cpp": "f6c9f2711527f3926ccc6fb180527612f2f8539a481c28ab49ea38201b66109d",
-    "src/field.cpp": "1adef23153a9bed7029a8486f0bebba372da38f8e4350cb6f62e4715e1e3df8d",
-    "src/assets_main.cpp": "4238abf1ff110edaf5c2ff488f84ef31277ede0e75df2a2d0b6872a5e59e282b",
-    "tools/play-oracle/main.cpp": "e5a08f85fae70eb52578d8192ce23ca4fea4e7cd6c7dd75d69afcae547ba2edc",
+    "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_church_basement_effects.py": "8621ce9999c956855ee0f79ff70cbf211a3b187b56b6be70cba43f4937caf23b",
     "tests/test_verify_church_basement_effects.py": "5f6c92541aa47e2cc2ad505dc206d87db1573a418eef459e69846820e48e6128",
     "local/research/church-basement-effects-v1/python-tests-v2.log": "188ec418b764cb62792c28b04f2ddaa1dda9fa12a8ea8c7a1789ae1d63302ef7",
@@ -953,12 +953,12 @@
     "original_run": "local/research/church-basement-effects-v1/106.original-v1.bin.run.json",
     "updates": 650,
     "snapshots": 652,
-    "scope": "Original state, packed vertices/tags and UVs/tags captured.",
+    "scope": "Original state, packed vertices/tags and UVs/tags captured. Native106 is still guarded. Auxiliary height grids/counters are not directly captured.",
     "source_report": "local/research/church-basement-route-v1/effects-source-audit-v1.txt"
   },
   "actor_lighting_proposal": {
     "commit": "d60f3affa990febf2e3f0914c301af475d1cb5ff",
-    "branch": "work/actor-mode0-v1",
+    "branch": "worker/actor-mode0-v1",
     "worktree": "local/worktrees/actor-mode0-v1",
     "status": "Not integrated; actual original actor-packet comparison remains required.",
     "design": "local/worktrees/actor-mode0-v1/local/actor-packet-design.txt"

@@ -1,17 +1,17 @@
 {
-  "scope": "Owned rest-pose shadow assembly with six explicit synthetic world/view/light/screen configurations per model.",
+  "scope": "Owned rest-pose shadow assembly with six explicit synthetic world/view/light/screen configurations per model. Original stages are driven directly; no complete packet compiler, GS raster, field visibility, animated assembled submission or runtime integration proof.",
   "base_commit": "77ef953",
   "source_sha256": {
-    "include/okage/shadow.hpp": "eb87eb9313eaef653014b75dbdf24e5478963b484be92d197438817a3ddc32d8",
-    "src/shadow.cpp": "9ec04def5bd761132b3e7aa9863ec3a3b90b134daf6b4212f203b3fb6e8caa35",
-    "src/assets_main.cpp": "132642ccbae7a1a7a54ceedc77332f0906d09cc607bdf80d7ca0ec14f4da63a2",
-    "tools/play-oracle/main.cpp": "5572c6310b2c43c78950df3a579f4aeb8b3083f8d011ddf78043d77ed4be5a65",
+    "include/okage/shadow.hpp": "c98221453631e732781608ea30b88e0d50d3280b89e1317df9810ea5bd3295d2",
+    "src/shadow.cpp": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_shadow_assembled.py": "84c0f6bc094d34f2c5c89ee063dd982aaf869de61095174ab81a96b5a5e4b5e9",
     "tests/test_shadow_assembled.py": "8426d9fd54ed922648a004ab95e549d53f6c1dba6964b76506ce4561473c92f4"
   },
   "reports": {
     "native-release": {
-      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.",
+      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.\n\nOriginal binding, rest pose and view/world composition, batch selection, skinning,\nprojection setup and VU1 cache/draw stages execute unchanged. The observer drives\nVU entries directly; it does not execute the complete packet compiler or GS raster.\nNo captured RAM, poses or vertices feed the native implementation.\n",
       "native_sha256": "698e93e5befed423f37359ee6c2d4dc6304231697b5f220cb7112166ca9208be",
       "cases": [
         {
@@ -197,7 +197,7 @@
       ]
     },
     "native": {
-      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.",
+      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.\n\nOriginal binding, rest pose and view/world composition, batch selection, skinning,\nprojection setup and VU1 cache/draw stages execute unchanged. The observer drives\nVU entries directly; it does not execute the complete packet compiler or GS raster.\nNo captured RAM, poses or vertices feed the native implementation.\n",
       "native_sha256": "7bc7959908ec7077c9fe7f18ca291f7f2ba72d21c53d8c6a0a8d2e6ad3c5201d",
       "cases": [
         {
@@ -383,7 +383,7 @@
       ]
     },
     "model-sanitize": {
-      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.",
+      "scope": "Compare assembled owned shadow geometry using explicit world/view/light/screen settings.\n\nOriginal binding, rest pose and view/world composition, batch selection, skinning,\nprojection setup and VU1 cache/draw stages execute unchanged. The observer drives\nVU entries directly; it does not execute the complete packet compiler or GS raster.\nNo captured RAM, poses or vertices feed the native implementation.\n",
       "native_sha256": "c82fd0778e091010d747449bd22620dab28614fde8ec20e0cf3cdea3804ec8ed",
       "cases": [
         {

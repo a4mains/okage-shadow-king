@@ -2,8 +2,8 @@
   "schema": "okage-native-restore-validation-v1",
   "date": "2024-06-14",
   "runtime_revision": "54d6480",
-  "acceptance_met": false,
-  "scope": "Cold startup to empty Restore and cancel; source-framed storage only.",
+  "goal_complete": false,
+  "scope": "Cold startup to empty Restore and cancel; source-framed storage only. No ordinary gameplay save or restored field yet.",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "owned_stage": {
     "path": "local/game-data-stage-v2/.owned-game-data-manifest.json",
@@ -938,7 +938,7 @@
     "exit_code": 0,
     "seconds": 18.265029625,
     "binary_sha256": "374dff89d2a300f2b05089afc739fca4a3a62e2dc8c8666d1017266233562fea",
-    "scope": "Oracle-only snapshot continuation from original empty Restore2875, fixed declared native1200/source0 component anchor."
+    "scope": "Oracle-only snapshot continuation from original empty Restore2875, fixed declared native1200/source0 component anchor. Not a new cold-start parity claim."
   },
   "checks": [
     {

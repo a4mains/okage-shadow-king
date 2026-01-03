@@ -1,5 +1,5 @@
 {
-  "scope": "Native33/115 source geometry, deferred transforms/colors, blend/depth mapping and ordinary-input basement progression.",
+  "scope": "Native33/115 source geometry, deferred transforms/colors, blend/depth mapping and ordinary-input basement progression. Pixel equality, full-scene RNG and full timeline equivalence are not established.",
   "implementation_base": "4e08526",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "drawing": [
@@ -8,7 +8,7 @@
       "path": "local/summon-drawing-checks-v3/native-release/report.json",
       "sha256": "1fb69b1bce7fa14db5825e7cd8f3ad19863cd76b2516462adee8a535fa3fba5d",
       "result": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "18a035f417d21ab394bc045d536daaa2a56303672acf44236a9c7e2cb4e20b8c",
@@ -87,7 +87,7 @@
       "path": "local/summon-drawing-checks-v3/native/report.json",
       "sha256": "73c15faccdf7bc7ac0d43e0a141dd18d43e6e13fceb906bbf25881f671800a85",
       "result": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "2c04e8329183b003c9398999a455f80ec201e3d25eea4be14c5b55d9db66cfdc",
@@ -166,7 +166,7 @@
       "path": "local/summon-drawing-checks-v3/model-sanitize/report.json",
       "sha256": "e9f3ef055e2edffbebbb5db45551233d67306c5044bc21c50670ef46b5009044",
       "result": {
-        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.",
+        "scope": "Compare summoning source geometry/materials and bounded deferred transforms.\n\nResearch RAM is used only by the original helper oracle, never native code.\nSynthetic transforms do not prove scene RNG, raster equality or progression.\n",
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
         "efd_sha256": "2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c",
         "native_sha256": "da21eaddf27745afcf169f256b08e48686dfbd39a21df24db6da18a0a19653a9",
@@ -660,7 +660,7 @@
     {
       "path": "local/summon-drawing-after-chant-window-v1.json",
       "sha256": "56a2e6e7603db3ae853255d69f74ffb960e4cc84e3d07aba9b3cb6c338569b7d",
-      "scope": "Report field-interval differences without shifting their original time anchor.",
+      "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
       "first_native_frame": 47856,
       "original_frames": 600,
       "controller_samples": 42,
@@ -725,7 +725,7 @@
     {
       "path": "local/summon-drawing-after-flash-window-v1.json",
       "sha256": "58447d2cbd9ef6331ff0ab5c68a60cae52af517c05d25a71dc01b3b21ff4a957",
-      "scope": "Report field-interval differences without shifting their original time anchor.",
+      "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
       "first_native_frame": 48456,
       "original_frames": 600,
       "controller_samples": 424,
@@ -1684,7 +1684,7 @@
     "binary_sha256": "bece5511360fc954d0b67d61f391a6888349dda69b0c69587bb64b4eca63b173"
   },
   "load_timing": {
-    "scope": "Event-PC run lengths at unchanged anchor47856.",
+    "scope": "Event-PC run lengths at unchanged anchor47856. No time shift or native delay applied.",
     "native": [
       {
         "first": 0,

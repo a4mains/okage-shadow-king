@@ -4,7 +4,7 @@
   "runtime_revision": "9c63435",
   "comparison_revision": "b1f5a82",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "acceptance_met": false,
+  "goal_complete": false,
   "scope": "Fresh native process through writable storage/logos/title/New Game/name/chapter/opening field; development staged assets, not fresh disc import or complete port.",
   "owned_data": {
     "path": "local/game-data-stage-v1/.owned-game-data-manifest.json",
@@ -266,7 +266,7 @@
         "300"
       ],
       "binary_sha256": "7d5caa314d4c45fd4d43fe554b33d77c25cd8815e17a31ce71b271365dd886dd",
-      "scope": "Cold HLE BootFromCDROM; neutral inputs; no loaded reference save.",
+      "scope": "Cold HLE BootFromCDROM; neutral inputs; no loaded reference save. Research-only shared memory-card directory remains as existing configured device. Native never reads this state.",
       "exit_code": 0,
       "seconds": 73.34348425
     },
@@ -301,7 +301,7 @@
       ],
       "binary_sha256": "7d5caa314d4c45fd4d43fe554b33d77c25cd8815e17a31ce71b271365dd886dd",
       "pad_sha256": "cbf7422c8232403d5a2c32e2fac4aa5f68f43005332a49f7bbdff43a91d92c2d",
-      "scope": "Cold HLE BootFromCDROM; whole native2800-v2 ordinary input tape at predeclared offset74 established by firstparent in original1800-v1.",
+      "scope": "Cold HLE BootFromCDROM; whole native2800-v2 ordinary input tape at predeclared offset74 established by firstparent in original1800-v1. No loaded reference save or mode-specific alignment. Existing research memorycard.",
       "exit_code": 0,
       "seconds": 70.834264583
     },
@@ -327,7 +327,7 @@
       "exit_code": 1,
       "seconds": 6.223513334000001,
       "binary_sha256": "34f59e00b33abfec59c1a9a3beef4a264ab9306c7f1a8cd7fd72b84ad53adcaa",
-      "scope": "Ordinary Start then default Restore confirm; no forced mode or source-state import."
+      "scope": "Ordinary Start then default Restore confirm; no forced mode or source-state import. Records next reached dependency."
     }
   ],
   "comparisons": [
@@ -987,18 +987,18 @@
   "tools": [
     {
       "path": "tools/stage_game_data.py",
-      "sha256": "d6e33af736642c23bcfd40d51979fe5ff14d84b7f0533dfe0c7021a6267ea03d",
-      "bytes": 6374
+      "sha256": "854be1c79b7d3098013ea74c976e90e78e1935ee224efc618496a25715c7884c",
+      "bytes": 7813
     },
     {
       "path": "tools/compare_cold_start.py",
-      "sha256": "cee204899274653020af6c3bff96c0f49dafa11e171fc9df27e782939069c9c6",
-      "bytes": 34663
+      "sha256": "8dc666932b3edbd8803330ed2ef6d00f9afad5501ce8b9ab466600f210e4e893",
+      "bytes": 34695
     },
     {
       "path": "tools/play-oracle/reference_game_mode.hpp",
-      "sha256": "b2dd45ee383e6091565445c2d895c39b3bc07874129fb058df4e87af0337d805",
-      "bytes": 11696
+      "sha256": "bac703df46daec9ac1b74326c46a2d1be4f55e67cbae92f8e01a264763c76b09",
+      "bytes": 27173
     },
     {
       "path": "tools/compare_frame_images.py",

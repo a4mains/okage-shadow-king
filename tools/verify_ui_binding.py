@@ -13,7 +13,7 @@ from verify_battle_interface import parse
 
 Invalid, need, u32 = win.Invalid, win.need, win.u32
 SCHEMA = 'okage-native-ui-binding-v1'
-SCOPE = "owned constructors followed only by RUW binding/reset; no UI callbacks or resource clocks"
+SCOPE = 'owned constructors followed only by RUW binding/reset; no UI callbacks or resource clocks'
 GROUPS = ((2, 3, 4), (5,))
 CALLBACKS = (('first', 0x11fec8), ('second', 0x120ad0))
 
@@ -271,7 +271,7 @@ def compare(reference, native):
             equal(f'native.widget{g}:{i}.primary', expected[4], n['runtime'][4])
             primary_words += 1
     return {'schema': 'okage-ui-binding-verification-v1', 'status': 'fail' if differences else 'pass',
-            'scope': "binding/reset only at first 11fec8 return; no native callback/clock/layout execution",
+            'scope': 'binding/reset only at first 11fec8 return; no native callback/clock/layout execution',
             'reference_elf_sha256': _header['elf_sha256'],
             'reference_pair_frames': [[r['frame'] for r in rows[i:i + 2]] for i in range(0, 8, 2)],
             'reference_fcsr': [r['fcsr'] for r in rows], 'fcsr_compared_to_native': False,

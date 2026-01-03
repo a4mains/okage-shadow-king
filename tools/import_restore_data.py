@@ -170,7 +170,7 @@ def import_elf(data):
                          digest, source_digest) + payload
     metadata = {
         'schema': 'okage-restore-data-import-v1',
-        'scope': "Pointer-free Restore descriptor and referenced static literal bytes; no native save behavior or callback implementation.",
+        'scope': 'Pointer-free Restore descriptor and referenced static literal bytes; no native save behavior or callback implementation.',
         'elf_sha256': digest.hex(),
         'source_sha256': source_digest.hex(),
         'source_bytes': len(source),

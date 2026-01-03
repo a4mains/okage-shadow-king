@@ -59,7 +59,10 @@ def main(out):
         evidence += [f"{R}/{tag}/command.txt", f"{R}/{tag}/outputs.sha256", f"{R}/{tag}/stdout.txt"]
     manifest = {
         "schema": "okage.title.validation.v1",
-        "scope": "Title: shape-guard fix; persistent Session texture owner through storage, logos, logo retirement and title construction up to the cold-start 12c350(selector=1) return, before the first 1296f8 update.",
+        "scope": "Title: shape-guard fix; persistent Session texture owner through storage, logos, logo retirement and "
+                 "title construction up to the cold-start 12c350(selector=1) return, before the first 1296f8 update. "
+                 "Not title updates/retirement, New Game/Restore, XTA, field/battle, prepared-frame snapshots, sampling, "
+                 "tick37297, full T1 or the game.",
         "base_commit": "7a93d87",
         "head_commit_at_generation": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",

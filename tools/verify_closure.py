@@ -66,7 +66,7 @@ def main():
     if camera[420][1] != 0xc48 or camera[421][1] != 0xc4c:
         raise ValueError('Native wait did not release on the observed countdown boundary')
     report = {
-        'scope': "Two-layer closing scheduler from initial stage 6 plus native opening integration; not full window lifecycle or cold startup",
+        'scope': 'Two-layer closing scheduler from initial stage 6 plus native opening integration; not full window lifecycle or cold startup',
         'native_tool_sha256': sha(native), 'native_app_sha256': sha(app),
         'elf_sha256': sha(Path('local/extracted/SCUS_971.29')),
         'reference_sha256': sha(reference), 'reference_wait_sha256': sha(original_wait),

@@ -2,7 +2,7 @@
   "schema": "okage-battle-layout-validation-v1",
   "implementation_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "Native mode2 layout, typed cache builders and per-window preparation.",
+  "scope": "Native mode2 layout, typed cache builders and per-window preparation. Tests and original-only layout observation; no native/original layout or raster equivalence and no new gameplay frame.",
   "tests": {
     "focused_ctests_each_build": 6,
     "configurations": [
@@ -48,7 +48,7 @@
     {
       "path": "CMakeLists.txt",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "02292c81ecd8856a5430860bdc2a315c757805c0c4cb11122bfdb30531bcb28b"
+      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
     },
     {
       "path": "include/okage/ui_layout.hpp",
@@ -58,7 +58,7 @@
     {
       "path": "include/okage/ui_window.hpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "270e4741aa0b2651d5bc3d273e08af4c7b5811f7911da9f45c27c4b4549bb452"
+      "sha256": "fb8c7f930e4cb455aa906fcfcbfb2c56a72251ad5222164048a80dd1c8f502d5"
     },
     {
       "path": "include/okage/ui_text_number.hpp",
@@ -68,22 +68,22 @@
     {
       "path": "include/okage/ruw.hpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "79627eab593db1bb2ee8569e09fe282d1c43f61e4c130af8e5d3eff1ffd1efe8"
+      "sha256": "3af5147df03e0a89f1aa5a5ee70ed2c55b8b0504a9235618a7201d699cc94667"
     },
     {
       "path": "src/ui_window_layout.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "856100dd37efcc7ec3b0d279114bfbb344444bd0a33fe64d91b6afa29aa27ec9"
+      "sha256": "eb492de18c7b040e067d88691be4caa0ed2b59f7540511b6927ab145cd0b3562"
     },
     {
       "path": "src/ui_window_packets.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "8fb7d82f0ce9ed5aee81e1b6da77320ae82fb7ccc7b2f7c5d57f417db6a62a8e"
+      "sha256": "2a4492312386d030e9ada03fa9278d69668282779f58df738c9630bf5a1caf16"
     },
     {
       "path": "src/ui_window_background.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "e88e3b8054fcc9575bb28d575a2590b4caf18ec2c38be1a865bc6edabbbfd328"
+      "sha256": "023b46ff5250327319ab59548292dbb875f8050f2251cb1b9229478d184e1da9"
     },
     {
       "path": "src/ui_text_number.cpp",
@@ -93,22 +93,22 @@
     {
       "path": "src/ruw.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "85e4238198b1a531e18b9de6fc7030df80631dc8da08bb1d1a5079250390bb7e"
+      "sha256": "42402dfe07441f3fcad1de1f78f81dfc44f8cd96ac434f7291ca88867ddfcadd"
     },
     {
       "path": "tests/ui_window_layout_tests.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "5791a33f63285b8a21a426bf24de1000dd539032f2fe8e1ed8bdbfbd62880c1c"
+      "sha256": "dbf93e42ac124f67af9dd4f1acf6610166a7ecbe48f733cf556a0eb6f48231a5"
     },
     {
       "path": "tests/ui_window_background_tests.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "a98ad74e9226b6019123e84dd704a91ebee48d0723f5c013b7a43e3ca55aac18"
+      "sha256": "559f23c2b0bd36813fd9eb9839b889a83893bc794c94ff7ae8485b04d134ad9b"
     },
     {
       "path": "tests/ui_window_packets_tests.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "0822bb0baab187bedca85fa464b4248b199994c834f2140b78628536099cad41"
+      "sha256": "4c46b6d2c7511c63128dc1427aeb5c8288759e4763985067e2ded4aa7924bf75"
     },
     {
       "path": "tests/ui_text_number_tests.cpp",
@@ -118,23 +118,23 @@
     {
       "path": "tools/play-oracle/reference_ui_layout.hpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "6193ca378f0e9a7172217d9c739be501249a2c4738a074b06cf87b35ac79c4cf"
+      "sha256": "c1ffdc71f5d950935953f9f2d419ef108ee3d23bcb9b9a333477665f1048f043"
     },
     {
       "path": "tools/play-oracle/boot.cpp",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "96d33358e781b1e17e4f83ebca9bcf77d69f0bff761cf4f88622e4bbe61d081b"
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736"
     },
     {
       "path": "tools/play-oracle/capture_argument_tests.py",
       "git_revision": "7c6801ff9e099eb505c253fb1e65bd69e34ffb4d",
-      "sha256": "03a2b0ff1dd54906e6fd49ea7e0748f6fb6a73c892e0e1fb0f7e3cf87b894f98"
+      "sha256": "f494309515915e1b484581a5b6c33a17abd8131ad25b9b40c906cd7944938858"
     }
   ],
   "artifacts": [
     {
       "path": "local/battle-input-v2/BTL.RUW",
-      "bytes": 5325,
+      "bytes": 6991,
       "sha256": "2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800"
     },
     {

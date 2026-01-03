@@ -34,7 +34,7 @@ def main():
     camera = rows(Path(str(prefix) + '.camera.bin'), 16)
     if len(camera) != 6000 or camera[-1][1:3] != (0x106c, 0):
         raise RuntimeError('Unexpected final event continuation')
-    report = {'scope': "Native scripted kitchen event ends; no player control, collision, cold startup or full-game playability",
+    report = {'scope': 'Native scripted kitchen event ends; no player control, collision, cold startup or full-game playability',
               'end_state': expected, 'retained_event_pc': '0x106c',
               'pc_note': 'Original XMT semantics retain the last yielded PC when opcode 0 clears the running flag; not stuck at a wait',
               'all_three_builds_exact': True, 'cross_build_suffixes': family,

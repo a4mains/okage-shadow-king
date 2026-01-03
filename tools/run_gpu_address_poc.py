@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serial GPU-proof runner and strict raw-sample summarizer. No game/window control."""
+"""Serial G0 runner and strict raw-sample summarizer. No game/window control."""
 import argparse
 import hashlib
 import json

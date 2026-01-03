@@ -90,7 +90,7 @@
   ],
   "run": "build/startup-oracle/okage-oracle/okage-pose-oracle texture-transfer local/extracted/SCUS_971.29 run1/input.bin run1/transfer.json (executed twice, serially; outputs byte-identical)"
  },
- "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+ "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
  "reference_nature": "Play research backend executing the unchanged retail routines; not physical PS2 proof",
  "results": {
   "cases_by_psm": {
@@ -129,21 +129,21 @@
  },
  "retained_failures": "none in the original-execution comparison. Development test failures (test-authoring errors in tests/texture_format_tests.cpp: sub-qword source size, PSMCT32 row addressing, Z24 block offset) were fixed before any run was recorded; no comparator DIFF occurred on real evidence.",
  "schema": "okage-startup-format-validation-v1",
- "scope": "Startup format-transfer part only: PSM20/36/44 host-to-local transfers and nibble-level definedness/ownership.",
+ "scope": "Startup format-transfer part only: PSM20/36/44 host-to-local transfers and nibble-level definedness/ownership. Not startup sequence recovery, not Session integration, not fonts/effects, not full Startup.",
  "sources_sha256": {
-  "CMakeLists.txt": "8427cec996ce5faddc31f4dde7fa0892410b11b99c61ff90841bac3afc36e75d",
-  "include/okage/texture_memory.hpp": "bed6ce424ff04f90e9012639acb493c48b039cf4f7b341fb5746f137c5e0e7c7",
-  "include/okage/texture_transfer.hpp": "e7a4d147918b442cde1bef520bc02603c7c0436babf5d0d4b9a06db21ddbb470",
-  "src/texture_memory.cpp": "7b2b606cdaadab16ea80ab84308ffe1d2acc6b3f313e3c0dd905ec1458f968de",
-  "src/texture_transfer.cpp": "bfe0e12bddf42c68c73d5df492d13c1bcc3996895cc93313ff1db8235f0d4c85",
-  "tests/test_texture_transfer_compare.py": "6328c2950b316e3f323d4d245307d73e68cab0fbb2b62bb7a70ae54024dce8e8",
-  "tests/texture_format_tests.cpp": "2e21e1ee73ecc627f643c9c6a4615b3417f23b295e4398ca17384fbe1bd98264",
-  "tests/texture_transfer_tests.cpp": "42e077284b5b045ecf2c17237f2913dc6bf43565ef51f7bd8f1e5be75b4cb89b",
-  "tools/play-oracle/main.cpp": "ecf0721d5d24d4f3207a804fa925f2ee99f06748beccf66c51931d2ab51b17cb",
-  "tools/texture_transfer_cases_v2.py": "7c1cbac31627bcfe07006354af1b9988136ba89edc01213ac1a1ad379b191746",
-  "tools/texture_transfer_compare.cpp": "d239bf48a0b8c66df423c4b4d9a5b0d32b9ce52209d596576a374f0d696c4334",
-  "tools/texture_transfer_fixture.py": "0a50cf4408968ee32a740ab687b02111374c2089777944de287e733075c5e6c6",
-  "tools/texture_transfer_regcheck.py": "51249110c27ef322c168c4812dc80e040087c11312022d8c7a5e39549e1a2854"
+  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+  "include/okage/texture_memory.hpp": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935",
+  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
+  "src/texture_transfer.cpp": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+  "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
+  "tests/texture_format_tests.cpp": "e2e48ecc18b063b7fa1c919764efcba9abeb6aa7d47fdd6a1d095c922ce44674",
+  "tests/texture_transfer_tests.cpp": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
+  "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+  "tools/texture_transfer_cases_v2.py": "a467ee3893d0b2297a02ec190703874f3bae3f4913901a8b8a07cc39bd08464c",
+  "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
+  "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",
+  "tools/texture_transfer_regcheck.py": "db9e5cb0c35bed55ddf0d8df2615bfc2161ea26e4a1877014920d3d369340515"
  },
  "unresolved": [
   "hardware behaviour of PSMT4/4HL/4HH host-to-local is not proved; only Play GS semantics were observed",

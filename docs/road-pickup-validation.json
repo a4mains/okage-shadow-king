@@ -1,6 +1,6 @@
 {
   "schema": "road-pickup-validation-v1",
-  "objective": "active; incomplete",
+  "goal": "active; incomplete",
   "runtime_commits": [
     "5206831",
     "3dfd5d1",
@@ -10,32 +10,32 @@
     "680d328"
   ],
   "observer_commit": "9a25ebc",
-  "scope": "Native real-save Chapter2 Tiny Gear, music24, Rosalyn material/sort and opcode25 integration; bounded component reference checks.",
+  "scope": "Native real-save Chapter2 Tiny Gear, music24, Rosalyn material/sort and opcode25 integration; bounded component reference checks. Whole road/Rosalyn original state/image/audio comparison is missing.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source": [
     {
       "path": "src/animation.cpp",
-      "sha256": "7dfb727ea4e8aad2299c1a50ae9bce86ac0eec3b9c6affd00e08f3caf7da14a4"
+      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81"
     },
     {
       "path": "src/scene_renderer.mm",
-      "sha256": "d468efd2a3e871938c1d8405e24c6108283f9c1a2e4c9c19c9b13317c6d20ceb"
+      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "79f4d5ac30756323d9bd17a8b1c74365ca4757321f83017440fa5eddc49457f1"
+      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
     },
     {
       "path": "tests/animation_tests.cpp",
-      "sha256": "a3a72b4eb5d4f8ffcab5b0fe6d3da79a42bed3304bd071c5321577be252ccfd8"
+      "sha256": "008989d3b51bdb2256368dffc0e660ad9741e3730bc42097667fb08699decddc"
     },
     {
       "path": "tests/scene_map_material_tests.mm",
-      "sha256": "d2a915e17aaa01bc08997c6107526cd9ea2e9e62213781a0b4dc2e0463687460"
+      "sha256": "289a2b120de28fbd6135515cffa5a6ba13c56800e5a64553aa4c596d63a2f623"
     },
     {
       "path": "tools/import_music_resource.py",
-      "sha256": "d78bc9e730c1c0fda1bc0657cf34f6eceb3f670ded0ef8e7d5c98914d74ef4b5"
+      "sha256": "73ad45b201839288f3d9ab5bba91370f150905bc65ce327da437891cf9c5f05c"
     },
     {
       "path": "tools/verify_ordinary_visibility.py",
@@ -43,7 +43,7 @@
     },
     {
       "path": "tools/play-oracle/main.cpp",
-      "sha256": "3e9f5f16818ccda5254cc4ae6a1bddc8fb640e66d227e612e05b181318717847"
+      "sha256": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811"
     }
   ],
   "stage": {
@@ -196,7 +196,7 @@
     }
   ],
   "missing_provenance": [
-    "The direct ordinary-visibility v2 instruction-budget failure has no retained log/command/manifest or executed binary hash; handoff-only report cannot serve as reproducible evidence.",
+    "Worker direct ordinary-visibility v2 instruction-budget failure has no retained log/command/manifest or executed binary hash; handoff-only report cannot serve as reproducible evidence.",
     "Historical FPC/DPC dry PCM checks lack executed command/binary hash binding; excluded from parity claims."
   ],
   "limitations": [

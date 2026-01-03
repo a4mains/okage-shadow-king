@@ -559,7 +559,7 @@ if(BUILD_TESTING)
     add_test(NAME render-tests COMMAND render-tests)
 endif()
 
-# Raw XIM parser: tests and owned-corpus inventory tool.
+# T1.1 raw XIM parser: tests and owned-corpus inventory tool.
 if(BUILD_TESTING)
     add_executable(xim-raw-tests tests/xim_raw_tests.cpp)
     target_link_libraries(xim-raw-tests PRIVATE okage_assets)

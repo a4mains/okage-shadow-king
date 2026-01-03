@@ -469,7 +469,7 @@
           "sha256": "f30b04b4efb011f21577822dba63119d7b8739afa978d1e6515fdb8f9f80d76f"
         }
       ],
-      "scope": "Final first-dispatch regression on canonical v2 owned bundle; all three exit0."
+      "scope": "Final first-dispatch regression on canonical v2 owned bundle; all three exit0. Older first-comparison-v3 files remain bound as historical evidence."
     }
   },
   "supporting_artifacts": [

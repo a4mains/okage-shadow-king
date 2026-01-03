@@ -25,7 +25,7 @@ SCOPE = ("Newgame: the FIRST cold title's New Game branch on the persistent Sess
          "lifecycle row is emitted at a native event point and none is owner-asserted (zero asserted rows is a marker "
          "count: some fields and the ordering inside one callback are model-supplied, not independently observed). "
          "Not original image/audio parity, ordinary field/XTA/battle "
-         "loading, saved-field Restore, shared-GS sampling, performance, tick37297, the full texture port or the game.")
+         "loading, saved-field Restore, shared-GS sampling, performance, tick37297, full T1 or the game.")
 
 POSTFIX_BINARIES = {
     'built_from': '09646f84157a8a758c7a4c4b3b4a7712027497aa',

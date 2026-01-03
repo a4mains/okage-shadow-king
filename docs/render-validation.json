@@ -2,7 +2,7 @@
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "oracle_sha256": "6206db11d4a5b530c9bded8aa087d8240511b7a7ffbcb2e3706570f2720c0464",
   "native_sha256": "60a70f62aa05319f3ffdda38b774d7316a5ab05bac4c47205a31dc4d8921716e",
-  "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "primitive_cases": [
     {
       "count": 3,

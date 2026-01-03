@@ -1,9 +1,9 @@
 {
-  "scope": "Dust17 bounded original state/geometry/tint comparisons and native outdoor control/lifetime checks.",
+  "scope": "Dust17 bounded original state/geometry/tint comparisons and native outdoor control/lifetime checks. No whole-scene RNG, root, camera or pixel equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "build_reports": {
     "native": {
-      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.\n\nUses completed original probes; never launches a VM. Does not establish whole\nscene RNG/order, raster pixels, physical controls or general effect support.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "exact_state_words": 14025,
       "updates": 31,
@@ -72,7 +72,7 @@
       }
     },
     "release": {
-      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.\n\nUses completed original probes; never launches a VM. Does not establish whole\nscene RNG/order, raster pixels, physical controls or general effect support.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "exact_state_words": 14025,
       "updates": 31,
@@ -141,7 +141,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.",
+      "scope": "Audit dust17 constructor/31 updates, source geometry and effect-light tint.\n\nUses completed original probes; never launches a VM. Does not establish whole\nscene RNG/order, raster pixels, physical controls or general effect support.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "exact_state_words": 14025,
       "updates": 31,
@@ -212,7 +212,7 @@
   },
   "scene_reports": {
     "native": {
-      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.",
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.\n\nDoes not compare whole-scene pixels, NPC/global RNG, camera trajectories or\noriginal/native root coordinates. Original field timing is independently observed.\n",
       "native_run": {
         "command": [
           "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -283,7 +283,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.",
+      "scope": "Audit native outdoor movement/dust lifecycle and observed original scheduling.\n\nDoes not compare whole-scene pixels, NPC/global RNG, camera trajectories or\noriginal/native root coordinates. Original field timing is independently observed.\n",
       "native_run": {
         "command": [
           "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",

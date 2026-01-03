@@ -772,7 +772,7 @@
    "step": 0,
    "pc": "0x1003d8",
    "via": "0x1cb088 -> 0x1ce940",
-   "note": "clears occupancy map and 64 per-PSM cursors, seeds 4096 FIFO nodes"
+   "note": "clears occupancy map and 64 per-PSM cursors, seeds 4096 FIFO nodes (see HANDOFF.md)"
   },
   {
    "seq": 1,

@@ -30,7 +30,7 @@ def main():
     result=native.read_bytes()
     if result!=original.read_bytes() or len(result)!=len(fixture)//4:
         raise RuntimeError('Native/original pitch mismatch')
-    report={'scope':"LIBSD0x33a0 nonnegative fine/key-fine inputs, 128 centers x128 keys x4 fines x4 fractions; no voice playback claim",
+    report={'scope':'LIBSD0x33a0 nonnegative fine/key-fine inputs, 128 centers x128 keys x4 fines x4 fractions; no voice playback claim',
             'libsd_sha256':sha(library.read_bytes()),'fixture_sha256':sha(fixture),
             'output_sha256':sha(result),'cases':len(result)//4,'exact':True,
             'harness':'Original module loaded at address0, no external calls; synthetic return breakpoint only'}

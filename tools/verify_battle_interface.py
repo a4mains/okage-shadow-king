@@ -13,7 +13,7 @@ Invalid = window.Invalid
 need = window.need
 u32 = window.u32
 NATIVE_SCHEMA = 'okage-native-battle-interface-v1'
-SCOPE = "11f5f8 constructor before child activation; no callbacks or rendering"
+SCOPE = '11f5f8 constructor before child activation; no callbacks or rendering'
 OUTPUT_SCHEMA = 'okage-battle-interface-verification-v1'
 MANAGER_BYTES = 0xef0
 MANAGER_WORDS = MANAGER_BYTES // 4
@@ -129,12 +129,12 @@ def compare(reference, native):
 
     windows = window.compare(reference, {
         'schema': window.NATIVE_SCHEMA,
-        'scope': "198e38 and window configuration only; empty incoming streams and atlas, slots0/1; no layer constructors",
+        'scope': '198e38 and window configuration only; empty incoming streams and atlas, slots0/1; no layer constructors',
         'windows': native['windows']})
     differences.extend({'component': 'window', **item} for item in windows['differences'])
     return {
         'schema': OUTPUT_SCHEMA, 'status': 'fail' if differences else 'pass',
-        'scope': "paired constructor-state comparison; native/original frames are reported separately, not temporally aligned",
+        'scope': 'paired constructor-state comparison; native/original frames are reported separately, not temporally aligned',
         'native_frame': native_frame, 'reference_frame': complete['frame'],
         'reference_entry_pc': entry['pc'], 'reference_completion_pc': complete['pc'],
         'reference_root': root, 'reference_manager': manager_pointer,

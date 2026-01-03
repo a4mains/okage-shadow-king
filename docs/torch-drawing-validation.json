@@ -1,5 +1,5 @@
 {
-  "scope": "Torch91 native drawing: isolated original source geometry/material and transform comparisons, plus native-only Metal diagnostics.",
+  "scope": "Torch91 native drawing: isolated original source geometry/material and transform comparisons, plus native-only Metal diagnostics. No original raster or interior integration claim.",
   "builds": [
     {
       "build": "native-release",
@@ -7,7 +7,7 @@
       "drawing_report": "local/torch-drawing-native-release-v4/report.json",
       "drawing_report_sha256": "4872cfd01eee711c42437d2500a65a9d065c9d3bee426ee9d79db36d02d5e993",
       "drawing": {
-        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.\n\nFive synthetic job/view/camera cases. No raster, scene scheduling, interior\nloading or whole-game fidelity claim. Original RAM stays research-only.\n",
         "cases": 5,
         "element_transforms": 20,
         "matrix_tolerance": 2e-05,
@@ -110,7 +110,7 @@
       "drawing_report": "local/torch-drawing-native-v4/report.json",
       "drawing_report_sha256": "1eaf9f5ac833583c18ea54076f5bc3cad3760d3a02b57dbd6b514c0776cbeaf5",
       "drawing": {
-        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.\n\nFive synthetic job/view/camera cases. No raster, scene scheduling, interior\nloading or whole-game fidelity claim. Original RAM stays research-only.\n",
         "cases": 5,
         "element_transforms": 20,
         "matrix_tolerance": 2e-05,
@@ -213,7 +213,7 @@
       "drawing_report": "local/torch-drawing-model-sanitize-v4/report.json",
       "drawing_report_sha256": "6ca5fabe8a11a87405f3d0d6c778911f23349058026f5ce9461507f476dd4b7d",
       "drawing": {
-        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.",
+        "scope": "Compare torch91 source geometry/materials and bounded original draw transforms.\n\nFive synthetic job/view/camera cases. No raster, scene scheduling, interior\nloading or whole-game fidelity claim. Original RAM stays research-only.\n",
         "cases": 5,
         "element_transforms": 20,
         "matrix_tolerance": 2e-05,
@@ -324,7 +324,7 @@
       15,
       61
     ],
-    "scope": "Three synthetic placements outside the owned HOME2B map, isolated from ordinary room geometry."
+    "scope": "Three synthetic placements outside the owned HOME2B map, isolated from ordinary room geometry. Diagnostic sample images show flames and soft additive glows; not original raster equivalence."
   },
   "regression": {
     "baseline": "local/native-home2c-basement-three-verses-47855-release-v1.png",

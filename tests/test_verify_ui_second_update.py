@@ -43,7 +43,7 @@ def native_hud(row):
                            'text_hex': None if item['text'] is None else item['text'].hex()})
         groups.append(output)
     return {'schema': hud.NATIVE_SCHEMA,
-            'scope': "RUW and HUD state at an isolated dispatcher boundary",
+            'scope': 'RUW and HUD state at an isolated dispatcher boundary',
             'execution': 'ui-update', 'game_mode': 3, 'selected': 0,
             'vars_hex': bytes(hud.VARS_BYTES).hex(),
             'globals': {key: row['shared_globals'][key] for key in hud.GLOBAL_KEYS},

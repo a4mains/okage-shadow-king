@@ -1,16 +1,16 @@
 {
-  "scope": "Rounding/UV renderer optimization; exact retained arithmetic and native-output regression, plus scoped live CPU observations.",
+  "scope": "Rounding/UV renderer optimization; exact retained arithmetic and native-output regression, plus scoped live CPU observations. Full game and original scene fidelity remain incomplete.",
   "base_commit": "c5274f3",
-  "run_commit": "c5274f3276d5a1ff25d342916de511651aa468d8",
+  "worker_commit": "0c1e02641def83a54959beafd663074c3b9d42d4",
   "source_sha256": {
-    "include/okage/render.hpp": "cf6da76ecd405d7b7283f31811eab1495e09587b54ec07328de7d64861152c99",
-    "src/render.cpp": "2de265a260f58f2e75aa497d403b2279d230f550c77b6202adbac6a7b68c6e8f",
-    "src/scene_renderer.mm": "db32a8e345e91d6f807bf1831e142d582255ec3714684574ed05dc8a1fb2139b",
-    "src/field_raster.cpp": "eaee753979716e0973a74f71c08db77990f1c06ce3d387b35dbdfcaf212c965a",
+    "include/okage/render.hpp": "f14752af407795333c4818961f38843bb1671dba33112188ec66408197b32df2",
+    "src/render.cpp": "e1cb6c6e2660e95c45f9653fd2e386e90b3461473d669507782dc31c1b6a39f7",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/field_raster.cpp": "42f30e7baed078f5d117a57613178974da5e10ce7dc98a4152cd1ea9ab168e48",
     "src/shadow.cpp": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9",
-    "tests/render_tests.cpp": "f351204bc8a71768f536dff24fabc3f0209dc0fbfc89e8907c82189f6d2b798e"
+    "tests/render_tests.cpp": "76a194c8ef4c6c5f4ed99ba36d9dfb7972def3de011c975eb4e2cb56142b5ce7"
   },
-  "sources_match_root": true,
+  "worker_sources_match_root": true,
   "reports": {
     "local/worktrees/render-rounding-v1/local/rounding-retained-v1/report.json": "00988685f54d0dac9c42d6438218ae9bc9cceb52289253ed01ec5668c542e82e",
     "local/research/render-rounding-v1/route-regression-v1.json": "6bf24718a9883ba2076ff3eb2cf89732f85d7ee1aa8a5282d41fc6ee6ea515c0",
@@ -61,7 +61,7 @@
     "shadow_cache_data_words": 11328,
     "uv_pairs": 5608,
     "clamp_values": 5608,
-    "source": "run report above; native reruns against retained original fixtures"
+    "source": "worker report above; native reruns against retained original fixtures"
   },
   "profile_normalized_full_recording": {
     "main_thread": {

@@ -219,7 +219,9 @@ def compare(cases, inputs, output):
     return {'exact': True, 'timer_cases': sum(c['op'] == 0 for c in cases),
             'selector_cases': sum(c['op'] == 1 for c in cases),
             'compared_guarded_bytes': 128*len(cases), 'consumed_counts_exact': True,
-            'scope': "Five observed timers and three nonreplacement selector cases; diagnostic explicit draws only."}
+            'scope': 'Five observed timers and three nonreplacement selector cases; diagnostic explicit draws only. '
+                     'Stan helper+10 uses the source literal before the observed constructor overwrite. '
+                     'No full-constructor, global RNG continuity, all-branch or game runtime parity claim.'}
 
 def load_reference(path, run_path, root):
     run = json.loads(run_path.read_text())

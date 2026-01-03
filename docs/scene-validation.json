@@ -1,5 +1,5 @@
 {
-  "scope": "Instance matrices and selected model-to-view pose matrices for two captured opening frames.",
+  "scope": "Instance matrices and selected model-to-view pose matrices for two captured opening frames. Not a native event/camera/actor update or full rendered-frame comparison.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_sha256": "491dfab75149c03c7c13454ad1a1a0a70198b0d4888aa7ebc82dda6c56b1547d",
   "oracle_sha256": "7c70db96b06ab4c32bce5d5bfd924078c48b9c2e1b33f131970de55ce081c8ad",
@@ -376,7 +376,7 @@
     },
     "builds_bit_identical": true,
     "visually_inspected": true,
-    "scope": "Static ordinary room geometry with native matrices, captured evaluated camera channels and captured projection descriptor."
+    "scope": "Static ordinary room geometry with native matrices, captured evaluated camera channels and captured projection descriptor. No actors, effects, events, audio, dialogue or verified lighting."
   },
   "reference_frame_sha256": "38b25f40436306b85188be414b061f6a284ef5fbb2873cc3f51a50357bcdef51"
 }

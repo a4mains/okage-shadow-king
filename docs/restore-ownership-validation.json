@@ -1,6 +1,6 @@
 {
  "schema": "okage.restore.validation.v1",
- "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
+ "scope": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1). The scripted native Sessions compare IDENTICAL (strict) with the light original reference at eight checkpoints: 1,800 observed lifecycle rows, 0 owner-asserted, all 13 state fields, effect106, accounted VRAM, 13,868 Session RNG rows and 51 manager frames. RNG provenance: 9,504 prefix draws are hooked observations; the 4,364 Restore-window draws are reconstructed by the recovered LCG between 109 observed RNG-state anchors (not individually hooked, call sites unobserved); manager rows combine observed input/state/pad words with derived per-traversal draw counts. Not image/audio parity, saved slots, loading, name entry, field/battle/XTA, sampling, tick37297, full T1 or the game.",
  "base_commit": "82ec28a",
  "binaries_built_from": "a0e5955e412a36ae538122e551db39f28376c0fe",
  "head_commit_at_generation": "a0e5955e412a36ae538122e551db39f28376c0fe",
@@ -571,13 +571,13 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "27da2ee3a6803ad958c0cebc590b156ae30d2cbb42fde42b11cbd3cfecade181",
-  "src/startup_textures.cpp": "8338a7d7fcccc1b9b62c1ecceee43e2bc35ed01a1b2655848ca4d6ba6b19f767",
-  "include/okage/texture_handles.hpp": "514d2dfbecb739463076dbad315264477831e2711441890dc9cf8f3b6dcc09cb",
-  "src/texture_handles.cpp": "b6ca2786d3cc2fcdd0074182831f0230bb830eec7e5f427024b9d25ccb8ab1a9",
-  "src/native_runtime.mm": "16b1c3d5f027bfe5081758990b390c32616e6cdd97c53afd8137c7e4ed758102",
-  "src/restore_session.hpp": "0a03ca2af500f5cd172d878437c1efe65ec32dfe62903e36e978dd0650081efd",
-  "src/restore_session.mm": "f87c07b1d20f8dcffad06b12a22dc75fdeebae507cd20b475ebe1c870414167c",
+  "include/okage/startup_textures.hpp": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
+  "src/startup_textures.cpp": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+  "include/okage/texture_handles.hpp": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
+  "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
+  "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+  "src/restore_session.hpp": "d523c713a503ff9c32a6ec766c6b807ba3f5f785e7fbc110d1baebdf3b915023",
+  "src/restore_session.mm": "4c88974e89f549b216c5d09633d0c2c77addac05ed64fdd8f598b3c032107254",
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
   "include/okage/rng_site.hpp": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
   "include/okage/enemy.hpp": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45",
@@ -585,28 +585,28 @@
   "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
   "include/okage/startup_inputs.hpp": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
   "src/startup_inputs.cpp": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
-  "CMakeLists.txt": "10b2c8de9b3ac09255053cfc11f81b089b00f71015b5be0e5f3fca59308cea88",
+  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
   "tools/retire_route_compare.py": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
   "tools/retire_route_regression.sh": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
   "tools/restore_validation_run.sh": "6af34b6d21a36d0aa91e2ae632b90a716d210d8f95f507ef0732e08e56ac2299",
-  "tools/restore_contract.py": "e43f108eff9b635ede7b256ee1f52d52364f5ecab04ce54dceb2ea0913651b12",
+  "tools/restore_contract.py": "01cfe463dd2dc9b90f67d16403aed16e6ec2c20b0db79de4479694d7a4cdd765",
   "tools/restore_capture.sh": "2ceb87a04f8c0a5b9a689c10b6b06ea96fdb8a25d30a6b2906d836f7071aaf59",
   "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
   "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
-  "tools/restore_make_manifest.py": "4cb9c095f13387438672019fb325c197461945f646a82d001d83ae3153b0403c",
-  "tools/play-oracle/startup.cpp": "d5499f442f2efdebe3255e7d73ec8ba075a24f1f9ee5360f97e14bd33b172997",
+  "tools/restore_make_manifest.py": "c83ef228c32c05f89cab4312b206b5cefb7392c327313eaa4a7e25a81599ce91",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tools/restore_io_timing_evidence.py": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
   "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
-  "tests/startup_textures_tests.cpp": "9b9f857f2a94909a6fb6191b5c49eac4bc0058c64b784cb901435da2079b14b7",
+  "tests/startup_textures_tests.cpp": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
   "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
-  "tests/test_restore_routes.py": "fff024e58ae5493ed275fbd968397f42aafb8464b4e180c1cf615f0b2096bd4c",
+  "tests/test_restore_routes.py": "aa49bcba9616e4c607ef3e8100c716869ca0031249bc02fd87dc4cef128477ce",
   "tests/data/restore-routes/restore-cancel/buttons.txt": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8",
   "tests/data/restore-routes/pending-cancel/buttons.txt": "186facc3c345e592ce73538c20c0c133245a9f8841d220d1a680a126dec7f778",
-  "docs/restore-contract.json": "080d1064a08be29736ffae26e9891f9ac6a570d9cc077c4eae32e80235d41913",
-  "docs/restore-original-manifest.json": "325827fdae412fe64f4cb862e1099f4f44b62b5c8cb8be761eabeedde7a4c39d"
+  "docs/restore-contract.json": "345e279a24189c07a1b8119d7c45e6ed5c58d8ec0ea05b48917914a31886d17c",
+  "docs/restore-original-manifest.json": "8028ef913841e847e40c1c03b5a9e7ed8c9b536537cfbb3d974c6f02c8c448b0"
  },
  "evidence": [
   {
@@ -681,7 +681,7 @@
   },
   {
    "path": "docs/restore-light-manifest.json",
-   "sha256": "311017fd649aec778e2f1bb1c7bb8cf11e65de9ddd6c63eb7350c170afeac86f",
+   "sha256": "8cf1a47a9d5b4840c7d99fcafc7b09ed3012f393e05bc186c2eefd1a8a01cb8b",
    "bytes": 72108
   },
   {
@@ -1382,8 +1382,8 @@
  },
  "errata": {
   "date": "2025-08-31",
-  "by": "Newgame fixes-first ( section 1)",
-  "scope_was": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1).",
+  "by": "Newgame fixes-first (HANDOFF.md section 1)",
+  "scope_was": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1). Resource history equal to the original at eight checkpoints; per-traversal/RNG parity unresolved (card readiness timing). Not image/audio parity, saved slots, loading, name entry, field/battle/XTA, sampling, tick37297, full T1 or the game.",
   "driver_was": "tools/restore_validation_run.sh final",
   "note": "text fields only; every hash, evidence entry and run-time result is unchanged. The generator (tools/restore_validation_manifest.py) now emits the corrected scope and driver."
  }

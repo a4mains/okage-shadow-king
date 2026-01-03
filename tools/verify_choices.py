@@ -46,7 +46,7 @@ def main():
     elf = 'local/extracted/SCUS_971.29'
     ram = 'local/text-validation-v4/opening600-ee.bin'
     pme = 'local/text-input/FLDDATA/MES/FIELD.PME'
-    report = {'scope': "Original branch stream/node rewriting and digital pad repeat; not a full-scene comparison",
+    report = {'scope': 'Original branch stream/node rewriting and digital pad repeat; not a full-scene comparison',
               'native_sha256': hashlib.sha256(args.native.read_bytes()).hexdigest(),
               'elf_sha256': hashlib.sha256(Path(elf).read_bytes()).hexdigest(),
               'reference_fixture_sha256': hashlib.sha256(Path(ram).read_bytes()).hexdigest(),

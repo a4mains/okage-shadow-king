@@ -2,7 +2,7 @@
   "scope": "Normal bank0 field message99099:90 constructor words,180 controller returns,300 manager samples,closure/handoff and unchanged7960-frame prefix in three builds; not full UI or cold-game construction",
   "reports": {
     "native": {
-      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.",
+      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.\n\nCovers90 constructor words,180 controller returns,300 field-manager samples and\nobserved pressed latches. UI geometry, full rendering/audio, movement trajectories\nand cold game construction remain outside this comparison.\n",
       "native_run": {
         "command": [
           "build/native/okage-native.app/Contents/MacOS/okage-native",
@@ -168,7 +168,7 @@
       }
     },
     "native-release": {
-      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.",
+      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.\n\nCovers90 constructor words,180 controller returns,300 field-manager samples and\nobserved pressed latches. UI geometry, full rendering/audio, movement trajectories\nand cold game construction remain outside this comparison.\n",
       "native_run": {
         "command": [
           "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -334,7 +334,7 @@
       }
     },
     "model-sanitize": {
-      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.",
+      "scope": "Audit normal field message99099 opening, confirmation, closure and handoff.\n\nCovers90 constructor words,180 controller returns,300 field-manager samples and\nobserved pressed latches. UI geometry, full rendering/audio, movement trajectories\nand cold game construction remain outside this comparison.\n",
       "native_run": {
         "command": [
           "build/model-sanitize/okage-native.app/Contents/MacOS/okage-native",

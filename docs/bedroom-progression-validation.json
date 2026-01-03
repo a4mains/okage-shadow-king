@@ -1,5 +1,5 @@
 {
-  "scope": "Native name presentation and bedroom/wakeup progression, selected-frame/audio research tooling and bounded live CPU sample.",
+  "scope": "Native name presentation and bedroom/wakeup progression, selected-frame/audio research tooling and bounded live CPU sample. Not a full game, original full-timeline, pixel, mixed audio or physical PS2 fidelity pass.",
   "base_commit": "f78b2600bca24c6e7e5151d0d929849a8dbca09a",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_changes": [
@@ -189,7 +189,7 @@
     "scope": "Original narration loop displayed text only; no original choice-widget execution, raster or timing proof",
     "source_hash_note": "Only the choice-loop address comment changed after the corpus. Replacing current0x147418 with prior0x147408 exactly recreates its pinned source hash.",
     "corpus_dialogue_source_sha256": "a81662fc73e4cda028cad1c603144f223daa483da2a7b4d9da610e7eb9587e62",
-    "current_dialogue_source_sha256": "cc6d3adfe2b8322171719adcd6728e25b61e38637d94a302ca10c9cf135e3192",
+    "current_dialogue_source_sha256": "b2ac9aabbb8b317b3f38372def5295c8d517063387f0bb76c606f316fadfab0a",
     "native_70655_regression": {
       "path": "local/research/bedroom-recovery-v1/name-regression-v1.json",
       "sha256": "9e46ee94dcd9519712915d204f664e1ba2e7f51c22a30b6b09958eb4cb568271"
@@ -541,22 +541,22 @@
     "Optimize measured CPU hotspots while preserving arithmetic; GPU/presentation timing still unmeasured"
   ],
   "source_sha256": {
-    "include/okage/dialogue.hpp": "92b507bc831ce59030c55a27770e80e888a019c8d7efb6b4bc7f82dd7f7d1f6f",
-    "src/dialogue.cpp": "cc6d3adfe2b8322171719adcd6728e25b61e38637d94a302ca10c9cf135e3192",
-    "src/field.cpp": "d993ad83601a36daa131ce1759ca0949625b8cd9eae0daff6cec6745adb60587",
-    "src/music.cpp": "83d268161454ca3ea117a7cd3e99b4a1c802b34a5d7176d85f017dd4031a5bbf",
-    "src/native_runtime.mm": "a1643e736889f26f44558d76e2b9740538c879c2df784647e853005392f16325",
-    "tests/dialogue_tests.cpp": "b9f97f30ea38b07b50c049c7461dfe453658f74e99185dbb2404891f1ef56837",
-    "tests/field_tests.cpp": "7b68aa95d794ebe59a398dc9477453f5d660c198c1cc5d576152de286ab44342",
-    "tools/import_music_resource.py": "4e8d36a674a3cf886f36f2ca5859348386563138c574958604031ec9c56d99de",
-    "tools/import_sound_set.py": "f376a406c494024303ea6a9e164bf15a56568a970f740a4900fcbda875b3508b",
-    "tools/play-oracle/boot.cpp": "530d84676dfc0622957822c1cd3a97d871cce5d29186cba955f72b6186ddb71e",
-    "tools/play-oracle/main.cpp": "92890b831e8b493608fe71b861cc5b43f823e60d5f5769682a0c0fb3cb19a916",
+    "include/okage/dialogue.hpp": "04a7c4e54361daebe8086bce578e269e1efb2087cfa6588f0545f6188d107b27",
+    "src/dialogue.cpp": "b2ac9aabbb8b317b3f38372def5295c8d517063387f0bb76c606f316fadfab0a",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/music.cpp": "4698ce6cad68478a2c53fa1509d841b98524075bebc951672516ebd06cfa2924",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+    "tests/dialogue_tests.cpp": "429ca07691add002a5f47e0e61f56087b3cf667015b0efddce33fcd2830a10d8",
+    "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
+    "tools/import_music_resource.py": "73ad45b201839288f3d9ab5bba91370f150905bc65ce327da437891cf9c5f05c",
+    "tools/import_sound_set.py": "96f60ccaf3a7c3ef9ba7a4ca6280f661255bba7880948637f1ec730dfb20e55c",
+    "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/play-oracle/reference_audio.hpp": "9f1a0de58d56af13367621d8369607372b212e571e5ad3076ba7992119ca959d",
-    "tools/verify_finite_stream.py": "a57ff2eb69891c93ebf1b4d47e018e76fa6b4587f999a958e2eb29afced065c3",
-    "tools/compare_route_audio.py": "5e062691533f877d6183e3ccbb62191e3b1a9a8bb4e9fdf09a244598161fc5f9",
-    "tests/test_route_audio.py": "6ba789fd73e7a1d804665a6f12b48e8eb6ccf04354f3c199a38dd379b1475c59",
-    "tools/play-oracle/capture_argument_tests.py": "6f14a61e664f492c6ae9719a9c0272193102bce95f9480db698120be8cb4dc4b",
+    "tools/verify_finite_stream.py": "2a8894cd20874d946016b5e5cab5882df00da929e963622f83a09f3f1672a206",
+    "tools/compare_route_audio.py": "c788c814f325efab050a766748ecafa4cbf8f0d6bc6a81319ac32b6de27c6df4",
+    "tests/test_route_audio.py": "d6ff035a82d280216926b2d2696c38ee52df8e629023c3b2e5e0eefae1352b6f",
+    "tools/play-oracle/capture_argument_tests.py": "f494309515915e1b484581a5b6c33a17abd8131ad25b9b40c906cd7944938858",
     "tools/play-oracle/audio_index_tests.cpp": "811014b7dc95090393527d95ff0b6c243acad19ae8373a3830d8f18f76db45e2"
   }
 }

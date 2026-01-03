@@ -59,7 +59,10 @@ def light_manifest(ev, wt, main_, commit, out):
     ref = json.load(open(os.path.join(an, 'reference.json')))
     m = {
         'schema': 'okage.restore-light-manifest.v1',
-        'scope': "Restore-cancel LIGHT original reference: the full route and checkpoint set of docs/restore-original-manifest.json, observed with only the light breakpoint set between retire-successor-entry and cancel-death (no rand(), card, UI placement/layout or probe breakpoints); draws in that window are derived by LCG stepping between observed rand states (labels not observed).",
+        'scope': 'Restore-cancel LIGHT original reference: the full route and checkpoint set of '
+                 'docs/restore-original-manifest.json, observed with only the light breakpoint set between '
+                 'retire-successor-entry and cancel-death (no rand(), card, UI placement/layout or probe breakpoints); '
+                 'draws in that window are derived by LCG stepping between observed rand states (labels not observed).',
         'oracle_source_commit': commit, 'play': {'revision': play_revision(main_)[0], 'ref': play_revision(main_)[1]},
         'oracle': {'retained_copy': 'local/research/restore-original-v1/light/bin/okage-startup-oracle',
                    'retained_copy_sha256': fsha(os.path.join(ev, 'bin/okage-startup-oracle')),
@@ -147,7 +150,10 @@ def main(argv):
         return light_manifest(ev, wt, main_, commit, out)
     m = {
         'schema': 'okage.restore-original-manifest.v1',
-        'scope': "Independent original-execution reference of the cold-boot Retire Restore route continued past the 0x124548 entry through Restore construction, the scan of an isolated empty research memory card, the ready empty-slot UI, one ordinary Cancel, window death, manager unlink, resource retirement, wrapper cleanup and free, the mode request back to the title and the return of the second 0x12c350(selector 1).",
+        'scope': 'Independent original-execution reference of the cold-boot Retire Restore route continued past the 0x124548 '
+                 'entry through Restore construction, the scan of an isolated empty research memory card, the ready '
+                 'empty-slot UI, one ordinary Cancel, window death, manager unlink, resource retirement, wrapper cleanup '
+                 'and free, the mode request back to the title and the return of the second 0x12c350(selector 1).',
         'oracle_source_commit': commit,
         'play': {'revision': rev, 'ref': ref_name, 'path': 'references/Play (main checkout, ignored)',
                  'tree_cleanliness': 'not verified (git on the Play checkout is outside the isolated worktree)'},

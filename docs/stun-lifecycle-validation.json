@@ -1,10 +1,10 @@
 {
-  "scope": "Native STUN construction, collision exclusion, phase0 follow and bounded original motion comparison.",
+  "scope": "Native STUN construction, collision exclusion, phase0 follow and bounded original motion comparison. Full port and service54 remain incomplete.",
   "base_commit": "6d39136",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "motion": {
     "native-release": {
-      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.",
+      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.\n\nThe optional native route audit checks phase0 follow and hidden lifecycle only.\nIt is not a whole-game original comparison or service54/projection proof.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -55,7 +55,7 @@
       }
     },
     "native": {
-      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.",
+      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.\n\nThe optional native route audit checks phase0 follow and hidden lifecycle only.\nIt is not a whole-game original comparison or service54/projection proof.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",
@@ -106,7 +106,7 @@
       }
     },
     "model-sanitize": {
-      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.",
+      "scope": "Verify STUN's scale-aware motion against original EE/VU execution.\n\nThe optional native route audit checks phase0 follow and hidden lifecycle only.\nIt is not a whole-game original comparison or service54/projection proof.\n",
       "original_run": {
         "command": [
           "build/play-research/okage-oracle/okage-pose-oracle",

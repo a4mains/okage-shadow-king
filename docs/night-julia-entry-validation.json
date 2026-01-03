@@ -1,5 +1,5 @@
 {
-  "scope": "Report field-interval differences without shifting their original time anchor.",
+  "scope": "Report field-interval differences without shifting their original time anchor.\n\nThis diagnostic retains failures; it does not replace the strict conversation\nverifier. Missing original player payloads are counted, never interpreted as zero.\nRendering, sound and unobserved state are outside this comparison. Optional\ntarget checks cover only idle mode2 frames with already-completed blending; the\noriginal trace's requested target is not an effective target during blending.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_run": {
     "command": [
@@ -442,7 +442,7 @@
     ],
     "actor_trace": "local/reference-night-julia-open-240-v1.julia.bin",
     "actor_instance": 38,
-    "scope": "Original message11102 opening, no confirm input; original Julia root/channel observations available."
+    "scope": "Original message11102 opening, no confirm input; original Julia root/channel observations available. Native companion not yet complete."
   },
   "answer_reference": {
     "run": {

@@ -88,15 +88,15 @@
   "build/t1-transfer-release/okage-texture-transfer-compare": "c24ec2f71aaab7a7bef9237c4cdb860054f8be733a4fc83bf00084297c5b6a2c"
  },
  "oracle_binary": {
-  "note": "built in build/handle-oracle from tools/play-oracle/main.cpp texture-handles; copied here",
+  "note": "built by worker in build/handle-oracle from tools/play-oracle/main.cpp texture-handles; copied here",
   "path": "build/handle-oracle-bin/okage-pose-oracle",
   "sha256": "614e05fb833f12c3affb366bec0c64983a43bdf44c7258a2ee13d8f29f6faf4f"
  },
- "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+ "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
  "retained_failures": [
   "first native-vs-original run: 14 of 19 scenarios differed only because the native tool printed null for failed handle results where retail returns -1, and 3 scripts exceeded tool limits (reserve 4097, xim levels 0); tool fixed, traces unchanged",
   "review finding: unbounded probe, bind/retire mutation before validation, copyable owner (fixed)",
-  "oracle scripts initially misused freed descriptors (corrected)"
+  "oracle scripts initially misused freed descriptors (rewritten by the worker)"
  ],
  "review_findings_fixed": [
   "hash probe bounded (retail loops forever when every slot is a tombstone; native throws logic_error)",
@@ -152,7 +152,7 @@
   "local/research/handle-review-v1/scripts/x01-tombstone-saturation.txt": "eb49f52a2b7b91971f2961d20da9e21465a771f6dee5497b35a989584170513a"
  },
  "schema": "okage-handle-validation-v1",
- "scope": "Handle: A1-A3 fixes + source-backed logical handles, shared records, palette bindings, XMD name cache.",
+ "scope": "Handle: A1-A3 fixes + source-backed logical handles, shared records, palette bindings, XMD name cache (T1.5). Not Session integration (T1.6), not sampling, not the tick37297 guard, not full T1.",
  "source_recovery": {
   "asm_list_sha256": "2f011c17cd9018b0577d7aed46643097a9f648654399a37f73a2aaa273401c83",
   "asm_sha256_list": "local/research/handle-source-recovery-v1/asm-sha256.txt",
@@ -160,19 +160,19 @@
   "method": "Capstone 5.0.1 over the pinned ELF; no Ghidra/VM"
  },
  "source_sha256": {
-  "include/okage/texture_handles.hpp": "2d15939b54deef52360155e406621f22bd76492227b9daeee02c2b9e47f70a3e",
-  "include/okage/texture_transfer.hpp": "e7a4d147918b442cde1bef520bc02603c7c0436babf5d0d4b9a06db21ddbb470",
-  "src/texture_handles.cpp": "ae859f678d79ed2a3fd5146303c3442d70d7040f1452bb3f0ecb87709a714252",
-  "src/texture_transfer.cpp": "73e699e62807f5cea9af4c20dbff247b5e3320a7691fdcc2e4947c70439e5bbc",
-  "tests/test_texture_handle_lifecycle.py": "c0c7b5d08ff245de9c8221c07a173fcb63656d0076d47e9fb4fa3a661709506e",
-  "tests/test_texture_handle_trace.py": "aae8b736cd2712610134cc69380d58c0a16d57113f85c8bd6ebecd43563a3e23",
-  "tests/test_texture_transfer_compare.py": "3ee25b9c41116f2696fb55491b0d220cb52b0797042d2a5f267a3391a692b8ce",
-  "tests/texture_handles_tests.cpp": "64072a5148818b44a2db197cbbbdbb03070d6ba8ae92d12ee70adef734c23ed9",
-  "tests/texture_transfer_tests.cpp": "1ac9ead0a13b3f073309f1e09c2a12f6fc50826a295892e562db29e2f2bd478b",
-  "tools/play-oracle/main.cpp": "d9a87809b9d8e9f66b6334f6a9da0be7b01a1d5b92ff1209e19abaa5c1406fe0",
+  "include/okage/texture_handles.hpp": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
+  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
+  "src/texture_transfer.cpp": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+  "tests/test_texture_handle_lifecycle.py": "26fe4857db320ecc0c839c5a5868a0a5f8b28e49c189d3f9ef571818c3879167",
+  "tests/test_texture_handle_trace.py": "63672b203d9d4f59c0fbb1a070e30d215cc7d7deafeac1273ab985d318ccc01c",
+  "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
+  "tests/texture_handles_tests.cpp": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f",
+  "tests/texture_transfer_tests.cpp": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
+  "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
   "tools/texture_handle_trace.cpp": "923218afb55b46fcf87794e9dc3aaebddc8124404a1b59866a3dbcbe27778bb2",
-  "tools/texture_handle_trace_diff.py": "43fb901f8d1a2844513c84427b78e5c37fded6f64c97623ccee2351193808671",
-  "tools/texture_transfer_compare.cpp": "2a192b59ec98f6db9631a28ecbb9a0c29aee756b4b134c0ea9f237d43b70d0fc"
+  "tools/texture_handle_trace_diff.py": "c058594e2128404107b6ea645cf57e20c1c0f140e2b33ab0d15b1949e50aac7d",
+  "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad"
  },
  "unsupported_or_open": [
   "second reserved-handle queue class (retail switches inside a threaded window): class 0 only",

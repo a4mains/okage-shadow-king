@@ -1,8 +1,8 @@
 {
-  "scope": "Native basement entry, owned music39 mapping, corrected map allocation, and bounded progression.",
+  "scope": "Native basement entry, owned music39 mapping, corrected map allocation, and bounded progression. Not full-game, raster, loading-timeline or audio equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "music_import": {
-    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "music_id": 39,
     "table_address": 2078312,
@@ -27,7 +27,7 @@
     ]
   },
   "map_ids": {
-    "scope": "Check native basement placement IDs against a completed original snapshot.",
+    "scope": "Check native basement placement IDs against a completed original snapshot.\n\nThis is a read-only allocation/association audit, not a rendering comparison.\nThe snapshot is never a native runtime input. Hidden output caches and later\nvisibility changes are recorded, not used to overwrite native state.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "scene_reset_address": "0x1b8260",
     "instance_limit": 640,
@@ -182,7 +182,7 @@
       "b": 634
     },
     {
-      "scope": "Strict interval audit fails on missing original loading records; never filled or realigned.",
+      "scope": "Strict interval audit fails on missing original loading records; never filled or realigned. Native successfully enters basement but full transition timing equivalence remains unproven.",
       "command": [
         "python3",
         "tools/diagnose_home1b_interval.py",

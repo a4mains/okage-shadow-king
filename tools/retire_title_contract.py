@@ -33,7 +33,7 @@ _spec.loader.exec_module(title)
 ELF_SHA256 = title.ELF_SHA256
 SCHEMA = 'okage.retire.title-contract.v1'
 TITLE_PATH = 'docs/title-contract.json'
-TITLE_SHA256 = 'c3e3e296bd2eef2a0c4218659318fd61dd17a669574c1a410123dc7bc6a65f50'
+TITLE_SHA256 = 'c9e9dceba63875e2fd5940da86c11b3d16b8d6d3cb85cfc041d7bd6a426b353f'
 TES_EFD = 'effect-input/CMNDATA/2D/TES.EFD'
 TES_EFD_SHA256 = '2c99993d5ac51760c426b4b157fb65c1348c85d09ef2552fc47e5241b3e43c6c'
 STATUSES = ('proven', 'hypothesis', 'unreached', 'open')

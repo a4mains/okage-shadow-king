@@ -70,7 +70,9 @@ def main():
                         'transform_sha256': sha(native)})
         if i % 25 == 0:
             print('Verified %d/%d XMP fixtures' % (i + 1, len(maps) + 1), flush=True)
-    report = {'scope': "Inline XMP parsing and 12 transform floats plus merged flags; bit-exact comparison against relocated retail 0x1bbd28..0x1bbe3f fragment.",
+    report = {'scope': 'Inline XMP parsing and 12 transform floats plus merged flags; '
+              'bit-exact comparison against relocated retail 0x1bbd28..0x1bbe3f fragment. '
+              'Not model loading, effects, scene rendering, events or playability.',
               'elf_sha256': sha(args.elf), 'native_sha256': sha(args.native),
               'oracle_sha256': sha(args.oracle), 'archived_maps': len(maps),
               'archived_placements': sum(x['placements'] for x in records[1:]),

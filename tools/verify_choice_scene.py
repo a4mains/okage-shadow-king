@@ -33,7 +33,7 @@ def main():
     entries = [r for r in reference if r[1] == 0x11ff38 and r[9]]
     if len(entries) != 3 or len(choices) != 4080 or len(dialogue) != 4080:
         raise ValueError('Unexpected capture duration or input count')
-    report = {'scope': "Observed first-choice transitions and bounded native kitchen continuation; not complete window/startup fidelity", 'transitions': []}
+    report = {'scope': 'Observed first-choice transitions and bounded native kitchen continuation; not complete window/startup fidelity', 'transitions': []}
     for r, frame in zip(entries, (2600, 2640, 2720)):
         c, d = choices[frame-1], dialogue[frame-1]
         expected = list(r[2:6])+[r[7]]+list(r[8:11])+list(r[12:15])

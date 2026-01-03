@@ -1,9 +1,9 @@
 {
-  "scope": "Native noise-grid geometry and bounded complete original EFD import.",
+  "scope": "Native noise-grid geometry and bounded complete original EFD import. Native session template preparation and service54 remain unfinished.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "noise": {
     "native-release": {
-      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_run": {
         "command": [
@@ -64,7 +64,7 @@
       "ctest_log": "local/research/effect-template-v1/ctest-native-release-v1.log"
     },
     "native": {
-      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_run": {
         "command": [
@@ -125,7 +125,7 @@
       "ctest_log": "local/research/effect-template-v1/ctest-native-v1.log"
     },
     "model-sanitize": {
-      "scope": "Compare original effect noise initialization and its cube-face consumers.",
+      "scope": "Compare original effect noise initialization and its cube-face consumers.\n\nExplicit seeds and captured allocator state are research preconditions. Native\ninputs are seeds only. This is not full template-loader/startup RNG validation.\nTriangles compare exact multisets including attributes and multiplicity; retail\nstrip order/winding are not required to match and no raster equality is claimed.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "original_run": {
         "command": [
@@ -187,7 +187,7 @@
     }
   },
   "original_loader": {
-    "scope": "Audit a bounded original noise initializer + complete owned EFD import.",
+    "scope": "Audit a bounded original noise initializer + complete owned EFD import.\n\nThis verifies observed RNG continuity and records cache/template metadata. It\ndoes not compare a native loader or establish the game's cold-start seed/state.\n",
     "original_run": {
       "command": [
         "build/play-research/okage-oracle/okage-pose-oracle",

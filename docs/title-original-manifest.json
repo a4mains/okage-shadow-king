@@ -1,10 +1,10 @@
 {
  "schema": "okage.title-original-manifest.v1",
- "scope": "Independent original-execution reference of the cold-boot texture/handle lifecycle from power-on through storage readiness, both logos, logo resource retirement and title construction, stopping at the RETURN of 0x12c350 with selector 1 (paused at its return address, before the first 0x1296f8 title update).",
+ "scope": "Independent original-execution reference of the cold-boot texture/handle lifecycle from power-on through storage readiness, both logos, logo resource retirement and title construction, stopping at the RETURN of 0x12c350 with selector 1 (paused at its return address, before the first 0x1296f8 title update). Unchanged retail SCUS_971.29 under the Play research VM, neutral pad. Research evidence only; not physical PS2 proof; never product input.",
  "oracle_source_commit": "b9fede5",
  "base_commit": "5badd42",
  "play": {
-  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout was not run from the isolated worktree)"
  },
@@ -19,18 +19,18 @@
   "cmake_build_type": "Debug",
   "cxx_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
   "osx_architectures": "arm64",
-  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk",
+  "osx_sysroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk",
   "mode": "--title (implies the RNG --rng-products observations); --title --minimal for the control run. Default Startup mode re-verified byte-identical to local/research/startup-original-v1/runs/fill00-a (events, GS ledger, disc opens, VRAM, final state, EE RAM) with this source."
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "b804c30261f63346fb70779ede65233523104a013896e416c6b90b1ea063d057",
-  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
+  "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/title_capture.sh": "fc1b78471472e2d1df44e71e5079c694dc1140f74ea93fa80ce20cb009a04e65",
   "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
   "tools/title_compare.py": "9e8d471fb83dab30e61f3f330cf61ffefe926322c6d415e305426a97dd6494d3",
-  "tools/title_make_manifest.py": "58fd040afee579b3c4ef91dad77e3230ce0fa803a01b248aa276df1703e085ee",
-  "tests/test_title_compare.py": "5089e94a9d922a5a8f8e0042065f573943f128164cc335bd3dddfc3a0fd34a9d"
+  "tools/title_make_manifest.py": "e35614172510806a0cf5faa9b628706012da172e28ca9f583428ec56aeebb323",
+  "tests/test_title_compare.py": "d56d5c24f271cb35456c7b1cdfcebf92ff0eb87d744ecbc5bd43bab01977e960"
  },
  "inputs": {
   "elf": {

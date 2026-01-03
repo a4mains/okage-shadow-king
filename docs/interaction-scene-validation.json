@@ -1,5 +1,5 @@
 {
-  "scope": "Audit native approach/talk/return captures against bounded original observations.",
+  "scope": "Audit native approach/talk/return captures against bounded original observations.\n\nThis verifies target/event dispatch, root transforms, movement gating and dialogue\nprogress. It does not claim full window initialization, bone-transition timing,\naudio fidelity, cold startup, scene transitions or a playable complete game.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "reference": "local/reference-kitchen-talk-180-v1",
   "continuation": "local/reference-kitchen-talk-end-300-v1",

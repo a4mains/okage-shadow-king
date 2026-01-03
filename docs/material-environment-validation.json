@@ -2,7 +2,7 @@
   "schema": "okage-material-environment-validation-v1",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "base_commit": "d00c7a5f0c2f64a20d561f6fc2ad7fd0261a448d",
-  "scope": "First extra material implementation with owned image, linear filtering and fragment guard.",
+  "scope": "First extra material implementation with owned image, linear filtering and fragment guard. Original predicates/UVs and a bounded compiled LUCAN packet are observed; no pixel/full scene equivalence. Native shared allocator/address primitives are separately validated but runtime uploads/sampling remain pending. Full game incomplete.",
   "probes": {
     "native-release": {
       "default_selector_predicate_cases": 32,
@@ -36,7 +36,7 @@
       57896,
       14500
     ],
-    "python": "548 passed for oracle change, the prior run's retained log; no subsequent inspection-tool change"
+    "python": "548 passed for oracle change, prior worker retained log; no subsequent inspection-tool change"
   },
   "negative_v4": {
     "completed_ticks": 38599,
@@ -80,14 +80,14 @@
     "local/research/map-material-flags-v1/runtime-v2.app/Contents/MacOS/okage-native": "688e5fa13e0316dc727578f95fa6bb29bc90ddbdd06b82e77e6b5e66e91ab1ad",
     "include/okage/map_material.hpp": "c8825dfcaeeca5e4b81399e701abe3533676fc50dc85bdfffb6c101be2938880",
     "include/okage/ordinary_lighting.hpp": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11",
-    "include/okage/scene_renderer.hpp": "cd4da8bb851549aa9fef2cd29ad6fcb8269a2e65b6950dd6f43a490a84c4f817",
-    "src/battle_session.mm": "3bc6558f6c6a4563490432e434d0b4db8d2386c4f061623953d3bc657227bced",
+    "include/okage/scene_renderer.hpp": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b",
+    "src/battle_session.mm": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
     "src/metal_preview_shader.hpp": "9c4d3db4794a027eb7c4bc2fcb00f50d81314616a2514164d6aadf3ff1fda8fe",
     "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
-    "src/scene_renderer.mm": "dda6b2b58e605c45560f301b01a7ef9e44ac8009a5d16d2df9cdf33a5e699a3b",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
     "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
     "tests/render_tests.cpp": "76a194c8ef4c6c5f4ed99ba36d9dfb7972def3de011c975eb4e2cb56142b5ce7",
-    "tests/scene_map_material_tests.mm": "b2e0a426873f5a9b1df386b8d558fc07cce55fcd4814a258e09c1b713c47618a",
+    "tests/scene_map_material_tests.mm": "289a2b120de28fbd6135515cffa5a6ba13c56800e5a64553aa4c596d63a2f623",
     "local/research/map-material-flags-v1/build-release-footprint-v1.log": "9942bf7da25bca5276126c68dd9dc7cab0496cc18b0a628210fce44dddda0aa7",
     "local/research/map-material-flags-v1/tests-release-footprint-v1.log": "8a5a5a5e396d186227a755b62b93191ad0fbc8a1277f6a7d8426d2d36a2e735f",
     "build/native-release/render-tests": "8c17160fe41924e6632dc2596a8c18720fc7dbc3f8320fbf130b610ee8f70eef",
@@ -138,7 +138,7 @@
       36,
       0
     ],
-    "scope": "Snapshot formation4/stage2 only."
+    "scope": "Snapshot formation4/stage2 only. Not native v5 texture layout, not runtime input, not LUCAN compiled packet or full raster equivalence."
   },
   "shared_texture_memory": {
     "report": "native-texture-memory.md",

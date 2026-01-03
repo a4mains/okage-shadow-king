@@ -1,5 +1,5 @@
 {
-  "scope": "Native HOME2C entry and shadow-selector state.",
+  "scope": "Native HOME2C entry and shadow-selector state. Three native builds match34115 outputs; Release reaches34355. Completed transfer audit fails on coverage and arrival audit retains differences. Not whole-scene equivalence or shadow rendering.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "actual_dependency": {
     "frame": 33974,
@@ -298,7 +298,7 @@
     "consumed_cross_original": 1,
     "consumed_cross_native": 33397,
     "expected_native_end": 34115,
-    "scope": "Observed consumed-input alignment."
+    "scope": "Observed consumed-input alignment. Transfer run completed; strict interval audit failed on missing manager/camera records."
   },
   "pending_at_checkpoint": {},
   "limits": [
@@ -317,9 +317,9 @@
     "local/native-night-children-transfer-33995-diagnostic-v1.run.json": "70993c0a8a3808d17e924a63db040d7a509d712159f1bd0d9c686c81b51073eb",
     "local/native-night-children-transfer-33995-shadow-state-v1.run.json": "33790cece6795451d66b10fb4be752a5c8d401dfd42edb2d472002eacfc493cf",
     "local/native-night-children-transfer-34115-shadow-release-v1.run.json": "7539955ac86bdeea58eaea460cffea96aea10796d57306416fe64d714202832e",
-    "include/okage/actor.hpp": "8e3454d83feedf892da5341844b6321ec6ba54040f4321a4fb161631379f5eaf",
-    "src/field.cpp": "8bf0a8bbd80de8332bda481d303b623200d6ec30c73a52110757bc9f512a8772",
-    "tests/field_tests.cpp": "eb3660c047bbb0909a7b2bc61de12b20e9b7d1d1695a6fb95e5f9796889018aa",
+    "include/okage/actor.hpp": "e29552d3f14194a6d648f7514c36a525ffb890712720b3cd6796fa22e6c5d013",
+    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
     "local/research/home2c-entry-v1/debug-family.json": "38c2cea48501e8a7658ce4c4037a9f96ca3e5fd8ffd91a3b942420883972f745",
     "local/native-night-children-transfer-34115-shadow-debug-v1.run.json": "4facd020c983190868d0bf6cbabb20a42ba645240ea11b1d9ea6b404bd0052db",
     "local/research/home2c-entry-v1/sanitize-family.json": "e5a51e1ec993755fb6487b68930efb6219acd8a316f97cd91d9eca35d46b93ec",
@@ -343,7 +343,7 @@
     }
   },
   "reference_transfer_coverage": {
-    "scope": "Completed transfer720 observation coverage diagnostic; strict same-field auditor failed.",
+    "scope": "Completed transfer720 observation coverage diagnostic; strict same-field auditor failed. Missing records are not filled, shifted or treated as matching.",
     "reference": "local/reference-night-children-transfer-720-v1",
     "anchor": 33396,
     "complete_vblanks": 720,

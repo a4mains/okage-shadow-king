@@ -1,5 +1,5 @@
 {
-  "scope": "Four contiguous ordinary night walking intervals.",
+  "scope": "Four contiguous ordinary night walking intervals. All pad/direction/manager/mask observations agree; numerical and rotation failures retained. Not full-scene equivalence.",
   "native_run": {
     "command": [
       "build/native-release/okage-native.app/Contents/MacOS/okage-native",

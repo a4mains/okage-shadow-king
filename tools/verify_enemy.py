@@ -84,7 +84,7 @@ def main():
         builds.append(build)
         artifacts.extend([binary, output])
     report = {
-        'scope': "Original 0x137218 encounter-enemy step including unmodified called services.",
+        'scope': 'Original 0x137218 encounter-enemy step including unmodified called services.',
         'elf_sha256': '2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5',
         'cases': names, 'record_words': 36, 'exact_output_words_per_case': 21,
         'output_word_indices': [0, 1, 2, 3, 6, 8, 9, 10, 11] + list(range(12, 24)),

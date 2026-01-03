@@ -26,7 +26,7 @@ def build():
         write_exact(root/'COPYING.GPLv3',urllib.request.urlopen('https://raw.githubusercontent.com/PCSX2/pcsx2/'+REVISION+'/COPYING.GPLv3').read())
     defs=files['defs.h'];adsr=files['ADSR.cpp'];mixer=files['Mixer.cpp']
     prefix=r'''// Research only: PCSX2 DSP kernels, GPL-3.0+.
-// Copyright 2002-2020 PCSX2 Dev Team. See COPYING.GPLv3.
+// Copyright 2002-2026 PCSX2 Dev Team. See COPYING.GPLv3.
 #include <algorithm>
 #include <array>
 #include <cstdint>

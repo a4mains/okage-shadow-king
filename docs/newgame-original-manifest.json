@@ -1,9 +1,9 @@
 {
  "schema": "okage.newgame-original-manifest.v1",
- "scope": "Independent original-execution reference of the FIRST cold title's New Game branch: the Retire newgame route continued past the 0x124548(mode 9) entry through name-entry construction (wrapper-owned bm_if atlas), an ordinary name edit (erase, select, append) and Yes, manager death and unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, the first 0x133830 (Chapter 1 image list), its counter-240 fade request and actual fade completion, the command clear and request, chapter retirement and frees, stopping at the ENTRY of the second 0x133830 (command 0), before its body.",
+ "scope": "Independent original-execution reference of the FIRST cold title's New Game branch: the Retire newgame route continued past the 0x124548(mode 9) entry through name-entry construction (wrapper-owned bm_if atlas), an ordinary name edit (erase, select, append) and Yes, manager death and unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, the first 0x133830 (Chapter 1 image list), its counter-240 fade request and actual fade completion, the command clear and request, chapter retirement and frees, stopping at the ENTRY of the second 0x133830 (command 0), before its body. Every RNG draw is a hooked observation.",
  "oracle_source_commit": "0437f2f",
  "play": {
-  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "ref": "refs/heads/master",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified by this tool"
@@ -19,15 +19,15 @@
   "mode": "--newgame-chapter (the Retire --title-retire newgame observer; Newgame hooks armed at the 0x124548 entry); --newgame-chapter --minimal for the control"
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "d5499f442f2efdebe3255e7d73ec8ba075a24f1f9ee5360f97e14bd33b172997",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
   "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
   "tools/newgame_capture.sh": "c0e5830158b6bc5e11f30e3d759e1cb03024421b642e08b6fc9af684276817c8",
   "tools/newgame_original_extract.py": "e83f460e7dd891dba45f56f6fbdada7efab0b896ee6b70116d700a99a9e394ce",
-  "tools/newgame_compare.py": "9a611456448c7349bfaa00bf1e5d590de32cf6665de998be9e7d1c035c4a29eb",
-  "tools/newgame_make_manifest.py": "30a54da2e4e858eaa02fe637bfa67a7926aa9256b660884256ee8bf7ee4c1f6d",
-  "tests/test_newgame_compare.py": "b5765759e78626c3067091f000a36b5046049a225f0184a0d218400cad40bc55",
+  "tools/newgame_compare.py": "55385c2564255db20943656fbbcd044173c571a1ee7cb3e752323eb121f5a2dc",
+  "tools/newgame_make_manifest.py": "b64164caea331db564137cd80fe1532e3f876929b664c1ad7861ca1cb564cfce",
+  "tests/test_newgame_compare.py": "6d01387a8bda0ec8ca48ea1d831dcf1408e57730c241b7f8c54f50fa1593dd07",
   "tools/restore_original_extract.py": "74049d9dc54b56a87297e5aa31932ea0da488519def77ecd3e8c5fe3f761f417",
   "tools/restore_compare.py": "5027356eba0f96967be284576e8bf2f9aa5aa925680cb9f597b6c1a95fe00420",
   "tools/retire_title_original_extract.py": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
@@ -79,7 +79,7 @@
    "bytes": 50731
   },
   "retire_manifest": {
-   "sha256": "9c253d8db67316b144197273282edbb267842c651b680a5b5303603c18d1080e",
+   "sha256": "acc57e1f91e5622a2186e914dbfeb3e05dc55be1b760150b91f0236b90b7b460",
    "bytes": 158896
   }
  },

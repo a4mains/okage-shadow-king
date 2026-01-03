@@ -34,7 +34,7 @@ def main():
         if struct.unpack_from('<I', expected, index * 4100)[0] != 4:
             raise RuntimeError('Original handler did not consume one selector word')
     report = {
-        'scope': "Ordinary-bank variable storage and original handler selector consumption; field dispatch integration separately exercised by field-tests",
+        'scope': 'Ordinary-bank variable storage and original handler selector consumption; field dispatch integration separately exercised by field-tests',
         'original_handler': '0x130270', 'storage_function': '0x125918',
         'preconditions': 'Captured EE state supplies the original logger. Synthetic variable/field buffers. Unpatched instructions; pinned Play BIOS allows only bounded queries/uncontended semaphore services and rejects rescheduling.',
         'excluded': ['bank 4/index 6 controller side effect', 'special banks with bit 8', 'cold initialization', 'persistence'],

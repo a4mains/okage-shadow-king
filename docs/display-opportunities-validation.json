@@ -2,17 +2,17 @@
   "schema": "okage-display-opportunities-validation-v1",
   "code_revision": "c38e7176e6b1c0c2a1ff0662e92e750ec3581041",
   "source_sha256": {
-    "src/native_runtime.mm": "a72562878da346dfde6804047f918d207642cac25532928fb2de778ae1605063",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
     "src/display_link.hpp": "c13f4ed50a19ed6a18d95cc276e1189f9639307e0250fe0787e12b88bc8806f7",
     "src/display_link.mm": "b81d8d1c8fa5bed2692e8889396e646e293471473a6132ca395534ec913af481",
     "src/load_queue.cpp": "82e043d305fc93814eb9f3675f5fe430d2abfc7abbfa0aab064bef1cd1ee4cdd",
     "include/okage/load_queue.hpp": "843e202cb7ab258a8c7546e1f3eeba733c65c66ef7a248f6685725f4b584dd70",
-    "src/battle_session.mm": "5103590ad5257d2cced4d2c127e7372ba861605cb5721af2bed14e2545248429",
+    "src/battle_session.mm": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
     "tools/display_link_diagnostic.cpp": "e0899f47711233ca6b0724b847eaf14e30129ccedcdf668ffa503c2496425927",
-    "tools/diagnose_home1b_interval.py": "dbdd2cae72352a638bdd4703bfe2f5b77c25f33bb5525afae743ce5c1323819d",
-    "tests/test_interval_observations.py": "7c123b66c2a126552f7590faef0df5fc6722187cf018c38cd83acd50daf3af57",
+    "tools/diagnose_home1b_interval.py": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b",
+    "tests/test_interval_observations.py": "d999616d4172a5316e0ab7cd1a4c216d9c73c8042da1ec7595c826336af07aa5",
     "tests/load_queue_tests.cpp": "b84722e22f18c1cda223374bbc3eff71fc851b7210c1a518b8af4aa82fdb3591",
-    "CMakeLists.txt": "40a76de6098285c5c0de99252f2ac6677a6b6d47ac62b4d66c90839cc2a59c70"
+    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
   },
   "runs": {
     "observed-110375-v1": {
@@ -75,7 +75,7 @@
       ],
       "source_revision": "0f566c874b5c7fd7de3b2cfc7dad4ce029732d42",
       "binary_sha256": "6c0423a4d2cf26208ef8eafd9ae8d88e5bd736c3a0ad43edcba9c06ba696b502",
-      "scope": "Cooperative loader + deferred battle GPU/readback route; shared completed-image selection with live AppKit, but no display clock/window.",
+      "scope": "Cooperative loader + deferred battle GPU/readback route; shared completed-image selection with live AppKit, but no display clock/window. Selected captures and journaling can affect scheduling. No original timing/fidelity claim.",
       "exit_code": 0,
       "seconds": 47.296677625
     },
@@ -141,7 +141,7 @@
       ],
       "source_revision": "a2a6873fa911fa877e18ac260c62e7f5ba37f167",
       "binary_sha256": "c6390075bfafc98b95289c58d72eb72cb5a89af9446643f8b2df82ba8fcf3885",
-      "scope": "Cooperative loader + deferred battle GPU/readback route; real host CVDisplayLink callback gate and full rendering from104447; no game window or scanout proof.",
+      "scope": "Cooperative loader + deferred battle GPU/readback route; real host CVDisplayLink callback gate and full rendering from104447; no game window or scanout proof. Selected captures and journaling can affect scheduling. No original timing/fidelity claim.",
       "exit_code": 1,
       "seconds": 62.144541333
     },
@@ -207,7 +207,7 @@
       ],
       "source_revision": "5d17ea4b17b19f21148b6191e0b3a0c0bf037208",
       "binary_sha256": "17759023f9b753cf6fd6cfb3964bd5e8fe76e13cf7a644dfe44d62a8a407e772",
-      "scope": "Cooperative loader + deferred battle GPU/readback route; real host CVDisplayLink callback gate and full rendering from108336; no game window or scanout proof.",
+      "scope": "Cooperative loader + deferred battle GPU/readback route; real host CVDisplayLink callback gate and full rendering from108336; no game window or scanout proof. Selected captures and journaling can affect scheduling. No original timing/fidelity claim.",
       "exit_code": 0,
       "seconds": 62.869237082999994
     }
@@ -488,7 +488,7 @@
         "attempted_tick_frame": 108699,
         "tick_status": "failed"
       },
-      "scope": "Every gate has actual later CoreVideo callback generation; ordering and input cardinality only."
+      "scope": "Every gate has actual later CoreVideo callback generation; ordering and input cardinality only. Main-display host opportunities, not scanout, original timing equivalence or interactive FPS."
     },
     "targeted_return_gate": {
       "exit_code": 0,
@@ -516,7 +516,7 @@
         "scene": 96,
         "event_pc": 1588
       },
-      "scope": "Every gate has actual later CoreVideo callback generation; ordering and input cardinality only."
+      "scope": "Every gate has actual later CoreVideo callback generation; ordering and input cardinality only. Main-display host opportunities, not scanout, original timing equivalence or interactive FPS."
     },
     "targeted_return": {
       "scope": "All actual return trace rows and emitted runtime boundaries, no shifted source anchors.",
@@ -601,7 +601,7 @@
     "original_fidelity": false,
     "new_reference_vm_run": false,
     "native_persistence": false,
-    "full_acceptance_met": false
+    "full_goal_complete": false
   },
   "evidence_sha256": {
     "local/native-ui-dispatch-104615-release-v1.directions": "7dd846e3e8ce266b2457fdfcdb05e3c12dac6facac4c7b76760454bf0398d8ce",

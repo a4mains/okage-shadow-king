@@ -47,7 +47,13 @@ def main(argv):
     retire_ev = os.path.join(main_, 'local/research/retire-title-original-v1')
     m = {
         'schema': 'okage.newgame-original-manifest.v1',
-        'scope': "Independent original-execution reference of the FIRST cold title's New Game branch: the Retire newgame route continued past the 0x124548(mode 9) entry through name-entry construction (wrapper-owned bm_if atlas), an ordinary name edit (erase, select, append) and Yes, manager death and unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, the first 0x133830 (Chapter 1 image list), its counter-240 fade request and actual fade completion, the command clear and request, chapter retirement and frees, stopping at the ENTRY of the second 0x133830 (command 0), before its body.",
+        'scope': 'Independent original-execution reference of the FIRST cold title\'s New Game branch: the Retire newgame '
+                 'route continued past the 0x124548(mode 9) entry through name-entry construction (wrapper-owned bm_if '
+                 'atlas), an ordinary name edit (erase, select, append) and Yes, manager death and unlink, the published '
+                 'command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, the first 0x133830 '
+                 '(Chapter 1 image list), its counter-240 fade request and actual fade completion, the command clear '
+                 'and request, chapter retirement and frees, stopping at the ENTRY of the second 0x133830 (command 0), '
+                 'before its body. Every RNG draw is a hooked observation.',
         'oracle_source_commit': commit,
         'play': {'revision': rev, 'ref': ref_name, 'path': 'references/Play (main checkout, ignored)',
                  'tree_cleanliness': 'not verified by this tool'},

@@ -15,7 +15,7 @@
     "loader": "0x12d158"
   },
   "import_manifest": {
-    "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+    "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
     "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "music_id": 50,
     "table_address": 2078400,

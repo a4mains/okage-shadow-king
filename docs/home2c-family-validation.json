@@ -13,7 +13,7 @@
     "frames": 199,
     "controller_samples": 197
   },
-  "scope": "Father12002 closure into Mother12003; whole interval retains initial41 dialogue-reveal differences, then199 matching observed-state frames.",
+  "scope": "Father12002 closure into Mother12003; whole interval retains initial41 dialogue-reveal differences, then199 matching observed-state frames. Not raster/audio equivalence.",
   "report": "local/research/home2c-entry-v1/father12002-window.json",
   "report_sha256": "be1401cbfc1106f4a224b922f349d616d8730754eecf2820476c0cce6e9604c4",
   "difference_counts": {

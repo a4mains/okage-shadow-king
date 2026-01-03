@@ -1,5 +1,5 @@
 {
-  "scope": "Authentic doctor departure and HOME2C return.",
+  "scope": "Authentic doctor departure and HOME2C return. Captures complete but loading timing differs. Not whole-interval equivalence. Historical home2b filename refers to scene76/HOME2D/e_home2d.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_binary_sha256": "51e411804e738041f23447326538e8897001517a887342e8edbff3affedf222d",
   "cross": {

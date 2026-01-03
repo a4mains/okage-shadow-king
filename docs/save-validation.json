@@ -5,7 +5,7 @@
   "comparator_revision": "fb3bb0e",
   "frozen_renderer_revision": "ba2b771",
   "playtime_revision": "cf39a53",
-  "acceptance_met": false,
+  "goal_complete": false,
   "scope": "Executed bedroom gameplay Save and fresh-process cold Restore; bounded persistence route, not full-game save coverage or fidelity parity",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "owned_stage": {
@@ -1144,7 +1144,7 @@
     },
     "data": {
       "schema": "native-persistence-final-matrix-v1",
-      "scope": "Read-only evidence audit of one authentic original Save request, a separate native Save, and fresh-process native Restore under Release, Debug, and sanitizer builds.",
+      "scope": "Read-only evidence audit of one authentic original Save request, a separate native Save, and fresh-process native Restore under Release, Debug, and sanitizer builds. This is not general save compatibility or full-game parity.",
       "source_original_save": {
         "run": "local/research/save-session-v1/original-paired-write-v1/run.json",
         "run_exit_code": 0,

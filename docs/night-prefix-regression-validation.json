@@ -1,12 +1,12 @@
 {
-  "scope": "Original-game boys and daytime north-gate comparisons on the follow-order23735 capture.",
+  "scope": "Original-game boys and daytime north-gate comparisons on the follow-order23735 capture. Earlier native8260 camera bytes intentionally differ; no unchanged-prefix claim.",
   "python_tests": 42,
   "python_log": "local/research/night-prefix-auditors-python-tests-v2.log",
   "boys": {
     "report": "local/research/night-follow-boys-regression-v2.json",
     "report_sha256": "0bd14f49f9c41952158eadcff5e219705e439bc889284c470c438ab39b782723",
     "result": {
-      "scope": "Audit event69/message10002 opening and actor-target camera integration.",
+      "scope": "Audit event69/message10002 opening and actor-target camera integration.\n\nChecks 90 controller returns/pressed latches,180 field-manager samples,\n90 mode/blend states and60 settled target vectors. Initial movement and camera\nposition differ; this is not whole-camera, raster, audio or conversation fidelity.\n",
       "native_run": {
         "command": [
           "build/native-release/okage-native.app/Contents/MacOS/okage-native",
@@ -192,7 +192,7 @@
     "report": "local/research/night-follow-north-gate-regression-v1.json",
     "report_sha256": "d723b1a0ae6b4cb56cb2be531f5a8150926bf2de6959eca97acc73e1c61d3a95",
     "result": {
-      "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+      "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_run": {
         "command": [

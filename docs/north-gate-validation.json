@@ -1,9 +1,9 @@
 {
-  "scope": "Native north-gate event and screen feedback through11460; destination message-bank loading remains guarded.",
+  "scope": "Native north-gate event and screen feedback through11460; destination message-bank loading remains guarded. Bounded original state/camera/GS-packet evidence, not whole-scene raster/audio equivalence.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "builds": {
     "debug": {
-      "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+      "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_run": {
         "command": [
@@ -167,7 +167,7 @@
       }
     },
     "release": {
-      "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+      "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_run": {
         "command": [
@@ -331,7 +331,7 @@
       }
     },
     "sanitize": {
-      "scope": "Audit native north-gate event state/camera and animated screen feedback.",
+      "scope": "Audit native north-gate event state/camera and animated screen feedback.\n\nState comparisons and executed GS packet observations do not establish raster,\naudio, approach movement or whole-scene equivalence. Reference files are research\ninputs only; native rendering retains its own completed framebuffer history.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "native_run": {
         "command": [

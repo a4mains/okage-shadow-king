@@ -1,9 +1,9 @@
 {
  "schema": "okage.retire.title-original-manifest.v1",
- "scope": "Independent original-execution reference of the cold-boot title lifecycle continued past the Title stop (0x12c350 selector-1 return) through title updates, the Start/menu interaction, effect106 (water) creation/binding/removal request, title resource retirement, mode-8 destruction and wrapper frees, stopping at the ENTRY of 0x124548 (mode9/mode10 successor constructor) before its body executes, for the routes restore (Start, confirm default Restore) and newgame (Start, Left, confirm New Game).",
+ "scope": "Independent original-execution reference of the cold-boot title lifecycle continued past the Title stop (0x12c350 selector-1 return) through title updates, the Start/menu interaction, effect106 (water) creation/binding/removal request, title resource retirement, mode-8 destruction and wrapper frees, stopping at the ENTRY of 0x124548 (mode9/mode10 successor constructor) before its body executes, for the routes restore (Start, confirm default Restore) and newgame (Start, Left, confirm New Game). Unchanged retail SCUS_971.29 under the Play research VM. Research evidence only; not physical PS2 proof; never product input.",
  "oracle_source_commit": "76c4c30",
  "play": {
-  "revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+  "revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout is outside the isolated worktree)"
  },
@@ -17,16 +17,16 @@
   "mode": "--title-retire restore|newgame (implies the --title and RNG --rng-products observations plus the Retire hooks); --title-retire ROUTE --minimal for the control (only 0x1296f8 and 0x124548 entries). Default and --title modes unchanged: see regression."
  },
  "tracked_sources_sha256": {
-  "tools/play-oracle/startup.cpp": "800482143c77459ceb89d4ffe97732c0fd6c0f39c0d5b01c326e28876bcca3d5",
-  "tools/play-oracle/CMakeLists.txt": "1de73e43e976adb2ce82f125a0028eeed1969f68163f616b2f1104e6aba05430",
+  "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
+  "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/play-oracle/Attach.cmake": "70a48b491406f04c4a8e28f49f6c04886888c22f017fb4868d365b4c17dd4819",
   "tools/play-oracle/reference_input.hpp": "9a9bf23c9cd29dee438632693f649bf09a161abbb082589a0319d8ffbccd5e9e",
   "tools/retire_title_capture.sh": "b89790ff6bd56ecd46bba3e94f2c6d8a32086d96706fd3e4979db3cf7733001e",
   "tools/retire_title_original_extract.py": "b711add205f4e7f7590a89689ef42eb7464ae06b142359e2019dba5d4285761b",
   "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
-  "tools/retire_title_compare.py": "617d199c0116d7b46f6869189bf5f5f4e6f5f4b4505965e1af9a4aa92423e291",
-  "tools/retire_title_make_manifest.py": "089f0b230a7ce80ff4cb1a0bf26cddf89192ac1a1ec3d6a53fbe5c21f3850d5b",
-  "tests/test_retire_title_compare.py": "b48d8c239e25ccba2e0bf93058f356c39f50a8e6458c6279812f3402addbf642"
+  "tools/retire_title_compare.py": "1cc64c806c36ba98cbd774c1f65f637127b7b49db4e4b639ecc2841d45005494",
+  "tools/retire_title_make_manifest.py": "58fda7293d87ddb5b19926f3b82f9ac223df856eade524e3d49d7ad49dadd044",
+  "tests/test_retire_title_compare.py": "d338c1e53a5d7485d5b7f9d0a74ed819679124e444ea92f3b9d2ef9e2e2509f9"
  },
  "inputs": {
   "elf": {

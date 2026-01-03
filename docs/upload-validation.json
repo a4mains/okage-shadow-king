@@ -737,7 +737,7 @@
  },
  "head_commit": "6ec02d817970aabadf277cf207118d831fe12735",
  "original_comparison": "7/7 cases byte- and definedness-exact (touched byte sets equal, values equal, descriptor placement equal) between native and unchanged retail 1cba48/1cd928 under Play DMAC/GIF; negative control (fixture-negative.txt) detects a 1-byte difference. Research-backend evidence, not physical PS2 proof. Allocator state is synthetic per case.",
- "play_revision": "4403687dc8d505911980b8a96b13701a10f91b70",
+ "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
  "residual": [
   "Snapshot identities are per-lineage; a by-value copy forks counters; moved-from memory is not a valid snapshot source",
   "failed allocate() moves search cursors without advancing ownership_epoch (documented)",
@@ -753,28 +753,28 @@
  },
  "retained_failures": [
   "First ASan run: texture-transfer-tests stack overflow (many ~768 KiB Ps2TextureMemory in main frame) and a test-builder heap overflow for CPSM2; fixed in tests (ae195f7).",
-  "Second-pass review found texture-snapshot-tests stack-overflows under ASan at 8 MB stack; invented upload_xim rollback; throw-after-allocate for tiny/oversize images; fixed in the review-response commit.",
+  "Independent review found texture-snapshot-tests stack-overflows under ASan at 8 MB stack; invented upload_xim rollback; throw-after-allocate for tiny/oversize images; fixed in the review-response commit.",
   "First rollback test geometry failed (image did not fit because 32-block permuted groups); replaced by record-exhaustion construction.",
   "Handle A3 review finding (efe9863): comparator ignored descriptor words (width bit flip reported 7 MATCH, exit 0); constructed descriptor then discarded it, fixture reads were unchecked.",
   "Handle: retained fixture-negative.txt turned out to be an out-of-range-address substitution (9999999); the strict reader now rejects it as malformed (exit 2) instead of DIFF; in-range byte negatives were added.",
   "Handle: first unittest run of the old comparator binary against malformed inputs drove it to ~56 GB RSS (uninitialised fields); killed, bounded with OKAGE_TRANSFER_TIMEOUT."
  ],
  "schema": "okage-upload-validation-v1",
- "scope": "Early raw-transfer phases and immutable snapshot groundwork only.",
+ "scope": "T1.1-T1.4 and immutable snapshot groundwork for T1.7 only. Not the T1 milestone, not the tick37297 battle guard, not the game.",
  "source_sha256": {
   "include/okage/assets.hpp": "75285f482e81a139c5871b3ca9d64f35acbe47deff966b8b4b636826cd310e7f",
-  "include/okage/texture_memory.hpp": "6e3e865e1b371342abcd565f965ff2f2208c159f1dd0f8b5e155a4db84827450",
-  "include/okage/texture_transfer.hpp": "e7a4d147918b442cde1bef520bc02603c7c0436babf5d0d4b9a06db21ddbb470",
-  "src/assets.cpp": "3a3cc600fa268fe1645b7fa9e744c1a289ed1d954793ace08845e526bd8f1035",
-  "src/texture_memory.cpp": "20fa4188a4f3d79c6f0e13652ccfdfe2f204763bf48901787a2b3ce8a2487525",
-  "src/texture_transfer.cpp": "73e699e62807f5cea9af4c20dbff247b5e3320a7691fdcc2e4947c70439e5bbc",
-  "tests/test_texture_transfer_compare.py": "3ee25b9c41116f2696fb55491b0d220cb52b0797042d2a5f267a3391a692b8ce",
+  "include/okage/texture_memory.hpp": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935",
+  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "src/assets.cpp": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26",
+  "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
+  "src/texture_transfer.cpp": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+  "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
   "tests/texture_snapshot_tests.cpp": "b481a1bc1d305ef1b21c1c52c20e0f3647a2f3060c66ab9e9b4550a7a5cff551",
-  "tests/texture_transfer_tests.cpp": "1ac9ead0a13b3f073309f1e09c2a12f6fc50826a295892e562db29e2f2bd478b",
-  "tests/xim_raw_tests.cpp": "3d7d13468d8488abf5c5475f9f5afd613455c08289f1d4185a5318cfec6e9620",
-  "tools/play-oracle/main.cpp": "29685aa6d06dcc247f04609a563f2cd9a80d736d78d4385bd1ff9d64f87b2e88",
-  "tools/texture_transfer_compare.cpp": "6000314fb7ffe331d4c023e61b0b22d4e13e86f1809038ae981dc55e6f2d549b",
-  "tools/texture_transfer_fixture.py": "c296523821fc48389b534429c9cb99e8f7aca8a28628457d85ac301fc2ead317",
+  "tests/texture_transfer_tests.cpp": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
+  "tests/xim_raw_tests.cpp": "e3eb8e0ff1d6be9b879a0b6443705e384905ae8ba70805db58c2fa5916d3ae03",
+  "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+  "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
+  "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",
   "tools/xim_inventory.cpp": "5d6f9e84783b41970745d42ddb69502c0faa39b4b02e558fa4e2bef8586f315c"
  },
  "handle_comparator": {
@@ -808,10 +808,10 @@
  ],
  "unsupported": [
   "Image PSM 1 (375 corpus files), 20 (135), 27 (none in corpus): no address helper",
-  "CPSM 2 palettes (2 files): 0x1cda18 conversion exists in local/research/001cda18.asm and was re-derived in a side worktree but is not implemented",
+  "CPSM 2 palettes (2 files): 0x1cda18 conversion exists in local/research/001cda18.asm and was re-derived by a worker but is not implemented",
   "Palette color counts other than 16/256 and multi-level palettes: parsed, not corpus-present, upload only for 16/256",
   "PSM19 images with dimension >2048 or QWC 0: rejected explicitly (retail would send header-only)",
-  "Palette-handle binding, XMD cache/refcount, Session ownership, sampling: later"
+  "Palette-handle binding, XMD cache/refcount, Session ownership, sampling: T1.5+"
  ],
  "xim_inventory": {
   "by_classification": {

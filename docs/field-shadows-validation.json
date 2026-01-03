@@ -2,25 +2,25 @@
   "date": "2021-10-16",
   "base_revision": "a96073b58d1137f18aa8f139a52a376724e47393",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "scope": "Native animated field shadow integration with bounded original screen/packing, roster and projection comparisons; cross-build route regression and diagnostic endpoint image pair.",
+  "scope": "Native animated field shadow integration with bounded original screen/packing, roster and projection comparisons; cross-build route regression and diagnostic endpoint image pair. Not full original raster, audio or whole-game fidelity.",
   "source_sha256": {
-    "CMakeLists.txt": "9a4b572b7f0cc4ad453f97de6d75ad3a60470bf9a14c8566d6f3342edace998b",
-    "include/okage/field_raster.hpp": "4484cea19bf7e737e455cf0c6bb36e22b5fe6caa03095c82900601264da608e5",
-    "include/okage/field_shadows.hpp": "7a71cea0b4978162445b66bbb7061f5fa4d07daa81154980e2ccab32c2e77759",
-    "include/okage/scene_renderer.hpp": "cca7bafa299a0e019c02ca28f6d7cf2ccab09b410e3cd2c4e2d00ef4f355ef28",
+    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+    "include/okage/field_raster.hpp": "ff6973cb02f70ae341421aaca356e396a524dac0c12aea054ddbc1be8649d079",
+    "include/okage/field_shadows.hpp": "46084ab09b95ab80e56108ade9f9c1beaed64ae6accfa0a967af5ad463760902",
+    "include/okage/scene_renderer.hpp": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b",
     "include/okage/shadow.hpp": "c98221453631e732781608ea30b88e0d50d3280b89e1317df9810ea5bd3295d2",
-    "src/assets_main.cpp": "1b857eaaa04ed237b441d77b6ab1d8fd89fe39940b197fbcac6a7f808ace1f12",
-    "src/field_raster.cpp": "f46a6e16b91425333c327cdfabab55273fb46bcffde7795804ddfdbcfbad95ed",
-    "src/field_shadows.cpp": "83fcd0078d1d21baca5eff6be0b90d2f7fb74ee6dc3f535a3e6379f80d0c1a7e",
-    "src/metal_preview_shader.hpp": "eae39b6e8a97b6c47f6a3a1e14e67b4c16d44a76435a5568a99c5624ae4d91d4",
-    "src/native_runtime.mm": "951678e9dd91b93d8971887222119eea065b5c7826cb7b4efd842f3364737bd0",
-    "src/scene_renderer.mm": "4db4d65f9a1728923b50abe23283dfa43d5ad88c048d6a379b681c025658e160",
-    "src/shadow.cpp": "ca9c5bee70c1ab7ac0e44b3dfb7dbe3fc290ba51dd1584b3ddde9c9c9e0fd0f6",
-    "tests/field_raster_tests.cpp": "7daa6765113d654a020a9e1f4f98f22c00579fa69a076136954912b96ccac0ec",
+    "src/assets_main.cpp": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
+    "src/field_raster.cpp": "42f30e7baed078f5d117a57613178974da5e10ce7dc98a4152cd1ea9ab168e48",
+    "src/field_shadows.cpp": "1b339436ae785f0bd9f8489aa6a84bf2503370009f3f7f863e90cd874fd496ec",
+    "src/metal_preview_shader.hpp": "9c4d3db4794a027eb7c4bc2fcb00f50d81314616a2514164d6aadf3ff1fda8fe",
+    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/shadow.cpp": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9",
+    "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
     "tests/test_field_screen.py": "dfcbf41a30ec97cdf19653a9060adaa8ba2d45b28a07afd1267b8e9671354cba",
     "tests/test_frame_images.py": "511eba05d38e42c162dbb8266b065b7fa67f1a5e8d757cf723608b5da84da606",
     "tools/compare_frame_images.py": "593d49f51ee579de311ec4c9c2e0fc64e4c357b596676a923006a05da672fe06",
-    "tools/play-oracle/main.cpp": "6a2dae2d4a9fd1fa56b378a1939d87c7938f1ac9ebcc4e512f48aca2b406046a",
+    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
     "tools/verify_field_screen.py": "5ff417d099cb91b46894623c56ace2541ad4cb8a150b69d76000027a37fc454a"
   },
   "reports": {
@@ -163,7 +163,7 @@
     "Earlier loading/text/RNG/audio/whole-interval fidelity failures remain.",
     "Full game playthrough, battles, persistence and physical controller/listening checks are unfinished."
   ],
-  "runs": {
+  "workers": {
     "comparison_audit": "Smaller-model tests and image tooling; primary review/corrections/full-suite execution.",
     "field_shadow_roster": "Read-only roster, queues and rendering review.",
     "receiving_depth": "Original screen probe/verifier and read-only service54 recovery."

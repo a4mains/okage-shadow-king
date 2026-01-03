@@ -1,5 +1,5 @@
 {
-  "scope": "Compare nighttime startup at observed dispatch; retain fidelity failures.",
+  "scope": "Compare nighttime startup at observed dispatch; retain fidelity failures.\n\nThis compares lifecycle phases, not original loading duration. It does not\nvalidate pixels, audio, camera targets or post-load actor animation phase.\n",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "original_run": {
     "command": [

@@ -18,10 +18,10 @@
         "report": "local/research/village-return-v1/set17-release-v1/report.json",
         "sha256": "2cc1c4d8548a4621935a94127a9e76f8dad7509e19ab7bd5c6752e6936f7a3e8",
         "result": {
-          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
           "native_sha256": "62077b45c4c13380b9b60808924ee9627a48d9e6f9c9bb2e9afa674dde2ab7d1",
           "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
-          "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+          "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
           "dsp_source_hashes": {
             "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
             "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -49,10 +49,10 @@
         "report": "local/research/village-return-v1/set17-debug-v1/report.json",
         "sha256": "a81916327ce8babd414a1b48a2aa7ff3a6fbdf09e9dc9090f88af79b73e18a52",
         "result": {
-          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
           "native_sha256": "6d268d7998965139eb3182dc2e54607f527f841988c6deaa8a7872888bf62b36",
           "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
-          "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+          "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
           "dsp_source_hashes": {
             "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
             "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -80,10 +80,10 @@
         "report": "local/research/village-return-v1/set17-sanitize-v1/report.json",
         "sha256": "e3974f97ec642a4e4643be1cdb8233733927a78ec8ee50c66163351984f03845",
         "result": {
-          "scope": "Audit original EE finite-stream preparation and native dry voice output.",
+          "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
           "native_sha256": "94736452fea1c4382409aa57e35bdb9bad369bead9680a22bfa56ccfaacdceb3",
           "oracle_sha256": "e30c938866e51b5aab6651b3a98f01a2bfe8d9d4ffd066fd656b6a603a697dd9",
-          "dsp_revision": "575ec0755367a204868a46ed9ba1d8229c0a429f",
+          "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
           "dsp_source_hashes": {
             "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
             "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -182,7 +182,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
     "exit_code": 1,
     "seconds_including_control_waits": 500.68493125,
     "saves_after": {
@@ -214,7 +214,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput."
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs."
   },
   "native_v6_status": "Terminal exit1 at attempted18980 on destination59/0 unreviewedmusic43; celebration complete17499, movement17520, ordinary bar contactConfirm18873. No post-event Save; all3savesunchanged.",
   "artifacts": [
@@ -519,7 +519,7 @@
     "sha256": "7cc4a36efa03b03373d4b54764a25a7bca88f2dac7bda60b8aadb2d2354cad2d",
     "report": {
       "schema": "okage-native-village-completion-v1",
-      "scope": "Genuine cold Restore and ordinary inputs only.",
+      "scope": "Genuine cold Restore and ordinary inputs only. Native state and prefix continuity, not original equivalence. Live process has no exit claim. Entire 3448-byte saved payload compared, tail648 bytes excluded.",
       "saved_values": {
         "story": 2,
         "flags": {
@@ -919,7 +919,7 @@
   },
   "original_comparison_status": "Full8262 fixed-anchor interval audited; failure retained. Comparatorb1062d3 reports controller-manager pad mismatch as observable rather than aborting.",
   "numbered_sound_import": {
-    "run_commits": [
+    "worker_commits": [
       "52cede8",
       "1b974c8"
     ],
@@ -933,7 +933,7 @@
     "stage": "local/game-data-stage-v6",
     "stage_v5": "Created after failed import; lacks bulk bank additions and retained as unused negative.",
     "tests": "515 Python tests, exit0; parent log retained.",
-    "scope": "Exact owned numberedRXWS bytes; does not imply all cues/codecs/runtime paths supported."
+    "scope": "Exact owned numberedRXWS bytes; does not imply all cues/codecs/runtime paths supported. No live stage-v4 mutation. ALL.XWS and threeXV files excluded from bulk tool."
   },
   "native_v6_run": {
     "command": [
@@ -957,7 +957,7 @@
       "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
       "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
     },
-    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+    "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
     "exit_code": 1,
     "seconds_including_control_waits": 1476.726369,
     "saves_after": {
@@ -1213,7 +1213,7 @@
       "actor": []
     },
     "original_execution": {
-      "scope": "Complete8263-VBlank original execution with source callback labels0..8262; compare requested1..8262 to native9259..17520 by predeclared offset9258.",
+      "scope": "Complete8263-VBlank original execution with source callback labels0..8262; compare requested1..8262 to native9259..17520 by predeclared offset9258. No extra input, retiming, truncation or guest mutation. Run success is observation completion, not native parity.",
       "run": {
         "exit_code": 0,
         "seconds": 530.1970210410001,
@@ -1715,7 +1715,7 @@
   "audio_boundaries": {
     "schema_version": 1,
     "status": "captured_unpaired_duration_mismatch",
-    "scope": "Source-boundary PCM extraction and per-channel descriptive statistics only.",
+    "scope": "Source-boundary PCM extraction and per-channel descriptive statistics only. No sample comparison, padding, trimming, resampling, lag fitting, or equivalence pass.",
     "alignment": {
       "temporal_alignment_proven": false,
       "sample_to_vblank_alignment_proven": false,
@@ -1853,7 +1853,7 @@
   "music43": {
     "mapping": "EVN_APT ordinary class1, primaryEVN_APT0, optionalEVN_APT1 present, no alternateXSQ",
     "import": {
-      "scope": "Import reviewed ordinary music resources from the owned USA disc.",
+      "scope": "Import reviewed ordinary music resources from the owned USA disc.\n\nThe ELF name table and disc hashes are checked before installing owned inputs.\nThis is resource provenance, not a music playback or original PCM comparison.\n",
       "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
       "music_id": 43,
       "table_address": 2078344,
@@ -1885,7 +1885,7 @@
     },
     "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
     "native_v7": "Live session76045 at22169. Cold replay completes barentry19073, returns outside, earns rumor flag46 through15118 at22148, moves normally22169. No process-exit or post-event Save claim.",
-    "scope": "Register verified resource43; existing loader/synth semantics.",
+    "scope": "Register verified resource43; existing loader/synth semantics. Native dry/bounded integration not original mix parity.",
     "dry_checks": [
       {
         "build": "release",
@@ -1965,7 +1965,7 @@
         "bkmo0.dat": "2ab78f85af3e75cfbe6bd40ef6f8bfb7a9e728fd8734ec3c88596b1639423d02",
         "bkmo1.dat": "657d2bd3b894096434d36cb2fac55df8cb206b448d6c376b69127daca8afe795"
       },
-      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput.",
+      "scope": "Fresh cold process, unchanged copies of genuine native gameplay files, ordinary titleRestoreinput. No RAM/snapshot inputs.",
       "status": "Live76045; barentry19073 completed; later native traversal remains live. No process-exit claim.",
       "prefix_validation": {
         "attempt_frames": [
@@ -2087,7 +2087,7 @@
   },
   "next_story_correction": "Flag47false alone is insufficient for granting15119: FFF(46/1/47/1) takes short branch when both clear. First finish15118 from scene0contact12 to set46; then Ringmastergrantsmap71/flags43/47, then village\u221230/event52.",
   "rumor_completion": {
-    "scope": "Native earned rumor flag46 through ordinary contact12/15118; all3448 saved payload bytes compared to prior bar arrival, no original interval/parity claim.",
+    "scope": "Native earned rumor flag46 through ordinary contact12/15118; all3448 saved payload bytes compared to prior bar arrival, no original interval/parity claim. No post-event Save. Historical audit-time session76045 at22169; later writer completion and Save are in map-home-validation.json.",
     "prefix": {
       "v6_v7_attempts_exact": [
         1,
