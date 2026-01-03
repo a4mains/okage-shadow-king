@@ -1155,6 +1155,7 @@ void OpeningField::tick(ExplorationInput input) {
     };
     if(save_resuming_) {
         save_resuming_=false;
+        if(dispatch_game_command)dispatch_game_command(); //13437c ->133450
         if(exterior&&exterior_camera_enabled_)update_exterior_camera();
         tick_callbacks(input,!exterior);return;
     }

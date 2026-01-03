@@ -664,30 +664,60 @@ int main(){try {
         unavailable.get_variable=scene.get_variable;unavailable.set_variable=scene.set_variable;
         rejects([&]{unavailable.enter(entry,stage,empty_map,0);});
     }
-    {
+    for(unsigned result:{3u,4u}) {
         auto event=startup;
         put(event,40,0x00c00062);put(event,44,0);put(event,48,0x00200002);put(event,52,0);
-        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),idle,{});
+        auto motion=idle;put(motion,40,0x34);put(motion,44,0);
+        okage::ModelFile model;model.models.emplace_back();okage::FieldActor hero(std::move(model),motion,{});
+        std::vector<unsigned> order;
+        unsigned expected_dispatches=0;
+        hero.animation().set_texture_callback([&](auto group,auto variant){
+            require(group==0&&variant==0);
+            if(expected_dispatches)order.push_back(20);
+        });
         const std::array<okage::ActorBinding,1> player={{{-1,&hero}}};
         okage::OpeningField scene(event,[](int){},[](int){return true;},player,false);
+        okage::ExteriorCamera manager;scene.exterior_camera=&manager;
+        auto exterior_stage=stage;put(exterior_stage,76,0);
         std::array<std::uint8_t,0x1000> vars{};
         scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
         scene.set_variable=[&](auto i,auto b,auto v){okage::set_event_variable(vars,i,b,v);};
         unsigned dispatches=0,opens=0,draws=0;
+        std::array<unsigned,3> command{12,0,0};
         scene.random_value=[&]{++draws;return 0u;};
-        scene.dispatch_game_command=[&]{require(opens==0||!scene.save_menu_active());++dispatches;};
+        scene.dispatch_game_command=[&]{
+            require(!scene.save_menu_active());++dispatches;
+            if(expected_dispatches) {
+                require(dispatches==expected_dispatches);
+                require(manager.target_y==(dispatches==2?100.f:99.5f));
+                require(command[0]==(dispatches==2?result:0));order.push_back(10);
+            } else require(command[0]==12);
+            command={};
+        };
         scene.open_save_menu=[&]{require(dispatches==1);++opens;};
-        okage::FieldDefinition entry;entry.type=1;entry.startup=1;
-        scene.prepare(entry,stage,empty_map);
+        okage::FieldDefinition entry;entry.type=0;entry.startup=1;
+        scene.prepare(entry,exterior_stage,empty_map);
         scene.activate_entry(0,{},[&]{require(dispatches==0);});
         require(dispatches==0&&scene.save_requested());
         for(unsigned i=0;i<4&&scene.event_running();++i){scene.tick();require(dispatches==0);}
         require(!scene.event_running()&&!scene.exploration_ready());
         scene.tick();require(scene.exploration_ready()&&dispatches==0);
         scene.tick();require(scene.save_menu_active()&&dispatches==1&&opens==1);
-        scene.tick();scene.tick();require(dispatches==1);
-        scene.close_save_menu();scene.tick();require(dispatches==1);
-        scene.tick();require(dispatches==2&&draws==0);
+        command={result,0,0};
+        manager.snap_target=false;manager.target_y=100;
+        scene.tick();scene.tick();require(dispatches==1&&command[0]==result&&manager.target_y==100);
+        scene.close_save_menu();expected_dispatches=2;hero.select_motion(1);
+        hero.animation().set_texture_callback([&](auto,auto){
+            require(dispatches==expected_dispatches&&command==std::array<unsigned,3>{});
+            require(manager.target_y==99.5f);order.push_back(20);
+        });
+        scene.tick();require(dispatches==2&&command==std::array<unsigned,3>{}&&order==std::vector<unsigned>({10,20}));
+        expected_dispatches=3;hero.select_motion(1);
+        hero.animation().set_texture_callback([&](auto,auto){
+            require(dispatches==expected_dispatches&&command==std::array<unsigned,3>{});
+            require(manager.target_y==99.f);order.push_back(20);
+        });
+        scene.tick();require(dispatches==3&&draws==0&&order==std::vector<unsigned>({10,20,10,20}));
     }
     {
         auto event=startup;event.resize(60);put(event,4,28);
