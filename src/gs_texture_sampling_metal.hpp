@@ -6,6 +6,32 @@ inline constexpr char gs_texture_sampling_metal_source[] = R"MSL(
 using namespace metal;
 struct GsTextureRegistersMetal { ulong tex0, tex1, clamp, texa; };
 struct GsTexelAddressMetal { uint address, shift, bits; };
+// Optional observer storage, never GS memory. One 64-byte record per draw;
+// every matching tap has the same register/snapshot/coordinate-derived fields.
+struct GsTextureSampleAuditMetal {
+    uint target_x, target_y;
+    atomic_uint count, texture_address, texture_shift, texture_bits, texture_raw_value;
+    atomic_uint index, clut_address, clut_shift, clut_bits, rgba_value, count_overflow, weight_min_bits, weight_max_bits;
+    uint reserved;
+};
+inline void gs_record_sample_tap(device GsTextureSampleAuditMetal* audit,
+    uint x, uint y, GsTexelAddressMetal texture, uint texture_raw,
+    bool indexed, GsTexelAddressMetal clut, uint rgba, float weight) {
+    if (audit == nullptr || x != audit->target_x || y != audit->target_y) return;
+    atomic_store_explicit(&audit->texture_address, texture.address, memory_order_relaxed);
+    atomic_store_explicit(&audit->texture_shift, texture.shift, memory_order_relaxed);
+    atomic_store_explicit(&audit->texture_bits, texture.bits, memory_order_relaxed);
+    atomic_store_explicit(&audit->texture_raw_value, texture_raw, memory_order_relaxed);
+    atomic_store_explicit(&audit->index, indexed ? texture_raw : 0xffffffffu, memory_order_relaxed);
+    atomic_store_explicit(&audit->clut_address, indexed ? clut.address : 0xffffffffu, memory_order_relaxed);
+    atomic_store_explicit(&audit->clut_shift, indexed ? clut.shift : 0u, memory_order_relaxed);
+    atomic_store_explicit(&audit->clut_bits, indexed ? clut.bits : 0u, memory_order_relaxed);
+    atomic_store_explicit(&audit->rgba_value, rgba, memory_order_relaxed);
+    atomic_fetch_min_explicit(&audit->weight_min_bits, as_type<uint>(weight), memory_order_relaxed);
+    atomic_fetch_max_explicit(&audit->weight_max_bits, as_type<uint>(weight), memory_order_relaxed);
+    uint before = atomic_fetch_add_explicit(&audit->count, 1u, memory_order_relaxed);
+    if (before == 0xffffffffu) atomic_store_explicit(&audit->count_overflow, 1u, memory_order_relaxed);
+}
 inline float4 gs_sample_error(device atomic_uint* invalid, uint code) {
     atomic_fetch_min_explicit(invalid, code, memory_order_relaxed);
     return float4(as_type<float>(0x7fc00000u));
@@ -62,9 +88,9 @@ inline bool gs_read_texel(device const uchar* bytes, device const uchar* known,
 inline uint gs_region_coordinate(int value, uint mode, uint lo, uint hi) {
     return mode == 2u ? uint(clamp(value, int(lo), int(hi))) : (uint(value) & lo) | hi;
 }
-inline float4 gs_sample_texture(device const uchar* bytes, device const uchar* known,
+inline float4 gs_sample_texture_impl(device const uchar* bytes, device const uchar* known,
                                constant GsTextureRegistersMetal& regs, float2 uv,
-                               device atomic_uint* invalid) {
+                               device atomic_uint* invalid, device GsTextureSampleAuditMetal* audit) {
     uint psm = uint((regs.tex0 >> 20u) & 63ul), tw = uint((regs.tex0 >> 26u) & 15ul),
          th = uint((regs.tex0 >> 30u) & 15ul);
     bool indexed = psm >= 16u, linear = regs.tex1 == 0x60ul;
@@ -96,18 +122,33 @@ inline float4 gs_sample_texture(device const uchar* bytes, device const uchar* k
                                                         uint((regs.tex0 >> 14u) & 63ul), x, y);
         uint pixel;
         if (!gs_read_texel(bytes, known, address, false, invalid, pixel)) return float4(as_type<float>(0x7fc00000u));
+        const GsTexelAddressMetal texture_address = address;
+        const uint texture_raw = pixel;
+        GsTexelAddressMetal clut_address = {0u, 0u, 0u};
         if (indexed) {
             uint word = ((pixel >> 5u) * 2u + ((pixel >> 3u) & 1u)) * 16u +
                         ((pixel >> 4u) & 1u) * 8u + (pixel & 7u);
             address = gs_raw_texel_address(0u, uint((regs.tex0 >> 37u) & 0x3ffful), 1u, word % 16u, word / 16u);
             if (!gs_read_texel(bytes, known, address, true, invalid, pixel)) return float4(as_type<float>(0x7fc00000u));
+            clut_address = address;
         }
+        gs_record_sample_tap(audit, x, y, texture_address, texture_raw, indexed, clut_address, pixel, weight);
         float4 rgba = float4(float(pixel & 255u), float((pixel >> 8u) & 255u),
                             float((pixel >> 16u) & 255u), float(pixel >> 24u));
         if (psm == 1u) rgba.a = ((regs.texa >> 15u) & 1ul) != 0ul && (pixel & 0xffffffu) == 0u ? 0.f : float(regs.texa & 255ul);
         result += rgba * weight;
     }
     return result;
+}
+inline float4 gs_sample_texture(device const uchar* bytes, device const uchar* known,
+                               constant GsTextureRegistersMetal& regs, float2 uv,
+                               device atomic_uint* invalid) {
+    return gs_sample_texture_impl(bytes, known, regs, uv, invalid, nullptr);
+}
+inline float4 gs_sample_texture_audited(device const uchar* bytes, device const uchar* known,
+                               constant GsTextureRegistersMetal& regs, float2 uv,
+                               device atomic_uint* invalid, device GsTextureSampleAuditMetal* audit) {
+    return gs_sample_texture_impl(bytes, known, regs, uv, invalid, audit);
 }
 )MSL";
 } // namespace okage

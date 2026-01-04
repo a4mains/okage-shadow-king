@@ -12,6 +12,8 @@
 #include <iostream>
 #include <source_location>
 #include <sstream>
+#include <fstream>
+#include <cstdlib>
 using namespace okage;
 using Data=std::vector<std::uint8_t>;
 static void require(bool value,const std::source_location at=std::source_location::current()) {
@@ -288,6 +290,75 @@ static void direct_high_lane() {
         require(scene.renderer.render_prepared(old).rgba==baseline.rgba);
     }
 }
+
+static NSDictionary* sampling_json(const std::string& text) {
+    NSError* error=nil;NSData* data=[NSData dataWithBytes:text.data() length:text.size()];
+    id value=[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    require(value&&[value isKindOfClass:[NSDictionary class]]&&error==nil);return value;
+}
+static std::string sampling_text(const SceneRenderer::SubmittedFrame& frame) {
+    std::ostringstream out;frame.write_texture_sampling_observation(out);return out.str();
+}
+
+static void save_sampling(const char* name,const SceneRenderer::SubmittedFrame& frame) {
+    if(const char* directory=std::getenv("OKAGE_GS_SAMPLE_AUDIT_DIR")) {
+        const auto path=std::filesystem::path(directory)/(std::string(name)+".json");
+        std::ofstream out(path);frame.write_texture_sampling_observation(out);require(bool(out));
+    }
+}
+static NSDictionary* sampling_row(const SceneRenderer::SubmittedFrame& frame) {
+    NSDictionary* document=sampling_json(sampling_text(frame));NSDictionary* audit=document[@"sampling_audit"];
+    require([audit[@"gpu_status"] isEqual:@"completed"]&&[audit[@"sample_guard_passed"] boolValue]);
+    NSArray* draws=audit[@"draws"];require(draws.count==1);return draws[0];
+}
+static void sample_audit_zero_and_retention() {
+    auto owner=std::make_unique<Owned>();
+    auto env_bytes=xim(0,8,8,{22,34,46,128});const int env=owner->handles.load_xim(OwnedRawXim(env_bytes)).handle;require(env>=0);
+    const auto image=*owner->memory.allocation(owner->handles.image(env)->id);
+    owner->memory.invalidate_owned_nibbles(image.id);
+    const auto address=gs_texel_address(0,image.base_block,image.buffer_width_64,0,4)->byte_address;
+    const auto next=gs_texel_address(0,image.base_block,image.buffer_width_64,0,5)->byte_address;
+    owner->memory.write_bytes(address,Data{22,34,46,128});owner->memory.write_bytes(next,Data{22,34,46,128});
+    require(!owner->memory.observe_nibble(gs_texel_address(0,image.base_block,image.buffer_width_64,1,4)->byte_address,0).known);
+    const std::array<Surface,1> surfaces{{{{0,0,0,1},0,true,false,0,2,.5f}}};
+    const auto model_file=read_xmd(model(surfaces,true,true,false,{-1,0,0,0}));
+    auto resource=owner->load(model_file,xim(0,8,8,{0,0,0,128}));auto scene=std::make_unique<Scene>(model_file,resource.slots,*owner);
+    FieldOrdinaryLighting light;light.colors={Float4{},Float4{},Float4{},Float4{1,1,1,1}};
+    scene->renderer.set_stage_environment(light,FieldShadowSettings{},{});
+    scene->renderer.set_material_environment(decode_xim(env_bytes));scene->renderer.set_shared_texture_owner(owner->handles,env);
+    const auto disabled=scene->render();require(center(disabled)==std::array<unsigned,4>{11,17,23,255});
+    scene->renderer.set_texture_sampling_audit(std::array<std::uint32_t,2>{1,4});
+    const auto zero_prepared=scene->prepare();
+    scene->renderer.set_texture_sampling_audit(std::array<std::uint32_t,2>{0,4}); // Old prep retains target1/4.
+    auto zero=scene->renderer.submit_prepared(zero_prepared);require(zero.wait().rgba==disabled.rgba);
+    NSDictionary* zero_row=sampling_row(zero);require([zero_row[@"successful_nonzero_taps"] unsignedIntValue]==0);
+    save_sampling("zero-weight",zero);
+    require(zero_row[@"texture_address"]==nil);
+    auto positive=scene->renderer.submit_prepared(scene->prepare());require(positive.wait().rgba==disabled.rgba);
+    NSDictionary* row=sampling_row(positive);unsigned pixels=0;
+    for(unsigned i=0;i<disabled.rgba.size();i+=4)if(disabled.rgba[i]!=14||disabled.rgba[i+1]!=18||disabled.rgba[i+2]!=24)++pixels;
+    require(pixels>0&&[row[@"successful_nonzero_taps"] unsignedIntValue]==pixels);
+    require([row[@"weight_min_bits"] unsignedIntValue]>0&&[row[@"weight_max_bits"] unsignedIntValue]<=0x3f800000u);
+    require([row[@"model_path"] isEqual:@"/nonexistent/shared-gs-fixture/m.xmd"]&&[row[@"block"] unsignedIntValue]==0&&[row[@"material"] intValue]==0);
+    require([row[@"texture_address"] unsignedIntValue]==address&&[row[@"texture_shift"] unsignedIntValue]==0&&[row[@"texture_bits"] unsignedIntValue]==32);
+    require([row[@"texture_raw_value"] unsignedIntValue]==0x802e2216u&&row[@"selected_index"]==nil&&row[@"clut_address"]==nil);
+    require([row[@"rgba_word"] unsignedIntValue]==0x802e2216u);
+    NSArray* nibbles=row[@"texture_nibbles"];require(nibbles.count==8);
+    for(NSDictionary* nibble in nibbles)require([nibble[@"known"] boolValue]&&[nibble[@"owner"] unsignedIntValue]==image.id&&[nibble[@"owner_serial"] unsignedLongLongValue]==image.serial);
+    save_sampling("positive-before",positive);
+    const auto old_observation=sampling_text(positive);auto copied=positive;
+    owner->memory.write_bytes(address,Data{80,90,100,128});
+    auto changed=scene->renderer.submit_prepared(scene->prepare());require(changed.wait().rgba!=disabled.rgba);
+    require([sampling_row(changed)[@"texture_raw_value"] unsignedIntValue]==0x80645a50u);save_sampling("positive-after",changed);
+    require(sampling_text(positive)==old_observation&&sampling_text(copied)==old_observation);
+    // A newer CPU preparation is distinct from the last completed submission.
+    (void)scene->prepare();NSDictionary* current=sampling_json(scene->observation());
+    require(current[@"last_submitted_frame"]!=nil);
+    owner->resources.retire_xmd(resource);scene.reset();owner.reset();
+    require(sampling_text(positive)==old_observation&&sampling_text(copied)==old_observation);
+    require(positive.readback().rgba==disabled.rgba);
+}
+
 static void cross_owner_environment() {
     Owned owner;
     auto env_bytes=xim(19,64,64,{20,40,60,128},17);
@@ -307,14 +378,32 @@ static void cross_owner_environment() {
     FieldOrdinaryLighting light;light.colors={Float4{},Float4{},Float4{},Float4{1,1,1,1}};
     scene.renderer.set_stage_environment(light,FieldShadowSettings{},{});
     scene.renderer.set_material_environment(decode_xim(env_bytes));scene.renderer.set_shared_texture_owner(owner.handles,env);
-    const auto old=scene.prepare();const auto baseline=scene.renderer.render_prepared(old);
+    scene.renderer.set_texture_sampling_audit(std::array<std::uint32_t,2>{36,64});
+    const auto old=scene.prepare();auto witness=scene.renderer.submit_prepared(old);const auto baseline=witness.wait();
+    NSDictionary* sample=sampling_row(witness);require([sample[@"successful_nonzero_taps"] unsignedIntValue]>0);
+    require([sample[@"texture_address"] unsignedIntValue]==address&&[sample[@"selected_index"] unsignedIntValue]==91);
+    require([sample[@"texture_raw_value"] unsignedIntValue]==91&&[sample[@"rgba_word"] unsignedIntValue]==0x805b5b5bu);
+    const auto clut=*owner.memory.allocation(owner.handles.palette(env,0)->id);
+    const auto word=clut_scratch_word_index(91);const auto palette_address=gs_texel_address(0,clut.base_block,1,word%16,word/16)->byte_address;
+    require([sample[@"clut_address"] unsignedIntValue]==palette_address&&[sample[@"handle"] intValue]==env);
+    NSArray* texels=sample[@"texture_nibbles"];require(texels.count==2);
+    for(NSDictionary* nibble in texels)require([nibble[@"owner"] unsignedIntValue]==neighbor_image.id&&[nibble[@"owner_serial"] unsignedLongLongValue]==neighbor_image.serial);
+    NSArray* colors=sample[@"clut_nibbles"];require(colors.count==8);
+    for(NSDictionary* nibble in colors)require([nibble[@"owner"] unsignedIntValue]==clut.id);
+    save_sampling("env-36-64-before",witness);
+    const auto old_observation=sampling_text(witness);
     require(observed_register(scene.observation(),"tex0",1)==source_tex0(owner,env,0));
     require(center(baseline)[0]>0&&center(baseline)[0]<100); // ENV indices, not neighbor's200+ palette.
-    owner.memory.write_bytes(address,Data{151});const auto changed=scene.render();
+    owner.memory.write_bytes(address,Data{151});auto changed_ticket=scene.renderer.submit_prepared(scene.prepare());const auto changed=changed_ticket.wait();
     require(changed.rgba!=baseline.rgba&&center(changed)[0]>center(baseline)[0]);
+    require([sampling_row(changed_ticket)[@"selected_index"] unsignedIntValue]==151);save_sampling("env-36-64-after",changed_ticket);
+    require(sampling_text(witness)==old_observation);
     require(scene.renderer.render_prepared(old).rgba==baseline.rgba);
     owner.memory.invalidate_owned_nibbles(neighbor_image.id);
-    const auto failure=rejection(scene.renderer.submit_prepared(scene.prepare()));
+    auto failed_ticket=scene.renderer.submit_prepared(scene.prepare());const auto failure=rejection(failed_ticket);
+    save_sampling("env-36-64-invalidated",failed_ticket);
+    NSDictionary* invalid=sampling_json(sampling_text(failed_ticket))[@"sampling_audit"];
+    require([invalid[@"gpu_status"] isEqual:@"completed"]&&![invalid[@"sample_guard_passed"] boolValue]);
     require(failure.find("Unknown shared GS texture nibble address=0x")!=std::string::npos&&
         failure.ends_with("owner="+std::to_string(neighbor_image.id)));
     require(scene.renderer.render_prepared(old).rgba==baseline.rgba);
@@ -326,6 +415,6 @@ static void owner_guard() {
     bool rejected=false;try{renderer.set_shared_texture_owner(other.handles);}catch(const std::runtime_error& e){rejected=std::string(e.what())=="Shared GS renderer texture owner changed";}
     require(rejected);
 }
-int main(){@autoreleasepool{try{physical_snapshot_lifetime();unknown_positive_tap();saved_original_and_variant();callback_time_source_packet();direct_high_lane();cross_owner_environment();owner_guard();
+int main(){@autoreleasepool{try{physical_snapshot_lifetime();unknown_positive_tap();saved_original_and_variant();callback_time_source_packet();direct_high_lane();sample_audit_zero_and_retention();cross_owner_environment();owner_guard();
     std::cout<<"Shared GS SceneRenderer: physical overwrite, immutable submitted/prepared lifetimes, exact nibble/owner guards, saved TEX0 restoration, direct high lanes, cross-owner ENV36/64 and owner guard passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}

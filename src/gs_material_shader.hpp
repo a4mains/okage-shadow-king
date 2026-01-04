@@ -2,10 +2,12 @@
 static const char* gs_material_shader=R"metal(
 float4 gs_material_color(Varying v,constant State& state,
     device const uchar* bytes,device const uchar* known,
-    constant GsTextureRegistersMetal& regs,device atomic_uint* invalid) {
+    constant GsTextureRegistersMetal& regs,device atomic_uint* invalid,
+    device GsTextureSampleAuditMetal* audit=nullptr) {
     float4 color=v.color;
     if(state.mode.z) {
-        const float4 sample=gs_sample_texture(bytes,known,regs,v.uv,invalid);
+        const float4 sample=audit==nullptr?gs_sample_texture(bytes,known,regs,v.uv,invalid):
+            gs_sample_texture_audited(bytes,known,regs,v.uv,invalid,audit);
         if(any(!isfinite(sample)))return float4(1,0,1,1); // completion rejects; never presented
         color=floor(sample*color/128.0f);
     }
@@ -20,6 +22,14 @@ fragment FieldOutput field_gs_material_fragment(FieldVarying v [[stage_in]],
     device const uchar* bytes [[buffer(2)]],device const uchar* known [[buffer(3)]],
     constant GsTextureRegistersMetal& regs [[buffer(4)]]) {
     return {gs_material_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},state,bytes,known,regs,invalid),
+        v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
+}
+fragment FieldOutput field_gs_material_audit_fragment(FieldVarying v [[stage_in]],
+    constant State& state [[buffer(0)]],device atomic_uint* invalid [[buffer(1)]],
+    device const uchar* bytes [[buffer(2)]],device const uchar* known [[buffer(3)]],
+    constant GsTextureRegistersMetal& regs [[buffer(4)]],
+    device GsTextureSampleAuditMetal* audit [[buffer(5)]]) {
+    return {gs_material_color(Varying{v.position,v.color,v.uv.xy/v.uv.z},state,bytes,known,regs,invalid,audit),
         v.field>0?1.0f-floor(v.z)/16777216.0f:v.position.z};
 }
 )metal";
