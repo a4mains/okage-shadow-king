@@ -312,6 +312,23 @@ Ps2TextureMemory::Planes& Ps2TextureMemory::writable_planes() {
     return *planes_;
 }
 
+void Ps2TextureMemory::write_masked_bytes(
+    std::uint32_t address, std::span<const std::uint8_t> bytes,
+    std::span<const std::uint8_t> known_masks) {
+    if (bytes.size() != known_masks.size())
+        throw std::invalid_argument("GS masked write has unequal byte/mask lengths");
+    if (address > vram_bytes || bytes.size() > vram_bytes - address)
+        throw std::out_of_range("GS masked write outside VRAM");
+    if (std::any_of(known_masks.begin(), known_masks.end(),
+                    [](std::uint8_t mask) { return mask > 3; }))
+        throw std::invalid_argument("GS masked write mask exceeds two nibbles");
+    if (bytes.empty()) return;
+    auto& planes = writable_planes();
+    std::copy(bytes.begin(), bytes.end(), planes.bytes.begin() + address);
+    std::copy(known_masks.begin(), known_masks.end(), planes.defined.begin() + address);
+    ++content_generation_;
+}
+
 void Ps2TextureMemory::write_nibble(std::uint32_t address, std::uint8_t nibble, std::uint8_t value) {
     if (address >= vram_bytes) throw std::out_of_range("GS nibble write outside VRAM");
     if (nibble > 1) throw std::out_of_range("GS nibble selector must be 0 or 1");

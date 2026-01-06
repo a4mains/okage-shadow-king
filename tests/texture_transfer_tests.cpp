@@ -1,5 +1,6 @@
 #include "okage/texture_transfer.hpp"
 
+#include <algorithm>
 #include <array>
 #include "okage/gs_texture_address.hpp"
 #include <cstdlib>
@@ -59,10 +60,155 @@ std::vector<std::uint8_t> build_xim(std::uint32_t psm, std::uint32_t cpsm, std::
 }
 }
 
-template <class F> void scenario(F&& f) { f(); }
+template <class F> [[gnu::noinline]] void scenario(F&& f) { f(); }
+
+namespace {
+std::uint64_t physical_descriptor(std::uint32_t tbp, std::uint32_t tbw,
+                                  std::uint32_t psm = 0) {
+    return std::uint64_t(tbp) | (std::uint64_t(tbw) << 14) | (std::uint64_t(psm) << 32);
+}
+[[gnu::noinline]] void local_to_local_tests() {
+    scenario([] {
+        Ps2TextureMemory m;
+        m.initialize_empty_allocator();
+        const auto first = m.allocate(2, GsPixelStorage::Psmct32, 640, 224);
+        const auto second = m.allocate(2, GsPixelStorage::Psmct32, 640, 224);
+        const auto capture = m.allocate(2, GsPixelStorage::Psmct32, 640, 224);
+        require(first && second && capture, "local copy frame allocations");
+        const std::array frames{*first, *second};
+        const auto frame0 = sequence(640 * 224 * 4, 11), frame1 = sequence(640 * 224 * 4, 47);
+        upload_allocation_image(m, first->id, frame0);
+        upload_allocation_image(m, second->id, frame1);
+        const auto source1 = std::uint32_t(second->base_block) * 256;
+        m.write_masked_bytes(source1, std::array<std::uint8_t, 4>{0xb1, 0xc2, 0xd3, 0xe4},
+                             std::array<std::uint8_t, 4>{3, 1, 2, 0});
+        const auto old = m.snapshot();
+        const auto epoch = m.identity().ownership_epoch;
+        const auto occupancy = m.occupancy_bytes();
+        const auto cursors = m.search_cursors();
+        const auto ids = m.free_queue_ids();
+        unsigned build_index = 0;
+        auto result = transfer_local_to_local(m, {frames[build_index ^ 1].descriptor,
+            capture->descriptor, 0, 0, 0, 0, 640, 224, 0});
+        require(result.bytes_written == 640 * 224 * 4 && result.pixels_written == 640 * 224 &&
+                result.partial_pixel_bytes == 0, "exact reached640x224 PSM0 local transfer");
+        const auto destination = std::uint32_t(capture->base_block) * 256;
+        const auto copied = m.snapshot();
+        for (std::uint32_t i = 0; i < 640 * 224 * 4; ++i)
+            require(copied.physical_bytes()[destination + i] == old.physical_bytes()[source1 + i] &&
+                    copied.known_nibbles()[destination + i] == old.known_nibbles()[source1 + i],
+                    "capture copies all physical bytes and partial unknown nibbles");
+        require(!old.observe_byte(destination).value && old.known_nibbles()[destination] == 0,
+                "pre-copy snapshot retains unknown capture");
+        require(!m.observe_byte(destination + 1).value &&
+                m.observe_nibble(destination + 1, 0).value == 2 &&
+                !m.observe_nibble(destination + 1, 1).known,
+                "copy preserves only the source's known half");
+        const auto submitted_read = [submitted = copied, destination] {
+            return submitted.observe_nibble(destination, 0).value;
+        };
+        build_index ^= 1;
+        transfer_local_to_local(m, {frames[build_index ^ 1].descriptor,
+            capture->descriptor, 0, 0, 0, 0, 640, 224, 0});
+        require(m.observe_byte(destination).value == frame0[0] && submitted_read() == 1 &&
+                copied.physical_bytes()[destination] == 0xb1 &&
+                copied.known_nibbles()[destination + 3] == 0,
+                "next source selection updates live capture but old submitted payload stays immutable");
+        require(m.identity().content_generation > old.identity().content_generation &&
+                m.identity().ownership_epoch == epoch && m.occupancy_bytes() == occupancy &&
+                m.search_cursors() == cursors && m.free_queue_ids() == ids &&
+                m.allocation(first->id)->serial == first->serial &&
+                m.allocation(second->id)->serial == second->serial &&
+                m.allocation(capture->id)->serial == capture->serial,
+                "copy invalidates content caches while preserving allocations and serials");
+    });
+    scenario([] {
+        Ps2TextureMemory m;
+        const std::array<std::uint32_t, 4> source{0x3ffc, 0x4ac8, 0x7534, 0x8000};
+        const std::array<std::uint32_t, 4> destination{0x80fc, 0x81c8, 0x8234, 0x8300};
+        for (unsigned i = 0; i < 4; ++i)
+            m.write_bytes(source[i], std::array<std::uint8_t, 4>{
+                std::uint8_t(i + 1), std::uint8_t(i + 11), std::uint8_t(i + 21), std::uint8_t(i + 31)});
+        const auto result = transfer_local_to_local(m,
+            {physical_descriptor(32, 2), physical_descriptor(128, 3), 63, 31, 7, 7, 2, 2, 0});
+        require(result.bytes_written == 16 && result.pixels_written == 4, "offset rectangle result");
+        for (unsigned i = 0; i < 4; ++i)
+            require(m.observe_byte(destination[i]).value == i + 1 &&
+                    m.observe_byte(destination[i] + 3).value == i + 31,
+                    "independent literal swizzled source/destination page offsets");
+        require(!m.allocator_initialized() && !m.observe_byte(0x80f8).value,
+                "local physical transfer neither initializes allocator nor fills padding");
+    });
+    scenario([] {
+        Ps2TextureMemory m;
+        const std::array<std::uint8_t, 4> known{0xff, 0xee, 0xdd, 0xcc};
+        m.write_bytes(256, known);
+        const auto submitted = m.snapshot();
+        transfer_local_to_local(m, {physical_descriptor(0, 1), physical_descriptor(1, 1),
+                                    0, 0, 0, 0, 1, 1, 0});
+        const auto now = m.snapshot();
+        for (unsigned i = 0; i < 4; ++i)
+            require(now.known_nibbles()[256 + i] == 0 && !m.observe_byte(256 + i).value &&
+                    submitted.observe_byte(256 + i).value == known[i],
+                    "fully unknown source invalidates all previously known destination lanes");
+        //Supported addresses wrap over4MiB, independently on both sides.
+        m.write_bytes(0x1f00, known);
+        transfer_local_to_local(m, {physical_descriptor(0x3fff, 1), physical_descriptor(64, 1),
+                                    64, 0, 0, 0, 1, 1, 0});
+        require(m.observe_byte(64 * 256).value == 0xff, "wrapped physical source address");
+        transfer_local_to_local(m, {physical_descriptor(64, 1), physical_descriptor(0x3fff, 1),
+                                    0, 0, 64, 0, 1, 1, 0});
+        require(m.observe_byte(0x1f03).value == 0xcc, "wrapped physical destination address");
+    });
+    scenario([] {
+        Ps2TextureMemory m;
+        m.write_bytes(0, sequence(1024, 9));
+        const auto before = m.snapshot();
+        const auto identity = m.identity();
+        const auto storage = m.storage_identity();
+        const GsLocalToLocal valid{physical_descriptor(0, 1), physical_descriptor(128, 1),
+                                  0, 0, 0, 0, 2, 2, 0};
+        auto reject_without_change = [&](const GsLocalToLocal& transfer) {
+            rejects("unsupported local copy", [&] { transfer_local_to_local(m, transfer); });
+            require(m.identity() == identity && m.storage_identity() == storage &&
+                    m.shares_storage_with(before), "local rejection precedes COW and mutation");
+            const auto now = m.snapshot();
+            require(std::equal(now.physical_bytes().begin(), now.physical_bytes().end(),
+                               before.physical_bytes().begin()) &&
+                    std::equal(now.known_nibbles().begin(), now.known_nibbles().end(),
+                               before.known_nibbles().begin()), "rejected transfer is all-or-nothing");
+        };
+        for (const unsigned psm : {1, 19, 27, 36, 44, 49}) {
+            auto t = valid; t.source_descriptor |= std::uint64_t(psm) << 32; reject_without_change(t);
+            t = valid; t.destination_descriptor |= std::uint64_t(psm) << 32; reject_without_change(t);
+        }
+        for (const unsigned direction : {1, 2, 3, 4}) {
+            auto t = valid; t.direction = direction; reject_without_change(t);
+        }
+        auto t = valid; t.source_descriptor = 0; reject_without_change(t);
+        t = valid; t.destination_descriptor = 0; reject_without_change(t);
+        t = valid; t.rrw = 0; reject_without_change(t);
+        t = valid; t.rrh = 0; reject_without_change(t);
+        t = valid; t.rrw = 2049; reject_without_change(t);
+        t = valid; t.rrh = std::numeric_limits<std::uint32_t>::max(); reject_without_change(t);
+        t = valid; t.ssax = 2047; reject_without_change(t);
+        t = valid; t.ssay = 2047; reject_without_change(t);
+        t = valid; t.dsax = 2047; reject_without_change(t);
+        t = valid; t.dsay = 2047; reject_without_change(t);
+        t = valid; t.dsax = std::numeric_limits<std::uint32_t>::max(); reject_without_change(t);
+        //Distinct TBP values still physically overlap after swizzling/wrap.
+        t = valid; t.rrw = 64; t.rrh = 32; t.destination_descriptor = physical_descriptor(1, 1);
+        reject_without_change(t);
+        t = valid; t.destination_descriptor = t.source_descriptor; reject_without_change(t);
+        t = valid; t.source_descriptor = physical_descriptor(0x3fff, 1); t.ssax = 64;
+        t.destination_descriptor = physical_descriptor(0x1f, 1); reject_without_change(t);
+    });
+}
+}
 
 int main() {
     try {
+        local_to_local_tests();
         // Retail 0x1c9b48 floor semantics (shift of the signed product).
         require(retail_transfer_qwc(0, 64, 64) == 1024, "ct32 64x64 qwc");
         require(retail_transfer_qwc(0, 3, 3) == 2, "ct32 9 pixels floor to 2 qwc, not 3");

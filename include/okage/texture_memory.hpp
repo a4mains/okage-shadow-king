@@ -121,6 +121,9 @@ public:
                                                     std::uint8_t lane) const;
 
     void write_bytes(std::uint32_t address, std::span<const std::uint8_t> bytes);
+    void write_masked_bytes(std::uint32_t address,
+                            std::span<const std::uint8_t> bytes,
+                            std::span<const std::uint8_t> known_masks);
     void write_nibble(std::uint32_t address, std::uint8_t nibble, std::uint8_t value);
     GsByteObservation observe_byte(std::uint32_t address) const;
     GsNibbleObservation observe_nibble(std::uint32_t address, std::uint8_t nibble) const;

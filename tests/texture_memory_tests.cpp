@@ -9,9 +9,83 @@ namespace {
 void require(bool value, const char* message) {
     if (!value) throw std::runtime_error(message);
 }
+[[gnu::noinline]] void masked_write_scenario() {
+    using namespace okage;
+    Ps2TextureMemory memory;
+    memory.initialize_empty_allocator();
+    const auto allocation = memory.allocate(2, GsPixelStorage::Psmct32, 8, 8);
+    require(allocation.has_value(), "masked write fixture allocation");
+    const auto address = std::uint32_t(allocation->base_block) * 256;
+    const std::array<std::uint8_t, 4> initial{0x11, 0x22, 0x33, 0x44};
+    memory.write_bytes(address, initial);
+    const auto before = memory.snapshot();
+    const auto ownership = memory.identity().ownership_epoch;
+    const auto occupancy = memory.occupancy_bytes();
+    const auto cursors = memory.search_cursors();
+    const auto available = memory.available_count();
+    const std::array<std::uint8_t, 4> values{0xab, 0xcd, 0xef, 0x73};
+    const std::array<std::uint8_t, 4> masks{0, 1, 2, 3};
+    memory.write_masked_bytes(address, values, masks);
+    require(memory.identity().content_generation == before.identity().content_generation + 1,
+            "one masked batch advances content generation once");
+    require(memory.identity().ownership_epoch == ownership &&
+            memory.occupancy_bytes() == occupancy && memory.search_cursors() == cursors &&
+            memory.available_count() == available &&
+            memory.allocation(allocation->id)->serial == allocation->serial,
+            "masked write preserves ownership, allocator and live incarnation");
+    const auto after = memory.snapshot();
+    require(!memory.shares_storage_with(before) && before.physical_bytes()[address] == 0x11 &&
+            before.known_nibbles()[address] == 3, "masked write detaches old byte and mask planes");
+    for (unsigned i = 0; i < 4; ++i) {
+        require(after.physical_bytes()[address + i] == values[i] &&
+                after.known_nibbles()[address + i] == masks[i],
+                "masked write replaces exact physical byte and nibble definedness");
+        require(memory.observe_nibble(address + i, 0).known == bool(masks[i] & 1) &&
+                memory.observe_nibble(address + i, 1).known == bool(masks[i] & 2),
+                "unknown source nibble does not inherit known destination");
+    }
+    require(memory.observe_nibble(address + 1, 0).value == 0xd &&
+            memory.observe_nibble(address + 2, 1).value == 0xe &&
+            memory.observe_byte(address + 3).value == 0x73,
+            "partial masks expose only the known values");
+    auto reject_without_change = [&](auto&& operation) {
+        const auto identity = memory.identity();
+        const auto storage = memory.storage_identity();
+        bool threw = false;
+        try { operation(); } catch (const std::invalid_argument&) { threw = true; }
+        catch (const std::out_of_range&) { threw = true; }
+        require(threw && memory.identity() == identity && memory.storage_identity() == storage,
+                "masked rejection validates before COW/generation/mutation");
+        const auto now = memory.snapshot();
+        for (unsigned i = 0; i < 4; ++i)
+            require(now.physical_bytes()[address + i] == values[i] &&
+                    now.known_nibbles()[address + i] == masks[i], "masked rejection preserves planes");
+    };
+    reject_without_change([&] { memory.write_masked_bytes(address, values,
+        std::array<std::uint8_t, 4>{0, 1, 2, 4}); });
+    reject_without_change([&] { memory.write_masked_bytes(address, values,
+        std::span<const std::uint8_t>(masks).first(3)); });
+    reject_without_change([&] { memory.write_masked_bytes(Ps2TextureMemory::vram_bytes - 1, values, masks); });
+    reject_without_change([&] { memory.write_masked_bytes(Ps2TextureMemory::vram_bytes + 1, {}, {}); });
+    const auto identity = memory.identity();
+    memory.write_masked_bytes(Ps2TextureMemory::vram_bytes, {}, {});
+    require(memory.identity() == identity, "empty masked write does not advance generation");
+    memory.write_masked_bytes(address + 8, after.physical_bytes().subspan(address, 4),
+                              after.known_nibbles().subspan(address, 4));
+    const auto copied = memory.snapshot();
+    for (unsigned i = 0; i < 4; ++i)
+        require(copied.physical_bytes()[address + 8 + i] == values[i] &&
+                copied.known_nibbles()[address + 8 + i] == masks[i], "same-lineage masked span input");
+    Ps2TextureMemory unknown_allocator;
+    unknown_allocator.write_masked_bytes(0, values, masks);
+    require(!unknown_allocator.allocator_initialized() &&
+            unknown_allocator.observe_nibble(1, 0).value == 0xd,
+            "explicit masked physical write needs no allocation claim");
+}
 }
 int main() {
     try {
+        masked_write_scenario();
         const auto& ct32=okage::gs_texture_format(okage::GsPixelStorage::Psmct32);
         const auto& t8=okage::gs_texture_format(okage::GsPixelStorage::Psmt8);
         const std::array<std::uint32_t,13> source_psms{

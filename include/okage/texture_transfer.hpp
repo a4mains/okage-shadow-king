@@ -31,6 +31,21 @@ GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
                                         const GsHostToLocal& transfer,
                                         std::span<const std::uint8_t> data);
 
+struct GsLocalToLocal {
+    std::uint64_t source_descriptor{};
+    std::uint64_t destination_descriptor{};
+    std::uint32_t ssax{};
+    std::uint32_t ssay{};
+    std::uint32_t dsax{};
+    std::uint32_t dsay{};
+    std::uint32_t rrw{};
+    std::uint32_t rrh{};
+    std::uint32_t direction{}; // TRXPOS.DIR, not TRXDIR (always2 here).
+};
+
+GsTransferResult transfer_local_to_local(Ps2TextureMemory& memory,
+                                         const GsLocalToLocal& transfer);
+
 std::uint32_t retail_transfer_qwc(std::uint32_t psm, std::int32_t width, std::int32_t height);
 
 GsTransferResult upload_retail_rect(Ps2TextureMemory& memory,

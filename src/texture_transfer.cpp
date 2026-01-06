@@ -25,6 +25,50 @@ constexpr std::uint32_t clut_scratch_bytes = 2048;
 
 } // namespace
 
+GsTransferResult transfer_local_to_local(Ps2TextureMemory& memory,
+                                         const GsLocalToLocal& t) {
+    const auto source_psm = static_cast<std::uint32_t>((t.source_descriptor >> 32) & 63);
+    const auto destination_psm = static_cast<std::uint32_t>((t.destination_descriptor >> 32) & 63);
+    if (source_psm != 0 || destination_psm != 0)
+        reject("local-to-local supports only PSM0 to PSM0");
+    if (t.direction != 0) reject("local-to-local TRXPOS direction is not recovered");
+    const auto source_tbp = static_cast<std::uint32_t>(t.source_descriptor & 0x3fff);
+    const auto destination_tbp = static_cast<std::uint32_t>(t.destination_descriptor & 0x3fff);
+    const auto source_tbw = static_cast<std::uint32_t>((t.source_descriptor >> 14) & 63);
+    const auto destination_tbw = static_cast<std::uint32_t>((t.destination_descriptor >> 14) & 63);
+    if (!source_tbw || !destination_tbw) reject("local-to-local zero buffer stride is not modeled");
+    if (!t.rrw || !t.rrh) reject("empty local-to-local rectangle is not modeled");
+    if (t.rrw > 2048 || t.rrh > 2048 || t.ssax > 2047 || t.ssay > 2047 ||
+        t.dsax > 2047 || t.dsay > 2047 || t.rrw > 2048 - t.ssax ||
+        t.rrh > 2048 - t.ssay || t.rrw > 2048 - t.dsax || t.rrh > 2048 - t.dsay)
+        reject("local-to-local rectangle exceeds supported coordinates");
+
+    const auto pixels = t.rrw * t.rrh; // bounded above by2048*2048
+    struct Pixel { std::uint32_t source, destination; };
+    std::vector<Pixel> addresses(pixels);
+    std::vector<bool> source_words(Ps2TextureMemory::vram_bytes / 4);
+    for (std::uint32_t i = 0; i < pixels; ++i) {
+        const auto x = i % t.rrw, y = i / t.rrw;
+        const auto source = gs_texture_byte_address(0, source_tbp, source_tbw, t.ssax + x, t.ssay + y);
+        const auto destination = gs_texture_byte_address(0, destination_tbp, destination_tbw, t.dsax + x, t.dsay + y);
+        if (!source || !destination || *source > Ps2TextureMemory::vram_bytes - 4 ||
+            *destination > Ps2TextureMemory::vram_bytes - 4 || (*source & 3) || (*destination & 3))
+            reject("invalid local-to-local physical word address");
+        addresses[i] = {*source, *destination};
+        source_words[*source / 4] = true;
+    }
+    for (const auto& pixel : addresses)
+        if (source_words[pixel.destination / 4])
+            reject("overlapping local-to-local transfer ordering is not recovered");
+
+    const auto source = memory.snapshot();
+    const auto bytes = source.physical_bytes(), masks = source.known_nibbles();
+    for (const auto& pixel : addresses)
+        memory.write_masked_bytes(pixel.destination, bytes.subspan(pixel.source, 4),
+                                   masks.subspan(pixel.source, 4));
+    return {std::size_t(pixels) * 4, pixels};
+}
+
 GsTransferResult transfer_host_to_local(Ps2TextureMemory& memory,
                                         const GsHostToLocal& t,
                                         std::span<const std::uint8_t> data) {
