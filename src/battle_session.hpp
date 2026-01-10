@@ -34,6 +34,8 @@ struct BattleResourceHooks {
     std::shared_ptr<const BattleEffectTextureBytes> effect_textures;
     // After all party/enemy source loads and render bindings, before ready.
     std::function<void()> complete_resources;
+    // Diagnostic-only actual GPU tap witness; no GS or simulation mutation.
+    std::optional<std::array<std::uint32_t,2>> sampling_audit;
 };
 struct BattleConstructionContext {
     std::span<std::uint8_t> variables;

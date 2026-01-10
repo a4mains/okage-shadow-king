@@ -359,6 +359,7 @@ struct Session {
         okage::BattleResourceHooks hooks;
         if(!title_modeled(okage::ResourceStage::FieldWrappersFreed))return hooks;
         hooks.textures=&startup_textures->handles();hooks.effect_textures=verified_effect_textures;
+        if(!newgame_report.empty())hooks.sampling_audit=std::array<std::uint32_t,2>{36,64};
         hooks.prepare_resources=[this](okage::BattlePreparedResources& prepared) {
             auto& handles=startup_textures->handles();
             const auto old_class=handles.reservation_class();handles.set_reservation_class(1);
@@ -995,6 +996,8 @@ struct Session {
         field->get_variable=[this](std::uint32_t selector){return okage::event_variable(variables,selector);};
         field->transition_service=[this](unsigned countdown){
             if(countdown==1){
+                if(title_modeled(okage::ResourceStage::FieldActive))
+                    startup_textures->capture_previous_frame(frame-1);
                 transition_image=surface();
                 if(live_presentation_enabled)transition_live_image=live_image;
             }
@@ -1023,6 +1026,9 @@ struct Session {
                 okage::RestoreConstruction{field_root.parent_path()/"CMNDATA",battle_input,save_directory,ui_fonts,{},true,field_ruw,field_ui_atlas});
             save_capture_surface=std::make_unique<okage::BattleCaptureSurface>();
             scene_fade.immediate(std::bit_cast<float>(0x3f4ccccdu));
+            //132df0 follows Save-child construction and114c80(.8).
+            if(title_modeled(okage::ResourceStage::FieldActive))
+                startup_textures->capture_previous_frame(frame-1);
             save_background=*completed_game_image;save_open_frame=frame;
             pending_game_command={0,0,0};
             std::cout<<"Native field Save constructed frame="<<frame<<'\n';
@@ -1045,6 +1051,8 @@ struct Session {
                     throw std::runtime_error("Battle capture of a visible dialogue window needs shared game-surface UI");
                 for(unsigned alias:{4u,5u,6u})if(instance_aliases[alias]!=-1)
                     throw std::runtime_error("Battle capture requires recovered live follower return state");
+                if(title_modeled(okage::ResourceStage::FieldActive))
+                    startup_textures->capture_previous_frame(frame-1);
                 battle_capture_image=*completed_game_image;battle_capture_frame=completed_game_frame;
                 battle_followers_saved=true; // 0x131828 marks even an empty roster saved.
                 battle_capture_surface=std::make_shared<okage::BattleCaptureSurface>();
@@ -2461,6 +2469,8 @@ struct Session {
             if(save_open_frame+1==frame) {
                 if(!completed_game_image||completed_game_frame+1!=frame)
                     throw std::runtime_error("Save freeze requires consecutive framebuffer history");
+                if(title_modeled(okage::ResourceStage::FieldActive))
+                    startup_textures->capture_previous_frame(frame-1);
                 save_background=*completed_game_image;
             }
             save_trace.push_back(frame);const auto state=field_save->observation();save_trace.insert(save_trace.end(),state.begin(),state.end());
@@ -2652,6 +2662,8 @@ struct Session {
             frame_event("submitted",frame);
         }
         if(prepared_render_tick&&!pending_battle_frame())render_frame();
+        if(startup_textures&&startup_textures->stage()!=okage::ResourceStage::Unmodeled)
+            startup_textures->submit_main_loop();
         service_field_return_loader();
         if(battle) {
             if(!game_data)throw std::runtime_error("Battle construction requires owned game tables");

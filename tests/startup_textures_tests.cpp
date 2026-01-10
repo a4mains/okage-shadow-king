@@ -697,6 +697,30 @@ int main() {
             construct_world(70,unsigned(-1));
             require(o.field_prefix().constructor_command==13&&o.stage()==ResourceStage::FieldActive,
                     "command13 common worker reconstructs and activates resources without a new pool");
+            require(o.gs_buffer_selector()==0&&o.gs_submissions()==0,"1cb1e8 starts independent GS selector atzero");
+            o.submit_main_loop();require(o.gs_buffer_selector()==1&&o.gs_submissions()==1,"1cb648 first submission flips selector");
+            o.submit_main_loop();require(o.gs_buffer_selector()==0&&o.gs_submissions()==2,"next submission returns selector tozero");
+            const auto source_binding=o.layers()[1].color,destination_binding=o.layers()[2].color;
+            const auto source_address=o.memory().allocation(source_binding.id)->base_block*256u;
+            const auto destination_address=o.memory().allocation(destination_binding.id)->base_block*256u;
+            const std::array<std::uint8_t,4> pixel{11,22,33,44};
+            o.memory().write_bytes(source_address,pixel);
+            const auto before_capture=o.memory().snapshot();
+            bool rejected_capture=false;
+            try{o.capture_previous_frame(1);}catch(const std::logic_error&){rejected_capture=true;}
+            require(rejected_capture&&o.memory().identity()==before_capture.identity(),
+                    "incomplete main-loop submission history rejects capture before mutation");
+            o.capture_previous_frame(2);
+            for(unsigned i=0;i<4;++i) {
+                const auto value=o.memory().observe_byte_masked(destination_address+i);
+                require(value.value==pixel[i]&&value.known_mask==3,"capture copies physical sourceI^1 bytes and definedness");
+                require(before_capture.observe_byte_masked(destination_address+i).known_mask==0,
+                        "capture retains earlier submitted snapshot independently");
+            }
+            require(o.memory().observe_byte_masked(destination_address+4).known_mask==0&&
+                    o.memory().allocation(destination_binding.id)->serial==destination_binding.serial&&
+                    o.gs_buffer_selector()==0&&o.gs_submissions()==2,
+                    "unknown source raster output stays unknown; capture/readback neither flips selector nor reallocates");
             }
         });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).

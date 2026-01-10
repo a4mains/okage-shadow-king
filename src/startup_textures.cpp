@@ -1,5 +1,6 @@
 #include "okage/startup_textures.hpp"
 #include "okage/sha256.hpp"
+#include "okage/texture_transfer.hpp"
 
 #include <algorithm>
 #include <map>
@@ -474,6 +475,26 @@ void StartupTextureOwner::begin_scheduled_frames() {
     memory_.invalidate_owned_nibbles(layers_[0].depth->id);  // Z24 lanes only; font top-byte lanes stay
     memory_coverage_ = MemoryContentCoverage::DrawTargetsInvalidated;
     advance(ResourceStage::Scheduled);
+}
+
+void StartupTextureOwner::submit_main_loop() {
+    require_modeled("1cb648 main-loop submission");
+    if(stage_==ResourceStage::PreScheduler)throw std::logic_error("GS submission before100618");
+    gs_buffer_selector_^=1; ++gs_submissions_;
+}
+void StartupTextureOwner::capture_previous_frame(std::uint64_t expected_submissions) {
+    require_stage(ResourceStage::FieldActive,"114d50 field capture");
+    if(gs_submissions_!=expected_submissions)throw std::logic_error("Capture GS submission history is incomplete");
+    const auto& source_binding=layers_[gs_buffer_selector_^1].color;
+    const auto& destination_binding=layers_[2].color;
+    const auto source=memory_.allocation(source_binding.id),destination=memory_.allocation(destination_binding.id);
+    if(!source||!destination||source->serial!=source_binding.serial||destination->serial!=destination_binding.serial)
+        throw std::logic_error("Capture layer allocation incarnation changed");
+    const GsLocalToLocal transfer{source->descriptor,destination->descriptor,0,0,0,0,640,224,0};
+    transfer_local_to_local(memory_,transfer);
+    lifecycle_push("{\"kind\":\"capture\",\"op\":\"local-to-local\",\"source_selector\":"+
+        std::to_string(gs_buffer_selector_^1)+",\"submissions\":"+std::to_string(gs_submissions_)+
+        ",\"width\":640,\"height\":224}");
 }
 
 void StartupTextureOwner::begin_logo_construction() {

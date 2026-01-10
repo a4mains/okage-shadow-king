@@ -255,7 +255,7 @@ struct BattleSession::Impl {
             if(!resource_hooks.textures||!resource_hooks.model_asset||!resource_hooks.effect_textures)
                 throw std::runtime_error("Battle owned resource hooks require textures, model provider and verified effects");
         } else if(resource_hooks.textures||resource_hooks.model_asset||resource_hooks.effect_textures||
-                  resource_hooks.retire_actor||resource_hooks.retire_root||resource_hooks.retire_resource||resource_hooks.complete_resources)
+                  resource_hooks.retire_actor||resource_hooks.retire_root||resource_hooks.retire_resource||resource_hooks.complete_resources||resource_hooks.sampling_audit)
             throw std::runtime_error("Battle resource hooks require main prepare_resources");
         if(variables.size()<0xd78)throw std::runtime_error("Battle shared variable extent");
         if(event_variable(variables,0x40005)!=0)
@@ -1370,6 +1370,7 @@ void BattleSession::service_loader_after_frame(BattleConstructionContext context
             impl_->renderer=std::make_shared<SceneRenderer>(impl_->prepared_resources.map,
                 std::span<const SceneActor>{},impl_->objects.get(),assets);
             impl_->renderer->set_shared_texture_owner(*impl_->resource_hooks.textures,impl_->prepared_resources.environment_handle);
+            impl_->renderer->set_texture_sampling_audit(impl_->resource_hooks.sampling_audit);
             impl_->renderer->set_material_environment(decode_xim(*impl_->prepared_resources.environment));
             impl_->renderer->load_effect_textures(*impl_->resource_hooks.effect_textures);
             impl_->renderer->bind_effect_submissions(&impl_->effect_submissions);

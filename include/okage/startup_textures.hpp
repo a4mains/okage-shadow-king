@@ -171,6 +171,10 @@ public:
     ResourceStage stage() const noexcept { return stage_; }
     MemoryContentCoverage memory_coverage() const noexcept { return memory_coverage_; }
     void begin_scheduled_frames();
+    void submit_main_loop();
+    unsigned gs_buffer_selector() const noexcept { return gs_buffer_selector_; }
+    std::uint64_t gs_submissions() const noexcept { return gs_submissions_; }
+    void capture_previous_frame(std::uint64_t expected_submissions); //114d50 ->192bf0 at40a0
     // 12c350(0): logo construction may begin (stage check only).
     void begin_logo_construction();
     // 0x1b2348: a file-read failure (nullopt) appends nothing and returns -1; an
@@ -394,6 +398,8 @@ private:
     FieldPrefixState field_;
     OwnedBytes field_atlas_bytes_, field_texenv_bytes_, field_ruw_bytes_;
     OwnedBytes battle_atlas_bytes_, battle_environment_bytes_, battle_ruw_bytes_;
+    unsigned gs_buffer_selector_=0;
+    std::uint64_t gs_submissions_=0;
     int battle_atlas_=-1, battle_environment_=-1;
     unsigned battle_formation_=0, battle_stage_=0;
     unsigned chapter_scene_{};
