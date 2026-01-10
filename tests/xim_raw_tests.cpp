@@ -31,7 +31,7 @@ struct Spec {
     unsigned psm = 0, cpsm = 0, levels = 1, colors = 0, w = 2, h = 3;
     std::uint32_t stale0 = 0;
 };
-static unsigned bits_of(unsigned psm) { return psm == 0 ? 32 : psm == 1 ? 24 : psm == 20 ? 4 : 8; }
+static unsigned bits_of(unsigned psm) { return psm == 0 ? 32 : psm == 1 ? 24 : (psm == 20 || psm == 44) ? 4 : 8; }
 static Buf build(const Spec& s) {
     const bool indexed = s.psm >= 16;
     const std::size_t bpc = s.cpsm == 2 ? 2 : 4;
@@ -68,6 +68,8 @@ static void formats() {
         {20, 0, 16, S::Supported}, {20, 0, 256, S::Supported}, {20, 2, 16, S::UnsupportedPaletteFormat},
         {27, 0, 256, S::Supported}, {27, 0, 16, S::Supported},
         {27, 2, 256, S::UnsupportedPaletteFormat}, {27, 0, 32, S::UnsupportedPaletteShape},
+        {44, 0, 16, S::Supported}, {44, 0, 256, S::Supported},
+        {44, 2, 16, S::UnsupportedPaletteFormat}, {44, 0, 32, S::UnsupportedPaletteShape},
     };
     for (const auto& r : rows) {
         for (unsigned levels : {1u, r.psm >= 16 ? 3u : 1u}) {
@@ -108,7 +110,7 @@ static void formats() {
     }
 }
 static void truncation() {
-    for (const Spec s : {Spec{0, 0, 1, 0, 2, 2}, Spec{19, 0, 1, 16, 2, 2}, Spec{20, 2, 2, 16, 3, 1}}) {
+    for (const Spec s : {Spec{0, 0, 1, 0, 2, 2}, Spec{19, 0, 1, 16, 2, 2}, Spec{20, 2, 2, 16, 3, 1}, Spec{44, 0, 1, 16, 3, 1}}) {
         const auto b = build(s);
         okage::parse_xim_layout(b);
         for (std::size_t n = 0; n < b.size(); ++n) {

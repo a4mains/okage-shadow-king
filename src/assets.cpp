@@ -114,7 +114,7 @@ static Texture decode_xim_impl(Bytes data, Alpha16 alpha16, bool raw_alpha) {
     const auto psm = (le32(data, 0) >> 20) & 63;
     const auto cpsm = (le32(data, 4) >> 19) & 15;
     const bool indexed = psm >= 16;
-    if(raw_alpha && !(psm==0 || ((psm==19||psm==20||psm==27)&&cpsm==0)))
+    if(raw_alpha && !(psm==0 || ((psm==19||psm==20||psm==27||psm==44)&&cpsm==0)))
         fail("Raw XIM alpha requires PSMCT32 pixels or palette");
     unsigned bits;
     switch (psm) {
@@ -123,6 +123,7 @@ static Texture decode_xim_impl(Bytes data, Alpha16 alpha16, bool raw_alpha) {
         case 19: bits = 8; break;
         case 27: bits = 8; break;
         case 20: bits = 4; break;
+        case 44: bits = 4; break;
         default: fail("Unsupported XIM pixel format");
     }
     std::size_t block = 16, colors = 0;
@@ -133,6 +134,7 @@ static Texture decode_xim_impl(Bytes data, Alpha16 alpha16, bool raw_alpha) {
         if (palette_count != 1 || (colors != 16 && colors != 256))
             fail("Unsupported XIM palette count or size");
         if (cpsm != 0 && cpsm != 2) fail("Unsupported XIM palette format");
+        if (psm == 44 && cpsm != 0) fail("PSMT4HH XIM decoding requires CPSM0 palette");
         if (palette_bytes != 16 + colors * (cpsm == 2 ? 2 : 4))
             fail("Invalid XIM palette block extent");
         block += palette_bytes;
@@ -202,7 +204,7 @@ RawXimLayout parse_xim_layout(Bytes data) {
         case 0: l.bits_per_pixel = 32; break;
         case 1: l.bits_per_pixel = 24; break;
         case 19: case 27: l.bits_per_pixel = 8; break;
-        case 20: l.bits_per_pixel = 4; break;
+        case 20: case 44: l.bits_per_pixel = 4; break;
         default: fail("XIM unsupported pixel format");
     }
     l.indexed = l.pixel_format >= 16;
@@ -246,12 +248,13 @@ XimUploadSupport xim_upload_support(const RawXimLayout& l) {
     using S = XimUploadStatus;
     if (l.pixel_format == 0) return {S::Supported, "PSMCT32 direct image"};
     if (l.pixel_format == 1) return {S::Supported, "PSMCT24 direct image"};
-    if (l.pixel_format != 19 && l.pixel_format != 20 && l.pixel_format != 27) return {S::UnsupportedImageFormat, "no recovered upload address helper for PSM " + std::to_string(l.pixel_format)};
+    if (l.pixel_format != 19 && l.pixel_format != 20 && l.pixel_format != 27 && l.pixel_format != 44) return {S::UnsupportedImageFormat, "no recovered upload address helper for PSM " + std::to_string(l.pixel_format)};
     if (l.palette_format != 0) return {S::UnsupportedPaletteFormat, "no recovered 16->32 palette conversion evidence for CPSM " + std::to_string(l.palette_format)};
     if (l.palette_level_count < 1 || (l.palette_color_count != 16 && l.palette_color_count != 256))
         return {S::UnsupportedPaletteShape, "palette colors " + std::to_string(l.palette_color_count) + " not 16 or 256"};
     return {S::Supported, l.pixel_format == 20 ? "PSMT4 with CPSM0 palette" :
-                          l.pixel_format == 27 ? "PSMT8H with CPSM0 palette" : "PSMT8 with CPSM0 palette"};
+                          l.pixel_format == 27 ? "PSMT8H with CPSM0 palette" :
+                          l.pixel_format == 44 ? "PSMT4HH with CPSM0 palette" : "PSMT8 with CPSM0 palette"};
 }
 const char* to_string(XimUploadStatus s) {
     switch (s) {

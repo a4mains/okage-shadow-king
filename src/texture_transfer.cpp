@@ -228,8 +228,8 @@ std::optional<XimUploadResult> upload_xim(Ps2TextureMemory& memory, const OwnedR
     if (!image) return std::nullopt;
     result.image = image->id;
     upload_allocation_image(memory, image->id, xim.image());
-    // 18f6a8 reads the palette block whenever the header PSM is >= 0x10 (19, 20
-    // and the 11fb10/18f500 override 27 alike).
+    //18f6a8 reads the palette block whenever header PSM>=0x10, including
+    //11fb10/18f500 override27 and NAVI1b2394/18f500 override44.
     const bool indexed = l.indexed;
     for (std::uint32_t i = 0; indexed && i < l.palette_level_count; ++i) {
         XimPaletteAttempt attempt{i, std::nullopt, false};
