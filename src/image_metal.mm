@@ -1,9 +1,15 @@
 #include "image_metal.hpp"
+#include "gs_texture_sampling_metal.hpp"
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <sstream>
 
 namespace okage {
+struct ImageMetalGsSnapshot {
+    Ps2TextureSnapshot snapshot;
+    id<MTLBuffer> bytes,known;
+};
 namespace {
 void check(bool v,const char* why){if(!v)throw std::runtime_error(why);}
 // Source: 1b3450 TEST=0xf ALPHA=0x44, 1b2830 TEX1=0x60 CLAMP=5,
@@ -48,6 +54,18 @@ fragment Output image_fragment(Fragment v [[stage_in]],constant uint4& rgba [[bu
     int3 rgb=clamp((((s.rgb-d.rgb)*s.a)>>7)+d.rgb,0,255);
     return {float4(int4(rgb,s.a))/255.0f};
 }
+
+fragment Output image_gs_fragment(Fragment v [[stage_in]],constant uint4& rgba [[buffer(0)]],
+    device atomic_uint* invalid [[buffer(1)]],device const uchar* bytes [[buffer(2)]],
+    device const uchar* known [[buffer(3)]],constant GsTextureRegistersMetal& regs [[buffer(4)]],
+    float4 destination [[color(0),raster_order_group(0)]]) {
+    const float4 sampled=gs_sample_texture(bytes,known,regs,v.st,invalid);
+    if(any(!isfinite(sampled)))discard_fragment();
+    int4 s=int4(clamp(sampled*float4(rgba)/128.0f,0.0f,255.0f));
+    int4 d=int4(round(destination*255.0f));
+    int3 rgb=clamp((((s.rgb-d.rgb)*s.a)>>7)+d.rgb,0,255);
+    return {float4(int4(rgb,s.a))/255.0f};
+}
 )metal";
 struct Vertex {std::array<float,4> position,st;};
 id<MTLTexture> upload_raw(id<MTLDevice> device,const Texture& image){
@@ -73,23 +91,37 @@ id<MTLTexture> upload_image_gs_texture(id<MTLDevice> device,const Texture& image
     }
     auto raw=image;raw.rgba=std::move(bytes);return upload_raw(device,raw);
 }
-ImageMetalValidation::ImageMetalValidation(id<MTLCommandBuffer> command,id<MTLBuffer> errors,ImageMetalTexture texture)
-    :command_(command),errors_(errors),texture_(std::move(texture)){}
+ImageMetalValidation::ImageMetalValidation(id<MTLCommandBuffer> command,id<MTLBuffer> errors,ImageMetalTexture texture,
+        std::shared_ptr<const ImageMetalGsSnapshot> gs)
+    :command_(command),errors_(errors),texture_(std::move(texture)),gs_(std::move(gs)){}
 void ImageMetalValidation::validate_completed(id<MTLCommandBuffer> command) const {
     check(command&&command==command_,"Image validation token command identity mismatch");
     check(command.status==MTLCommandBufferStatusCompleted,"Image validation requires successful command completion");
     const auto count=*static_cast<const std::uint32_t*>(errors_.contents);
+    if(gs_) {
+        if(count==UINT32_MAX)return;
+        if(count==0xfffffffeu||count==0xfffffffdu)throw std::runtime_error("Image unsupported shared GS register/coordinate state code="+std::to_string(count));
+        const auto address=(count&0x7fffffu)>>1,nibble=count&1u;
+        const auto observation=gs_->snapshot.observe_nibble(address,std::uint8_t(nibble));
+        std::ostringstream message;message<<"Image unknown shared GS "<<((count&0x800000u)?"CLUT":"texture")
+            <<" nibble address=0x"<<std::hex<<address<<std::dec<<" nibble="<<nibble<<" owner=";
+        if(observation.allocation_owner)message<<*observation.allocation_owner;else message<<"none";
+        throw std::runtime_error(message.str());
+    }
     if(count)throw std::runtime_error("Image unsupported sampled texture footprint: fragment count="+std::to_string(count));
 }
 ImageMetal::ImageMetal(id<MTLDevice> device):device_(device){
     check(device&&[device supportsFamily:MTLGPUFamilyApple1],"Image programmable blending requires Apple GPU");
     NSError* error=nil;auto options=[MTLCompileOptions new];options.fastMathEnabled=NO;
-    auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:source] options:options error:&error];
+    const auto combined=std::string(gs_texture_sampling_metal_source)+source;
+    auto library=[device newLibraryWithSource:[NSString stringWithUTF8String:combined.c_str()] options:options error:&error];
     if(!library)throw std::runtime_error(error.localizedDescription.UTF8String);
     auto d=[MTLRenderPipelineDescriptor new];d.vertexFunction=[library newFunctionWithName:@"image_vertex"];
     d.fragmentFunction=[library newFunctionWithName:@"image_fragment"];
     d.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm;d.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
     pipeline_=[device newRenderPipelineStateWithDescriptor:d error:&error];if(!pipeline_)throw std::runtime_error(error.localizedDescription.UTF8String);
+    d.fragmentFunction=[library newFunctionWithName:@"image_gs_fragment"];
+    gs_pipeline_=[device newRenderPipelineStateWithDescriptor:d error:&error];if(!gs_pipeline_)throw std::runtime_error(error.localizedDescription.UTF8String);
     auto z=[MTLDepthStencilDescriptor new];z.depthCompareFunction=MTLCompareFunctionAlways;z.depthWriteEnabled=NO;
     no_depth_=[device newDepthStencilStateWithDescriptor:z];check(no_depth_,"Image depth state allocation");
 }
@@ -138,6 +170,69 @@ ImageMetalValidation ImageMetal::encode(id<MTLCommandBuffer> command,id<MTLTextu
     [e setRenderPipelineState:pipeline_];[e setDepthStencilState:no_depth_];[e setCullMode:MTLCullModeNone];[e setScissorRect:rect];
     [e setVertexBuffer:buffer offset:0 atIndex:0];[e setFragmentTexture:validation.texture_.texture atIndex:0];
     [e setFragmentBytes:rgba.data() length:sizeof(rgba) atIndex:0];[e setFragmentBuffer:errors offset:0 atIndex:1];
+    [e drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];[e endEncoding];return validation;
+}
+
+ImageMetalValidation ImageMetal::encode(id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth,
+        const ImageMetalQuad& quad,const ImageMetalBaseline& baseline,ImageMetalGsTexture source){
+    check(command&&command.device==device_&&command.retainedReferences&&color&&depth&&color!=depth&&color.device==device_&&depth.device==device_&&
+        color.sampleCount==1&&depth.sampleCount==1&&color.textureType==MTLTextureType2D&&depth.textureType==MTLTextureType2D&&
+        color.pixelFormat==MTLPixelFormatRGBA8Unorm&&depth.pixelFormat==MTLPixelFormatDepth32Float&&
+        color.width&&color.height&&color.width<=2048&&color.height<=2048&&color.width==depth.width&&color.height==depth.height,
+        "Image render target format/extent");
+    check(baseline.offset_x16<=65535&&baseline.offset_y16<=65535&&baseline.framebuffer_mask==0&&baseline.colclamp==1&&
+        baseline.dither==0&&baseline.prmodecont==1,"Image unsupported inherited framebuffer state");
+    check(baseline.scissor_x0<=baseline.scissor_x1&&baseline.scissor_y0<=baseline.scissor_y1&&baseline.scissor_x1<=2047&&baseline.scissor_y1<=2047,
+        "Image invalid SCISSOR");
+
+    check(source.snapshot.valid(),"Image shared GS snapshot is empty");
+    const auto& xy=quad.xy16;
+    for(const auto& p:xy)check(p[0]<=65535&&p[1]<=65535,"Image XY outside unsigned GS16 range");
+    std::int64_t winding=0;
+    for(unsigned i=0;i<4;++i) {
+        const auto& a=xy[i];const auto& b=xy[(i+1)%4];const auto& c=xy[(i+2)%4];
+        const auto cross=(std::int64_t(b[0])-a[0])*(std::int64_t(c[1])-b[1])-
+                         (std::int64_t(b[1])-a[1])*(std::int64_t(c[0])-b[0]);
+        check(cross!=0&&(!winding||(cross>0)==(winding>0)),"Image shared GS requires an ordered nonempty convex quad");
+        winding=cross;
+    }
+    check(quad.z==0xffff,"Image unsupported Z payload");
+    for(float st:quad.st)check(std::isfinite(st),"Image invalid ST endpoint");
+    check(quad.st[0]<=quad.st[2]&&quad.st[1]<=quad.st[3],"Image unsupported reversed ST rectangle");
+    std::array<Vertex,4> corners;
+    for(unsigned i=0;i<4;++i){
+        const float x=(float(xy[i][0])-float(baseline.offset_x16))/16.f+.5f;
+        const float y=(float(xy[i][1])-float(baseline.offset_y16))/16.f+.5f;
+        corners[i]={{2*x/float(color.width)-1,1-2*y/float(color.height),0,1},
+            {quad.st[(i==1||i==2)?2:0],quad.st[i>=2?3:1],1,0}};
+    }
+    std::array<Vertex,6> vertices{corners[0],corners[1],corners[2],corners[0],corners[2],corners[3]};
+    std::array<std::uint32_t,4> rgba;for(unsigned i=0;i<4;++i)rgba[i]=(quad.rgba>>(8*i))&255;
+    if(!cached_gs_||cached_gs_->snapshot.identity()!=source.snapshot.identity()||
+        cached_gs_->snapshot.storage_identity()!=source.snapshot.storage_identity()) {
+        auto gs=std::make_shared<ImageMetalGsSnapshot>();gs->snapshot=source.snapshot;
+        const auto bytes=gs->snapshot.physical_bytes(),known=gs->snapshot.known_nibbles();
+        gs->bytes=[device_ newBufferWithBytes:bytes.data() length:bytes.size() options:MTLResourceStorageModeShared];
+        gs->known=[device_ newBufferWithBytes:known.data() length:known.size() options:MTLResourceStorageModeShared];
+        check(gs->bytes&&gs->known,"Image shared GS buffer allocation");cached_gs_=std::move(gs);
+    }
+    const std::uint32_t untouched=UINT32_MAX;
+    auto errors=[device_ newBufferWithBytes:&untouched length:sizeof(untouched) options:MTLResourceStorageModeShared];check(errors,"Image validation buffer allocation");
+    ImageMetalValidation validation(command,errors,ImageMetalTexture{nil,std::move(source.owner)},cached_gs_);
+    MTLScissorRect rect{std::min<NSUInteger>(baseline.scissor_x0,color.width),std::min<NSUInteger>(baseline.scissor_y0,color.height),0,0};
+    rect.width=std::min<NSUInteger>(baseline.scissor_x1+1,color.width)-rect.x;
+    rect.height=std::min<NSUInteger>(baseline.scissor_y1+1,color.height)-rect.y;
+    if(!rect.width||!rect.height)return validation;
+    auto buffer=[device_ newBufferWithBytes:vertices.data() length:sizeof(vertices) options:MTLResourceStorageModeShared];check(buffer,"Image vertex allocation");
+    auto pass=[MTLRenderPassDescriptor renderPassDescriptor];pass.colorAttachments[0].texture=color;
+    pass.colorAttachments[0].loadAction=MTLLoadActionLoad;pass.colorAttachments[0].storeAction=MTLStoreActionStore;
+    pass.depthAttachment.texture=depth;pass.depthAttachment.loadAction=MTLLoadActionLoad;pass.depthAttachment.storeAction=MTLStoreActionStore;
+    auto e=[command renderCommandEncoderWithDescriptor:pass];check(e,"Image render encoder");
+    [e setRenderPipelineState:gs_pipeline_];[e setDepthStencilState:no_depth_];[e setCullMode:MTLCullModeNone];[e setScissorRect:rect];
+    [e setVertexBuffer:buffer offset:0 atIndex:0];
+    [e setFragmentBytes:rgba.data() length:sizeof(rgba) atIndex:0];[e setFragmentBuffer:errors offset:0 atIndex:1];
+    [e setFragmentBuffer:validation.gs_->bytes offset:0 atIndex:2];[e setFragmentBuffer:validation.gs_->known offset:0 atIndex:3];
+    [e setFragmentBytes:&source.registers length:sizeof(source.registers) atIndex:4];
     [e drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];[e endEncoding];return validation;
 }
 }
