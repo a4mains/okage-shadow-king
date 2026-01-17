@@ -31,13 +31,14 @@ std::uint32_t read(const Ps2TextureSnapshot& memory, const GsTexelAddress& addre
 }
 struct Axis { unsigned mode, min, max; };
 unsigned coordinate(std::int32_t value, const Axis& axis) {
-    if (axis.mode == 2) return std::clamp(value, std::int32_t(axis.min), std::int32_t(axis.max));
+    if (axis.mode == 1 || axis.mode == 2) return std::clamp(value, std::int32_t(axis.min), std::int32_t(axis.max));
     return (std::uint32_t(value) & axis.min) | axis.max;
 }
-Axis axis(std::uint64_t clamp, unsigned mode_shift, unsigned min_shift, unsigned max_shift) {
+Axis axis(std::uint64_t clamp, unsigned mode_shift, unsigned min_shift, unsigned max_shift,unsigned exponent) {
     Axis result{unsigned((clamp >> mode_shift) & 3), unsigned((clamp >> min_shift) & 1023),
                 unsigned((clamp >> max_shift) & 1023)};
-    if (result.mode != 2 && result.mode != 3) unsupported("CLAMP mode");
+    if (result.mode == 1) { result.min=0; result.max=(1u<<exponent)-1; }
+    if (result.mode != 1 && result.mode != 2 && result.mode != 3) unsupported("CLAMP mode");
     if (result.mode == 2 && result.min > result.max) unsupported("CLAMP bounds");
     return result;
 }
@@ -69,7 +70,7 @@ GsTextureSample sample_gs_texture(const Ps2TextureSnapshot& memory, const GsText
     if (psm == 1 && (regs.texa & ~(std::uint64_t(255) | (std::uint64_t(1) << 15) | (std::uint64_t(255) << 32))))
         unsupported("TEXA fields");
     if (regs.clamp >> 44) unsupported("CLAMP reserved fields");
-    const auto horizontal = axis(regs.clamp, 0, 4, 14), vertical = axis(regs.clamp, 2, 24, 34);
+    const auto horizontal = axis(regs.clamp, 0, 4, 14,tw), vertical = axis(regs.clamp, 2, 24, 34,th);
     const bool linear = regs.tex1 == 0x60;
     float fx, fy;
     const auto x = origin(u, tw, linear, fx), y = origin(v, th, linear, fy);

@@ -86,7 +86,7 @@ inline bool gs_read_texel(device const uchar* bytes, device const uchar* known,
     return true;
 }
 inline uint gs_region_coordinate(int value, uint mode, uint lo, uint hi) {
-    return mode == 2u ? uint(clamp(value, int(lo), int(hi))) : (uint(value) & lo) | hi;
+    return mode == 1u || mode == 2u ? uint(clamp(value, int(lo), int(hi))) : (uint(value) & lo) | hi;
 }
 inline float4 gs_sample_texture_impl(device const uchar* bytes, device const uchar* known,
                                constant GsTextureRegistersMetal& regs, float2 uv,
@@ -103,9 +103,11 @@ inline float4 gs_sample_texture_impl(device const uchar* bytes, device const uch
         (indexed && (((regs.tex0 >> 51u) & 15ul) != 0ul || ((regs.tex0 >> 55u) & 1ul) != 0ul ||
                      ((regs.tex0 >> 56u) & 31ul) != 0ul || ((regs.tex0 >> 61u) & 7ul) != 1ul)) ||
         (psm == 1u && (regs.texa & ~(255ul | (1ul << 15u) | (255ul << 32u))) != 0ul) ||
-        (regs.clamp >> 44u) != 0ul || (um != 2u && um != 3u) || (vm != 2u && vm != 3u) ||
+        (regs.clamp >> 44u) != 0ul || (um != 1u && um != 2u && um != 3u) || (vm != 1u && vm != 2u && vm != 3u) ||
         (um == 2u && umin > umax) || (vm == 2u && vmin > vmax))
         return gs_sample_error(invalid, 0xfffffffeu);
+    if(um==1u){umin=0u;umax=(1u<<tw)-1u;}
+    if(vm==1u){vmin=0u;vmax=(1u<<th)-1u;}
     float2 position = uv * float2(float(1u << tw), float(1u << th)) - (linear ? .5f : 0.f);
     if (!all(isfinite(position)) || any(position <= -2147483648.f) || any(position >= 2147483648.f))
         return gs_sample_error(invalid, 0xfffffffdu);

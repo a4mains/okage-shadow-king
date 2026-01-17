@@ -96,6 +96,13 @@ void filtering_and_bounds() {
         (std::uint64_t(1)<<24)|(std::uint64_t(4)<<34);
     equal(sample_gs_texture(memory->snapshot(),r,-1.f/1024,0),{7,7,7,7});
     r=registers(0,0,0,false,0,0);equal(sample_gs_texture(memory->snapshot(),r,1.25f,.25f),{40,60,80,128});
+    r=registers(0,0,0,true,1,1);
+    r.clamp=5u|(std::uint64_t(1023)<<4)|(std::uint64_t(1023)<<24);
+    equal(sample_gs_texture(memory->snapshot(),r,-.25f,2.f),{60,80,100,128});
+    equal(sample_gs_texture(memory->snapshot(),r,2.f,-.25f),{40,60,80,128});
+    equal(sample_gs_texture(memory->snapshot(),r,1.f,1.f),{80,100,120,128});
+    r=registers(0,0,0,true,2,1);r.clamp=5;
+    rejects([&]{sample_gs_texture(memory->snapshot(),r,2.f,.25f);},"unknown texture nibble");
 }
 void alpha_and_unknown() {
     auto memory=std::make_unique<Ps2TextureMemory>();auto r=registers(1,0);r.texa=0x80000080abull;
