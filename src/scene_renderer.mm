@@ -943,6 +943,11 @@ struct SceneRenderer::Impl {
         if(gpuPass&&!gpuPass->encode)throw std::runtime_error("Scene GPU pass has no encoder");
         const auto& vertices=data.vertices;const auto& draws=data.draws;
         const bool beforeDeferred=gpuPass&&gpuPass->before_deferred_effects;
+        if(gpuPass&&gpuPass->ordinary_field_images) {
+            if(beforeDeferred||!data.field_projection)throw std::runtime_error("Field image pass requires ordinary GS field ordering");
+            for(const auto& draw:draws)if(!draw.effect&&draw.bucket>=0x409)
+                throw std::runtime_error("Field model bucket interleaves with resource effects/images");
+        }
         if(beforeDeferred) {
             if(!data.field_projection)throw std::runtime_error("Title GPU pass requires GS field projection");
             for(const auto& draw:draws) {

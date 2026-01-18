@@ -591,13 +591,29 @@ int main() {
             require(cmd < req && req < first("resource-retire", cmd), "command, then request, then retirement");
             require(o.models().ranges().available_count() == 126,
                     "two embedded startup groups survive title/name/chapter retirement");
-            const auto construct_world = [&](unsigned scene, unsigned entrance) {
+            const auto construct_world = [&](unsigned scene, unsigned entrance,bool navigation=false) {
                 o.construct_field_mode(scene, entrance);o.enter_field_worker();
                 o.load_field_atlas(std::make_shared<const std::vector<std::uint8_t>>(effect_xim({27,256,64,32},91)));
                 o.bind_field_atlas();
                 o.load_field_texenv(std::make_shared<const std::vector<std::uint8_t>>(effect_xim({19,256,64,64},92)));
                 o.load_field_ruw(std::make_shared<const std::vector<std::uint8_t>>(32,93));
-                o.publish_field_ui();o.begin_field_world();
+                o.publish_field_ui();
+                if(navigation) {
+                    auto navi=effect_xim({20,16,56,112},95);put32(navi,0,44u<<20);
+                    const auto count=o.handles().live_handle_count();
+                    unsigned returns=0;
+                    o.load_field_navigation(std::make_shared<const std::vector<std::uint8_t>>(effect_xim({27,256,64,32},96)),
+                        std::make_shared<const std::vector<std::uint8_t>>(std::move(navi)),[&](const char*){
+                            ++returns;const auto& state=o.field_prefix();
+                            require(state.navigation_image_count==returns&&state.navigation_slot_count==(returns==1?1u:3u)&&
+                                    state.navigation_handles[returns-1]>=0&&state.navigation_slots[returns==1?0:2]==-1,
+                                    "1009e0 return exposes actual uploads/counters before caller manager-slot store");
+                        });
+                    require(returns==2&&o.handles().live_handle_count()==count+2&&o.image_list().size()==2&&
+                            o.field_prefix().navigation_slots==std::array<int,3>{0,1,2}&&o.field_prefix().navigation_live,
+                            "positive NAVI branch creates two uploads and three slots, with no alias retain/upload");
+                }
+                o.begin_field_world();
                 const std::array<std::string,1> names{"world"};
                 const auto& model=o.load_field_model("world.xmd",names,[](std::string&)->std::optional<std::vector<std::uint8_t>> {
                     return effect_xim({19,256,32,32},94);
@@ -614,11 +630,14 @@ int main() {
             const auto startup_glyph=*o.handles().image(o.glyph_cache_handle());
             for(unsigned cycle=0;cycle<2;++cycle) {
                 if(cycle)o.enter_field_constructor(74,1);
-                const int model=construct_world(cycle?74:72,cycle?1:0);
+                const int model=construct_world(cycle?74:72,cycle?1:0,cycle!=0);
                 const int atlas=o.field_prefix().manager_60,env=o.field_prefix().resource_48;
                 const auto snapshot=o.memory().snapshot();
                 const auto env_allocation=*o.handles().image(env);
+                const auto navigation_handles=o.field_prefix().navigation_handles;
                 o.handles().clear_events();o.retire_field_resources();
+                if(cycle)require(!o.handles().handle_live(navigation_handles[0])&&!o.handles().handle_live(navigation_handles[1])&&
+                                 o.image_list().empty(),"101058 retires two NAVI image-list handles once despite three image slots");
                 require(!o.handles().handle_live(env) && !o.handles().handle_live(model) && o.handles().handle_live(atlas),
                         "resource child retires env and models before parent atlas");
                 require(o.models().ranges().available_count()==126 && !o.models().actor("world"),
@@ -721,6 +740,18 @@ int main() {
                     o.memory().allocation(destination_binding.id)->serial==destination_binding.serial&&
                     o.gs_buffer_selector()==0&&o.gs_submissions()==2,
                     "unknown source raster output stays unknown; capture/readback neither flips selector nor reallocates");
+            const auto prior_capture=o.memory().snapshot();
+            const auto alternate_binding=o.layers()[0].color;
+            const auto alternate_address=o.memory().allocation(alternate_binding.id)->base_block*256u;
+            const std::array<std::uint8_t,4> alternate_pixel{55,66,77,88};
+            o.memory().write_bytes(alternate_address,alternate_pixel);
+            o.submit_main_loop();o.capture_previous_frame(3);
+            for(unsigned i=0;i<4;++i) {
+                require(o.memory().observe_byte_masked(destination_address+i).value==alternate_pixel[i],
+                        "odd submission selector captures source0, not a hardcoded source1");
+                require(prior_capture.observe_byte_masked(destination_address+i).value==pixel[i],
+                        "next capture preserves the previously submitted capture snapshot");
+            }
             }
         });
         // Successor walk with a retired handle between loads (hole) and a failed load (-1 skipped).

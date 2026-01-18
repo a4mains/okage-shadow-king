@@ -15,6 +15,7 @@
 #include "okage/texture_handles.hpp"
 #include "okage/resource_textures.hpp"
 #include "okage/model_groups.hpp"
+#include "okage/gs_texture_sampling.hpp"
 #include "okage/texture_memory.hpp"
 
 namespace okage {
@@ -266,6 +267,12 @@ public:
         bool ruw_slot0_live{};           // 1a9190("fld.ruw", 0)
         std::uint64_t ruw_bytes{};
         std::string ruw_sha256;
+        bool navigation_live{};
+        std::array<int,3> navigation_slots{-1,-1,-1}; //+2b0,+104,+2b4
+        std::array<int,3> navigation_image_indices{-1,-1,-1};
+        std::array<int,2> navigation_handles{-1,-1}; //two uploads, not three references
+        std::array<std::uint64_t,2> navigation_handle_serials{};
+        unsigned navigation_slot_count{},navigation_image_count{}; //resource+2c/+30
     };
     const FieldPrefixState& field_prefix() const noexcept { return field_; }
     void construct_field_mode(unsigned scene, unsigned entrance);
@@ -280,6 +287,9 @@ public:
     void load_field_ruw(const OwnedBytes& ruw);
     // 131e7c: manager+0x34 = 1, before world resources and worker completion.
     void publish_field_ui();
+    void load_field_navigation(const OwnedBytes& mapinfo, const OwnedBytes& navigation,
+                               const std::function<void(const char*)>& image_return = {});
+    GsTextureRegisters field_navigation_registers(unsigned image) const;
     // 1bbac8 -> 186a50(1), before authored map-definition model loads.
     void begin_field_world();
     using WorldModelTextures = ModelResourceGroup;

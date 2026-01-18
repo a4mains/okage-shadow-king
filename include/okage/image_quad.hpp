@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include "okage/pose.hpp"
 
 namespace okage {
 struct ImageQuad {
@@ -10,4 +11,6 @@ struct ImageQuad {
 };
 ImageQuad axis_aligned_image_quad(std::uint32_t width,std::uint32_t height,
                                  const std::array<std::uint32_t,6>& fp_words);
+ImageQuad source_image_quad(std::uint32_t width,std::uint32_t height,
+                           const std::array<std::uint32_t,6>& fp_words,const SineTable&);
 }

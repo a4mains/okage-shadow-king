@@ -1039,6 +1039,54 @@ void StartupTextureOwner::begin_field_world() {
     advance(ResourceStage::FieldWorldLoading);
 }
 
+void StartupTextureOwner::load_field_navigation(const OwnedBytes& mapinfo,const OwnedBytes& navigation,
+        const std::function<void(const char*)>& image_return) {
+    require_stage(ResourceStage::FieldUiPublished,"131fdc positive NAVI branch");
+    if(field_.navigation_live||!image_list_.empty())throw std::logic_error("Navigation image slots already occupied");
+    if(!mapinfo||!navigation)throw std::invalid_argument("Positive NAVI probe requires both authored images");
+    if(OwnedRawXim(*mapinfo).layout().pixel_format!=27||OwnedRawXim(*navigation).layout().pixel_format!=44)
+        throw std::invalid_argument("Navigation images lack source18f500 format overrides");
+    const auto load=[&](const OwnedBytes& bytes,unsigned image,int slot,const char* checkpoint) {
+        const int handle=handles_.load_xim(OwnedRawXim(*bytes)).handle;
+        image_list_.push_back(handle);sync();
+        if(handle<0)throw std::runtime_error("Reached navigation image allocation failed");
+        field_.navigation_handles[image]=handle;
+        field_.navigation_handle_serials[image]=handles_.handle_serial(handle);
+        field_.navigation_image_indices.at(slot)=int(image);
+        ++field_.navigation_slot_count;++field_.navigation_image_count;
+        lifecycle_push("{\"kind\":\"field-image\",\"op\":\"load\",\"slot\":"+std::to_string(slot)+
+            ",\"list_index\":"+std::to_string(image_list_.size()-1)+",\"handle\":"+std::to_string(handle)+"}");
+        if(image_return)image_return(checkpoint);
+        return handle;
+    };
+    load(mapinfo,0,0,"navigation-mapinfo-loaded");
+    field_.navigation_slots[0]=0;
+    ++field_.navigation_slot_count; //100a80 increments onlyresource+2c
+    field_.navigation_image_indices[1]=0;
+    field_.navigation_slots[1]=1;
+    lifecycle_push("{\"kind\":\"field-image\",\"op\":\"bind-existing\",\"slot\":1,\"list_index\":0}");
+    load(navigation,1,2,"navigation-image-loaded");
+    field_.navigation_slots[2]=2;field_.navigation_live=true;
+    lifecycle_push("{\"kind\":\"field\",\"op\":\"navigation-ready\"}");
+}
+
+GsTextureRegisters StartupTextureOwner::field_navigation_registers(unsigned image) const {
+    require_stage(ResourceStage::FieldActive,"1b2830 NAVI image selection");
+    if(!field_.navigation_live||image>=2)throw std::logic_error("Navigation image is not live");
+    const int handle=field_.navigation_handles[image];
+    if(!handles_.handle_live(handle)||handles_.handle_serial(handle)!=field_.navigation_handle_serials[image])
+        throw std::runtime_error("Navigation image handle incarnation changed");
+    const auto pixels=handles_.image(handle),palette=handles_.palette(handle,0);
+    if(!pixels||!palette)throw std::runtime_error("Navigation image or CLUT binding is absent");
+    const auto allocation=memory_.allocation(pixels->id),clut=memory_.allocation(palette->id);
+    if(!allocation||allocation->serial!=pixels->serial||!clut||clut->serial!=palette->serial)
+        throw std::runtime_error("Navigation image or CLUT allocation incarnation changed");
+    const auto value=allocation->descriptor,cvalue=clut->descriptor;
+    const auto tex0=0x20000006a8000000ull|(value&0x3fff)|(((value>>14)&63)<<14)|
+        (((value>>32)&63)<<20)|((cvalue&0x3fff)<<37)|(((cvalue>>32)&15)<<51);
+    return {tex0,0x60,5,0x810000807full};
+}
+
 const StartupTextureOwner::WorldModelTextures& StartupTextureOwner::load_field_model(
     const std::string& name, std::span<const std::string> names,
     const TextureHandleOwner::FileReader& reader, const std::function<void()>& buffer_return, unsigned model_count) {
@@ -1520,6 +1568,15 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             fj << "],\"ruw_slot0_live\":" << (f.ruw_slot0_live ? "true" : "false") << ",\"ruw_bytes\":" << f.ruw_bytes
                << ",\"ruw_sha256\":" << (f.ruw_sha256.empty() ? std::string("null") : "\"" + f.ruw_sha256 + "\"") << "}\n";
             std::ofstream(dir / "field.json", std::ios::binary) << fj.str();
+            if(f.navigation_handles[0]>=0) {
+                std::ofstream nav(dir/"navigation.json",std::ios::binary);
+                nav<<"{\"source_flag_4c\":"<<unsigned(f.navigation_live)<<",\"image_slots\":[";
+                for(unsigned i=0;i<3;++i)nav<<(i?",":"")<<f.navigation_slots[i];
+                nav<<"],\"image_list_indices\":[";
+                for(unsigned i=0;i<3;++i)nav<<(i?",":"")<<f.navigation_image_indices[i];
+                nav<<"],\"uploaded_handles\":["<<f.navigation_handles[0]<<','<<f.navigation_handles[1]
+                   <<"],\"resource_2c\":"<<f.navigation_slot_count<<",\"resource_30\":"<<f.navigation_image_count<<"}\n";
+            }
         }
     }
 }

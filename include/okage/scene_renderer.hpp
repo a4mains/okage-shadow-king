@@ -29,6 +29,7 @@ struct SceneGpuPass;
 struct SceneGpuPass {
     std::function<std::function<void()>(id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>)> encode;
     bool before_deferred_effects=false;
+    bool ordinary_field_images=false;
 };
 #endif
 struct FieldOrdinaryLighting;

@@ -23,6 +23,8 @@ struct FieldDefinition {
     std::int32_t music=0,secondary_music=0;
     std::int32_t battle_record_selection=-1;
     unsigned footstep=33,dust=0;
+    unsigned navigation_flags=0;
+    float navigation_scale=2,navigation_offset_x=0,navigation_offset_z=0; //+418..424 after entry0
     std::string room_directory,room,message,event;
     std::vector<FieldNpcDefinition> npcs;
     std::vector<unsigned> followers;
@@ -33,6 +35,9 @@ FieldDefinition read_field_definition(Bytes database,int scene);
 // not cold game initialization; inputs must already contain scene/entrance/gate.
 std::array<std::uint8_t,0x800> field_setup_state(Bytes script,Bytes variables,const FieldDefinition& definition);
 FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefinition definition);
+//131ee0..131f34 before NAVI;13218c+ event load/entry0 follows its resources.
+FieldDefinition begin_field_load(std::span<std::uint8_t> variables,FieldDefinition definition,std::int32_t entrance);
+FieldDefinition finish_field_load(Bytes script,Bytes variables,FieldDefinition definition);
 FieldDefinition prepare_field_load(Bytes script,std::span<std::uint8_t> variables,
                                    FieldDefinition definition,unsigned entrance);
 // Convenience entry path retains its original125ad0 clear before preparation.
@@ -115,6 +120,8 @@ public:
     RetiringSceneEffects retire_effects();
     bool exploration_ready() const {return exploration_handoff_;}
     std::function<void()> dispatch_game_command;
+    //133b3c only while command dispatch leaves phase0, before follow/actors.
+    std::function<void(ExplorationInput)> phase0_image_commands;
     std::function<void()> open_save_menu;
     std::function<void()> recover_party;
     std::function<void(std::string_view)> set_save_caption;

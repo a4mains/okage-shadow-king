@@ -21,6 +21,7 @@
 #include "okage/results_interface.hpp"
 #include "okage/load_queue.hpp"
 #include "okage/field.hpp"
+#include "okage/field_navigation.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
 #include "okage/stream_bank.hpp"
@@ -36,6 +37,7 @@
 #include "battle_filter_metal.hpp"
 #include "shadow_metal.hpp"
 #include "ui_metal.hpp"
+#include "image_metal.hpp"
 #include "okage/battle_entry.hpp"
 #include "okage/startup_textures.hpp"
 #include "okage/startup_inputs.hpp"
@@ -100,6 +102,7 @@ struct FieldReturnLoad {
     std::shared_ptr<okage::RuwResource> ruw;
     std::shared_ptr<const okage::Texture> atlas;
     std::shared_ptr<const std::vector<std::uint8_t>> atlas_bytes,texenv_bytes,ruw_bytes;
+    std::array<unsigned,2> navigation_size{};
     bool prefix_modeled=false;
     std::atomic<unsigned> prefix_ready{0};
     unsigned prefix_applied=0;
@@ -730,6 +733,9 @@ struct Session {
     //Field resource ownership survives destruction of the temporary loader.
     std::shared_ptr<okage::RuwResource> field_ruw;
     std::shared_ptr<const okage::Texture> field_ui_atlas;
+    std::unique_ptr<okage::FieldNavigation> field_navigation;
+    std::vector<okage::ImageQuad> field_image_commands;
+    mutable std::shared_ptr<okage::ImageMetal> field_image_metal;
     okage::GamePlayTimeCounter playtime;
     std::unique_ptr<okage::SceneRenderer> renderer;
     okage::FieldProjection projection;
@@ -737,6 +743,7 @@ struct Session {
     std::optional<okage::RetiringSceneEffects> retiring_effects;
     std::unique_ptr<okage::Animation> reset_camera;
     std::vector<std::uint32_t> scene_trace,dialogue_trace,camera_state_trace,movement_trace,interaction_trace;
+    std::vector<std::uint32_t> navigation_trace;
     std::vector<std::uint32_t> effect_trace,map_effect_trace,effect_submission_trace,shadow_trace,projection_trace;
     bool effects_loaded=false;
     std::shared_ptr<const okage::EffectTemplatePreparation> effect_preparation;
@@ -977,6 +984,21 @@ struct Session {
             if(pending_game_command[0]==3||pending_game_command[0]==4) {
                 pending_game_command={};
                 if(title_modeled(okage::ResourceStage::FieldActive))startup_textures->note_command(0,0,0);
+            }
+        };
+        field->phase0_image_commands=[this](okage::ExplorationInput input) {
+            if(!field_navigation)return;
+            const auto hero=std::find_if(actor_bindings.begin(),actor_bindings.end(),[](const auto& binding){return binding.alias==-1;});
+            if(hero==actor_bindings.end())throw std::runtime_error("Navigation player instance missing");
+            const auto& values=hero->actor->animation().values();
+            field_image_commands=field_navigation->queue(values.at(1),values.at(0),bool(input.pressed&2u),battle_capture_sine);
+            navigation_trace.insert(navigation_trace.end(),{frame,unsigned(field_navigation->visible()),
+                std::bit_cast<std::uint32_t>(field_navigation->center()),std::bit_cast<std::uint32_t>(field_navigation->pulse()),
+                std::bit_cast<std::uint32_t>(field_navigation->delta()),unsigned(field_image_commands.size())});
+            for(const auto& command:field_image_commands) {
+                for(const auto& xy:command.xy16)navigation_trace.insert(navigation_trace.end(),xy.begin(),xy.end());
+                for(float st:command.st)navigation_trace.push_back(std::bit_cast<std::uint32_t>(st));
+                navigation_trace.insert(navigation_trace.end(),{command.rgba,command.z});
             }
         };
         field->resolve_encounter_formation=[this](unsigned row,unsigned column) {
@@ -1470,10 +1492,36 @@ struct Session {
         if(!f.world_queued) {
             f.ui_stage=1;
             f.definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),current_scene);
+            if(f.ordinary&&f.entrance>0x7fffffff)throw std::runtime_error("Ordinary field entrance out of range");
+            f.definition=okage::begin_field_load(variables,std::move(f.definition),f.ordinary?int(f.entrance):-1);
+            if(f.prefix_modeled) {
+                if(!fs::is_directory(field_root/"NAVI"))
+                    throw std::runtime_error("Native data stage lacks the owned loose NAVI inventory");
+                const auto navigation=field_root/"NAVI"/(field_asset_component(f.definition.room)+".xim");
+                if(fs::exists(navigation)&&fs::file_size(navigation)>0) {
+                    if(f.definition.type>1)throw std::runtime_error("Reached type2 navigation image setup remains unrecovered");
+                    const auto override_psm=[](std::vector<std::uint8_t> bytes,unsigned psm) {
+                        if(bytes.size()<4)throw std::runtime_error("Navigation XIM header missing");
+                        unsigned word=0;for(unsigned i=0;i<4;++i)word|=unsigned(bytes[i])<<(8*i);
+                        word=(word&0xfc0fffff)|(psm<<20);
+                        for(unsigned i=0;i<4;++i)bytes[i]=word>>(8*i);
+                        return std::make_shared<const std::vector<std::uint8_t>>(std::move(bytes));
+                    };
+                    const auto mapinfo=field_root.parent_path()/"CMNDATA/2D/MAIN.XPF/mapinfo2.xim";
+                    const auto mapinfo_bytes=override_psm(readData(mapinfo),27),navigation_bytes=override_psm(readData(navigation),44);
+                    const auto marker_layout=okage::RawXimView(*mapinfo_bytes).layout();
+                    const auto navigation_layout=okage::RawXimView(*navigation_bytes).layout();
+                    if(marker_layout.width!=32||marker_layout.height!=16)
+                        throw std::runtime_error("Reached mapinfo2 backing/crop shape remains unrecovered");
+                    f.navigation_size={navigation_layout.width,navigation_layout.height};
+                    startup_textures->load_field_navigation(mapinfo_bytes,navigation_bytes,
+                        [this](const char* name){world_checkpoint(name);});
+                    world_checkpoint("navigation-ready");
+                }
+            }
             field_asset_component(f.definition.event);
             f.script=readData(event_directory/(f.definition.event+".xmt"));
-            f.definition=f.ordinary?okage::prepare_field_load(f.script,variables,std::move(f.definition),f.entrance):
-                okage::prepare_field_return(f.script,variables,std::move(f.definition));
+            f.definition=okage::finish_field_load(f.script,variables,std::move(f.definition));
             if(f.definition.type>1||!f.definition.followers.empty())
                 throw std::runtime_error("Return field type/followers unrecovered");
             const auto bank=field_asset_component(f.definition.message);
@@ -1487,11 +1535,6 @@ struct Session {
             }
             f.map=field_root/field_asset_component(f.definition.room_directory)/(field_asset_component(f.definition.room)+".XPF")/"a.xmp";
             if(f.prefix_modeled) {
-                auto navigation_name=f.definition.room;
-                std::transform(navigation_name.begin(),navigation_name.end(),navigation_name.begin(),[](unsigned char c){return char(std::tolower(c));});
-                const auto navigation=field_root/"NAVI"/(navigation_name+".xim");
-                if(fs::exists(navigation) && fs::file_size(navigation)>0)
-                    throw std::runtime_error("Reached navigation image ownership 131fdc remains unrecovered");
                 startup_textures->begin_field_world();world_checkpoint("field-cache-enabled");
                 const auto map=okage::read_xmp(readData(f.map));
                 f.map_assets.resize(map.definitions.size());
@@ -1574,6 +1617,8 @@ struct Session {
         if(!f.ordinary)music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
         map_objects=std::move(f.objects);actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);
         renderer=std::move(f.renderer);bind_scene_instances();create_field(f.script,false);bind_audio_services();
+        if(f.navigation_size[0])field_navigation=std::make_unique<okage::FieldNavigation>(f.definition,
+            f.navigation_size[0],f.navigation_size[1],16,16);
         field->load_effects(effect_bytes,effect_preparation);
         field->load_map_effects(readData(f.map),renderer->effect_texture_sizes());
         renderer->bind_map_effects(&field->map_effects());renderer->bind_effect_submissions(&field->effect_submissions());
@@ -1738,6 +1783,7 @@ struct Session {
         }
         field->validate_retirement();
         renderer.reset();
+        field_navigation.reset();field_image_commands.clear();
         retiring_effects.emplace(field->retire_effects()); //101240, before198550/texture frees
         for(auto& window:ui_shared.registry)window.reset(); //1010a8 ->198550
         if(title_modeled(okage::ResourceStage::FieldActive)) {
@@ -1817,6 +1863,7 @@ struct Session {
         }
         if(input_journal)input_journal->begin_tick(frame+1,input.held,input.pressed);
         ++frame;
+        field_image_commands.clear();
         if(pending_battle)frame_event("scheduler_with_prior",pending_battle->completion->frame());
         const auto released=std::uint16_t(previous_held&~input.held);previous_held=input.held;
         input.repeat=pad_repeat.update(input.held,input.pressed);
@@ -2781,7 +2828,28 @@ struct Session {
         if(!field)throw std::runtime_error("Field renderer has no mode owner");
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
-        image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
+        if(field_image_commands.empty()) {
+            image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
+        } else {
+            if(!field_navigation||!title_modeled(okage::ResourceStage::FieldActive)||field_image_commands.size()!=2)
+                throw std::runtime_error("Field image commands have no persistent source owner");
+            const auto prepared=renderer->prepare(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,
+                {-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
+            const auto snapshot=startup_textures->memory().snapshot();
+            const std::array<okage::GsTextureRegisters,2> registers{startup_textures->field_navigation_registers(1),
+                startup_textures->field_navigation_registers(0)};
+            const auto commands=field_image_commands;
+            okage::SceneGpuPass pass;pass.ordinary_field_images=true;
+            pass.encode=[this,snapshot,registers,commands](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
+                if(!field_image_metal)field_image_metal=std::make_shared<okage::ImageMetal>(color.device);
+                const okage::ImageMetalBaseline baseline{0x6c00,0x7900,0,639,0,223,0,1,0,1};
+                std::vector<okage::ImageMetalValidation> validations;
+                for(unsigned i=0;i<2;++i)validations.push_back(field_image_metal->encode(command,color,depth,commands[i],baseline,
+                    okage::ImageMetalGsTexture{snapshot,registers[i],{}}));
+                return [command,validations=std::move(validations)]{for(const auto& validation:validations)validation.validate_completed(command);};
+            };
+            image=renderer->render_prepared(prepared,nullptr,&pass);
+        }
         try {feedback.apply(image,frame,field->screen_filter.alpha);}
         catch(const std::exception& e) {
             throw std::runtime_error("Feedback at native frame="+std::to_string(frame)+" scene="+
@@ -3156,6 +3224,11 @@ static void capture(Session& session,const fs::path& path) {
         std::ofstream movementTrace(movementPath,std::ios::binary);
         if(!movementTrace.write(reinterpret_cast<const char*>(session.movement_trace.data()),session.movement_trace.size()*4))
             throw std::runtime_error("Cannot save native movement trace");
+        const auto navigationPath=fs::path(path.string()+".navigation.bin");
+        if(fs::exists(navigationPath)||fs::is_symlink(navigationPath))throw std::runtime_error("Refusing existing navigation trace");
+        std::ofstream navigationTrace(navigationPath,std::ios::binary);
+        if(!navigationTrace.write(reinterpret_cast<const char*>(session.navigation_trace.data()),session.navigation_trace.size()*4))
+            throw std::runtime_error("Cannot save native navigation trace");
         if(session.field)std::cout<<"Field PC=0x"<<std::hex<<session.field->pc()<<" pending opcode=0x"<<session.field->pending_opcode<<std::dec
             <<" actor="<<session.field->pending_actor<<" animation="<<session.field->pending_animation<<'\n';
     }

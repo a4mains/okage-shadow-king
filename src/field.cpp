@@ -248,25 +248,34 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     definition.music=std::bit_cast<std::int32_t>(get(setup,0x400));definition.secondary_music=std::bit_cast<std::int32_t>(get(setup,0x404));
     definition.battle_record_selection=std::bit_cast<std::int32_t>(get(setup,0x428));
     definition.footstep=get(setup,0x42c);definition.dust=get(setup,0x414);
+    definition.navigation_flags=get(setup,0x418);
+    definition.navigation_scale=std::bit_cast<float>(get(setup,0x41c));
+    definition.navigation_offset_x=std::bit_cast<float>(get(setup,0x420));
+    definition.navigation_offset_z=std::bit_cast<float>(get(setup,0x424));
     for(auto& npc:definition.npcs)npc.flags=setup[0x1a8+(-8-npc.alias)];
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});
     return definition;
 }
-FieldDefinition prepare_field_load(Bytes script,std::span<std::uint8_t> variables,
-                                    FieldDefinition definition,unsigned entrance) {
-    // 0x131d28 applies the persistent party disable and writes the encounter
-    // gate BEFORE entry zero. The constructor owns the earlier125ad0 clear.
-    if(variables.size()<0x588 || definition.scene<0 || entrance>0x7fffffff)
+FieldDefinition begin_field_load(std::span<std::uint8_t> variables,FieldDefinition definition,std::int32_t entrance) {
+    if(variables.size()<0x588||definition.scene<0||entrance< -1)
         throw std::runtime_error("Invalid field entry variables/scene/entrance");
-    set_event_variable(variables,0,4,definition.scene);
-    set_event_variable(variables,1,4,int(entrance));
     if(event_variable(variables,0x40005))definition.party=0;
     set_event_variable(variables,6,4,definition.party==0);
+    set_event_variable(variables,0,4,definition.scene);
+    set_event_variable(variables,1,4,entrance);
+    return definition;
+}
+FieldDefinition finish_field_load(Bytes script,Bytes variables,FieldDefinition definition) {
     definition=prepare_field_definition(script,variables,std::move(definition));
     definition.followers.clear();
     if(definition.party)for(unsigned index=25;index<30;++index)
         if(event_variable(variables,0x40000|index)==3)definition.followers.push_back(index);
     return definition;
+}
+FieldDefinition prepare_field_load(Bytes script,std::span<std::uint8_t> variables,
+                                    FieldDefinition definition,unsigned entrance) {
+    if(entrance>0x7fffffff)throw std::runtime_error("Invalid field entrance");
+    return finish_field_load(script,variables,begin_field_load(variables,std::move(definition),int(entrance)));
 }
 FieldDefinition prepare_field_entry(Bytes script,std::span<std::uint8_t> variables,
                                     FieldDefinition definition,unsigned entrance) {
@@ -281,17 +290,7 @@ FieldDefinition prepare_field_return(Bytes script,std::span<std::uint8_t> variab
     // 0x132720 interprets a negative entrance as the saved-pose path. Unlike
     // ordinary entry, the command-13 path does not call 0x125ad0, so preserve
     // the temporary flag block byte-for-byte.
-    if(variables.size()<0x588||definition.scene<0)
-        throw std::runtime_error("Invalid field return variables/scene");
-    set_event_variable(variables,0,4,definition.scene);
-    set_event_variable(variables,1,4,-1);
-    if(event_variable(variables,0x40005))definition.party=0;
-    set_event_variable(variables,6,4,definition.party==0);
-    definition=prepare_field_definition(script,variables,std::move(definition));
-    definition.followers.clear();
-    if(definition.party)for(unsigned index=25;index<30;++index)
-        if(event_variable(variables,0x40000|index)==3)definition.followers.push_back(index);
-    return definition;
+    return finish_field_load(script,variables,begin_field_load(variables,std::move(definition),-1));
 }
 void OpeningField::load_interactions(Bytes database,const std::string& room,Bytes variables) {
     if(definition_||!actor(-1))throw std::runtime_error("Field interactions require one configuration and a player");
@@ -1217,6 +1216,7 @@ void OpeningField::tick(ExplorationInput input) {
                 // 0x133450 consumes queued mode7 before camera/interactions.
                 battle_request_->phase=11;
             } else {
+                if(phase0_image_commands)phase0_image_commands(input);
                 if(exterior&&exterior_camera_enabled_)update_exterior_camera();
                 if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
                 interact(input);
