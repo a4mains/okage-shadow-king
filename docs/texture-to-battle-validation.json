@@ -1,180 +1,1445 @@
 {
   "schema": "okage.texture-to-battle-validation.v1",
   "status": "INCOMPLETE",
-  "scope": "Complete six-package assignment; current bounded proof is cold New Game through first ordinary field world activation. All final gates remain incomplete.",
+  "scope": "Same complete six-package goal. Current bounded proof: persistent field/battle/return implementation, real shared-GS model/ENV/ImageMetal component checks, three cold first-field62CP comparisons and unchanged37332historicalprefix. ActualChapter2win/newpersistence remain open.",
   "base_commit": "8e20f515abf991690c5a88d0ddc1f505419c2959",
   "worktree": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "source": {
     "CMakeLists.txt": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/CMakeLists.txt",
-      "sha256": "04c84a9f850579e802ecb40d74bb06a6b926058c2ca676219a64266cdb4f281b",
-      "bytes": 39021
+      "path": "CMakeLists.txt",
+      "bytes": 42534,
+      "sha256": "b93ccaad10d84444721c71c1dbb284e04db1993e11686f69279a7f27338b865e"
+    },
+    "include/okage/actor.hpp": {
+      "path": "include/okage/actor.hpp",
+      "bytes": 2404,
+      "sha256": "e29552d3f14194a6d648f7514c36a525ffb890712720b3cd6796fa22e6c5d013"
+    },
+    "include/okage/animation.hpp": {
+      "path": "include/okage/animation.hpp",
+      "bytes": 4845,
+      "sha256": "5b55997654d2b788fbe13a83ffcda53cafd99565bcfc6990767fa7465095d032"
+    },
+    "include/okage/assets.hpp": {
+      "path": "include/okage/assets.hpp",
+      "bytes": 3554,
+      "sha256": "75285f482e81a139c5871b3ca9d64f35acbe47deff966b8b4b636826cd310e7f"
+    },
+    "include/okage/audio.hpp": {
+      "path": "include/okage/audio.hpp",
+      "bytes": 444,
+      "sha256": "108ea2d33f6c6cc456a51a82a73e32fb0b3b50af3334c19f2e7dd55a21f637db"
+    },
+    "include/okage/audio_output.hpp": {
+      "path": "include/okage/audio_output.hpp",
+      "bytes": 801,
+      "sha256": "7215113f9a1aa8a9fdc2bb904ee7057b63ef8be2e7eced90da271b483e76874d"
+    },
+    "include/okage/audio_ring.hpp": {
+      "path": "include/okage/audio_ring.hpp",
+      "bytes": 2387,
+      "sha256": "e0dacc640dd709f3fec561765ab9348224c11a7efa992e82f512ddbf5c99a114"
+    },
+    "include/okage/bank.hpp": {
+      "path": "include/okage/bank.hpp",
+      "bytes": 1463,
+      "sha256": "aa68ca180a445a1e5aeb658179038d29c1a7b9a2587b7a4243f4bfba5d564c96"
+    },
+    "include/okage/battle_action_data.hpp": {
+      "path": "include/okage/battle_action_data.hpp",
+      "bytes": 1161,
+      "sha256": "bf035391b1deb36b7543743a2e8f0add1811e79927b6201001bad2d8c96eb950"
+    },
+    "include/okage/battle_action_setup.hpp": {
+      "path": "include/okage/battle_action_setup.hpp",
+      "bytes": 510,
+      "sha256": "bb125adf55e451682106674a06da2b4b951b1e44d842e363f4dbce505a7fbf1f"
+    },
+    "include/okage/battle_actor.hpp": {
+      "path": "include/okage/battle_actor.hpp",
+      "bytes": 4729,
+      "sha256": "600c9484aebee6c815097f39ffa2674a4bd54f78b41340f46385a1dc6f45a90e"
+    },
+    "include/okage/battle_actor_math.hpp": {
+      "path": "include/okage/battle_actor_math.hpp",
+      "bytes": 444,
+      "sha256": "b692b258e0f60b7df133ebb4f8fe6933ec42354a8481cd6dd12c20892a825560"
+    },
+    "include/okage/battle_camera.hpp": {
+      "path": "include/okage/battle_camera.hpp",
+      "bytes": 2211,
+      "sha256": "a756fe2d258e5769dae5829ba16dfbb50ca537569a6f160ccb698b775fefac3b"
+    },
+    "include/okage/battle_capture.hpp": {
+      "path": "include/okage/battle_capture.hpp",
+      "bytes": 599,
+      "sha256": "c951ae1f3c3bfe8fbcd63d7e1b32a6812e6f9d4b4b5cf6ef07847d9c90c51caa"
+    },
+    "include/okage/battle_command_queue.hpp": {
+      "path": "include/okage/battle_command_queue.hpp",
+      "bytes": 778,
+      "sha256": "3f40b35c264a49f6e15a6cb338486edc8066efdab57f0eca2cb003686d1e821c"
+    },
+    "include/okage/battle_damage.hpp": {
+      "path": "include/okage/battle_damage.hpp",
+      "bytes": 266,
+      "sha256": "be4e2b986b3599c18825202ff17f3ff5cd40954533a9bbff48ae52cb30fe5145"
+    },
+    "include/okage/battle_data.hpp": {
+      "path": "include/okage/battle_data.hpp",
+      "bytes": 1493,
+      "sha256": "01b89a4e14f5481f0cd5b6f14c97ed280da5daaecdcd9b69abe39e72b8f0d9f2"
+    },
+    "include/okage/battle_enemy_action.hpp": {
+      "path": "include/okage/battle_enemy_action.hpp",
+      "bytes": 308,
+      "sha256": "522f64827953572176f50850eb3b11d323408ad52b9cee622533b982cb9202a2"
+    },
+    "include/okage/battle_enemy_commands.hpp": {
+      "path": "include/okage/battle_enemy_commands.hpp",
+      "bytes": 401,
+      "sha256": "9d1bdeba3cd0209e7d027f64f4fea5e6f99fa8b62ade380ff9f8c09bba5e37ba"
+    },
+    "include/okage/battle_entry.hpp": {
+      "path": "include/okage/battle_entry.hpp",
+      "bytes": 1222,
+      "sha256": "a7960b5d514e91408bc8e5998909190f447755cbade316aa6402a1482dcbda73"
+    },
+    "include/okage/battle_hit.hpp": {
+      "path": "include/okage/battle_hit.hpp",
+      "bytes": 554,
+      "sha256": "ecd770aa0d77334e61da91f8588fda7b492df56adf5e352a158862274804b9cf"
+    },
+    "include/okage/battle_hud.hpp": {
+      "path": "include/okage/battle_hud.hpp",
+      "bytes": 4804,
+      "sha256": "8a8b09a630cb409a8c58183d5c9229c89fe8f245b5878fee9f4680a1d6363649"
+    },
+    "include/okage/battle_hud_targets.hpp": {
+      "path": "include/okage/battle_hud_targets.hpp",
+      "bytes": 508,
+      "sha256": "1b08bd94a575415bd5c2365395b8d53c93230a95103bf8ae673f83603aa7bac4"
+    },
+    "include/okage/battle_interface.hpp": {
+      "path": "include/okage/battle_interface.hpp",
+      "bytes": 3586,
+      "sha256": "b7c104d7037da08557b148d25fea38b920d399f0bba311ffe300e0747601e637"
+    },
+    "include/okage/battle_lifecycle.hpp": {
+      "path": "include/okage/battle_lifecycle.hpp",
+      "bytes": 566,
+      "sha256": "f6b79ff99d8bdc452ca3170bafc9403b6b365c78a654589450bd17a00298d999"
+    },
+    "include/okage/battle_results.hpp": {
+      "path": "include/okage/battle_results.hpp",
+      "bytes": 161,
+      "sha256": "664d758edd274d043d1999e28247fda78986f5ac6a53af4f1f0e595d2bad63df"
+    },
+    "include/okage/battle_reward.hpp": {
+      "path": "include/okage/battle_reward.hpp",
+      "bytes": 280,
+      "sha256": "eaa9ba54814c05c47726efa075059d0bf31b35891f7ffe6b47c1f2b0c2d5c9b0"
+    },
+    "include/okage/battle_roster_update.hpp": {
+      "path": "include/okage/battle_roster_update.hpp",
+      "bytes": 1069,
+      "sha256": "936e2b36cd3efa61479f035d088359a0edb0b24d2dad7186577c8925c6c55dea"
+    },
+    "include/okage/battle_state.hpp": {
+      "path": "include/okage/battle_state.hpp",
+      "bytes": 1603,
+      "sha256": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98"
+    },
+    "include/okage/battle_ui.hpp": {
+      "path": "include/okage/battle_ui.hpp",
+      "bytes": 1001,
+      "sha256": "368c5c5c471527bbf51c267ffe9e23d5c541464477edf5ac5e797c9e307390db"
+    },
+    "include/okage/battle_ui_command_data.hpp": {
+      "path": "include/okage/battle_ui_command_data.hpp",
+      "bytes": 1420,
+      "sha256": "404b7b06fbf501d50afb8fff6b04811de886a97a9662a2fa3cef9cf66b32c35f"
+    },
+    "include/okage/battle_ui_command_state.hpp": {
+      "path": "include/okage/battle_ui_command_state.hpp",
+      "bytes": 588,
+      "sha256": "b5228d87e99cb7e80a22b74bbdc015f36aeee8708b0161ab3bed7e22c7ba2096"
+    },
+    "include/okage/battle_ui_diagnostic.hpp": {
+      "path": "include/okage/battle_ui_diagnostic.hpp",
+      "bytes": 321,
+      "sha256": "acb8de22917fe76866f22ecaee494440889aa771f008e98a4d5c462ea7a8547a"
+    },
+    "include/okage/battle_ui_pad.hpp": {
+      "path": "include/okage/battle_ui_pad.hpp",
+      "bytes": 1377,
+      "sha256": "a3a56aa0f306c1399b2f34b1c5df59a4cf94e29faf1ac60165f599440789d9f9"
+    },
+    "include/okage/battle_ui_roster.hpp": {
+      "path": "include/okage/battle_ui_roster.hpp",
+      "bytes": 962,
+      "sha256": "d5a7ed14e71f33bc32f8a86b4fb71f66e3c81e93670414974f4afa54263cc006"
+    },
+    "include/okage/battle_victory.hpp": {
+      "path": "include/okage/battle_victory.hpp",
+      "bytes": 678,
+      "sha256": "a74391a46d4794338145a1e0e591d35e208c3c067c73fa9f1807527d93da477a"
+    },
+    "include/okage/camera.hpp": {
+      "path": "include/okage/camera.hpp",
+      "bytes": 2162,
+      "sha256": "4593d7b5d552e11b054ceac5ce4374e004a201230fa8ffb782be0fcdcc509d85"
+    },
+    "include/okage/chapter.hpp": {
+      "path": "include/okage/chapter.hpp",
+      "bytes": 934,
+      "sha256": "8ef5652c1ece71cacd319ed5e485809729b37e9068ba89ab99824058868372d3"
+    },
+    "include/okage/collision.hpp": {
+      "path": "include/okage/collision.hpp",
+      "bytes": 4698,
+      "sha256": "a3e8a712cce887672cfe27682eef97c1637d0683f0a93521393b54bdab1312f4"
+    },
+    "include/okage/dialogue.hpp": {
+      "path": "include/okage/dialogue.hpp",
+      "bytes": 3901,
+      "sha256": "04a7c4e54361daebe8086bce578e269e1efb2087cfa6588f0545f6188d107b27"
+    },
+    "include/okage/effect.hpp": {
+      "path": "include/okage/effect.hpp",
+      "bytes": 10431,
+      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1"
+    },
+    "include/okage/enemy.hpp": {
+      "path": "include/okage/enemy.hpp",
+      "bytes": 1898,
+      "sha256": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45"
+    },
+    "include/okage/event.hpp": {
+      "path": "include/okage/event.hpp",
+      "bytes": 1320,
+      "sha256": "9853e6ca270d1f0e2fe2666a7ad0ee13ea7b1cd363236c41fc9866ab4043c335"
     },
     "include/okage/field.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/field.hpp",
-      "sha256": "580166354e48d1d73533a31c3487fca9b924611fba825525f144e5ea5c4a3ccd",
-      "bytes": 17368
+      "path": "include/okage/field.hpp",
+      "bytes": 15140,
+      "sha256": "86a7cfb2463205b8f538b6c7045c5819d9665fc96a8ebdc2ec99de6b0bd25e53"
+    },
+    "include/okage/field_navigation.hpp": {
+      "path": "include/okage/field_navigation.hpp",
+      "bytes": 793,
+      "sha256": "f1f6d1aed3198ac1b1e03e4efef3b852f387e9b5b66d80d6a05a810fa736e1f9"
+    },
+    "include/okage/field_projection.hpp": {
+      "path": "include/okage/field_projection.hpp",
+      "bytes": 1880,
+      "sha256": "3b4f5d099c6d072bc7b168dbf0c394ccde668fa6bcf1c01abb4755df964ec32b"
+    },
+    "include/okage/field_raster.hpp": {
+      "path": "include/okage/field_raster.hpp",
+      "bytes": 776,
+      "sha256": "ff6973cb02f70ae341421aaca356e396a524dac0c12aea054ddbc1be8649d079"
+    },
+    "include/okage/field_shadows.hpp": {
+      "path": "include/okage/field_shadows.hpp",
+      "bytes": 1765,
+      "sha256": "46084ab09b95ab80e56108ade9f9c1beaed64ae6accfa0a967af5ad463760902"
+    },
+    "include/okage/font.hpp": {
+      "path": "include/okage/font.hpp",
+      "bytes": 458,
+      "sha256": "0f29b0081aa43d385ecb5d6f75793f76040a22952228ea6b9884fae861e741df"
+    },
+    "include/okage/frame_composition.hpp": {
+      "path": "include/okage/frame_composition.hpp",
+      "bytes": 826,
+      "sha256": "9d901b0fbd37c76be48fd506f7e62deab95231e1547b41ea3dd2ba5fb022647c"
+    },
+    "include/okage/game_mode.hpp": {
+      "path": "include/okage/game_mode.hpp",
+      "bytes": 1249,
+      "sha256": "0f1d01810c41f015356dbfc1c0e2fb0ea9784885771451568f9513c86b572a37"
+    },
+    "include/okage/game_over.hpp": {
+      "path": "include/okage/game_over.hpp",
+      "bytes": 1764,
+      "sha256": "580d814710304d89aad45ac8d6dd571f5fd1833480dde3d0f36f1b5d498680c2"
+    },
+    "include/okage/game_state.hpp": {
+      "path": "include/okage/game_state.hpp",
+      "bytes": 3326,
+      "sha256": "647dd78f1b0a515806fc59dfad4a8c30184a404ff3d7f221f5fc642ac7738812"
+    },
+    "include/okage/gs_texture_address.hpp": {
+      "path": "include/okage/gs_texture_address.hpp",
+      "bytes": 748,
+      "sha256": "4246c104ab5aace59a16fb9f82ba928257d354a893c30489147b830beb2a28fd"
+    },
+    "include/okage/gs_texture_sampling.hpp": {
+      "path": "include/okage/gs_texture_sampling.hpp",
+      "bytes": 392,
+      "sha256": "f67b7c3f14cce7631927db7675036e6eae1a817e4bd64065bcfe52844da7fd6a"
+    },
+    "include/okage/headless_control.hpp": {
+      "path": "include/okage/headless_control.hpp",
+      "bytes": 2432,
+      "sha256": "7b3b587df36799d817599d91158e098d9461b1777a900b97c5c597776e7310fc"
+    },
+    "include/okage/image_quad.hpp": {
+      "path": "include/okage/image_quad.hpp",
+      "bytes": 540,
+      "sha256": "6f33a415285bde64def469311d55c12d9e848ddf868715edb88f9d499d60bcb8"
+    },
+    "include/okage/input_journal.hpp": {
+      "path": "include/okage/input_journal.hpp",
+      "bytes": 1259,
+      "sha256": "a1e6ee33b06cd7c18447ea6fe1a73d0718b7999c8a7285b43cdf46bf57d3f647"
+    },
+    "include/okage/input_log.hpp": {
+      "path": "include/okage/input_log.hpp",
+      "bytes": 293,
+      "sha256": "a8894d55d1d2d89d683ef1ed14b11e8ac5f0245ec084fc3eaead189deb6f473e"
+    },
+    "include/okage/live_performance.hpp": {
+      "path": "include/okage/live_performance.hpp",
+      "bytes": 2714,
+      "sha256": "fe096b095e01865ecb1a0ee8af6cdff29273a0ee830ab5bed30c5c98c5fd8708"
+    },
+    "include/okage/live_scheduler.hpp": {
+      "path": "include/okage/live_scheduler.hpp",
+      "bytes": 816,
+      "sha256": "5bae1fe84c94d0f98ae0a53cd71b34d86718df8b597e44807cc5e8d832db121b"
+    },
+    "include/okage/load_queue.hpp": {
+      "path": "include/okage/load_queue.hpp",
+      "bytes": 3140,
+      "sha256": "843e202cb7ab258a8c7546e1f3eeba733c65c66ef7a248f6685725f4b584dd70"
+    },
+    "include/okage/map.hpp": {
+      "path": "include/okage/map.hpp",
+      "bytes": 1685,
+      "sha256": "09559c20c12c94bab1d40812df7a331d0b5c758847d29da02775dc5f9066ed02"
+    },
+    "include/okage/map_material.hpp": {
+      "path": "include/okage/map_material.hpp",
+      "bytes": 3560,
+      "sha256": "c8825dfcaeeca5e4b81399e701abe3533676fc50dc85bdfffb6c101be2938880"
     },
     "include/okage/map_objects.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/map_objects.hpp",
-      "sha256": "6815ec7b2dc3a1738dc7866c20365f937c067431418bf168298d855f31823e30",
-      "bytes": 2113
+      "path": "include/okage/map_objects.hpp",
+      "bytes": 1941,
+      "sha256": "42f58501eff09547180eea235422c367a9a153bc7293d0f5cbaf63aa37c51e9c"
     },
-    "include/okage/resource_textures.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/resource_textures.hpp",
-      "sha256": "9025bab216cd4e9b1a08a6b27ef6c40a5a1915a518904ea1665bd1e7635aa241",
-      "bytes": 3792
+    "include/okage/model.hpp": {
+      "path": "include/okage/model.hpp",
+      "bytes": 1719,
+      "sha256": "e68ffb5e44705d7102a98a4340209a54ed63efe8575989ee2cd5bd1990b2009f"
     },
-    "include/okage/scene_model_asset.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/scene_model_asset.hpp",
-      "sha256": "10ecb3c2baf4605bb62efbd8472662089316bdef7aed103836738f4c9234f79c",
-      "bytes": 540
-    },
-    "include/okage/scene_renderer.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/scene_renderer.hpp",
-      "sha256": "fcd3f763aaa58a28b60ea5c1149e6460e170926f7449cd23ae3368c60c99eb35",
-      "bytes": 9702
-    },
-    "include/okage/startup_textures.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/startup_textures.hpp",
-      "sha256": "edc46eeb1ffc073c8a3a024a09c5af8ec688a80fdb765eae3389c570e7ec70a4",
-      "bytes": 31741
-    },
-    "include/okage/texture_handles.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/texture_handles.hpp",
-      "sha256": "0dc440c678fb5d5c0b0a8220e19e1378b6fd41fa5f287b341a65fb1b4d9e564c",
-      "bytes": 13380
-    },
-    "include/okage/texture_transfer.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/texture_transfer.hpp",
-      "sha256": "acef32e43403cddda710cf29a6aaba8767eadf0a4cf1764f34235ead43f04398",
-      "bytes": 8624
-    },
-    "src/assets.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/assets.cpp",
-      "sha256": "4c0db7c519fa92d3e49ba5739fce4565f7465f016373396eee1121558f6612d8",
-      "bytes": 14638
-    },
-    "src/field.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/field.cpp",
-      "sha256": "bfac13de4ca957a90e98b4477fa70d4de2d5bbb6b9e7f920fb3cc11eb1c5ea8b",
-      "bytes": 91245
-    },
-    "src/map_objects.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/map_objects.cpp",
-      "sha256": "9030a9a6feef824d1c409dd831f5fc56a8404de7f7890236bfc8c4a36a833d8d",
-      "bytes": 9056
-    },
-    "src/native_runtime.mm": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/native_runtime.mm",
-      "sha256": "9c7b93625fa647d64d0919c24d78abc1c2308d1b30b92e1d175267848558741c",
-      "bytes": 271968
-    },
-    "src/resource_textures.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/resource_textures.cpp",
-      "sha256": "d552667855b9db24bd8410305388b06c1132267260a04054c0160498e3360633",
-      "bytes": 7837
-    },
-    "src/scene_renderer.mm": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/scene_renderer.mm",
-      "sha256": "3b4228b768739588ed75e916fd7197539c99fcdfa2b59a1ddeeacd6977cb4eff",
-      "bytes": 69497
-    },
-    "src/startup_textures.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/startup_textures.cpp",
-      "sha256": "f75df5db4b2eccd1d6bd9bb764767d4814278104d07ad1b38aad4adbc6478a58",
-      "bytes": 73360
-    },
-    "src/texture_handles.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/texture_handles.cpp",
-      "sha256": "0e53c01353a15f9d530e5196cde6ce365130995343a7f8397fc966e20ec6dd01",
-      "bytes": 23177
-    },
-    "src/texture_transfer.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/texture_transfer.cpp",
-      "sha256": "69ee9e3dfe2f74de2ce2246f5cb01dc16f28f84e28284c20155af5f5b7ddfeff",
-      "bytes": 13844
-    },
-    "tests/field_npc_staging_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/field_npc_staging_tests.cpp",
-      "sha256": "3abbb9c261c5fc321e1f0596f18f105ec24260792dfc94b9f0908de928857710",
-      "bytes": 10181
-    },
-    "tests/resource_textures_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/resource_textures_tests.cpp",
-      "sha256": "48b4a6c939a669f8f6de122c5b43596d451c8dd802571aa360ce16972e0c52ba",
-      "bytes": 18861
-    },
-    "tests/scene_map_material_tests.mm": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/scene_map_material_tests.mm",
-      "sha256": "fc7aea92436253d4176cef8f5f5f62a424fe8f34c47b391bc3ef7a984695adc5",
-      "bytes": 58338
-    },
-    "tests/test_field_world_compare.py": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_world_compare.py",
-      "sha256": "a2f5d92993b09543d5623236276d578453eef41576f87776717771a565b4aed7",
-      "bytes": 22440
-    },
-    "tests/test_field_prefix_compare.py": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/test_field_prefix_compare.py",
-      "sha256": "cecab13c3f59f720f17a845aecb29546a6c22656b7b3ce594fb89f342d095ccb",
-      "bytes": 18845
-    },
-    "tests/texture_handles_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_handles_tests.cpp",
-      "sha256": "bf0fc1f90cb6cafe2dae801e912252bf1386aec05c10aeb50a539907ddbb7788",
-      "bytes": 30400
-    },
-    "tests/texture_psm1_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_psm1_tests.cpp",
-      "sha256": "2980eb52099d4180a91cbd57799ac09ce3db2695398071cfb262dbd6c733df1f",
-      "bytes": 18401
-    },
-    "tests/texture_transfer_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/texture_transfer_tests.cpp",
-      "sha256": "0b3018b013bf05f2586e6ad95bac4be5b1f4735e9b3a597046873cfac0721cb4",
-      "bytes": 31696
-    },
-    "tests/xim_raw_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/xim_raw_tests.cpp",
-      "sha256": "7026358648cd279f051032cac56a6fe1af93de2347f73109e27cc45a85e1e89a",
-      "bytes": 12054
-    },
-    "tools/field_world_compare.py": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_world_compare.py",
-      "sha256": "cef050a44e8a5ef0be5e65415f6e5f844280b1c806aa35d360239d30734cbc3d",
-      "bytes": 36200
-    },
-    "tools/play-oracle/startup.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/play-oracle/startup.cpp",
-      "sha256": "d5efee10cf710118e339145743d501d0af30e1c952c2496a5166b3058c3af9ef",
-      "bytes": 181664
-    },
-    "tools/field_prefix_compare.py": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_prefix_compare.py",
-      "sha256": "bda322fa111925c20e9cbc7b0e93b50ce3052cdf9e4aedfa575c71d4e0cd1ec2",
-      "bytes": 31088
-    },
-    "tools/field_prefix_extract.py": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tools/field_prefix_extract.py",
-      "sha256": "41229ec95a0cb952a33fef2b5fd4c5cd8ded72de431471826d1fd3f6ab89bcbe",
-      "bytes": 28236
+    "include/okage/model_groups.hpp": {
+      "path": "include/okage/model_groups.hpp",
+      "bytes": 2347,
+      "sha256": "face238c188db0b92d3e1621e453ba849625c771e680a3c23c0debf11b18e334"
     },
     "include/okage/model_ranges.hpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/include/okage/model_ranges.hpp",
-      "sha256": "74c64535ff1732d96235083b8eae55cfff119ea2e7f3db2886018573907aa81a",
-      "bytes": 2666
+      "path": "include/okage/model_ranges.hpp",
+      "bytes": 1687,
+      "sha256": "a16f38c73de2f1d964a40d1e4b18fc880a4ecb0d56e1d7dfbae09b00e901ab31"
+    },
+    "include/okage/music.hpp": {
+      "path": "include/okage/music.hpp",
+      "bytes": 4594,
+      "sha256": "8f9766131fc62042cccdfe42c76cd2ea4a0d6c42ac1040166788bf6aad461ea4"
+    },
+    "include/okage/name_entry.hpp": {
+      "path": "include/okage/name_entry.hpp",
+      "bytes": 1570,
+      "sha256": "a9eed8b3b189edb36118b23c55b9f95a847c206ed066997bc178268c1c7118b7"
+    },
+    "include/okage/native_run.hpp": {
+      "path": "include/okage/native_run.hpp",
+      "bytes": 4078,
+      "sha256": "58b0199e4e05eb3aa688e1a195388084142bb5f87a39c128e771d106403ed4e4"
+    },
+    "include/okage/navigation_mask.hpp": {
+      "path": "include/okage/navigation_mask.hpp",
+      "bytes": 935,
+      "sha256": "75532405ea00f0b61a0771a41a6c6462714d8bd0e279d9d49bf9bd770fc64984"
+    },
+    "include/okage/ordinary_lighting.hpp": {
+      "path": "include/okage/ordinary_lighting.hpp",
+      "bytes": 1468,
+      "sha256": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11"
+    },
+    "include/okage/pcm_stream.hpp": {
+      "path": "include/okage/pcm_stream.hpp",
+      "bytes": 1353,
+      "sha256": "0c2c0488b6dbde70217686ad5d6c525405287d0432d6786fb70a8a5b4a595f53"
+    },
+    "include/okage/pose.hpp": {
+      "path": "include/okage/pose.hpp",
+      "bytes": 1262,
+      "sha256": "e8897643ed624c4503a4050f58473e03600956d8fec3b906b5fec81a85e1890e"
+    },
+    "include/okage/render.hpp": {
+      "path": "include/okage/render.hpp",
+      "bytes": 1688,
+      "sha256": "f14752af407795333c4818961f38843bb1671dba33112188ec66408197b32df2"
+    },
+    "include/okage/resource_textures.hpp": {
+      "path": "include/okage/resource_textures.hpp",
+      "bytes": 2331,
+      "sha256": "a03843191bde48f60162552c2110dab658be28937be4967fff9b3217f29125e6"
+    },
+    "include/okage/restore_data.hpp": {
+      "path": "include/okage/restore_data.hpp",
+      "bytes": 1552,
+      "sha256": "1fe01ff0117aa9fc366014915e64d02e689841ca91df8a1a4f4dc4051642e5b6"
+    },
+    "include/okage/results_animation.hpp": {
+      "path": "include/okage/results_animation.hpp",
+      "bytes": 761,
+      "sha256": "d499a9c1d0e5b3aa6b0f4695d5e71e941a1808d8a0e682f684bf9bf579f944ff"
+    },
+    "include/okage/results_data.hpp": {
+      "path": "include/okage/results_data.hpp",
+      "bytes": 1145,
+      "sha256": "919b7371d95b16da178822a0f20806d03cb604c87b7f90d8e8fc389c3d39be08"
+    },
+    "include/okage/results_interface.hpp": {
+      "path": "include/okage/results_interface.hpp",
+      "bytes": 2171,
+      "sha256": "1449064e645b62ca53df809d9f731efb157ca8d05c56f9ec9d99fd6584478abd"
+    },
+    "include/okage/results_progress.hpp": {
+      "path": "include/okage/results_progress.hpp",
+      "bytes": 1370,
+      "sha256": "5e581d4f30bf28e18d22ffb614aa6a1dbc6e6823bda768f4836ac95d056c015c"
+    },
+    "include/okage/results_text.hpp": {
+      "path": "include/okage/results_text.hpp",
+      "bytes": 396,
+      "sha256": "d8673085eaa8cf87f3ceb22900bcdd72c5ea1b40e915d3b1a55bd764d1cef2da"
+    },
+    "include/okage/rng_site.hpp": {
+      "path": "include/okage/rng_site.hpp",
+      "bytes": 357,
+      "sha256": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e"
+    },
+    "include/okage/ruw.hpp": {
+      "path": "include/okage/ruw.hpp",
+      "bytes": 3616,
+      "sha256": "3af5147df03e0a89f1aa5a5ee70ed2c55b8b0504a9235618a7201d699cc94667"
+    },
+    "include/okage/save_store.hpp": {
+      "path": "include/okage/save_store.hpp",
+      "bytes": 1727,
+      "sha256": "2a786ce2193f6f1552f4e24a843ce809a90db2638466401e7dd026cfa23e91c0"
+    },
+    "include/okage/scene_model_asset.hpp": {
+      "path": "include/okage/scene_model_asset.hpp",
+      "bytes": 612,
+      "sha256": "6bd4dee3fb18b700e27dd82d213e4adb47d4e148684e391a4a0d2a04ee6e6de8"
+    },
+    "include/okage/scene_renderer.hpp": {
+      "path": "include/okage/scene_renderer.hpp",
+      "bytes": 5199,
+      "sha256": "449bbd24e0428ce9d11946b1c2fc9af18747b0d6c0359e3adf5b737b02fbafbf"
+    },
+    "include/okage/scene_resource.hpp": {
+      "path": "include/okage/scene_resource.hpp",
+      "bytes": 2442,
+      "sha256": "0a33d6c8c32749066c3d33d6eca8033428919e30e2660a8e96736463d4e933f6"
+    },
+    "include/okage/screen_filter.hpp": {
+      "path": "include/okage/screen_filter.hpp",
+      "bytes": 556,
+      "sha256": "0d949fb7b69bc418b782aee629afc5f8c80787181e8141a76a00317fceb63104"
+    },
+    "include/okage/sequence.hpp": {
+      "path": "include/okage/sequence.hpp",
+      "bytes": 2140,
+      "sha256": "adb67ef0a471bdc4c2ff449dc4de5bdb2397a8ea50bd68bcce95ae3131473842"
+    },
+    "include/okage/sha256.hpp": {
+      "path": "include/okage/sha256.hpp",
+      "bytes": 757,
+      "sha256": "00014773b486717e8382878b95ca9c217c57c0f4cf8b6f40777431da88f3f3d5"
+    },
+    "include/okage/shadow.hpp": {
+      "path": "include/okage/shadow.hpp",
+      "bytes": 4075,
+      "sha256": "c98221453631e732781608ea30b88e0d50d3280b89e1317df9810ea5bd3295d2"
+    },
+    "include/okage/stage_data.hpp": {
+      "path": "include/okage/stage_data.hpp",
+      "bytes": 1495,
+      "sha256": "d4303dbc1ece140da2dcd2a23b8554d8409d79fdfa908a09479dec6de90951ed"
+    },
+    "include/okage/stage_settings.hpp": {
+      "path": "include/okage/stage_settings.hpp",
+      "bytes": 764,
+      "sha256": "76cf2fac20e453e62519d65a1c1ef2c5eedf54ca53159e93117fc3801b818079"
+    },
+    "include/okage/startup.hpp": {
+      "path": "include/okage/startup.hpp",
+      "bytes": 406,
+      "sha256": "581f5dd613228d958d018e533773d7fd4ad5ef8ae2d1295bb71fce226ebd47fe"
+    },
+    "include/okage/startup_inputs.hpp": {
+      "path": "include/okage/startup_inputs.hpp",
+      "bytes": 897,
+      "sha256": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713"
+    },
+    "include/okage/startup_textures.hpp": {
+      "path": "include/okage/startup_textures.hpp",
+      "bytes": 23357,
+      "sha256": "b4152c7a049ce81bbffca5f9bb9e4749dd4a0ba74ce3a405d20c4bd564dbbdd8"
+    },
+    "include/okage/stream_bank.hpp": {
+      "path": "include/okage/stream_bank.hpp",
+      "bytes": 1830,
+      "sha256": "a1f37f3d794829eaeb0b004ec7bfec0e58353450abc9929829a0edd424f17a01"
+    },
+    "include/okage/text.hpp": {
+      "path": "include/okage/text.hpp",
+      "bytes": 3848,
+      "sha256": "2eef4c013a52ee72df289cc989ee9e9f465a7245a5c6da4d2e04552a073474f5"
+    },
+    "include/okage/texture_address_batch.hpp": {
+      "path": "include/okage/texture_address_batch.hpp",
+      "bytes": 2079,
+      "sha256": "dd2d66169447986e75ecbd321f6980114d783202b334b317dd1a4732780e6e6c"
+    },
+    "include/okage/texture_animation.hpp": {
+      "path": "include/okage/texture_animation.hpp",
+      "bytes": 1540,
+      "sha256": "68fa76725e106129f404f7060905a0ad9ce03ef766c1431b5fe5117bf35a2a45"
+    },
+    "include/okage/texture_handles.hpp": {
+      "path": "include/okage/texture_handles.hpp",
+      "bytes": 8520,
+      "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
+    },
+    "include/okage/texture_memory.hpp": {
+      "path": "include/okage/texture_memory.hpp",
+      "bytes": 8837,
+      "sha256": "7e00e740ef22c9f70b5f487442b752cac3abbc76c5a9eea18d1f4b23158e1723"
+    },
+    "include/okage/texture_transfer.hpp": {
+      "path": "include/okage/texture_transfer.hpp",
+      "bytes": 2847,
+      "sha256": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f"
+    },
+    "include/okage/title.hpp": {
+      "path": "include/okage/title.hpp",
+      "bytes": 1942,
+      "sha256": "10c07c4cfac00dbf1b9098f854d649a1f92d675a146ff69771ae438784f6e8a6"
+    },
+    "include/okage/title_stream.hpp": {
+      "path": "include/okage/title_stream.hpp",
+      "bytes": 1450,
+      "sha256": "75577f2976e5a52cd1c2b41abe0bfe2b9e41e4e556d9ca8d9b2e2c2919491a57"
+    },
+    "include/okage/ui_draw.hpp": {
+      "path": "include/okage/ui_draw.hpp",
+      "bytes": 1538,
+      "sha256": "0fb494bdf33a85868558894f5d560b97daaef318f647d1e0f0fc0342ff64618e"
+    },
+    "include/okage/ui_draw_diagnostic.hpp": {
+      "path": "include/okage/ui_draw_diagnostic.hpp",
+      "bytes": 369,
+      "sha256": "a7e5551766b13bbe5508cd29c994df5dd97c873c042f865b534c3c164dd3886b"
+    },
+    "include/okage/ui_geometry.hpp": {
+      "path": "include/okage/ui_geometry.hpp",
+      "bytes": 923,
+      "sha256": "4621ae31ffb9936f1b9713bf97423938ec70cc8a0e69658f29e692285fa4a08f"
+    },
+    "include/okage/ui_layout.hpp": {
+      "path": "include/okage/ui_layout.hpp",
+      "bytes": 613,
+      "sha256": "ff071f260ac8ff09d7e24eba28d4fc04fae43ec289f1c7e4d595f76db75735d1"
+    },
+    "include/okage/ui_layout_geometry.hpp": {
+      "path": "include/okage/ui_layout_geometry.hpp",
+      "bytes": 998,
+      "sha256": "593c33b3ccd958ba9f3186fb8cfd67ed75d00e5ecccb1b907b94380c3e53bfaa"
+    },
+    "include/okage/ui_matrix.hpp": {
+      "path": "include/okage/ui_matrix.hpp",
+      "bytes": 1001,
+      "sha256": "bb18d0b70f5efc44aa129148a90a5955932c5dff092b4191b632a27fd2c36363"
+    },
+    "include/okage/ui_projection.hpp": {
+      "path": "include/okage/ui_projection.hpp",
+      "bytes": 1059,
+      "sha256": "5b8f991d37e8106b417001d69b2ec22ede0688041835098ea40ce4e454928908"
+    },
+    "include/okage/ui_resource.hpp": {
+      "path": "include/okage/ui_resource.hpp",
+      "bytes": 1141,
+      "sha256": "35cafd58c9c8641df6fb57e1d799039ae810895624c3ea23ec6d2361f7cee1fa"
+    },
+    "include/okage/ui_text_number.hpp": {
+      "path": "include/okage/ui_text_number.hpp",
+      "bytes": 109,
+      "sha256": "9207cfdba63b554a98cf330c7d8704d0df203bfc5dfb8b286165ef54a9081248"
+    },
+    "include/okage/ui_window.hpp": {
+      "path": "include/okage/ui_window.hpp",
+      "bytes": 6736,
+      "sha256": "fb8c7f930e4cb455aa906fcfcbfb2c56a72251ad5222164048a80dd1c8f502d5"
+    },
+    "include/okage/voice.hpp": {
+      "path": "include/okage/voice.hpp",
+      "bytes": 1606,
+      "sha256": "90af711132f9683aedf7ca4d37de6e5f7bdc9d085d2353b1950ee1bff70495bf"
+    },
+    "src/actor.cpp": {
+      "path": "src/actor.cpp",
+      "bytes": 4936,
+      "sha256": "0e7d98d07238cf15a1bc9c0d8030aace4e484ddf2da6c6ea8b065cdcf47d7743"
+    },
+    "src/animation.cpp": {
+      "path": "src/animation.cpp",
+      "bytes": 19675,
+      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81"
+    },
+    "src/assets.cpp": {
+      "path": "src/assets.cpp",
+      "bytes": 14653,
+      "sha256": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819"
+    },
+    "src/assets_main.cpp": {
+      "path": "src/assets_main.cpp",
+      "bytes": 153385,
+      "sha256": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b"
+    },
+    "src/audio.cpp": {
+      "path": "src/audio.cpp",
+      "bytes": 1678,
+      "sha256": "40edfc7d35df27dc215fbcdcbf32e74aed5329646b2b0f9fa10d7056a85c9a87"
+    },
+    "src/audio_output.cpp": {
+      "path": "src/audio_output.cpp",
+      "bytes": 2885,
+      "sha256": "464e200d78d77fd5d26f8a398fcd3f6658640e0da9f91f900f9846089e3a030f"
+    },
+    "src/bank.cpp": {
+      "path": "src/bank.cpp",
+      "bytes": 6278,
+      "sha256": "2bea21143b76512ffa18431e305cb50a5c2055727aa3ef9152fa49288ded22de"
+    },
+    "src/battle_action_data.cpp": {
+      "path": "src/battle_action_data.cpp",
+      "bytes": 3986,
+      "sha256": "a79704bde4a23255e71ef02ec6a81f7ea0b70243584fda67d33a76967d4dd97d"
+    },
+    "src/battle_action_setup.cpp": {
+      "path": "src/battle_action_setup.cpp",
+      "bytes": 8167,
+      "sha256": "7fde48324d08f97e20fb2dda7752762d05a15c3ec869102ee8180d7a63aaf8ce"
+    },
+    "src/battle_actor.cpp": {
+      "path": "src/battle_actor.cpp",
+      "bytes": 14632,
+      "sha256": "f10dbb4819fa5aa0613a5c7e7a01976245659025bde7275aa6b8a78708f08b5e"
+    },
+    "src/battle_actor_math.cpp": {
+      "path": "src/battle_actor_math.cpp",
+      "bytes": 3910,
+      "sha256": "179d315ac384e16d028dcb5a6c10822ab1b9eee2d52e3d08ca70755e322e8522"
+    },
+    "src/battle_actor_update.cpp": {
+      "path": "src/battle_actor_update.cpp",
+      "bytes": 45992,
+      "sha256": "2b165d1c0c02d675bb52f829984eae077af9c1a265ea01155ea912f178efff96"
+    },
+    "src/battle_camera.cpp": {
+      "path": "src/battle_camera.cpp",
+      "bytes": 8783,
+      "sha256": "a76b0890c03d86f1db2dfcc8843eab16b9f8309436dc7cac0de7439dd9fdf4a4"
+    },
+    "src/battle_capture.cpp": {
+      "path": "src/battle_capture.cpp",
+      "bytes": 2372,
+      "sha256": "c454547579d8c78db0ceafcddbc0bdec75d6903572d443694266161a325520b0"
+    },
+    "src/battle_capture_metal.hpp": {
+      "path": "src/battle_capture_metal.hpp",
+      "bytes": 1087,
+      "sha256": "1d9be8c325c0a463692f5ee7b889c23fdcd0da5625b2e04fd21c1aa3393b52c6"
+    },
+    "src/battle_capture_metal.mm": {
+      "path": "src/battle_capture_metal.mm",
+      "bytes": 9352,
+      "sha256": "feb5c3db734f9e248a6ba6d7b5befb5c5bd048bf0826b6e7384a4a6910aa433b"
+    },
+    "src/battle_command_queue.cpp": {
+      "path": "src/battle_command_queue.cpp",
+      "bytes": 5124,
+      "sha256": "8f50f32688fbaebab059e81c2a2177122f1d6a7d632c1e6f585eb6dcfd20a3c0"
+    },
+    "src/battle_damage.cpp": {
+      "path": "src/battle_damage.cpp",
+      "bytes": 5921,
+      "sha256": "f2be53af7794eed34abc6bd312d1d2b1ad975d90e16dd252bc927ac44c131569"
+    },
+    "src/battle_data.cpp": {
+      "path": "src/battle_data.cpp",
+      "bytes": 6439,
+      "sha256": "2aa375d8b5e271f16f3894336dee9237e0b8b13d258ee508962ebfea7b54c92d"
+    },
+    "src/battle_enemy_action.cpp": {
+      "path": "src/battle_enemy_action.cpp",
+      "bytes": 6173,
+      "sha256": "800cac0131d39653793cf1ebff53f24120b3746756e88bb56bef144fc105ec7e"
+    },
+    "src/battle_enemy_commands.cpp": {
+      "path": "src/battle_enemy_commands.cpp",
+      "bytes": 1668,
+      "sha256": "d87bb2a9850ab30a0759028e2a505877b61fb36b81bf320e34685b8ee5b50f41"
+    },
+    "src/battle_entity_update.cpp": {
+      "path": "src/battle_entity_update.cpp",
+      "bytes": 7520,
+      "sha256": "88e1c0857cf294b65543fb25439a614d91117658ec5778d45b2dc5aec091a019"
+    },
+    "src/battle_entry.cpp": {
+      "path": "src/battle_entry.cpp",
+      "bytes": 1648,
+      "sha256": "33d6fd4ce4f5886c10198a0e8865d9628e4a1ff1a094916f075e605739d8e984"
+    },
+    "src/battle_filter_metal.hpp": {
+      "path": "src/battle_filter_metal.hpp",
+      "bytes": 543,
+      "sha256": "c92858b3830f21ecb660b6609d0ebf328b970697fcaae4d7f6f477d7b0738648"
+    },
+    "src/battle_filter_metal.mm": {
+      "path": "src/battle_filter_metal.mm",
+      "bytes": 6532,
+      "sha256": "43bdf1ccc576e808289abc2b31703be500ad6746b9b4401da5e4a43cc87d6cd4"
+    },
+    "src/battle_hit.cpp": {
+      "path": "src/battle_hit.cpp",
+      "bytes": 4173,
+      "sha256": "f52936bdde8b64638a9f8ab79bbe045049cd7d8b14eafa2823a9510be5695c82"
+    },
+    "src/battle_hud.cpp": {
+      "path": "src/battle_hud.cpp",
+      "bytes": 41959,
+      "sha256": "217afa3dfc5dd02a0ea2631ef1f0fc9f21318470b6646f4c23014070fc4a995a"
+    },
+    "src/battle_hud_history.cpp": {
+      "path": "src/battle_hud_history.cpp",
+      "bytes": 9599,
+      "sha256": "aa59aff2e48897d8111b57079ce9c24ee28a61207538fd9509e5e00c45fb28fe"
+    },
+    "src/battle_hud_targets.cpp": {
+      "path": "src/battle_hud_targets.cpp",
+      "bytes": 3751,
+      "sha256": "559605eb9a898c8402701d8e63218207a2a09dbb9a1f1e8b2020a729fa52febe"
+    },
+    "src/battle_interface.cpp": {
+      "path": "src/battle_interface.cpp",
+      "bytes": 4605,
+      "sha256": "b7d7472882f6c4bae998d2b6d0637775df20f302047eb9c700fa47fd4c034685"
+    },
+    "src/battle_interface_second.cpp": {
+      "path": "src/battle_interface_second.cpp",
+      "bytes": 12263,
+      "sha256": "37c83cf2ef89cf44c4b1833a689ef63a87a118d23c94b5e42eb99fe6149bea9a"
+    },
+    "src/battle_interface_update.cpp": {
+      "path": "src/battle_interface_update.cpp",
+      "bytes": 20468,
+      "sha256": "a214261092e0acce779bb3e739d609fb5a89d217914beffa0b48666b61d6983a"
+    },
+    "src/battle_lifecycle.cpp": {
+      "path": "src/battle_lifecycle.cpp",
+      "bytes": 1346,
+      "sha256": "0a4d8dba113d10fcb45860841c5dde60645b7e65a57dee1c7b4efc5e9446493e"
+    },
+    "src/battle_results.cpp": {
+      "path": "src/battle_results.cpp",
+      "bytes": 1558,
+      "sha256": "e58f68193f0536e4445a82aae9c8eb00debfba33def6d35952301a98afbf3f58"
+    },
+    "src/battle_reward.cpp": {
+      "path": "src/battle_reward.cpp",
+      "bytes": 4983,
+      "sha256": "8a1d42295664061f2a53b8cbd690c2521d10d2aa6db9139160fd8273fbb94270"
+    },
+    "src/battle_roster_update.cpp": {
+      "path": "src/battle_roster_update.cpp",
+      "bytes": 19484,
+      "sha256": "92460f269bc224dd620319d8dc93f2b1360c118e330c153b16bb234cb158f2d8"
+    },
+    "src/battle_session.hpp": {
+      "path": "src/battle_session.hpp",
+      "bytes": 5319,
+      "sha256": "18daa0266e593b82fc0fc8f3ed523722da251c440692cb7f7447fd90ac63e399"
+    },
+    "src/battle_session.mm": {
+      "path": "src/battle_session.mm",
+      "bytes": 98772,
+      "sha256": "94da58fd45af1ba977e54cd9c236c9f7d80eb5d51b031a417843734fe9cbc8ad"
+    },
+    "src/battle_state.cpp": {
+      "path": "src/battle_state.cpp",
+      "bytes": 3878,
+      "sha256": "b70b5cb848705bdd3b6c4bccf18bf9f78ebc38accb05cbc7365981655bd6a9f3"
+    },
+    "src/battle_ui.cpp": {
+      "path": "src/battle_ui.cpp",
+      "bytes": 3811,
+      "sha256": "3453e5dcc20550ee9cd75584d4557e64adb869f55e61eeaa6e5d14bf17cbfcba"
+    },
+    "src/battle_ui_command_data.cpp": {
+      "path": "src/battle_ui_command_data.cpp",
+      "bytes": 3717,
+      "sha256": "a5359118fea4cc466e522b432d34526b5c9aa7145ff1f32fed59bbeb6735bbfa"
+    },
+    "src/battle_ui_command_state.cpp": {
+      "path": "src/battle_ui_command_state.cpp",
+      "bytes": 2993,
+      "sha256": "0abc034307effbf17ee6bd76239eaf00bd2b082fb68e25698fa0fca596f12773"
+    },
+    "src/battle_ui_diagnostic.cpp": {
+      "path": "src/battle_ui_diagnostic.cpp",
+      "bytes": 3812,
+      "sha256": "6ca84eb90985a7a3bd8a9c1fdbb4af7daefbd22625315de516b943e06151342a"
+    },
+    "src/battle_ui_pad.cpp": {
+      "path": "src/battle_ui_pad.cpp",
+      "bytes": 2716,
+      "sha256": "38b953581f9575c1f9a029d74d74b207d0821bdc81422482acfe13074484f9ae"
+    },
+    "src/battle_ui_roster.cpp": {
+      "path": "src/battle_ui_roster.cpp",
+      "bytes": 3472,
+      "sha256": "65a2f8594fcf9b4ad45a7ffeffd88578975e17d420ba652cf0906b946d1d84ca"
+    },
+    "src/battle_victory.cpp": {
+      "path": "src/battle_victory.cpp",
+      "bytes": 4527,
+      "sha256": "efd1e7d39c442ac5095b7d96ff0340f59e109e07edbdc9f4043e6f0f02b1772e"
+    },
+    "src/camera.cpp": {
+      "path": "src/camera.cpp",
+      "bytes": 9969,
+      "sha256": "da8e913fc37b3ba05e952d2d09a46ee4742f53fbac5ca957930681b6d64afd74"
+    },
+    "src/camera_collision.cpp": {
+      "path": "src/camera_collision.cpp",
+      "bytes": 11430,
+      "sha256": "6556d536cec35070e0527d3d366b55348272512d17fdf20b2819fdeed609b945"
+    },
+    "src/chapter.cpp": {
+      "path": "src/chapter.cpp",
+      "bytes": 1283,
+      "sha256": "0f771793de16a425367463c3a44a2bd9d38db35f727b3ec36768b7c1eeecfae4"
+    },
+    "src/chapter_session.hpp": {
+      "path": "src/chapter_session.hpp",
+      "bytes": 1053,
+      "sha256": "31693cd3eee1a6ad45145ad02373a04e2dc7f9d76992330cf85e94d190451972"
+    },
+    "src/chapter_session.mm": {
+      "path": "src/chapter_session.mm",
+      "bytes": 6136,
+      "sha256": "9b35159c2ebf1a5a64d05077cf3086cd899f9750bdfcd92641073f336a14ea97"
+    },
+    "src/collision.cpp": {
+      "path": "src/collision.cpp",
+      "bytes": 32990,
+      "sha256": "bc66fda0b4a22fe6a914a8a8e89878a12bf4a2674e55bac1fa7afcd264b3f539"
+    },
+    "src/collision_geometry.hpp": {
+      "path": "src/collision_geometry.hpp",
+      "bytes": 5930,
+      "sha256": "400194bf2415ed2afb647a757c4c4695e2541929ac1a055b6713233114705eb4"
+    },
+    "src/dialogue.cpp": {
+      "path": "src/dialogue.cpp",
+      "bytes": 22680,
+      "sha256": "b2ac9aabbb8b317b3f38372def5295c8d517063387f0bb76c606f316fadfab0a"
+    },
+    "src/display_link.hpp": {
+      "path": "src/display_link.hpp",
+      "bytes": 1204,
+      "sha256": "c13f4ed50a19ed6a18d95cc276e1189f9639307e0250fe0787e12b88bc8806f7"
+    },
+    "src/display_link.mm": {
+      "path": "src/display_link.mm",
+      "bytes": 5891,
+      "sha256": "b81d8d1c8fa5bed2692e8889396e646e293471473a6132ca395534ec913af481"
+    },
+    "src/effect.cpp": {
+      "path": "src/effect.cpp",
+      "bytes": 62177,
+      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36"
+    },
+    "src/effect_geometry.cpp": {
+      "path": "src/effect_geometry.cpp",
+      "bytes": 13527,
+      "sha256": "2db351b381f63f63fff68c503a10fc484fccd4be8bff59a91d0335d7b87fbe62"
+    },
+    "src/enemy.cpp": {
+      "path": "src/enemy.cpp",
+      "bytes": 5299,
+      "sha256": "1bc7fe3a61c31f6e4024d7d2e915bcfca73aff7f24acf33850ac7a54f3255588"
+    },
+    "src/event.cpp": {
+      "path": "src/event.cpp",
+      "bytes": 9331,
+      "sha256": "eb8caabb724d72bfbb160d45982499d8e726dbed0bfb1ddeb218a6c7bc3e8270"
+    },
+    "src/field.cpp": {
+      "path": "src/field.cpp",
+      "bytes": 88000,
+      "sha256": "d6549895cfce326b6e564ca835e36e502d38c519ad9c1aed8cdc3acb192ee24e"
+    },
+    "src/field_navigation.cpp": {
+      "path": "src/field_navigation.cpp",
+      "bytes": 2727,
+      "sha256": "dad34b098600fa95639c521e64ac2b5677f7f32a879a2f30ab412435770432e4"
+    },
+    "src/field_projection.cpp": {
+      "path": "src/field_projection.cpp",
+      "bytes": 8165,
+      "sha256": "4970771aadc0ec683a2f3431519ab1241f8a9ef69bf1f26df447213b5c5bb428"
+    },
+    "src/field_raster.cpp": {
+      "path": "src/field_raster.cpp",
+      "bytes": 7040,
+      "sha256": "42f30e7baed078f5d117a57613178974da5e10ce7dc98a4152cd1ea9ab168e48"
+    },
+    "src/field_shadows.cpp": {
+      "path": "src/field_shadows.cpp",
+      "bytes": 6862,
+      "sha256": "1b339436ae785f0bd9f8489aa6a84bf2503370009f3f7f863e90cd874fd496ec"
+    },
+    "src/font.cpp": {
+      "path": "src/font.cpp",
+      "bytes": 2174,
+      "sha256": "fc944e2b2eec62459ad93be7d8d4b54a85c48b17b892510f5875bc905f996ca9"
+    },
+    "src/frame_composition.cpp": {
+      "path": "src/frame_composition.cpp",
+      "bytes": 4182,
+      "sha256": "ffc91d3fc58cc977db2a3e6c5b4c561909bad688238165374e336345afd12fb6"
+    },
+    "src/game_mode.cpp": {
+      "path": "src/game_mode.cpp",
+      "bytes": 1497,
+      "sha256": "07100537d7541b01d59c1a040e1c7b65cbd18639fecfc6286fc617dd8e5bd938"
+    },
+    "src/game_over.cpp": {
+      "path": "src/game_over.cpp",
+      "bytes": 5653,
+      "sha256": "ca432bd6ee83b30c39e551d8c347220c13947383a87f2fafddea717d6f36a7de"
+    },
+    "src/game_over_session.hpp": {
+      "path": "src/game_over_session.hpp",
+      "bytes": 1433,
+      "sha256": "678f10637d49b2b5ad345a204f8aaf5fc37007a31f844c01ad729b61a5c09d14"
+    },
+    "src/game_over_session.mm": {
+      "path": "src/game_over_session.mm",
+      "bytes": 6559,
+      "sha256": "fe9e83dba8e5998b4be4c809f4ba67686e6097139c2a1ac776abe7cf7ebc428a"
+    },
+    "src/game_state.cpp": {
+      "path": "src/game_state.cpp",
+      "bytes": 12957,
+      "sha256": "5b264de91d1d8f095b40fdbc2c7d61ca3a69b51eabf62872e11350a27e9e20e5"
+    },
+    "src/gs_material_shader.hpp": {
+      "path": "src/gs_material_shader.hpp",
+      "bytes": 1967,
+      "sha256": "4b2f17c1837c648436aa9e30b9dbd296d2453108233e46a1ee167717b894cfb1"
+    },
+    "src/gs_texture_address.cpp": {
+      "path": "src/gs_texture_address.cpp",
+      "bytes": 4804,
+      "sha256": "86dcfd43b05d56945b54faf7e36972dda1053f8f5c50ceb0905a60a4ffcd761c"
+    },
+    "src/gs_texture_sampling.cpp": {
+      "path": "src/gs_texture_sampling.cpp",
+      "bytes": 5286,
+      "sha256": "df1b734c353df6d7ebbf3a4a09dbba8da42ef06f9db0ca4ac48a55e29b2f7a65"
+    },
+    "src/gs_texture_sampling_metal.hpp": {
+      "path": "src/gs_texture_sampling_metal.hpp",
+      "bytes": 9915,
+      "sha256": "977611d9065fb89775ab3988cb33072317a0622927eed7fe2bc257fd5ceaf961"
+    },
+    "src/image_metal.hpp": {
+      "path": "src/image_metal.hpp",
+      "bytes": 2096,
+      "sha256": "b75ce7d77bb59ad89991d35691452632e03f92f4a901a55d61dae584d3347f24"
+    },
+    "src/image_metal.mm": {
+      "path": "src/image_metal.mm",
+      "bytes": 17506,
+      "sha256": "46e0f7474fbfbe11437f9e6ef7bae102af5446a46d194b7c8e40308702b1292f"
+    },
+    "src/image_quad.cpp": {
+      "path": "src/image_quad.cpp",
+      "bytes": 4037,
+      "sha256": "34157cef9237d3882c07fe32e101d09a4f756e8a94522e04064634fc5a282007"
+    },
+    "src/input_journal.cpp": {
+      "path": "src/input_journal.cpp",
+      "bytes": 7913,
+      "sha256": "0ed07f70593892e6106e5dfa251667590d96747cc84522a836cf39b1e9575dd1"
+    },
+    "src/input_log.cpp": {
+      "path": "src/input_log.cpp",
+      "bytes": 1834,
+      "sha256": "71119acd32a21a03924fe5ed6444a07e00815e8acb738065a9f5bd5a00a5dd70"
+    },
+    "src/live_performance.cpp": {
+      "path": "src/live_performance.cpp",
+      "bytes": 12843,
+      "sha256": "d5a6f9e2eecde9a7cf88eadde93d65c1a1efdd28ea426108cc1c26c5624163eb"
+    },
+    "src/load_queue.cpp": {
+      "path": "src/load_queue.cpp",
+      "bytes": 11319,
+      "sha256": "82e043d305fc93814eb9f3675f5fe430d2abfc7abbfa0aab064bef1cd1ee4cdd"
+    },
+    "src/map.cpp": {
+      "path": "src/map.cpp",
+      "bytes": 4594,
+      "sha256": "305dc336d4b800b18f6f0e2d938e1aa6a16be668439d30a65e7ce78491453e13"
+    },
+    "src/map_objects.cpp": {
+      "path": "src/map_objects.cpp",
+      "bytes": 8855,
+      "sha256": "8a401dbb5156fe2b0964bef988a5871b55e19d0d7e14ca96d028cef3e2489c48"
+    },
+    "src/metal_preview_shader.hpp": {
+      "path": "src/metal_preview_shader.hpp",
+      "bytes": 8432,
+      "sha256": "9c4d3db4794a027eb7c4bc2fcb00f50d81314616a2514164d6aadf3ff1fda8fe"
+    },
+    "src/model.cpp": {
+      "path": "src/model.cpp",
+      "bytes": 10839,
+      "sha256": "a05998649242e001bc43ab0d98aae58505898daab96fc51de4b68a0009834521"
+    },
+    "src/model_groups.cpp": {
+      "path": "src/model_groups.cpp",
+      "bytes": 4501,
+      "sha256": "c4112ef675809823aa19949f3700d23e970fe005256459c9fd60f5ed824144ff"
     },
     "src/model_ranges.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/src/model_ranges.cpp",
-      "sha256": "bd32661e4666746a0348db4b04312f147c64cf4c869fc5ef7b997245b52d45fb",
-      "bytes": 3621
+      "path": "src/model_ranges.cpp",
+      "bytes": 3159,
+      "sha256": "09ca546b739fef54e3f1ddebfa0c7b946d1541ef5518cd6ea768d5983e8c6018"
     },
-    "tests/model_ranges_tests.cpp": {
-      "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/tests/model_ranges_tests.cpp",
-      "sha256": "7fec1728c369a012afad98a805becfd1e5acb8a2cc6d0987a5e0df36be32391a",
-      "bytes": 8511
+    "src/model_viewer.mm": {
+      "path": "src/model_viewer.mm",
+      "bytes": 13160,
+      "sha256": "add0de14e854dba46696ca2b996199792e1da5c563e1468abd525309813875cf"
+    },
+    "src/music.cpp": {
+      "path": "src/music.cpp",
+      "bytes": 13221,
+      "sha256": "4698ce6cad68478a2c53fa1509d841b98524075bebc951672516ebd06cfa2924"
+    },
+    "src/name_entry.cpp": {
+      "path": "src/name_entry.cpp",
+      "bytes": 7819,
+      "sha256": "1e62421d23c9e4a4443bf7f66caad335e27aa6ea16d726df804b3bfeef616d8d"
+    },
+    "src/name_entry_data.cpp": {
+      "path": "src/name_entry_data.cpp",
+      "bytes": 1952,
+      "sha256": "7afffe607319cbdd968934d239759c7c3248412596e13ac50ed9dc3a8746981a"
+    },
+    "src/name_entry_layout.cpp": {
+      "path": "src/name_entry_layout.cpp",
+      "bytes": 5034,
+      "sha256": "45a36f5bd529f82eebad872b44955fea21fea88fbaf3b6f6b9ada156bdba461e"
+    },
+    "src/name_entry_session.hpp": {
+      "path": "src/name_entry_session.hpp",
+      "bytes": 1633,
+      "sha256": "9985416ef511691dc2917df53fe029fd3fe85d8df3746f2ac5e2567419a0604b"
+    },
+    "src/name_entry_session.mm": {
+      "path": "src/name_entry_session.mm",
+      "bytes": 6245,
+      "sha256": "4f9b9e34d1a842de8e953ed9819da55819b0fd515de8b79b5785813117d7ed31"
+    },
+    "src/native_runtime.mm": {
+      "path": "src/native_runtime.mm",
+      "bytes": 282206,
+      "sha256": "f576d578d73cbc8e7519df6d4220ef60089425fe6fbe46aacf0b01e926ed94fd"
+    },
+    "src/navigation_mask.cpp": {
+      "path": "src/navigation_mask.cpp",
+      "bytes": 2134,
+      "sha256": "2bd5adeffc3e859baeccfe7499cd808aaf22b763cb0ea153325bcc108bc06508"
+    },
+    "src/ordinary_lighting.cpp": {
+      "path": "src/ordinary_lighting.cpp",
+      "bytes": 9810,
+      "sha256": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89"
+    },
+    "src/pcm_stream.cpp": {
+      "path": "src/pcm_stream.cpp",
+      "bytes": 7567,
+      "sha256": "510bf2d34c81532dc32741f0aca59c1ddcf0be4d0ea47b18f4157b9c3b63725b"
+    },
+    "src/pose.cpp": {
+      "path": "src/pose.cpp",
+      "bytes": 12034,
+      "sha256": "6d7999e889ec2681ca23a95cd81389989ae92d82b28ff5e1956232187c20a4ee"
+    },
+    "src/render.cpp": {
+      "path": "src/render.cpp",
+      "bytes": 6425,
+      "sha256": "e1cb6c6e2660e95c45f9653fd2e386e90b3461473d669507782dc31c1b6a39f7"
+    },
+    "src/render_preview.mm": {
+      "path": "src/render_preview.mm",
+      "bytes": 17481,
+      "sha256": "7659a1b28b093dc421232229ed31848ce74a1830b2819b779fd4be3689edb9ad"
+    },
+    "src/resource_textures.cpp": {
+      "path": "src/resource_textures.cpp",
+      "bytes": 6590,
+      "sha256": "d3a4af85622bbbe7909a9b2460bb6dd331e425ec659c97803abd4238bcdcd441"
+    },
+    "src/restore_data.cpp": {
+      "path": "src/restore_data.cpp",
+      "bytes": 4092,
+      "sha256": "23d786a60b4e57cd90bfd35867589cba34d94a07037f717d29e3e74ad8abbfcb"
+    },
+    "src/restore_session.hpp": {
+      "path": "src/restore_session.hpp",
+      "bytes": 2159,
+      "sha256": "d523c713a503ff9c32a6ec766c6b807ba3f5f785e7fbc110d1baebdf3b915023"
+    },
+    "src/restore_session.mm": {
+      "path": "src/restore_session.mm",
+      "bytes": 26471,
+      "sha256": "4c88974e89f549b216c5d09633d0c2c77addac05ed64fdd8f598b3c032107254"
+    },
+    "src/results_animation.cpp": {
+      "path": "src/results_animation.cpp",
+      "bytes": 2462,
+      "sha256": "978663e17b05b9e10eac07200fb01692ca2ee319f53832ce0f99f15432e40ad4"
+    },
+    "src/results_data.cpp": {
+      "path": "src/results_data.cpp",
+      "bytes": 4002,
+      "sha256": "1e82180e38842e819f8c61963ad7daf4ac9e162bb990376eaecb8b1c853dd5cb"
+    },
+    "src/results_interface.cpp": {
+      "path": "src/results_interface.cpp",
+      "bytes": 11513,
+      "sha256": "7da3b14dac1c85f052233a57231aab65101b69b7b889fdc09e5a4e47e7b661fa"
+    },
+    "src/results_progress.cpp": {
+      "path": "src/results_progress.cpp",
+      "bytes": 13831,
+      "sha256": "00f6be41693e59dc2b1f0a796e13052d0f5162953f44ed108c959601bfea1482"
+    },
+    "src/results_renderer.hpp": {
+      "path": "src/results_renderer.hpp",
+      "bytes": 672,
+      "sha256": "d7d56d1f4ea7e814827fd3bb2f5108f79717f849e3019efea79813eee656e2d2"
+    },
+    "src/results_renderer.mm": {
+      "path": "src/results_renderer.mm",
+      "bytes": 5633,
+      "sha256": "ac86ffb7f810d43a77250429e35e09dbe0b2eeb228987c72288c77bf69e7accd"
+    },
+    "src/results_text.cpp": {
+      "path": "src/results_text.cpp",
+      "bytes": 4077,
+      "sha256": "0f5e0d71ff4433e6c1b1e03847a9192fe228218639a2f5c8f3faae81874c8455"
+    },
+    "src/ruw.cpp": {
+      "path": "src/ruw.cpp",
+      "bytes": 14723,
+      "sha256": "42402dfe07441f3fcad1de1f78f81dfc44f8cd96ac434f7291ca88867ddfcadd"
+    },
+    "src/save_store.cpp": {
+      "path": "src/save_store.cpp",
+      "bytes": 10266,
+      "sha256": "161e4f6f899efde267cfe1aa27127c135b7bd43b0c00bf67912f1ff9d6f75a59"
+    },
+    "src/scene_renderer.mm": {
+      "path": "src/scene_renderer.mm",
+      "bytes": 86955,
+      "sha256": "086fb0abfbef15c918a5824b54e906b4fe9ac3973885afbf24d9546c2b900b1c"
+    },
+    "src/scene_resource.cpp": {
+      "path": "src/scene_resource.cpp",
+      "bytes": 3969,
+      "sha256": "f26075d63fa88caab3bed904b8f211e82644c0e62202431bd464fe8b8f385f41"
+    },
+    "src/screen_filter.cpp": {
+      "path": "src/screen_filter.cpp",
+      "bytes": 1826,
+      "sha256": "e534cafc11bf935fe497b7d6a3ac2a26b97f7fd3044f658b90993b85c17d2acd"
+    },
+    "src/sequence.cpp": {
+      "path": "src/sequence.cpp",
+      "bytes": 8871,
+      "sha256": "bb3b0d733ff694e807ec03505720a740acef8e6854d4e909212755e99f9cd8ce"
+    },
+    "src/sha256.cpp": {
+      "path": "src/sha256.cpp",
+      "bytes": 4177,
+      "sha256": "f1acb42ae16436f34d5072dae41c0a5956e2161929320319ceec475b71f22c0f"
+    },
+    "src/shadow.cpp": {
+      "path": "src/shadow.cpp",
+      "bytes": 26813,
+      "sha256": "26e91a3a6c35fc498a9471f1f5a2362d6ba7848afe8b264c60b907ce766c72f9"
+    },
+    "src/shadow_metal.hpp": {
+      "path": "src/shadow_metal.hpp",
+      "bytes": 754,
+      "sha256": "1f2f63fb5fb0b09dcd95074a4843ec06543c2d2dc2facd01c153c2e408e95b5c"
+    },
+    "src/shadow_metal.mm": {
+      "path": "src/shadow_metal.mm",
+      "bytes": 8546,
+      "sha256": "0a5eaaf2a9fb7176e2b1395b065fee2436bdf9a2ce61fc09b3691594ca9a92f0"
+    },
+    "src/stage_data.cpp": {
+      "path": "src/stage_data.cpp",
+      "bytes": 4567,
+      "sha256": "d26b099c00e35d60d9b33583cec14f7406b94ca4a0c710384471a86b1d858489"
+    },
+    "src/stage_settings.cpp": {
+      "path": "src/stage_settings.cpp",
+      "bytes": 5533,
+      "sha256": "35220cfee990c06a7ce489bd32f7212d1e6ee1b239ece719e9dcb87e30489505"
+    },
+    "src/startup.cpp": {
+      "path": "src/startup.cpp",
+      "bytes": 1585,
+      "sha256": "2db9b4eec1315f34878887cca9405277590a0f0983efb7f1800880d9a028b849"
+    },
+    "src/startup_inputs.cpp": {
+      "path": "src/startup_inputs.cpp",
+      "bytes": 17605,
+      "sha256": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e"
+    },
+    "src/startup_session.hpp": {
+      "path": "src/startup_session.hpp",
+      "bytes": 1149,
+      "sha256": "4577dc12ac991217dd1433bbd5d09180b3dee960820465b724ab14ace9e85566"
+    },
+    "src/startup_session.mm": {
+      "path": "src/startup_session.mm",
+      "bytes": 7762,
+      "sha256": "bf779f02f832525bb5457c1385e2974e71b5bf9d33a8443d5eaf4912c5c5ff78"
+    },
+    "src/startup_textures.cpp": {
+      "path": "src/startup_textures.cpp",
+      "bytes": 85866,
+      "sha256": "f97918749630831af1a8f44d0b9c2b4757ad732c57f0a869918cf68993b0bed1"
+    },
+    "src/stream_bank.cpp": {
+      "path": "src/stream_bank.cpp",
+      "bytes": 5972,
+      "sha256": "eb820437de2de1c508fb101efbf048382d8f00a1976e170d151abd814000e645"
+    },
+    "src/text.cpp": {
+      "path": "src/text.cpp",
+      "bytes": 20469,
+      "sha256": "6185eb5b1320909557993f10549fed71896887e12329520d7502049b778bbb0f"
+    },
+    "src/texture_address_batch.cpp": {
+      "path": "src/texture_address_batch.cpp",
+      "bytes": 3285,
+      "sha256": "8428a0fc32c49e9d78e86ddf3896a5784c8c2cc41ca8bedef85f0176e97808e4"
+    },
+    "src/texture_address_batch_metal.mm": {
+      "path": "src/texture_address_batch_metal.mm",
+      "bytes": 10148,
+      "sha256": "1485d5092de7089288c0e064e5f5dac718a6a7b16bc81c1a629ed88a9cd966f9"
+    },
+    "src/texture_animation.cpp": {
+      "path": "src/texture_animation.cpp",
+      "bytes": 4546,
+      "sha256": "61892c3c42f94bb6ceda1ab913d0cbb2ff312f8c3f0c0ddc527ce7ce0b69e08b"
+    },
+    "src/texture_handles.cpp": {
+      "path": "src/texture_handles.cpp",
+      "bytes": 21665,
+      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
+    },
+    "src/texture_memory.cpp": {
+      "path": "src/texture_memory.cpp",
+      "bytes": 18625,
+      "sha256": "8fd6fc2dc056c9f9ebc7b7280e2f37d53d83aa8625b883191aff6d1bfb1ccc68"
+    },
+    "src/texture_transfer.cpp": {
+      "path": "src/texture_transfer.cpp",
+      "bytes": 12470,
+      "sha256": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646"
+    },
+    "src/title.cpp": {
+      "path": "src/title.cpp",
+      "bytes": 7909,
+      "sha256": "224491253d4fa53eebfaa20d0b5a45607942dd822c7d7202464772a5f56d386a"
+    },
+    "src/title_session.hpp": {
+      "path": "src/title_session.hpp",
+      "bytes": 2209,
+      "sha256": "eb0559173236f5bf5d33ae659ea2a0a4adf270d62cb7c536db301f4b8ec4b0f2"
+    },
+    "src/title_session.mm": {
+      "path": "src/title_session.mm",
+      "bytes": 12190,
+      "sha256": "52cf641c373dd4a8ad44cc365c1d9f9eacaa6682d434329fc15d34bac6d085cd"
+    },
+    "src/title_stream.cpp": {
+      "path": "src/title_stream.cpp",
+      "bytes": 2582,
+      "sha256": "11f6811441c06e264a8883f67638fc08aea5bf948b24fcc2a5af8a6bb010999a"
+    },
+    "src/ui_draw.cpp": {
+      "path": "src/ui_draw.cpp",
+      "bytes": 8647,
+      "sha256": "2ee786f6414d5feee03a11c2682f4e517a3d6c176d77e31d9a26ba9ee92f60a8"
+    },
+    "src/ui_draw_diagnostic.cpp": {
+      "path": "src/ui_draw_diagnostic.cpp",
+      "bytes": 8716,
+      "sha256": "0009b84ed298a7983c95bff2f79ed69c2e359e11eadc2a7dea8ee7116f511932"
+    },
+    "src/ui_geometry.cpp": {
+      "path": "src/ui_geometry.cpp",
+      "bytes": 11177,
+      "sha256": "2e1cae3052d1721191a63b741f283363b3bb306f9c8d86cb272aeffdf3154959"
+    },
+    "src/ui_layout_geometry.cpp": {
+      "path": "src/ui_layout_geometry.cpp",
+      "bytes": 11588,
+      "sha256": "f76975c1768c4828b0b6c68d4377f6a6c4acb8e40f202992c50e80772bbb9a1b"
+    },
+    "src/ui_matrix.cpp": {
+      "path": "src/ui_matrix.cpp",
+      "bytes": 4345,
+      "sha256": "ab4fd39089da605d85d038fc874e14eabef305dabd882d317f1320fb191fa457"
+    },
+    "src/ui_metal.hpp": {
+      "path": "src/ui_metal.hpp",
+      "bytes": 1413,
+      "sha256": "868354e38b3844fa5c45998de318a34b7864406db297055b64aa0ffe8c5dbd6f"
+    },
+    "src/ui_metal.mm": {
+      "path": "src/ui_metal.mm",
+      "bytes": 16651,
+      "sha256": "8201ab1b266c7578c211ca3605e2e81efd3cdc904112534de06ef65229949626"
+    },
+    "src/ui_projection.cpp": {
+      "path": "src/ui_projection.cpp",
+      "bytes": 6736,
+      "sha256": "4eb593ec3378598f5819daf47bfb64533859c2911a43e5d33a5b4fa7e76442e0"
+    },
+    "src/ui_resource.cpp": {
+      "path": "src/ui_resource.cpp",
+      "bytes": 3358,
+      "sha256": "5aec6424ca527d95c8fbb2345779eb4d17432c6b4d11b8d55b6a3b01f68445e5"
+    },
+    "src/ui_text_number.cpp": {
+      "path": "src/ui_text_number.cpp",
+      "bytes": 4492,
+      "sha256": "9ac3cb4429934ad1c0060faf6c32fb69adc6a750454176cb763cd16d6bdf7e54"
+    },
+    "src/ui_window.cpp": {
+      "path": "src/ui_window.cpp",
+      "bytes": 10652,
+      "sha256": "5d86ca38ac9dbb82605edb51e19e9384c19071f202af1e2cb207f16d2b5211c6"
+    },
+    "src/ui_window_background.cpp": {
+      "path": "src/ui_window_background.cpp",
+      "bytes": 4701,
+      "sha256": "023b46ff5250327319ab59548292dbb875f8050f2251cb1b9229478d184e1da9"
+    },
+    "src/ui_window_binding.cpp": {
+      "path": "src/ui_window_binding.cpp",
+      "bytes": 2211,
+      "sha256": "b4ca851776755b05113cc12b8e75967ea5862378106a67922eddc4ef2a571cda"
+    },
+    "src/ui_window_clock.cpp": {
+      "path": "src/ui_window_clock.cpp",
+      "bytes": 7487,
+      "sha256": "5094d76880e63008fd4e1de65b01969a757e78041c6d6689e4e7fd85ee0f9c3d"
+    },
+    "src/ui_window_glyph.cpp": {
+      "path": "src/ui_window_glyph.cpp",
+      "bytes": 7774,
+      "sha256": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2"
+    },
+    "src/ui_window_layout.cpp": {
+      "path": "src/ui_window_layout.cpp",
+      "bytes": 19026,
+      "sha256": "eb492de18c7b040e067d88691be4caa0ed2b59f7540511b6927ab145cd0b3562"
+    },
+    "src/ui_window_packets.cpp": {
+      "path": "src/ui_window_packets.cpp",
+      "bytes": 15081,
+      "sha256": "2a4492312386d030e9ada03fa9278d69668282779f58df738c9630bf5a1caf16"
+    },
+    "src/ui_window_sprite.cpp": {
+      "path": "src/ui_window_sprite.cpp",
+      "bytes": 3257,
+      "sha256": "abbb9cf419bef4d5cec6c11c90e5cfd58dc1b46e7be18b7673516a9bb022fb1c"
+    },
+    "src/viewer.mm": {
+      "path": "src/viewer.mm",
+      "bytes": 6932,
+      "sha256": "dd1ac9014ec41b0d70b19543cde938e51ffc0e2d8c3cbb3486b5357bfcc3c146"
+    },
+    "src/voice.cpp": {
+      "path": "src/voice.cpp",
+      "bytes": 4109,
+      "sha256": "c93f834cf2e6a99481fc57426e707ccd53dab83c9bc53bcb362c6a69f55e7bf3"
+    },
+    "tests/field_navigation_tests.cpp": {
+      "path": "tests/field_navigation_tests.cpp",
+      "bytes": 4426,
+      "sha256": "64cea3b0f673d6a0963e37228b69b692a3e3e5952a2ad8e8cd6df4aa89396651"
+    },
+    "tests/gs_texture_sampling_metal_tests.mm": {
+      "path": "tests/gs_texture_sampling_metal_tests.mm",
+      "bytes": 22714,
+      "sha256": "c791c9efb65bfccbe5eae212cc7c9638947bca6cfe4cce1707f9bd1e11b4e9e1"
+    },
+    "tests/gs_texture_sampling_tests.cpp": {
+      "path": "tests/gs_texture_sampling_tests.cpp",
+      "bytes": 12550,
+      "sha256": "15b8ae441e61269c48d97ba2ea361a39c52601a57993e361b69f768338aaa94c"
+    },
+    "tests/image_metal_shared_gs_tests.mm": {
+      "path": "tests/image_metal_shared_gs_tests.mm",
+      "bytes": 13040,
+      "sha256": "c604c25f009aab808a504d137afdee4ae45fac4ea126b14c719e3acddbd847dc"
+    },
+    "tests/startup_textures_tests.cpp": {
+      "path": "tests/startup_textures_tests.cpp",
+      "bytes": 51226,
+      "sha256": "76738e519d753da1badab91c859078ee6eecfd4d40272f959900503b1562570d"
+    },
+    "tests/xim_psm44_tests.cpp": {
+      "path": "tests/xim_psm44_tests.cpp",
+      "bytes": 9600,
+      "sha256": "6f230015eaa496759c430c32d545186dbb68c678c24ed6653609551ddc61d343"
     }
   },
   "inherited_state": {
@@ -665,8 +1930,8 @@
     "files": {
       "include/okage/startup_textures.hpp": {
         "path": "include/okage/startup_textures.hpp",
-        "bytes": 22305,
-        "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68"
+        "bytes": 23357,
+        "sha256": "b4152c7a049ce81bbffca5f9bb9e4749dd4a0ba74ce3a405d20c4bd564dbbdd8"
       },
       "include/okage/texture_handles.hpp": {
         "path": "include/okage/texture_handles.hpp",
@@ -675,23 +1940,23 @@
       },
       "include/okage/texture_transfer.hpp": {
         "path": "include/okage/texture_transfer.hpp",
-        "bytes": 2367,
-        "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
+        "bytes": 2847,
+        "sha256": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f"
       },
       "src/assets.cpp": {
         "path": "src/assets.cpp",
-        "bytes": 14408,
-        "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
+        "bytes": 14653,
+        "sha256": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819"
       },
       "src/native_runtime.mm": {
         "path": "src/native_runtime.mm",
-        "bytes": 275496,
-        "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
+        "bytes": 282206,
+        "sha256": "f576d578d73cbc8e7519df6d4220ef60089425fe6fbe46aacf0b01e926ed94fd"
       },
       "src/startup_textures.cpp": {
         "path": "src/startup_textures.cpp",
-        "bytes": 80505,
-        "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a"
+        "bytes": 85866,
+        "sha256": "f97918749630831af1a8f44d0b9c2b4757ad732c57f0a869918cf68993b0bed1"
       },
       "src/texture_handles.cpp": {
         "path": "src/texture_handles.cpp",
@@ -700,8 +1965,8 @@
       },
       "src/texture_transfer.cpp": {
         "path": "src/texture_transfer.cpp",
-        "bytes": 9640,
-        "sha256": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1"
+        "bytes": 12470,
+        "sha256": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646"
       },
       "tests/texture_handles_tests.cpp": {
         "path": "tests/texture_handles_tests.cpp",
@@ -715,13 +1980,13 @@
       },
       "tests/texture_transfer_tests.cpp": {
         "path": "tests/texture_transfer_tests.cpp",
-        "bytes": 30353,
-        "sha256": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706"
+        "bytes": 39487,
+        "sha256": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825"
       }
     },
     "note": "Frozen checkpoint accepted as component evidence by independent supervisor; source has since advanced."
   },
-  "source_commit": "7585548a5756268c5d418fd7e0a04552d7dcbf0c",
+  "source_commit": "561af1d24288be3de8a06310a1c5a9feaafb3a43",
   "historical_runs": {
     "release": {
       "binary": {
@@ -1418,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2025-12-14T15:00:00Z",
+  "overnight_cutoff": "2026-01-20T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -1434,7 +2699,7 @@
     "gpu_test_commit": "1208d5c",
     "review": "Supervisor C002 accepts bounded first-field runtime/resources atf9fbe3e; R2 correction subsequentlyvalidated atbe0da98, independent correctiondispositionpending."
   },
-  "current_runtime_evidence_note": "0040d8a actual shared-GS ordinary model/ENV renderer; new62 Release identical and7focusedchecks pass. Final6gates open; packet latching correction, actor initialization staging and battle/return integration underway, not yet final linked source.",
+  "current_runtime_evidence_note": "561af1d/V14 historicalprefix alloldobservedheld/pressed1..37297equal, completes37332; actualendpoint74/0. Ordinarybedroom/upstairsstairs reaches70/5commonfamilypose37839. Literalretainedfamilycontrolsappendedonlyafterprefix, currentlyrunning. Priorcb5familyearneditems/flag68 butended52492onduplicateDiagnosticCapture; noChapter2proofyet.",
   "r2_correction": {
     "path": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/r2-checkpoint-multiplicity-v1/validation.json",
     "sha256": "35689fdef0e51336b1f7a91de180781084068ec7115e0e78b56a88062c4df37a",
@@ -1530,5 +2795,71 @@
       "field/frame/glyph/capture GS writes not complete",
       "original2fullRAM controls unchanged"
     ]
+  },
+  "navigation_continuation_checkpoint": {
+    "source_checkpoint": {
+      "path": "local/research/texture-to-battle-v1/navigation-integrated-source-checkpoint-v1.json",
+      "bytes": 56136,
+      "sha256": "9b5c4a4c7d028c89b0813b1387e35e74265e637e3a5c427ff70e36504ae76106"
+    },
+    "validation": {
+      "path": "local/research/texture-to-battle-v1/navigation-integrated-validation-v1.json",
+      "bytes": 5587,
+      "sha256": "10cdae1aeb59253eb3b01a6b857a46ab49047a975e3a3bf319c17af44bd88663"
+    },
+    "prefix_comparison": {
+      "path": "local/research/texture-to-battle-v1/navigation-shared-gs-historical-release-v1/input-prefix-comparison.json",
+      "bytes": 774,
+      "sha256": "c4d35b8e537223ad2f0a60ea38bf2ce9667d6fb5190574d9af7d4a7ff3cb4297"
+    },
+    "ordinary_family_origin": {
+      "path": "local/research/texture-to-battle-v1/navigation-shared-gs-historical-release-v1/ordinary-family-phase04-origin.json",
+      "bytes": 768,
+      "sha256": "ff845b73fe1c0c9d74e8fc34cc8a4ffc2c479b9ba29dd4d08e961784147772b9"
+    },
+    "prior_family_result": {
+      "path": "local/research/texture-to-battle-v1/battle-shared-gs-historical-release-v1/family-progress-observation-v2.json",
+      "bytes": 1238,
+      "sha256": "57fcbbeb410f3b12c7a2d3771e4581d39dcffe53b052c7b0810bb15f680f6d83"
+    },
+    "stageV14_import": {
+      "path": "local/research/navigation-stage-v14-import-v1/validation.json",
+      "bytes": 6417,
+      "sha256": "75b1d71d4e1f45090c9c1a2e36b8bf0f01ad51dab162a5f9e4e264292db97517"
+    },
+    "source_navigation_audit": {
+      "path": "local/research/navigation-stage-v14-import-v1/source-audit.json",
+      "bytes": 19257,
+      "sha256": "0ccb5b54a627e3692e85a04511810d8392173c0362a627063b0eab87070d8cac"
+    },
+    "independent_navigation_review": {
+      "path": "local/research/navigation-integration-review-v1/final-split/review.json",
+      "bytes": 1791,
+      "sha256": "c8fe51bfc28b3cfea481f8cb494ec41604458f4279b2a3b001f88c6c1ff976c4"
+    },
+    "quad_review": {
+      "path": "local/research/texture-to-battle-v1/image-quad-implementation-review-v1/manifest.json",
+      "bytes": 5355,
+      "sha256": "e4cc9f22cf31f7b0efec2fbce428e6e65d1a5dee4bd1f48e800d0ceadcc9d36a"
+    },
+    "odd_selector_mutant": {
+      "path": "local/research/texture-to-battle-v1/gs-capture-odd-mutant-tests-v1/manifest.json",
+      "bytes": 10195,
+      "sha256": "b788016f130e1fc078d15787a5d384fa3aedefc7df69c0798cc3293f7bdbb771"
+    },
+    "notes": [
+      "NAVIpositive scene1 isrealownedfile; StageV13globallyomittedlooseNAVIdir; isolatedV14adds38/17706totalverifiedfiles,oldstageunchanged",
+      "Twoactualuploads+threeimageSlots(noaliasretain); sourceprelude->NAV->event; PSM20headeroverride44, actual6272texelschecked",
+      "SourceNAVI/firstmarker crop/pulse/toggle/exactfloat/table/VUquad +immutableImageMetalGSsampling integrated",
+      "12affectedCTests inRelease/Debug/San, fullPython1268/95skip, three62CP comparisons PASS",
+      "UnknownFB/Z/glyphraster masks remainunknown afterphysicalcapture; originaldynamicbaseline/FCSR/interlace/media andcorruptinputfailureprefixunclaimed",
+      "Everyoldobservedinputpreserved; final35prefixframesareplannedtailnotoldobservations",
+      "All six final gates remain open;15UTC cutoff unchanged"
+    ],
+    "owned_data_manifest": {
+      "path": "local/game-data-stage-v14/.owned-game-data-manifest.json",
+      "sha256": "ee6c2fca05c693ea5c7babaac2e01b9a6de9b0c353217e4cbea91f533c28931a",
+      "bytes": 5446179
+    }
   }
 }
