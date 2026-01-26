@@ -851,6 +851,7 @@ int main(){try {
             scene.activate_entry(0);
         } else scene.enter(entry,stage,empty_map,0);
         require(loads==0&&ready_calls==1);
+        rejects([&]{scene.validate_retirement();}); // Pending owned hat load.
         rejects([&]{scene.activate_entry(0);});require(ready_calls==1);
         scene.tick();require(loads==1&&!hat.visible&&scene.collision_bodies().size()==2);
         require(hat.channels()[1]==okage::Float4({1,1,1,1}));
@@ -866,6 +867,7 @@ int main(){try {
         require(!scene.event_running());scene.tick();
         hat.visible=true;scene.tick({0,128,128,0x40});
         require(scene.interaction_alias()==-8&&!npc.visible&&hat.visible&&loads==1);
+        rejects([&]{scene.validate_retirement();}); // NPC alias does not retire the owned hat.
     }
     {
         auto event=startup;event.resize(68);put(event,4,36);
@@ -1061,6 +1063,10 @@ int main(){try {
         entry.npcs.push_back(person);
         scene.enter(entry,exterior_stage,empty_map,0);scene.tick();
         manager.snap_target=false;manager.target_y=100;
+        unsigned alias_assignments=0;
+        scene.set_instance_alias=[&](int alias,okage::FieldActor* value){
+            require(alias==-7&&value==&npc);++alias_assignments;
+        };
         unsigned dispatches=0;
         scene.dispatch_game_command=[&]{
             require(!scene.event_running()&&manager.target_y==100);
@@ -1069,6 +1075,11 @@ int main(){try {
         scene.tick({0,128,128,0x40});
         require(dispatches==1&&scene.event_running()&&scene.interaction_alias()==-8&&manager.target_y==99.5f);
         scene.tick();require(dispatches==1&&manager.target_y==99.5f);
+        scene.dispatch_game_command={};
+        for(unsigned i=0;i<16&&scene.event_running();++i)scene.tick();
+        require(!scene.event_running()&&alias_assignments==1);
+        scene.validate_retirement();
+        require(alias_assignments==1);
     }
     put(startup,40,0x144);put(startup,44,0);
     {

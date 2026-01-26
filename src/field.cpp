@@ -111,7 +111,9 @@ RetiringSceneEffects OpeningField::retire_effects() {
     return retired;
 }
 void OpeningField::validate_retirement() const {
-    if(hat_requested_||hat_actor_||camera_motion_||alias7_actor_)
+    const bool borrowed_npc=alias7_actor_&&std::any_of(actors_.begin(),actors_.end(),
+        [&](const auto& binding){return binding.alias<=-8&&binding.actor==alias7_actor_;});
+    if(hat_requested_||hat_actor_||camera_motion_||(alias7_actor_&&!borrowed_npc))
         throw std::runtime_error("Exceptional field child retirement is unrecovered");
     if(shadow_&&shadow_->voice>=0)
         throw std::runtime_error("Field retirement owned voice release is unrecovered");
