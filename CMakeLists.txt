@@ -246,6 +246,15 @@ if(BUILD_TESTING)
         target_compile_options(scene-renderer-shared-gs-tests PRIVATE -fobjc-arc -Wall -Wextra)
         target_link_libraries(scene-renderer-shared-gs-tests PRIVATE okage_assets "-framework Foundation" "-framework Metal")
         add_test(NAME scene-renderer-shared-gs-tests COMMAND scene-renderer-shared-gs-tests)
+        #Optional owned-retail resource regression. The default invocation
+        #skips; retained runs pass explicit owned stage/battle/fresh output paths.
+        add_executable(lucan-owned-gs-tests tests/lucan_owned_gs_tests.mm
+            src/scene_renderer.mm src/shadow_metal.mm src/ui_metal.mm)
+        target_include_directories(lucan-owned-gs-tests PRIVATE src)
+        target_compile_options(lucan-owned-gs-tests PRIVATE -fobjc-arc -Wall -Wextra)
+        target_link_libraries(lucan-owned-gs-tests PRIVATE okage_assets "-framework Foundation" "-framework Metal")
+        add_test(NAME lucan-owned-gs-tests COMMAND lucan-owned-gs-tests)
+        set_tests_properties(lucan-owned-gs-tests PROPERTIES SKIP_RETURN_CODE 77)
     endif()
     add_executable(gs-texture-address-corpus tools/gs_texture_address_corpus.cpp)
     target_link_libraries(gs-texture-address-corpus PRIVATE okage_gs_texture_address)
