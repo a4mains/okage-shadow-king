@@ -8,8 +8,8 @@
   "source": {
     "CMakeLists.txt": {
       "path": "CMakeLists.txt",
-      "bytes": 42534,
-      "sha256": "b93ccaad10d84444721c71c1dbb284e04db1993e11686f69279a7f27338b865e"
+      "bytes": 43263,
+      "sha256": "e82437cdfc0c35bee46d882cdd1301cc952a89230f1c761dc3e66b70837e7a9e"
     },
     "include/okage/actor.hpp": {
       "path": "include/okage/actor.hpp",
@@ -898,8 +898,8 @@
     },
     "src/field.cpp": {
       "path": "src/field.cpp",
-      "bytes": 88000,
-      "sha256": "d6549895cfce326b6e564ca835e36e502d38c519ad9c1aed8cdc3acb192ee24e"
+      "bytes": 88195,
+      "sha256": "7230ead034a9ce7078ec4821d8032320eac08a6002fb0c28fab5c264831f6551"
     },
     "src/field_navigation.cpp": {
       "path": "src/field_navigation.cpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-01-20T15:00:00Z",
+  "overnight_cutoff": "2026-01-31T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -2861,5 +2861,16 @@
       "sha256": "ee6c2fca05c693ea5c7babaac2e01b9a6de9b0c353217e4cbea91f533c28931a",
       "bytes": 5446179
     }
+  },
+  "borrowed_npc_retirement_checkpoint": {
+    "source_commit": "44c22bb",
+    "head": "1684c74",
+    "bounded_validation": "local/research/texture-to-battle-v1/alias7-retirement-validation-v1.json",
+    "sha256": "eba0ddbd39c0c76e91909d2f81e9e878a88f81a16d0169c4516a1a417c62605f",
+    "live_failure_completed": 53838,
+    "live_failure_attempted": 53839,
+    "fresh_live_replay": "pending",
+    "all_six_gates": "open",
+    "checks": "6affected/build Release Debug ASan+UBSan PASS; no Pythontoolchange"
   }
 }
