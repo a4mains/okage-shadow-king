@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-01-31T15:00:00Z",
+  "overnight_cutoff": "2026-02-01T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -2872,5 +2872,31 @@
     "fresh_live_replay": "pending",
     "all_six_gates": "open",
     "checks": "6affected/build Release Debug ASan+UBSan PASS; no Pythontoolchange"
+  },
+  "owned_lucan_targeted_gpu_regression": {
+    "source": "6ed9180 + CMake4c02054, finalruntimeace39e1",
+    "ledger": "local/research/texture-to-battle-v1/lucan-owned-integrated-validation-v1.json",
+    "sha256": "2ee1b03337d40360fea8fbeda52ecc94c4e5904078003e76307e42e888ed265c",
+    "runs": "Release Debug ASan+UBSan v2 PASS, exact binaries archived",
+    "actual_positive_tap": {
+      "source_camera_tick": 4,
+      "model": "LUCAN/a.xmd",
+      "part": 0,
+      "block": 1,
+      "material": 2,
+      "polygon": 79,
+      "texel": [
+        36,
+        64
+      ],
+      "address": "0x286620",
+      "index": 187,
+      "supplier": "B_PLANE/5grs_t2.xim source36,0 allocation384serial385",
+      "clut": "0x26c45c",
+      "rgba": "0xffbea997"
+    },
+    "negative": "Invalidate onlysupplierowner; newactualLUCAN-onlydraw rejectsunknown286614owner384; oldsnapshotsretainRGBA afterresource/rendererownerdeath.",
+    "rgba_sha256": "8d25e7aeadc8ca47f689d9efbf1befd9ea15c78aac8ad640e8d3f72a9c4b8dca",
+    "scope": "Targetedformation4/stage2 withmodeledownedhistory; notforcedliveformation, fullSessionRNG, same-route/temporal/media parity, or guaranteedinflightdestruction. v1executedbinarypinslosttorelinkexplicitlyrecorded; v2sealed."
   }
 }
