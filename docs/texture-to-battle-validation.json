@@ -988,8 +988,8 @@
     },
     "src/image_quad.cpp": {
       "path": "src/image_quad.cpp",
-      "bytes": 4037,
-      "sha256": "34157cef9237d3882c07fe32e101d09a4f756e8a94522e04064634fc5a282007"
+      "bytes": 4056,
+      "sha256": "0c9ece2e56d4a9e10279f9a36d0fc0ab71f11435a52e568399c9e21c2ccd2444"
     },
     "src/input_journal.cpp": {
       "path": "src/input_journal.cpp",
@@ -1413,8 +1413,8 @@
     },
     "tests/field_navigation_tests.cpp": {
       "path": "tests/field_navigation_tests.cpp",
-      "bytes": 4426,
-      "sha256": "64cea3b0f673d6a0963e37228b69b692a3e3e5952a2ad8e8cd6df4aa89396651"
+      "bytes": 5602,
+      "sha256": "f793e80ae56549a060b12570cae0a5a86fa2604e18a613eb442a8d10c0b4568d"
     },
     "tests/gs_texture_sampling_metal_tests.mm": {
       "path": "tests/gs_texture_sampling_metal_tests.mm",
@@ -1428,8 +1428,8 @@
     },
     "tests/image_metal_shared_gs_tests.mm": {
       "path": "tests/image_metal_shared_gs_tests.mm",
-      "bytes": 13040,
-      "sha256": "c604c25f009aab808a504d137afdee4ae45fac4ea126b14c719e3acddbd847dc"
+      "bytes": 13208,
+      "sha256": "b29537faeaa382d782d7d38d3ea4c69ea44561980b3c325e3833b5265534cb9d"
     },
     "tests/startup_textures_tests.cpp": {
       "path": "tests/startup_textures_tests.cpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-02-01T15:00:00Z",
+  "overnight_cutoff": "2026-02-07T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -2898,5 +2898,18 @@
     "negative": "Invalidate onlysupplierowner; newactualLUCAN-onlydraw rejectsunknown286614owner384; oldsnapshotsretainRGBA afterresource/rendererownerdeath.",
     "rgba_sha256": "8d25e7aeadc8ca47f689d9efbf1befd9ea15c78aac8ad640e8d3f72a9c4b8dca",
     "scope": "Targetedformation4/stage2 withmodeledownedhistory; notforcedliveformation, fullSessionRNG, same-route/temporal/media parity, or guaranteedinflightdestruction. v1executedbinarypinslosttorelinkexplicitlyrecorded; v2sealed."
+  },
+  "navigation_pulse_c004": {
+    "source_commit": "e62fa09",
+    "validation": "/Users/user/src/okage/okage-shadow-king/local/worktrees/texture-to-battle-v1/local/research/texture-to-battle-v1/navigation-pulse-bounded-validation-v1.json",
+    "pin": {
+      "path": "local/research/texture-to-battle-v1/navigation-pulse-bounded-validation-v1.json",
+      "bytes": 58975,
+      "sha256": "b93ce9c9724e43d30f0eeb4869076934a2882c3b5224cf77ff08856339ea9fe5"
+    },
+    "review": "local/research/navi-pulse-alpha-source-audit-v1/audit.json cc71f3cee2e4f4558bf0d759ca48e79ee9ac816a90dd5f5d2cbb5467ccbcd86f",
+    "live_run": "navigation-pulse-historical-release-v1 frozen9ef3f858... TTY12013, inprogress",
+    "all_final_gates": "open",
+    "manager_assignment": "C004 b161b51513f046f219f87ba65b1fe9ae36ce56ab4aead43083d3d6fe66490e20"
   }
 }
