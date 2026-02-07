@@ -11,7 +11,7 @@ ImageQuad source_image_quad(std::uint32_t width,std::uint32_t height,
     if(!width||width>=4096||!height||height>=4096)throw std::runtime_error("Image source descriptor dimensions");
     std::array<float,6> f;for(unsigned i=0;i<6;++i)f[i]=std::bit_cast<float>(words[i]);
     for(float value:f)if(!std::isfinite(value))throw std::runtime_error("Non-finite source image transform");
-    if(f[2]<=0||f[3]<=0||std::abs(f[4])>65535||f[5]<-1||f[5]>1)
+    if(f[2]<=0||f[3]<=0||std::abs(f[4])>65535||f[5]<-16777216.f||f[5]>=16777216.f)
         throw std::runtime_error("Source image transform outside recovered range");
     struct Rounding {int previous=std::fegetround();Rounding(){if(std::fesetround(FE_TOWARDZERO))throw std::runtime_error("Image rounding mode");}
         ~Rounding(){std::fesetround(previous);}} rounding;

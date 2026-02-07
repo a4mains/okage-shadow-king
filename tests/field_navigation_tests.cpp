@@ -21,6 +21,12 @@ int main(){try{
     require(quarter.xy16==std::array<std::array<std::uint32_t,2>,4>{{{33024,32704},{33024,32832},{32512,32832},{32512,32704}}},
             "source nonsquare quarter turn scales each output axis, rather than rotating scaled rectangle");
     require(quarter.rgba==0x59808080&&quarter.z==0xffff,"source alpha truncation and z");
+    require(source_image_quad(16,16,words(0,0,1,1,0,130.f/128),sine).rgba==0x82808080,
+            "source alpha packing preserves above-one raw GS alpha without clamping");
+    bool title_rejected=false;
+    try{(void)axis_aligned_image_quad(16,16,words(0,0,1,1,0,130.f/128));}
+    catch(const std::exception&){title_rejected=true;}
+    require(title_rejected,"legacy title subset retains its recovered alpha guard");
     const auto negative=source_image_quad(32,16,words(0,0,1,1,-1.f/32768,1),sine);
     require(negative.xy16==source_image_quad(32,16,identity,sine).xy16,
             "direct16384 angle truncation differs from camera doubled-angle indexing");
@@ -54,5 +60,18 @@ int main(){try{
     bool reversed=false;
     for(unsigned i=0;i<100&&!reversed;++i){navigation.queue({0,0,0,1},{0,0,0,0},false,sine);reversed=navigation.delta()<0;}
     require(reversed&&navigation.pulse()>=1,"source pulse reverses at crossed upper bound without clamping");
+    require(std::bit_cast<unsigned>(navigation.pulse())==0x3f828f58,
+            "source TZ pulse retains the first upper overshoot word");
+    bool overshoot_drawn=false,lower_reversed=false;
+    for(unsigned i=0;i<200;++i) {
+        const auto next=navigation.queue({0,0,0,1},{0,0,0,0},false,sine);
+        overshoot_drawn|=(next[1].rgba>>24)==130;
+        if(!lower_reversed&&navigation.delta()>0&&navigation.pulse()<=.4f) {
+            require(std::bit_cast<unsigned>(navigation.pulse())==0x3ecccc98,
+                    "source TZ pulse retains the first lower reversal word");
+            lower_reversed=true;
+        }
+    }
+    require(overshoot_drawn&&lower_reversed,"complete source pulse cycles draw upper overshoot and reverse at both bounds");
     std::cout<<"Field navigation source mapping, image packet ordering, hidden state and pulse passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

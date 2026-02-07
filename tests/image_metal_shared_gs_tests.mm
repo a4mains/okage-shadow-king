@@ -70,6 +70,8 @@ void raw_blend_filter_and_clamp(Harness& h){
     for(float x:{.5f,1.f,1.5f,2.5f,3.5f}){const auto q=quad(x);
         check(h.run({s,r,{ }},q)==blend(s,r,q,{200,100,0,64}),"Raw shared GS alpha/filter/blend mismatch");}
     auto q=quad(1);q.rgba=0x40808080;check(h.run({s,r,{}},q)==blend(s,r,q,{200,100,0,64}),"Vertex alpha modulation order");
+    q=quad(2.5f);q.rgba=0x82808080;
+    check(h.run({s,r,{}},q)==Pixel{29,63,97,130},"NAVI upper-pulse vertex alpha130 preserves source signed blend beyond alpha128");
     q=quad(.5f);const auto once=blend(s,r,q,{200,100,0,64});
     check(h.run({s,r,{}},q,baseline(),{200,100,0,64},true)==blend(s,r,q,once),"Ordered Image GS blend did not read previous destination");
     // Standard clamp uses TW/TH, ignoring region fields, not uploaded width.
