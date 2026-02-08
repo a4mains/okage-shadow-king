@@ -726,6 +726,7 @@ struct Session {
     bool dialogue_active=true;
     std::vector<std::unique_ptr<okage::FieldActor>> actor_objects;
     std::vector<okage::ActorBinding> actor_bindings;
+    std::vector<okage::FieldNpcDefinition> observed_npcs;
     std::array<int,128> instance_aliases{};
     int next_instance=0,instance_limit=640;
     std::unique_ptr<okage::MapObjects> map_objects;
@@ -1316,7 +1317,7 @@ struct Session {
             actor_bindings.push_back({alias,object.get(),alias!=-3});scene_actors.push_back({object.get(),path,alias});actor_objects.push_back(std::move(object));
         };
         for(const auto& npc:definition.npcs)add(npc.alias,npc.model);
-        add(-3,"stun");add(-1,"hero");
+        add(-3,"stun");add(-1,"hero");observed_npcs=definition.npcs;
         map_objects=std::make_unique<okage::MapObjects>(map);
         bind_scene_instances();
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
@@ -1616,6 +1617,7 @@ struct Session {
         //Phase12 loads both score slots but defers primary playback until commit.
         if(!f.ordinary)music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
         map_objects=std::move(f.objects);actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);
+        observed_npcs=f.definition.npcs;
         renderer=std::move(f.renderer);bind_scene_instances();create_field(f.script,false);bind_audio_services();
         if(f.navigation_size[0])field_navigation=std::make_unique<okage::FieldNavigation>(f.definition,
             f.navigation_size[0],f.navigation_size[1],16,16);
@@ -1689,6 +1691,7 @@ struct Session {
             if(f.complete==1&&f.jobs.pending()==0) {
                 renderer=std::move(f.renderer);field=std::move(f.prepared_field);map_objects=std::move(f.objects);
                 actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);scene_map=f.map;
+        observed_npcs=f.definition.npcs;
                 field_ruw=std::move(f.ruw);field_ui_atlas=std::move(f.atlas);
                 projection.load_stage(f.stage);scene_clear.load_stage(f.stage);renderer->set_clear_rgb(scene_clear.rgb);
                 f.phase=0;
@@ -1723,6 +1726,7 @@ struct Session {
             //100c08/range0 then132720; retain GameModeParent and saved entrance.
             renderer=std::move(f.renderer);field=std::move(f.prepared_field);map_objects=std::move(f.objects);
             actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);scene_map=f.map;
+        observed_npcs=f.definition.npcs;
             field_ruw=f.ruw;field_ui_atlas=f.atlas;
             projection.load_stage(f.stage);scene_clear.load_stage(f.stage);renderer->set_clear_rgb(scene_clear.rgb);
             if(f.definition.music>0)music->select(f.definition.music);
@@ -2904,6 +2908,33 @@ struct Session {
         out<<'}';
         return out.str();
     }
+    std::string headless_observe_json() const {
+        std::ostringstream out;
+        out<<std::setprecision(9)<<"{\"observe_frame\":"<<frame
+           <<",\"game_mode\":"<<(game_mode?game_mode->current()[0]:0)
+           <<",\"game_mode_phase\":"<<(game_mode?game_mode->phase():0)
+           <<",\"field\":"<<(field?"true":"false")<<",\"battle\":"<<(battle?"true":"false")
+           <<",\"interaction_alias\":"<<(field?field->interaction_alias():0)
+           <<",\"interaction_event\":"<<(field?field->interaction_event():0)
+           <<",\"message\":"<<message_id<<",\"text_progress\":"<<text.state.progress
+           <<",\"choice\":"<<text.choice_cursor<<",\"actors\":[";
+        bool first=true;
+        for(const auto& binding:actor_bindings) {
+            if(!binding.actor)continue;
+            std::string model;
+            for(const auto& npc:observed_npcs)if(npc.alias==binding.alias)model=npc.model;
+            if(binding.alias==-1)model="hero";else if(binding.alias==-3)model="stun";
+            out<<(first?"":",")<<"{\"alias\":"<<binding.alias<<",\"model\":\""<<model<<"\",\"visible\":"
+               <<(binding.actor->visible?"true":"false")<<",\"position\":";
+            const auto& channels=binding.actor->channels();
+            if(channels.size()>1){out<<'[';for(unsigned i=0;i<3;++i){if(i)out<<',';
+                const float v=channels[1][i];if(std::isfinite(v))out<<v;else out<<"null";}out<<']';}
+            else out<<"null";
+            out<<'}';first=false;
+        }
+        out<<"]}";
+        return out.str();
+    }
     okage::Texture headless_live_view() const {
         if(prepared_tick||pending_battle_frame()||(battle&&battle->frame_prepared()))
             throw std::runtime_error("Cannot view an uncompleted native frame");
@@ -3966,6 +3997,8 @@ int main(int argc,const char** argv) {
                             const auto path=*headlessControlPath/(command.name+".png");
                             okage::require_fresh_native_capture_family(path);
                             reserve_observation_name(observation_names,command.name);capture(session,path);
+                        } else if(command.kind==okage::HeadlessCommand::Kind::Observe) {
+                            std::cout<<session.headless_observe_json()<<std::endl;
                         } else if(command.kind==okage::HeadlessCommand::Kind::Status) {
                             std::cout<<session.headless_status_json()<<std::endl;
                             continue;
