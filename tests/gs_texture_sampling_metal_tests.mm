@@ -310,7 +310,9 @@ void address_pages_wrap_and_extrema() {
     for(float bad:{2147483648.f,-2147483648.f})
         rejects([&]{differential_sample(snapshot,r,bad,0);},"unsupported ST");
     r=registers(0,0,0,true);
-    rejects([&]{differential_sample(snapshot,r,std::nextafter(.5f,1.f)/1024,.5f/1024);},"unknown texture");
+    equal(differential_sample(snapshot,r,std::nextafter(.5f,1.f)/1024,.5f/1024),{1,2,3,128});
+    equal(differential_sample(snapshot,r,(.5f+15.f/256)/1024,.5f/1024),{1,2,3,128});
+    rejects([&]{differential_sample(snapshot,r,(.5f+1.f/16)/1024,.5f/1024);},"unknown texture");
 }
 
 void concurrent_invalid_minimum() {

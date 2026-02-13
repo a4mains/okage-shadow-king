@@ -157,18 +157,18 @@
   "asm_list_sha256": "2f011c17cd9018b0577d7aed46643097a9f648654399a37f73a2aaa273401c83",
   "asm_sha256_list": "local/research/handle-source-recovery-v1/asm-sha256.txt",
   "document": "the handle cache lifecycle contract",
-  "method": "Capstone 5.0.1 over the pinned ELF; no Ghidra/VM"
+  "method": "Capstone 5.0.7 over the pinned ELF; no Ghidra/VM"
  },
  "source_sha256": {
   "include/okage/texture_handles.hpp": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
-  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
+  "include/okage/texture_transfer.hpp": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f",
   "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
-  "src/texture_transfer.cpp": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+  "src/texture_transfer.cpp": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646",
   "tests/test_texture_handle_lifecycle.py": "26fe4857db320ecc0c839c5a5868a0a5f8b28e49c189d3f9ef571818c3879167",
   "tests/test_texture_handle_trace.py": "63672b203d9d4f59c0fbb1a070e30d215cc7d7deafeac1273ab985d318ccc01c",
   "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
   "tests/texture_handles_tests.cpp": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f",
-  "tests/texture_transfer_tests.cpp": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
+  "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
   "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
   "tools/texture_handle_trace.cpp": "923218afb55b46fcf87794e9dc3aaebddc8124404a1b59866a3dbcbe27778bb2",
   "tools/texture_handle_trace_diff.py": "c058594e2128404107b6ea645cf57e20c1c0f140e2b33ab0d15b1949e50aac7d",

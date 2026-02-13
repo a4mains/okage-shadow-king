@@ -49,7 +49,7 @@ std::int32_t origin(float normalized, unsigned exponent, bool linear, float& fra
         double(position) > double(std::numeric_limits<std::int32_t>::max()) - 1)
         unsupported("ST coordinate range");
     const float floor = std::floor(position);
-    fraction = position - floor;
+    fraction = linear ? (std::floor(position * 16.f) - floor * 16.f) / 16.f : position - floor;
     return static_cast<std::int32_t>(floor);
 }
 } // namespace

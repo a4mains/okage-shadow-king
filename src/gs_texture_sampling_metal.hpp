@@ -111,7 +111,7 @@ inline float4 gs_sample_texture_impl(device const uchar* bytes, device const uch
     float2 position = uv * float2(float(1u << tw), float(1u << th)) - (linear ? .5f : 0.f);
     if (!all(isfinite(position)) || any(position <= -2147483648.f) || any(position >= 2147483648.f))
         return gs_sample_error(invalid, 0xfffffffdu);
-    float2 base = floor(position), fraction = position - base;
+    float2 base = floor(position), fraction = linear ? (floor(position * 16.f) - base * 16.f) / 16.f : position - base;
     int2 origin = int2(base);
     float4 result = float4(0.f);
     for (uint tap = 0u; tap < (linear ? 4u : 1u); ++tap) {

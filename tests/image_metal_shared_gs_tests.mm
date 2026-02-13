@@ -1,5 +1,6 @@
 #include "image_metal.hpp"
 #include "okage/gs_texture_address.hpp"
+#include "okage/pose.hpp"
 #include "okage/texture_handles.hpp"
 #include "okage/texture_transfer.hpp"
 #include <algorithm>
@@ -145,6 +146,36 @@ void convex_and_scissor(Harness& h){
     q=quad();q.xy16[2]=q.xy16[1];rejects([&]{h.encode({s,r,{}},q);},"convex quad");
 }
 }
-int main(){@autoreleasepool{try{Harness h;raw_blend_filter_and_clamp(h);unknown_weights_and_clut(h);convex_and_scissor(h);high_half_retention_and_unknown(h);
+void rotated_navigation_marker_fraction(Harness& h){
+    auto m=std::make_unique<Ps2TextureMemory>();m->initialize_empty_allocator();
+    Data indices(512);for(unsigned i=0;i<512;++i)indices[i]=std::uint8_t(i*37+11);
+    Data clut(1024);for(unsigned i=0;i<256;++i){clut[i*4]=i;clut[i*4+1]=255-i;clut[i*4+2]=(i*3)&255;clut[i*4+3]=128;}
+    transfer_host_to_local(*m,{27,64,1,0,0,32,16},indices);transfer_host_to_local(*m,{0,512,1,0,0,16,16},clut);
+    const auto r=regs(27,64,1,512);const auto snapshot=m->snapshot();
+    const auto below=*gs_texel_address(27,64,1,3,16);
+    check(!snapshot.observe_nibble(below.byte_address,0).known,"Fixture row16 must be undefined memory");
+    // Live field target and inherited environment: 640x224, OFFSET 6c00/7900.
+    auto descriptor=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:640 height:224 mipmapped:NO];
+    descriptor.storageMode=MTLStorageModeShared;descriptor.usage=MTLTextureUsageRenderTarget;
+    auto color=[h.device newTextureWithDescriptor:descriptor];descriptor.pixelFormat=MTLPixelFormatDepth32Float;
+    descriptor.storageMode=MTLStorageModePrivate;auto depth=[h.device newTextureWithDescriptor:descriptor];
+    const ImageMetalBaseline field{0x6c00,0x7900,0,639,0,223,0,1,0,1};
+    const auto sine=make_sine_table();
+    const auto words=[](float x,float y,float angle,float alpha){return std::array<std::uint32_t,6>{std::bit_cast<std::uint32_t>(x),
+        std::bit_cast<std::uint32_t>(y),0x3f800000u,0x3f800000u,std::bit_cast<std::uint32_t>(angle),std::bit_cast<std::uint32_t>(alpha)};};
+    unsigned draws=0;
+    for(unsigned position=0;position<16;++position){
+        auto command=[h.queue commandBuffer];std::vector<ImageMetalValidation> validations;
+        for(unsigned a=0;a<256;++a){
+            const float x=-3840.f+float(position*101%977)+float(a%7)*.37f,y=448.f+float(position*53%409)-200.f+float(a%5)*.61f;
+            validations.push_back(h.renderer->encode(command,color,depth,
+                source_image_quad(16,16,words(x,y,float(a)/256.f+float(position)/4096.f,.8f),sine),field,{snapshot,r,{}}));
+            ++draws;
+        }
+        [command commit];[command waitUntilCompleted];for(const auto& v:validations)v.validate_completed(command);
+    }
+    check(draws==4096,"Rotated marker sweep count");
+}
+int main(){@autoreleasepool{try{Harness h;rotated_navigation_marker_fraction(h);raw_blend_filter_and_clamp(h);unknown_weights_and_clut(h);convex_and_scissor(h);high_half_retention_and_unknown(h);
     std::cout<<"Image Metal shared GS raw blend, exact CLAMP5, positive tap/nibble guards, convex fan and retained owner tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}}
