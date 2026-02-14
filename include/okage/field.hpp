@@ -8,6 +8,7 @@
 #include "okage/screen_filter.hpp"
 #include "okage/shadow.hpp"
 #include "okage/field_projection.hpp"
+#include "okage/image_quad.hpp"
 #include <optional>
 namespace okage {
 class MapObjects;
@@ -68,6 +69,15 @@ struct FieldBattleReturnSnapshot {
     std::int32_t battle_record_selection=-1;
 };
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
+// Session services for the 0x133a98 phase8/9 manager message child. The field
+// owns its manager writes; the Session owns the shared dialogue child, RNG,
+// draw environment and resource world/image state.
+enum class FieldEncounterChildStep {
+    CheckLiveChild,
+    Construct,        // after 0x1301a8: 125918(13,4,0), RNG, 11f570, 100ac0(res,0)
+    Finished,         // phase9: child null or +1c negative
+    Restore           // phase9 completion: 100ac0(res,1)
+};
 struct FieldAudioRequest {
     unsigned operation=0;
     std::int32_t argument=0;
@@ -130,6 +140,11 @@ public:
     void close_save_menu();
     std::int32_t persistent_map_index() const {return definition_?definition_->battle_record_selection:-1;}
     std::function<void(unsigned,FieldBattleRequest&)> battle_transition_service;
+    std::function<bool(FieldEncounterChildStep,FieldBattleRequest&)> encounter_child_service;
+    // Phase9 0x132f00 queues70 image commands for the +104 mapinfo2 second cell.
+    // Valid only during that manager callback's traversal; Session drains them.
+    const std::vector<ImageQuad>& encounter_overlay() const {return encounter_overlay_;}
+    bool encounter_overlay_active() const {return !encounter_overlay_.empty();}
     std::function<std::int32_t(unsigned,unsigned)> resolve_encounter_formation;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
@@ -236,6 +251,13 @@ private:
     std::vector<std::optional<EncounterEnemy>> enemies_;
     std::vector<std::optional<WanderingNpc>> wanderers_;
     bool rear_attack_=false;
+    // 0x133a98 phase8/9: manager+110 overlay angle and the 0x1301a8 raw camera
+    // restored by 0x130248 when the child completes.
+    float encounter_angle_=0;
+    Float4 encounter_saved_camera_{};
+    std::vector<ImageQuad> encounter_overlay_;
+    void encounter_phase8();
+    void encounter_phase9();
     void initialize_npcs();
     void initialize_one_npc(std::size_t index);
     void activate_pose(const Float4& player_position,const Float4& player_rotation,
@@ -278,6 +300,9 @@ struct FieldOrdinaryLighting {
 FieldOrdinaryLighting field_ordinary_lighting(Bytes stg);
 struct SceneClearColor {
     std::array<std::uint8_t,3> rgb{64,64,64}; //0x1002f8 ->0x1cb4b8.
+    // 337b74 written by 1bb088 for an authored STG setting 0x60; 100ac0(res,1)
+    // restores the draw environment from it. Absent until such a setting loads.
+    std::optional<std::array<std::uint8_t,3>> stage_rgb;
     void load_stage(Bytes);
 };
 // Reviewed STG light0/base/ambient records for ordinary effect tint.

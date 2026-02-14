@@ -381,6 +381,57 @@ void OpeningField::update_npcs() {
     if(encounter_)encounter_->rear_attack=rear_attack_;
     if(battle_request_)battle_request_->rear_attack=rear_attack_;
 }
+void OpeningField::encounter_phase8() {
+    //133f60..134044. Callers reach this only from the manager callback.
+    if(!encounter_child_service||!get_variable||!set_variable)
+        throw std::runtime_error("Natural encounter message child requires Session dialogue and variables");
+    if(!definition_||!actor(-1))throw std::runtime_error("Natural encounter phase8 requires the live field");
+    if(!encounter_child_service(FieldEncounterChildStep::CheckLiveChild,*battle_request_))return;
+    encounter_saved_camera_=battle_return_snapshot().raw_camera_position; //1301a8
+    encounter_child_service(FieldEncounterChildStep::Construct,*battle_request_);
+    //134678(ctx,1): HERO motion1, ctx+230=1, ctx+248=0. 135420(ctx,1): mask|=1.
+    auto* hero=actor(-1);hero->select_motion(1);player_.motion=1;player_.effect_counter=0;
+    player_.mask|=1;
+    //130068(manager,1): phase4 (overwritten below), +f4=var(6,4), var(6,4)=1.
+    saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
+    for(std::size_t i=0;i<enemies_.size()&&i<definition_->npcs.size();++i) {
+        if(!enemies_[i]||definition_->npcs[i].state!=5)continue;
+        if(actor(definition_->npcs[i].alias)->visible&&enemies_[i]->counter>0)enemies_[i]->counter=-1;
+    }
+    //135b50(0) clears 2d9c68, the exterior camera manual-rotation enable.
+    if(exterior_camera)exterior_camera->manual_rotate=false;
+    //+64=-1 has no native consumer on this path. Phase9, then +110=0.
+    battle_request_->phase=9;encounter_angle_=0;
+}
+void OpeningField::encounter_phase9() {
+    //134044: 132f00 every callback, then the child completion test.
+    if(!encounter_child_service||!get_variable)throw std::runtime_error("Natural encounter phase9 requires Session services");
+    Rounding rounding;
+    const auto add=[](float a,float b){volatile float value=a+b;return value;};
+    encounter_overlay_.reserve(70);
+    float angle=encounter_angle_,y=-1664.f;
+    const auto word=[](float value){return std::bit_cast<std::uint32_t>(value);};
+    for(unsigned row=0;row<7;++row) {
+        float x=-4712.f;
+        for(unsigned column=0;column<10;++column) {
+            auto quad=source_image_quad(16,16,{word(x),word(y),0x40800000u,0x40800000u,word(angle),0x3f800000u},sine_);
+            quad.st={float(16.5*0.0009765625),float(.5*0.0009765625),float(31.5*0.0009765625),float(15.5*0.0009765625)};
+            encounter_overlay_.push_back(quad);
+            x=add(x,1024.f);angle=add(angle,.01f);
+        }
+        y=add(y,512.f);
+    }
+    encounter_angle_=add(encounter_angle_,.01f);
+    actor(-3)->visible=true;
+    script_.set_channel(0,{0,-9,0,1});requested_target_={0,-9,7,1};camera_mode_=2;
+    if(!encounter_child_service(FieldEncounterChildStep::Finished,*battle_request_))return;
+    //+f8=var(13,4), +fc=0, phase11, 100ac0(res,1), 130248 restores channel0.
+    battle_request_->entry_parameter=std::bit_cast<std::uint32_t>(get_variable(0x4000d));
+    rear_attack_=false;battle_request_->rear_attack=false;
+    battle_request_->phase=11;
+    encounter_child_service(FieldEncounterChildStep::Restore,*battle_request_);
+    script_.set_channel(0,encounter_saved_camera_);
+}
 void OpeningField::clear_contact() {
     player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
     if(player_.contact_bubble) {
@@ -1141,6 +1192,7 @@ void OpeningField::tick(ExplorationInput input) {
     if(save_menu_active_) {
         tick_callbacks(input,false,true,true);return;
     }
+    encounter_overlay_.clear(); // image commands drain every traversal
     // Field manager 0x133a98 runs before the event pass. Case 5 detects the
     // ended script and selects the room camera; case 0 updates it next frame.
     const bool battle_transitioning=battle_request_&&battle_request_->phase>=8;
@@ -1166,16 +1218,20 @@ void OpeningField::tick(ExplorationInput input) {
             throw std::runtime_error("Global manager did not consume native battle request");
         if(!definition_||!definition_->followers.empty())
             throw std::runtime_error("Battle transition requires recovered follower return state");
-        if(battle_request_->phase<11)
-            throw std::runtime_error("Natural encounter dialogue child lifecycle is unrecovered (phase "+
+        if(battle_request_->phase==8)encounter_phase8();
+        else if(battle_request_->phase==9)encounter_phase9();
+        else if(battle_request_->phase<11)
+            throw std::runtime_error("Natural encounter manager phase is unrecovered (phase "+
                 std::to_string(battle_request_->phase)+")");
-        if(battle_request_->phase==11&&rear_attack_)
+        else if(battle_request_->phase==11&&rear_attack_)
             throw std::runtime_error("Rear encounter child/window lifecycle is unrecovered");
+        else {
         if(!battle_transition_service)
             throw std::runtime_error("Battle transition requires capture and mode services");
         battle_transition_service(battle_request_->phase,*battle_request_);
         if(battle_request_->phase==13)battle_request_->dispatched=true;
         else ++battle_request_->phase;
+        }
     }
     if(transition_) {
         if(transition_->ready)throw std::runtime_error("Destination loader did not consume field transition");
@@ -1383,6 +1439,7 @@ void SceneClearColor::load_stage(Bytes stg) {
                 throw std::runtime_error("Fractional STG clear-color rounding is unrecovered");
             if(c<3)next[c]=std::uint8_t(std::int32_t(value));
         }
+        stage_rgb=next;
     }
     rgb=next;
 }

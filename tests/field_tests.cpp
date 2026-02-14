@@ -547,8 +547,11 @@ int main(){try {
         put(entered_stage,100,std::bit_cast<unsigned>(10.f));
         auto motions=idle;motions.resize(80);put(motions,4,48);
         okage::ModelFile hm,am,bm;hm.models.emplace_back();am.models.emplace_back();bm.models.emplace_back();
-        okage::FieldActor hero(std::move(hm),motions,{}),first(std::move(am),motions,{}),second(std::move(bm),motions,{});
-        const std::array<okage::ActorBinding,3> actors={{{-8,&first},{-9,&second},{-1,&hero}}};
+        okage::ModelFile sm;sm.models.emplace_back();
+        okage::FieldActor hero(std::move(hm),motions,{}),first(std::move(am),motions,{}),second(std::move(bm),motions,{}),
+            stun(std::move(sm),motions,{});
+        stun.visible=false;
+        const std::array<okage::ActorBinding,4> actors={{{-8,&first},{-9,&second},{-3,&stun,false},{-1,&hero}}};
         okage::OpeningField scene(idle,[](int){},[](int){return true;},actors,false);
         std::array<std::uint8_t,0x1000> vars{};
         okage::set_event_variable(vars,4,4,scenario==2?20:1);
@@ -560,8 +563,18 @@ int main(){try {
         };
         scene.sound_cue=[](auto,auto,auto,auto){return true;};
         std::vector<unsigned> phases;
+        std::vector<okage::FieldEncounterChildStep> child_steps;bool child_finished=false;
+        scene.encounter_child_service=[&](okage::FieldEncounterChildStep step,okage::FieldBattleRequest& request){
+            require(scenario==2&&request.formation==42);
+            if(step==okage::FieldEncounterChildStep::Construct) {
+                //Session order: 125918(13,4,0), then the message RNG draw.
+                okage::set_event_variable(vars,13,4,0);++draws;
+            }
+            child_steps.push_back(step);
+            return step!=okage::FieldEncounterChildStep::Finished||child_finished;
+        };
         scene.battle_transition_service=[&](unsigned phase,okage::FieldBattleRequest& request){
-            require(request.formation==42&&request.return_token==0&&request.entry_parameter==0);
+            require(request.formation==42&&request.return_token==0&&request.entry_parameter==(scenario==2?7u:0u));
             require(request.stage==-1);
             if(phase==13) {
                 require(request.rear_attack==(scenario==3));
@@ -593,8 +606,35 @@ int main(){try {
         require(scene.battle_request()->rear_attack==(scenario==1));
         require(scene.battle_request()->phase==(scenario==2?8u:11u)&&phases.empty());
         require(hero.animation().values()[1]!=before); // Player still runs on contact.
-        if(scenario==1||scenario==2) {
+        if(scenario==1) {
             rejects([&]{scene.tick(walk);});require(phases.empty());continue;
+        }
+        if(scenario==2) {
+            using Step=okage::FieldEncounterChildStep;
+            okage::set_event_variable(vars,6,4,3);
+            const auto draws_phase8=draws;
+            scene.tick(walk);
+            require(child_steps==std::vector<Step>({Step::CheckLiveChild,Step::Construct})&&draws==draws_phase8+1);
+            require(scene.battle_request()->phase==9&&phases.empty()&&!scene.encounter_overlay_active());
+            require(okage::event_variable(vars,0x40006)==1&&scene.player_movement().motion==1&&(scene.player_movement().mask&1));
+            //134044 phase9: 132f00 overlay, Stan bit and portrait camera every callback.
+            okage::set_event_variable(vars,13,4,7);
+            scene.tick(walk);
+            require(scene.battle_request()->phase==9&&scene.encounter_overlay().size()==70&&stun.visible);
+            require(scene.position==okage::Float4{0,-9,0,1}&&phases.empty());
+            const auto first_overlay=scene.encounter_overlay();
+            scene.tick(walk);
+            require(scene.encounter_overlay().size()==70&&scene.encounter_overlay()[0].xy16!=first_overlay[0].xy16);
+            for(const auto& quad:first_overlay)require(quad.st==std::array<float,4>{16.5f/1024,.5f/1024,31.5f/1024,15.5f/1024}&&quad.rgba==0x80808080);
+            child_finished=true;scene.tick(walk);
+            //Completion: +f8=var(13,4), +fc=0, phase11, 100ac0(res,1), 130248.
+            require(scene.battle_request()->phase==11&&scene.battle_request()->entry_parameter==7);
+            require(!scene.battle_request()->rear_attack&&child_steps.back()==Step::Restore&&phases.empty());
+            require(scene.encounter_overlay().size()==70&&scene.position!=okage::Float4{0,-9,0,1});
+            scene.tick(walk);require(phases==std::vector<unsigned>{11}&&!scene.encounter_overlay_active());
+            scene.tick(walk);scene.tick(walk);require(phases==std::vector<unsigned>({11,12,13}));
+            require(scene.battle_request()->dispatched&&lookups==1);
+            continue;
         }
         scene.tick(walk);require(phases==std::vector<unsigned>{11});
         if(scenario==3)position_enemies(true); // fc can change after phase11's check.

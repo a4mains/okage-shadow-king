@@ -736,6 +736,11 @@ struct Session {
     std::shared_ptr<const okage::Texture> field_ui_atlas;
     std::unique_ptr<okage::FieldNavigation> field_navigation;
     std::vector<okage::ImageQuad> field_image_commands;
+    bool framebuffer_filters_enabled=true;
+    bool encounter_world_hidden=false,encounter_world_hidden_frame=false;
+    // 1b9958 draws with the view from the preceding 1b9760 evaluation.
+    struct FieldCameraEvaluation {okage::Matrix4 view;okage::Float4 rotation,position;};
+    std::optional<FieldCameraEvaluation> previous_field_camera,encounter_draw_camera;
     mutable std::shared_ptr<okage::ImageMetal> field_image_metal;
     okage::GamePlayTimeCounter playtime;
     std::unique_ptr<okage::SceneRenderer> renderer;
@@ -890,7 +895,21 @@ struct Session {
         for(auto& binding:actor_bindings)binding.instance=bind_instance(binding.alias);
     }
     void create_field(okage::Bytes script,bool diagnostic) {
-        field=std::make_unique<okage::OpeningField>(script,[this](int id){
+        field=std::make_unique<okage::OpeningField>(script,[this](int id){start_field_message(id,true);},[this](int request){
+            if(!dialogue_active && request!=-1)throw std::runtime_error("Field wait before dialogue initialization");
+            const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
+            const bool released=okage::poll_dialogue_wait(wait,request,
+                {true,std::bit_cast<std::int32_t>(closure.message_flags),layers,std::int32_t(text.state.progress)})==0;
+            if(released && !release_frame)release_frame=frame;
+            if(released && request==0 && !close_release_frame)close_release_frame=frame;
+            return released;
+        },actor_bindings,diagnostic,title_modeled(okage::ResourceStage::FieldWorldLoading));
+        bind_field_services();
+    }
+    // Opcode4c handler 130550 and phase8 both construct 11f570(manager,
+    // 2293e0,0,id) at manager+50. Only 130550 also clears +58/+5c (the
+    // opcode10 wait state); phase8 leaves that state untouched.
+    void start_field_message(int id,bool clear_wait) {
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
             const bool legacy_diagnostic=id==10026||id==10030||(id>=10100&&id<=10107);
             // Normal bank0/opcode4c uses configuration0x2293e0 for every message
@@ -914,17 +933,10 @@ struct Session {
                 if(!field||!field->request_actor_motion(alias,std::bit_cast<unsigned>(entry)))
                     throw std::runtime_error("Dialogue actor motion target is unavailable");
             };
-            wait.countdown=wait.observed=wait.accumulated=0;
+            if(clear_wait)wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
-        },[this](int request){
-            if(!dialogue_active && request!=-1)throw std::runtime_error("Field wait before dialogue initialization");
-            const std::array<std::uint32_t,2> layers={0x50,controller.layer_flags};
-            const bool released=okage::poll_dialogue_wait(wait,request,
-                {true,std::bit_cast<std::int32_t>(closure.message_flags),layers,std::int32_t(text.state.progress)})==0;
-            if(released && !release_frame)release_frame=frame;
-            if(released && request==0 && !close_release_frame)close_release_frame=frame;
-            return released;
-        },actor_bindings,diagnostic,title_modeled(okage::ResourceStage::FieldWorldLoading));
+    }
+    void bind_field_services() {
         field->render_projection=&projection;
         field->resolve_instance_alias=[this](int alias)->std::optional<int> {
             if(alias>=0||alias<=-int(instance_aliases.size())||alias==-2)return {};
@@ -1110,6 +1122,37 @@ struct Session {
             throw std::runtime_error("Native battle transition phase is unrecovered (field phase "+
                 std::to_string(phase)+", formation "+std::to_string(request.formation)+
                 ", stage "+std::to_string(request.stage)+")");
+        };
+        field->encounter_child_service=[this](okage::FieldEncounterChildStep step,okage::FieldBattleRequest&)->bool {
+            using Step=okage::FieldEncounterChildStep;
+            switch(step) {
+            case Step::CheckLiveChild:
+                if(dialogue_active&&!closure.finished())
+                    throw std::runtime_error("Natural encounter phase8 retirement of a live manager message child is unrecovered");
+                return true;
+            case Step::Construct: {
+                okage::set_event_variable(variables,13,4,0); //125918(13,4,0)
+                const auto value=std::bit_cast<std::int32_t>(random.next()); //1f14b0
+                if(value<0)throw std::runtime_error("Natural encounter message RNG sign is unrecovered");
+                start_field_message(0x186a1+value%13,false);
+                std::cout<<"Native natural encounter message id="<<message_id<<" frame="<<frame<<'\n';
+                //100ac0(res,0): res+3c=0, 1cb4b8(0,0,0,0), 18fa90 (332a50=0).
+                encounter_world_hidden=true;scene_clear.rgb={0,0,0};
+                if(renderer)renderer->set_clear_rgb(scene_clear.rgb);
+                framebuffer_filters_enabled=false;
+                return true;
+            }
+            case Step::Finished:
+                return !dialogue_active||closure.finished();
+            case Step::Restore:
+                //100ac0(res,1): res+3c=1, 1cb4b8 from 1bb748/337b74, 18fa80.
+                if(!scene_clear.stage_rgb)throw std::runtime_error("Encounter restore needs the authored stage clear color");
+                encounter_world_hidden=false;scene_clear.rgb=*scene_clear.stage_rgb;
+                if(renderer)renderer->set_clear_rgb(scene_clear.rgb);
+                framebuffer_filters_enabled=true;
+                return true;
+            }
+            throw std::logic_error("Unknown encounter child step");
         };
     }
     fs::path scene_map;
@@ -2464,11 +2507,13 @@ struct Session {
                 scene_fade.request(1.f);
                 std::cout<<"Native field Save retired frame="<<frame<<'\n';
             }
+            encounter_world_hidden_frame=encounter_world_hidden;encounter_draw_camera=previous_field_camera;
             try {if(!returned_this_tick)field->tick({input.held,128,128,input.pressed});}
             catch(const std::exception& e) {
                 throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
                     std::to_string(field->pc())+": "+e.what());
             }
+            if(field)previous_field_camera=FieldCameraEvaluation{field->view(),field->rotation,field->position};
             if(const auto& encounter=field->encounter();encounter&&field->battle_request()&&
                field->battle_request()->phase==encounter->mode)
                 std::cout<<"Native natural encounter frame="<<frame<<" row="<<encounter->row
@@ -2832,7 +2877,32 @@ struct Session {
         if(!field)throw std::runtime_error("Field renderer has no mode owner");
         const auto& r=field->rotation;
         const auto& screen=projection.frame().ordinary;
-        if(field_image_commands.empty()) {
+        if(encounter_world_hidden_frame) {
+            if(!field->encounter_overlay_active()||!field_image_commands.empty()||!title_modeled(okage::ResourceStage::FieldActive))
+                throw std::runtime_error("Hidden field world requires exactly the phase9 encounter overlay");
+            const auto stan=std::find_if(actor_bindings.begin(),actor_bindings.end(),[](const auto& b){return b.alias==-3;});
+            if(stan==actor_bindings.end()||!stan->actor)throw std::runtime_error("Encounter overlay requires the stun actor");
+            const auto camera=encounter_draw_camera?*encounter_draw_camera:FieldCameraEvaluation{field->view(),field->rotation,field->position};
+            const auto world=okage::instance_matrix({0,0,7,1},{0,0,0,1},{1,1,1,1},battle_capture_sine); //100e30 operands
+            const auto& cr=camera.rotation;
+            const auto prepared=renderer->prepare_isolated_actor({stan->actor,world},camera.view,okage::field_clip_projection(screen),
+                effects_loaded?&field->effects():nullptr,{-cr[0],-cr[1],-cr[2],0},screen.clip_far,camera.position,projection.frame());
+            const auto snapshot=startup_textures->memory().snapshot();
+            const auto registers=startup_textures->field_navigation_registers(0); //+104 aliases list index0
+            const auto commands=field->encounter_overlay();
+            okage::SceneGpuPass pass;pass.images_before_scene=true;
+            pass.encode=[this,snapshot,registers,commands](id<MTLCommandBuffer> command,id<MTLTexture> color,id<MTLTexture> depth) {
+                if(!field_image_metal)field_image_metal=std::make_shared<okage::ImageMetal>(color.device);
+                const okage::ImageMetalBaseline baseline{0x6c00,0x7900,0,639,0,223,0,1,0,1};
+                std::vector<okage::ImageMetalValidation> validations;
+                for(const auto& quad:commands)validations.push_back(field_image_metal->encode(command,color,depth,quad,baseline,
+                    okage::ImageMetalGsTexture{snapshot,registers,{}}));
+                return [command,validations=std::move(validations)]{for(const auto& validation:validations)validation.validate_completed(command);};
+            };
+            image=renderer->render_prepared(prepared,nullptr,&pass);
+        } else if(field->encounter_overlay_active()) {
+            throw std::runtime_error("Encounter overlay queued while the field world is drawn is unrecovered");
+        } else if(field_image_commands.empty()) {
             image=renderer->render(field->view(),okage::field_clip_projection(screen),effects_loaded?&field->effects():nullptr,{-r[0],-r[1],-r[2],0},screen.clip_far,field->position,&projection.frame(),field->player_shadow()?field->player_shadow()->projection_factor:1);
         } else {
             if(!field_navigation||!title_modeled(okage::ResourceStage::FieldActive)||field_image_commands.size()!=2)
@@ -2854,7 +2924,7 @@ struct Session {
             };
             image=renderer->render_prepared(prepared,nullptr,&pass);
         }
-        try {feedback.apply(image,frame,field->screen_filter.alpha);}
+        try {if(framebuffer_filters_enabled)feedback.apply(image,frame,field->screen_filter.alpha);}
         catch(const std::exception& e) {
             throw std::runtime_error("Feedback at native frame="+std::to_string(frame)+" scene="+
                 std::to_string(current_scene)+" event_pc="+std::to_string(field->pc())+": "+e.what());

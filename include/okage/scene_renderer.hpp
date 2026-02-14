@@ -30,9 +30,13 @@ struct SceneGpuPass {
     std::function<std::function<void()>(id<MTLCommandBuffer>,id<MTLTexture>,id<MTLTexture>)> encode;
     bool before_deferred_effects=false;
     bool ordinary_field_images=false;
+    //Image batch at OT1 (0x132f00 calls 1009d0(res,1)): encode after the
+    //frame clear and before every scene/shadow/effect encoder.
+    bool images_before_scene=false;
 };
 #endif
 struct FieldOrdinaryLighting;
+struct SceneIsolatedActor {const FieldActor* actor=nullptr;Matrix4 world{};};
 void configure_scene_model_texture_source(const SceneModelAsset&,const TextureHandleOwner&);
 struct SceneActorDescriptor {std::uint32_t flags;bool height_enabled;};
 struct SceneActor {const FieldActor* actor;std::filesystem::path model_path;int alias=0;std::optional<SceneActorDescriptor> descriptor{};
@@ -93,6 +97,7 @@ public:
     void write_texture_sampling_observation(std::ostream&) const;
     void set_texture_sampling_audit(std::optional<std::array<std::uint32_t,2>> target);
     PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects=nullptr,const Float4& camera_rotation={},float far_clip=1024,const Float4& camera_position={},const FieldProjectionFrame* field_projection=nullptr,float shadow_factor=1,bool restore_shadow_alpha=true);
+    PreparedFrame prepare_isolated_actor(const SceneIsolatedActor&,const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera_rotation,float far_clip,const Float4& camera_position,const FieldProjectionFrame& field_projection);
     PreparedFrame prepare_empty(const FieldProjectionFrame&);
     SubmittedFrame submit_prepared(const PreparedFrame&,const SceneUiPass* ui=nullptr,const SceneGpuPass* between_scene_and_ui=nullptr,std::optional<std::array<std::uint8_t,4>> execution_clear=std::nullopt,float execution_depth_clear=1.f);
     Texture render_prepared(const PreparedFrame&,const SceneUiPass* ui=nullptr,const SceneGpuPass* between_scene_and_ui=nullptr,std::optional<std::array<std::uint8_t,4>> execution_clear=std::nullopt,float execution_depth_clear=1.f);

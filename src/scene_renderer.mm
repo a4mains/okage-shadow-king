@@ -334,6 +334,7 @@ struct SceneRenderer::Impl {
     std::shared_ptr<ShadowMetal> shadowMetal;
     std::shared_ptr<UiMetal> uiMetal;
     std::optional<std::size_t> sky_input;
+    std::optional<SceneIsolatedActor> isolated;
     Float4 sky_factors{.5f,0,.5f,0};
     std::vector<Texture> textures;
     std::vector<std::size_t> textureOffsets;
@@ -593,15 +594,16 @@ struct SceneRenderer::Impl {
         effectTexturesLoaded=true;
     }
     PreparedFrame prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha) {
-        shadowFrame=fieldProjection?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
+        shadowFrame=fieldProjection&&!isolated?field_shadow_frame(shadowActors,view,*fieldProjection,shadowSettings,shadowFactor,sine,sortDepthShift):FieldShadowFrame{};
         std::vector<Vertex> vertices;
         std::vector<Draw> draws;
         bool hadOrdinaryGeometry=false,hadEligibleInput=false;
         okage::Float4 low{INFINITY,INFINITY,INFINITY,0},high{-INFINITY,-INFINITY,-INFINITY,0};
         for(std::size_t inputIndex=0;inputIndex<inputs.size();++inputIndex) {
             const auto& input=inputs[inputIndex];const auto textureOffset=textureOffsets[inputIndex];
-            if(input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
-            if(input.actor && !input.actor->visible)continue;
+            if(isolated&&input.actor!=isolated->actor)continue;
+            if(!isolated&&input.placement && !(mapObjects?mapObjects->visible(*input.placement):input.visible))continue;
+            if(!isolated&&input.actor && !input.actor->visible)continue;
             hadEligibleInput=true;
             const bool mapMaterial=input.placement.has_value();
             const bool explicitActor=input.descriptor.has_value();
@@ -619,8 +621,8 @@ struct SceneRenderer::Impl {
             if(ordinaryInstance||(explicitActor&&(input.actor->render_flags&0x100000))) {
                 lightColors[3]=input.actor->channels().at(3);
             }
-            auto world=input.actor ? input.actor->world(sine) : input.world;
-            if(input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
+            auto world=isolated?isolated->world:input.actor ? input.actor->world(sine) : input.world;
+            if(!isolated&&input.facing)world=map_instance_matrix(*input.facing,{-camera[0],-camera[1],0,1},sine);
             if(input.placement&&mapObjects&&!input.actor)
                 world=map_instance_matrix(mapObjects->transform(*input.placement),{-camera[0],-camera[1],0,1},sine);
             if(sky_input&&inputIndex==*sky_input){
@@ -891,7 +893,9 @@ struct SceneRenderer::Impl {
             }
         }
         }
-        if (hadEligibleInput&&vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
+        if(isolated&&!hadEligibleInput)throw std::runtime_error("Isolated actor is not registered with this renderer");
+        // A source 1b9958 draw whose blocks are all culled submits nothing.
+        if (!isolated&&hadEligibleInput&&vertices.empty()&&!hadOrdinaryGeometry) throw std::runtime_error("Empty preview geometry");
         if(fieldProjection){
             std::vector<Vertex> projected;
             for(auto& draw:draws){
@@ -1004,6 +1008,17 @@ struct SceneRenderer::Impl {
                 if(!sampling->taps)throw std::runtime_error("Shared GS sample audit buffer allocation failed");
             }
         }
+        std::function<void()> validatePass;
+        const bool imagesFirst=gpuPass&&gpuPass->images_before_scene;
+        if(imagesFirst) {
+            if(beforeDeferred||gpuPass->ordinary_field_images||!data.field_projection)
+                throw std::runtime_error("OT1 image pass requires only the field GS ordering");
+            auto clearEncoder=[command renderCommandEncoderWithDescriptor:pass];[clearEncoder endEncoding];
+            validatePass=gpuPass->encode(command,ticketColor,ticketDepth);
+            if(!validatePass)throw std::runtime_error("Scene GPU pass has no completion validator");
+            pass.colorAttachments[0].loadAction=MTLLoadActionLoad;
+            pass.depthAttachment.loadAction=MTLLoadActionLoad;
+        }
         auto encode=[&](unsigned stage){
         id<MTLRenderCommandEncoder> encoder=[command renderCommandEncoderWithDescriptor:pass];
         [encoder setRenderPipelineState:pipeline]; [encoder setDepthStencilState:depth]; [encoder setCullMode:MTLCullModeNone];
@@ -1045,8 +1060,7 @@ struct SceneRenderer::Impl {
             pass.depthAttachment.loadAction=MTLLoadActionLoad;
             encode(1);
         }
-        std::function<void()> validatePass;
-        if(gpuPass){
+        if(gpuPass&&!imagesFirst){
             validatePass=gpuPass->encode(command,ticketColor,ticketDepth);
             if(!validatePass)throw std::runtime_error("Scene GPU pass has no completion validator");
         }
@@ -1227,6 +1241,13 @@ void SceneRenderer::bind_map_effects(const MapEffects* effects){impl_->mapEffect
 void SceneRenderer::bind_effect_submissions(const EffectSubmissions* effects){impl_->effectSubmissions=effects;}
 SceneRenderer::PreparedFrame SceneRenderer::prepare(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,bool restoreShadowAlpha){return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,fieldProjection,shadowFactor,restoreShadowAlpha);}
 SceneRenderer::PreparedFrame SceneRenderer::prepare_empty(const FieldProjectionFrame& projection){return impl_->prepareEmpty(projection);}
+SceneRenderer::PreparedFrame SceneRenderer::prepare_isolated_actor(const SceneIsolatedActor& isolated,const Matrix4& view,const Float4& projection,
+        const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame& fieldProjection) {
+    if(!isolated.actor)throw std::runtime_error("Isolated actor draw requires a registered actor");
+    impl_->isolated=isolated;
+    struct Reset {std::optional<SceneIsolatedActor>& value;~Reset(){value.reset();}} reset{impl_->isolated};
+    return impl_->prepare(view,projection,effects,camera,farClip,cameraPosition,&fieldProjection,1,true);
+}
 SceneRenderer::SubmittedFrame SceneRenderer::submit_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return impl_->submitPrepared(frame,ui,pass,clear,depthClear);}
 Texture SceneRenderer::render_prepared(const PreparedFrame& frame,const SceneUiPass* ui,const SceneGpuPass* pass,std::optional<std::array<std::uint8_t,4>> clear,float depthClear){return submit_prepared(frame,ui,pass,clear,depthClear).wait();}
 Texture SceneRenderer::render(const Matrix4& view,const Float4& projection,const AttachedEffects* effects,const Float4& camera,float farClip,const Float4& cameraPosition,const FieldProjectionFrame* fieldProjection,float shadowFactor,const SceneUiPass* ui){
