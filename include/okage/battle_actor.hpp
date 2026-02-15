@@ -1,4 +1,5 @@
 #pragma once
+#include "okage/battle_projectiles.hpp"
 #include "okage/actor.hpp"
 #include "okage/battle_data.hpp"
 #include "okage/battle_action_data.hpp"
@@ -15,7 +16,7 @@ struct SceneModelAsset;
 using BattleModelAssetProvider = std::function<std::shared_ptr<const SceneModelAsset>(
     const std::filesystem::path&, unsigned requested_flags)>;
 struct BattleActor {
-    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,EnemyDeath,PartyDeath};
+    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,RangedAttack,EnemyDeath,PartyDeath};
     FirstCallback first_callback=FirstCallback::Roster;
     std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};
@@ -48,6 +49,9 @@ struct BattleStrikeServices {
     std::function<float(const BattleActor&)> approach_offset_w;
     //1684c0 writes the live HUD dirty flag; death entry cannot omit it.
     std::function<void()> refresh_hud;
+    std::function<const BattleProjectile&(std::uint32_t source_pointer)> projectile;
+    std::function<void(unsigned,const Float4&)> effect_position,effect_rotation;
+    std::function<void(unsigned)> effect_stop;
 };
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,

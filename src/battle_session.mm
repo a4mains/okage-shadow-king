@@ -213,6 +213,7 @@ struct BattleSession::Impl {
     std::optional<BattleCameraSequence> after_intro_sequence;
     std::optional<BattleData> battle_data;
     std::optional<BattleActionData> action_data;
+    std::optional<BattleProjectileData> projectile_data;
     std::optional<BattleEnemyCommands> enemy_commands;
     std::vector<EffectDefinition> effect_definitions;
     fs::path effect_textures;
@@ -285,6 +286,8 @@ struct BattleSession::Impl {
             hud_definitions.emplace(read(input/"battle-hud.bin"));
             command_definitions.emplace(read(input/"battle-ui-commands.bin"));
             action_data.emplace(read(input/"battle-actions.bin"));
+            if(fs::exists(input/"battle-projectiles.bin")||fs::is_symlink(input/"battle-projectiles.bin"))
+                projectile_data.emplace(read(input/"battle-projectiles.bin"));
             enemy_commands.emplace(read(input/"battle-enemy-commands.bin"));
             load_step.store(1);
             if(!jobs.checkpoint())return;
@@ -1063,14 +1066,31 @@ struct BattleSession::Impl {
                             history(target,5,0);
                         },
                         [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);}};
-                    battle_actor_first_update(*actor,root,roster.entities(),{
+                    BattleStrikeServices strike{
                         context.strike_sound,
                         [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);},
                         [&](int command,int owner,int target){battle_queue_damage_event(root,roster.entities(),
                             std::int16_t(command),std::int16_t(owner),std::int16_t(target),[&]{return context.random.next();});},
                         [&](BattleActor& target){battle_enemy_reward(target,roster.entities(),context.entry.reward_storage(),
                             [&]{return context.random.next();});},{},
-                        [&]{context.shared.hud.type3_ready=1;}},&hits);
+                        [&]{context.shared.hud.type3_ready=1;}};
+                    strike.projectile=[&](std::uint32_t pointer)->const BattleProjectile& {
+                        if(!projectile_data)throw std::runtime_error("Battle ranged descriptor requires the staged owned projectile table");
+                        return projectile_data->at_source_pointer(pointer);
+                    };
+                    strike.effect_position=[&](unsigned handle,const Float4& value){ //1016f8
+                        if(handle>=effects.size())throw std::runtime_error("Battle effect position handle outside pool");
+                        if(effects[handle])effects[handle]->position=value;
+                    };
+                    strike.effect_rotation=[&](unsigned handle,const Float4& value){ //101758
+                        if(handle>=effects.size())throw std::runtime_error("Battle effect rotation handle outside pool");
+                        if(effects[handle])effects[handle]->rotation=value;
+                    };
+                    strike.effect_stop=[&](unsigned handle){ //101648 -> 103640
+                        if(handle>=effects.size())throw std::runtime_error("Battle effect stop handle outside pool");
+                        if(effects[handle]&&!(effects[handle]->flags&0x4000))effects[handle]->request_removal();
+                    };
+                    battle_actor_first_update(*actor,root,roster.entities(),strike,&hits);
                     actor_snapshot(*actor,"after-first");
                     if(enemy)battle_enemy_second_update(*actor,root);else battle_party_second_update(*actor,root);
                     actor_snapshot(*actor,"after-second");

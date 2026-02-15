@@ -251,14 +251,15 @@ void select_attack_callback(BattleActor& actor,std::span<const BattleEntityBindi
     const int target=std::bit_cast<std::int8_t>(actor.storage[0x132]);
     auto& recipient=bound_actor(entities,target);
     check(bool(actor.action_motion),"Battle attack has no motion descriptor owner");
-    check(word(actor.action_motion->bytes,4)==0,"Unrecovered battle ranged callback1567c8");
+    const bool ranged=word(actor.action_motion->bytes,4)!=0;
     const bool enemy_kind=half(actor.storage,0x40)==1;
-    check(!enemy_kind||half(actor.storage,0x44)!=207,"Unrecovered special enemy callback157188");
+    check(ranged||!enemy_kind||half(actor.storage,0x44)!=207,"Unrecovered special enemy callback157188");
     const bool ballistic=enemy_kind||half(recipient.storage,0x48)!=0;
     put(actor.storage,0x24,0);
     actor.saved_first_callback=actor.first_callback; //TASK28 is a normalized pointer lane.
     put(actor.storage,0x28,0);
-    actor.first_callback=ballistic?BattleActor::FirstCallback::BallisticAttack:BattleActor::FirstCallback::ApproachAttack;
+    actor.first_callback=ranged?BattleActor::FirstCallback::RangedAttack:
+        ballistic?BattleActor::FirstCallback::BallisticAttack:BattleActor::FirstCallback::ApproachAttack;
     put(actor.storage,0,0);
     put(actor.storage,0x30,std::uint32_t(std::int32_t(half(actor.storage,0x130))));
 }
@@ -342,13 +343,94 @@ int scheduled_target(const BattleActor& actor,unsigned index) {
     check(index<14,"Battle strike target list exceeds embedded descriptor");
     return std::bit_cast<std::int8_t>(actor.storage[0x132+index]);
 }
-void strike_damage(BattleActor& actor,const BattleState& root,const BattleStrikeServices& services) {
+void projectile_ballistic(BattleActor& actor,float gravity,float duration,const Float4& displacement) {
+    scalar(actor.storage,0x254,gravity);put(actor.storage,0x250,0);put(actor.storage,0x258,0);
+    const float reciprocal=single(1.f,duration,Operation::Divide);
+    Float4 velocity{};
+    for(unsigned i=0;i<4;++i)velocity[i]=single(displacement[i],reciprocal,Operation::Multiply);
+    const float dt=scalar(actor.storage,0x2c);
+    float adjustment=single(duration,dt,Operation::Subtract);
+    adjustment=single(adjustment,gravity,Operation::Multiply);
+    adjustment=single(adjustment,.5f,Operation::Multiply);
+    velocity[1]=single(velocity[1],adjustment,Operation::Subtract);
+    for(auto& value:velocity)value=single(value,dt,Operation::Multiply);
+    vector(actor.storage,0x240,velocity);
+    auto acceleration=vector(actor.storage,0x250);
+    const float dt2=single(dt,dt,Operation::Multiply);
+    for(auto& value:acceleration)value=single(value,dt2,Operation::Multiply);
+    vector(actor.storage,0x250,acceleration);
+}
+//156920: one projectile slot per actor (source +1f0..2b8, native +230..2f8).
+void launch_projectile(BattleActor& actor,std::span<const BattleEntityBinding> entities,
+                       const BattleStrikeServices& services,int target) {
+    check(bool(services.projectile)&&bool(services.positioned_effect)&&bool(services.effect_rotation),
+          "Battle ranged strike156920 services missing");
+    const auto& projectile=services.projectile(word(strike_descriptor(actor).bytes,4));
+    put(actor.storage,0x2f8,1);put(actor.storage,0x2f4,std::uint32_t(target));
+    //1b43c0 reads each bound model's evaluated position channel.
+    auto start=model(actor).animation().value(1);
+    for(unsigned i=0;i<3;++i)start[i]=single(start[i],projectile.offset[i],Operation::Add);
+    vector(actor.storage,0x230,start);
+    auto destination=model(bound_actor(entities,target)).animation().value(1);
+    {
+        //1f04f8/1ef0c8/1ef900: libgcc soft double multiply by 2.5, nearest.
+        std::fenv_t saved;check(std::fegetenv(&saved)==0&&std::fesetround(FE_TONEAREST)==0,"Projectile rounding mode");
+        volatile double lifted=double(destination[1])*2.5;volatile float narrowed=float(lifted);
+        std::fesetenv(&saved);destination[1]=supported(narrowed);
+    }
+    vector(actor.storage,0x2c0,destination);
+    const float duration=float(projectile.duration);
+    scalar(actor.storage,0x2e0,duration);
+    Float4 displacement{};
+    for(unsigned i=0;i<4;++i)displacement[i]=single(destination[i],start[i],Operation::Subtract);
+    if(projectile.type==1||projectile.type!=2)projectile_ballistic(actor,std::bit_cast<float>(0x3e6147aeu),duration,displacement);
+    else {
+        //1e23c0(duration/dt): VU Q reciprocal, then vmulq; zero acceleration.
+        const float steps=single(duration,scalar(actor.storage,0x2c),Operation::Divide);
+        const float reciprocal=single(1.f,steps,Operation::Divide);
+        Float4 velocity{};for(unsigned i=0;i<4;++i)velocity[i]=single(displacement[i],reciprocal,Operation::Multiply);
+        vector(actor.storage,0x240,velocity);vector(actor.storage,0x250,{});
+    }
+    const unsigned handle=services.positioned_effect(11,start,true);
+    put(actor.storage,0x2f0,handle);
+    static const AtanTable angles=make_atan_table();
+    const auto direction=approach_direction(start,destination);
+    Float4 rotation=vector(actor.storage,0x260);
+    rotation[0]=camera_angle(-direction.difference[1],direction.distance,angles);
+    rotation[1]=single(camera_angle(direction.difference[0],direction.difference[2],angles),.25f,Operation::Add);
+    rotation[2]=.75f;
+    vector(actor.storage,0x260,rotation);
+    services.effect_rotation(handle,{rotation[0],rotation[1],rotation[2],1});
+}
+//156ba8: integrate, publish the job position, then hit and retire on expiry.
+void projectile_update(BattleActor& actor,const BattleStrikeServices& services) {
+    if(word(actor.storage,0x2f8)!=1)return;
+    check(bool(services.effect_position)&&bool(services.damage_event)&&bool(services.effect_stop),
+          "Battle projectile156ba8 services missing");
+    auto position=vector(actor.storage,0x230),velocity=vector(actor.storage,0x240);
+    const auto acceleration=vector(actor.storage,0x250);
+    for(unsigned i=0;i<4;++i)position[i]=single(position[i],velocity[i],Operation::Add);
+    vector(actor.storage,0x230,position);
+    for(unsigned i=0;i<4;++i)velocity[i]=single(velocity[i],acceleration[i],Operation::Add);
+    vector(actor.storage,0x240,velocity);
+    const unsigned handle=word(actor.storage,0x2f0);
+    services.effect_position(handle,{position[0],position[1],position[2],1});
+    const float remaining=single(scalar(actor.storage,0x2e0),scalar(actor.storage,0x2c),Operation::Subtract);
+    scalar(actor.storage,0x2e0,remaining);
+    if(remaining<0) {
+        services.damage_event(0x10,half(actor.storage,0x130),std::bit_cast<std::int32_t>(word(actor.storage,0x2f4)));
+        services.effect_stop(handle);
+        for(unsigned at:{0x2f0u,0x2f4u,0x2f8u})put(actor.storage,at,0); //156908
+    }
+}
+void strike_damage(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                   const BattleStrikeServices& services) {
     if(!schedule_ready(actor,0x1e4,4,0x1e0))return;
     for(unsigned i=0;int(i)<half(actor.storage,0x140);++i) {
         const int target=scheduled_target(actor,i);
         if(!target_active(root,target))continue;
         const auto& descriptor=strike_descriptor(actor);
-        check(word(descriptor.bytes,4)==0,"Unrecovered ranged strike156920");
+        if(word(descriptor.bytes,4)!=0){launch_projectile(actor,entities,services,target);continue;}
         check(bool(services.damage_event),"Battle strike damage158ca8 service missing");
         const auto index=std::bit_cast<std::int32_t>(word(actor.storage,0x1e4));
         check(index>=0&&index<4,"Battle strike damage schedule index");
@@ -423,7 +505,7 @@ bool strike_update(BattleActor& actor,const BattleState& root,std::span<const Ba
     const auto elapsed=single(scalar(actor.storage,0x1f8),scalar(actor.storage,0x2c),Operation::Add);
     scalar(actor.storage,0x1f8,elapsed);
     if(scalar(strike_descriptor(actor).bytes,0)<elapsed) {put(actor.storage,0x300,0);return true;}
-    strike_damage(actor,root,services);strike_sound(actor,services);strike_effect(actor,root,entities,services);
+    strike_damage(actor,root,entities,services);strike_sound(actor,services);strike_effect(actor,root,entities,services);
     return false;
 }
 bool return_to_baseline(BattleActor& actor) {
@@ -760,6 +842,31 @@ void approach_attack_update(BattleActor& task,const BattleState& root,std::span<
     step_model(actor);
 }
 }
+void ranged_attack_update(BattleActor& task,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                          const BattleStrikeServices& services) {
+    auto& actor=bound_actor(entities,std::bit_cast<std::int32_t>(word(task.storage,0x30)));
+    put(task.storage,0x20,1);
+    const auto phase=std::bit_cast<std::int32_t>(word(task.storage,0x24));
+    if(phase>=0&&phase<=2) {
+        if(phase==0)put(actor.storage,0x300,0);
+        if(phase<2)put(task.storage,0x24,2);
+        if(strike_update(actor,root,entities,services)) {
+            put(actor.storage,0x300,0);put(task.storage,0x24,word(task.storage,0x24)+1);
+        }
+        projectile_update(actor,services);
+    } else if(phase==3) {
+        const auto primary=status(actor,1);const auto motion=primary>1&&primary<6?5u:1u;
+        put(actor.storage,0x128,motion);model(actor).select_motion(motion);scalar(actor.storage,0x12c,-1.f);
+        put(actor.storage,0x21c,99);
+        for(int i=9;i>=0;--i)actor.storage[0x132+unsigned(i)]=0xff; //1544b0
+        for(unsigned at:{0x146u,0x140u,0x142u,0x144u})put(actor.storage,at,0,2);
+        put(task.storage,0x24,1);
+        check(task.saved_first_callback.has_value(),"Battle ranged return lacks saved callback");
+        task.first_callback=*task.saved_first_callback;put(task.storage,0,0);
+        put(task.storage,0x34,0);
+    }
+    step_model(actor);
+}
 void battle_actor_reset_after_victory(BattleActor& actor) {
     if(status(actor,1)==6)return;
     actor.stat_bindings[1][0]=1;
@@ -823,6 +930,7 @@ void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<co
         break;
     case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::BallisticAttack:ballistic_attack_update(actor,root,entities,services);break;
+    case BattleActor::FirstCallback::RangedAttack:ranged_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::EnemyDeath:enemy_death_update(actor,services,hits);break;
     case BattleActor::FirstCallback::PartyDeath:party_death_update(actor,root,services,hits);break;
     }

@@ -4,14 +4,15 @@
 #include <cfenv>
 #include <iostream>
 #include <limits>
+#include <source_location>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
 
 namespace {
-void require(bool value,const char* message,unsigned at=__builtin_LINE()) {
-    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at));
+void require(bool value,const char* message,const std::source_location at=std::source_location::current()) {
+    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at.line()));
 }
 template<class F> void rejects(F action) {
     try{action();}catch(const std::runtime_error&){return;}
@@ -215,6 +216,53 @@ void attack_dispatch_and_approach() {
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,entities);});
     require(f.actor.first_callback==Callback::Roster&&word(f.actor.storage,0x24)==13,
             "Unsupported callback choice cannot silently install approach");
+}
+void ranged_attack() {
+    //154b38 -> 1567c8 with a nonzero descriptor word +4; 156920/156ba8 flight.
+    using Callback=okage::BattleActor::FirstCallback;
+    Fixture f,target;auto& a=f.actor;auto& b=a.storage;
+    std::array<okage::BattleEntityBinding,2> entities{{{&a,f.record,1},{&target.actor,target.record,0}}};
+    put(b,0x40,1,2);put(b,0x44,23,2);put(b,0x21c,6);b[0x132]=1;put(b,0x140,1,2);put(b,0x130,0,2);
+    put(f.root.bytes,0x50,2);
+    a.action_motion.emplace();number(a.action_motion->bytes,0,5);put(a.action_motion->bytes,4,0x237428);
+    put(a.action_motion->bytes,0xa,3,2);put(a.action_motion->bytes,0xc,0xffff,2);
+    put(b,0x1e4,0);number(b,0x1e0,0);put(b,0x1ec,8);put(b,0x1f4,4);number(b,0x1f8,0);
+    for(unsigned i=0;i<4;++i)number(b,0x60+4*i,okage::Float4{0,0,0,1}[i]);
+    a.model->animation().set_channel(1,{0,0,0,1});
+    target.actor.model->animation().set_channel(1,{10,-4,0,1});
+    okage::battle_actor_motion_update(a,entities);
+    require(a.first_callback==Callback::RangedAttack&&a.saved_first_callback==Callback::Roster&&word(b,0x24)==0,
+            "Descriptor word+4 selects ranged1567c8 instead of ballistic");
+    okage::BattleProjectile record{1,3,{1,-2,0,0}};
+    std::vector<std::string> events;okage::Float4 spawned{},rotation{};std::vector<okage::Float4> positions;
+    okage::BattleStrikeServices services;
+    services.projectile=[&](std::uint32_t pointer)->const okage::BattleProjectile& {
+        require(pointer==0x237428,"Projectile resolves the retained descriptor word");return record;};
+    services.positioned_effect=[&](int id,const okage::Float4& p,bool){require(id==11,"156920 spawns effect11");
+        spawned=p;events.push_back("spawn");return 5u;};
+    services.effect_rotation=[&](unsigned h,const okage::Float4& r){require(h==5,"Rotation handle");rotation=r;events.push_back("rotate");};
+    services.effect_position=[&](unsigned h,const okage::Float4& p){require(h==5,"Position handle");positions.push_back(p);};
+    services.damage_event=[&](int command,int owner,int victim){
+        require(command==0x10&&owner==0&&victim==1,"Projectile landing queues 158ca8(0x10,owner,target)");events.push_back("damage");};
+    services.effect_stop=[&](unsigned h){require(h==5,"Stop handle");events.push_back("stop");};
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x24)==2&&a.model->motion()==7&&events==std::vector<std::string>({"spawn","rotate"}),
+            "Phase0 becomes2, strikes and launches in the same callback");
+    require(spawned==okage::Float4{1,-2,0,1}&&number(b,0x2c4)==-10&&word(b,0x2f8)==1&&word(b,0x2f4)==1,
+            "Launch adds record offsets; target Y uses the soft double 2.5 lift");
+    require(rotation[2]==.75f&&rotation[3]==1&&positions.size()==1&&positions[0][0]>spawned[0],
+            "101758 rotation W=1 and the first integration step is published");
+    for(unsigned i=0;i<3;++i)okage::battle_actor_first_update(a,f.root,entities,services);
+    require(events==std::vector<std::string>({"spawn","rotate","damage","stop"})&&positions.size()==4&&word(b,0x2f8)==0,
+            "Flight expires after duration and retires the job once");
+    unsigned calls=0;while(a.first_callback==Callback::RangedAttack&&calls++<20)okage::battle_actor_first_update(a,f.root,entities,services);
+    require(a.first_callback==Callback::Roster&&word(b,0x24)==1&&word(b,0x21c)==99&&a.model->motion()==1&&number(b,0x12c)==-1,
+            "Phase3 restores the saved callback with phase1 and idle motion");
+    for(unsigned i=0;i<10;++i)require(b[0x132+i]==255,"1544b0 clears ten targets");
+    record.duration=1;put(b,0x2f8,0);a.first_callback=Callback::RangedAttack;put(b,0x24,0);
+    services.projectile=[](std::uint32_t)->const okage::BattleProjectile&{throw std::runtime_error("unstaged");};
+    put(b,0x1e4,0);number(b,0x1e0,0);number(b,0x1f8,0);b[0x132]=1;put(b,0x140,1,2);
+    rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
 }
 void ballistic_attack() {
     using Callback=okage::BattleActor::FirstCallback;
@@ -807,6 +855,6 @@ void queued_enemy_hit() {
 }
 }
 int main(){try {
-    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
+    first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ranged_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
