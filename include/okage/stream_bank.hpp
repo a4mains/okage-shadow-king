@@ -24,6 +24,7 @@ struct StreamTone {
 };
 // Recovered mono ADPCM with an optional FORM content loop; no MARK/BRCH.
 StreamTone stream_tone(const StreamBank&,int index,float speed=1,unsigned volume=128);
+StreamTone stream_tone_signed(const StreamBank&,int index,float speed,int volume);
 std::vector<std::uint8_t> prepare_stream_sample(Bytes,std::optional<std::uint32_t> loop_offset=std::nullopt);
 class StreamPlayer {
 public:
@@ -31,6 +32,7 @@ public:
     StreamPlayer(const StreamPlayer&)=delete;
     StreamPlayer& operator=(const StreamPlayer&)=delete;
     void play(int index,float speed,unsigned volume);
+    void play_signed(int index,float speed,int volume);
     void mix(std::span<std::int32_t> stereo);
     void stop(){voices_.clear();}
     unsigned active() const{return voices_.size();}
@@ -46,5 +48,6 @@ private:
     };
     StreamBank bank_;
     std::vector<std::unique_ptr<Playing>> voices_;
+    void start(const StreamTone&);
 };
 }

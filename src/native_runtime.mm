@@ -2465,12 +2465,14 @@ struct Session {
                      //12df80: owned1fb3e0 speeds1; signed1fb388 volumes100/100/110.
                      found->second->play(id,1.f,id==4?110:100);
                  },battle_live_trace,[this](int id){
-                     if(id!=18&&id!=40&&id!=58&&id!=65&&id!=66)
+                     if(id!=18&&id!=40&&id!=41&&id!=58&&id!=65&&id!=66)
                          throw std::runtime_error("Battle strike sound outside recovered12df80 table scope: "+std::to_string(id));
                      auto found=sound_banks.find(0);
                      if(found==sound_banks.end())throw std::runtime_error("Battle strike sound requires the owned ALL bank");
                      //12df80 owned tables1fb3e0/1fb388: speeds1, volumes
-                     //18=120,40=100,58=110,65=80,66=100.
+                     //18=120,40=100,58=110,65=80,66=100. The volume is read
+                     //with LB: entry41 is byte0x80, signed -128 on both sides.
+                     if(id==41){found->second->play_signed(41,1.f,-128);return;}
                      found->second->play(unsigned(id),1.f,id==18?120:id==58?110:id==65?80:100);
                  },[this]{
                      if(!music)throw std::runtime_error("Victory requires live music owner");

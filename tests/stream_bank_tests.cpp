@@ -1,6 +1,7 @@
 #include "okage/stream_bank.hpp"
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <source_location>
 
@@ -46,6 +47,50 @@ int main(){try{
     std::vector<std::int32_t> after_stop(400);player.mix(after_stop);
     require(std::all_of(after_stop.begin(),after_stop.end(),[](auto value){return value==0;}));
     player.play(0,1,128);player.mix(after_stop);require(after_stop==mix); // Bank remains usable.
+    //12df80 sound41 reads cue gain0x80 with LB (-128), while its FORM
+    //channels are127.176738 MULT/SRA7 produces -127, never +127 or -126.
+    const auto signed_tone=okage::stream_tone_signed(bank,0,1,-128);
+    require(signed_tone.left==-127&&signed_tone.right==-127&&signed_tone.pitch==tone.pitch*2+1);
+    auto asymmetric=bank;asymmetric.bytes[40]=0x80;asymmetric.bytes[41]=63;
+    const auto negative_form=okage::stream_tone_signed(asymmetric,0,1,-65);
+    require(negative_form.left==65&&negative_form.right==-32);
+    const auto positive_form=okage::stream_tone_signed(asymmetric,0,1,65);
+    require(positive_form.left==-65&&positive_form.right==31);
+    for(unsigned volume:{0u,1u,64u,127u,128u}) {
+        const auto old=okage::stream_tone(bank,0,1,volume);
+        const auto added=okage::stream_tone_signed(bank,0,1,int(volume));
+        require(old.offset==added.offset&&old.size==added.size&&old.sample_rate==added.sample_rate&&
+                old.pitch==added.pitch&&old.left==added.left&&old.right==added.right&&old.loop_offset==added.loop_offset);
+        okage::StreamPlayer original(bank),explicit_signed(bank);
+        original.play(0,1,volume);explicit_signed.play_signed(0,1,int(volume));
+        std::vector<std::int32_t> a(400),c(400);original.mix(a);explicit_signed.mix(c);require(a==c);
+    }
+    okage::StreamPlayer negative(bank);negative.play_signed(0,1,-128);
+    std::vector<std::int32_t> inverted(400);negative.mix(inverted);require(negative.active()==0);
+    const auto prepared_signal=okage::prepare_stream_sample(okage::Bytes(bank.bytes).subspan(signed_tone.offset,signed_tone.size));
+    okage::SampleVoice signal(prepared_signal,okage::StreamTone::adsr1,okage::StreamTone::adsr2);
+    signal.parameters(signed_tone.pitch,-128,-128);
+    const auto floor_q15=[](std::int64_t value) {return value>=0?value/32768:-((-value+32767)/32768);};
+    bool nonzero_negative=false,floor_differs=false;
+    for(unsigned i=0;i<inverted.size()/2;++i) {
+        const auto unscaled=-signal.tick()[0];
+        const auto expected=floor_q15(std::int64_t(unscaled)*-32512);
+        require(inverted[i*2]==expected&&inverted[i*2+1]==expected);
+        require(mix[i*2]==floor_q15(std::int64_t(unscaled)*32512));
+        nonzero_negative|=inverted[i*2]<0;
+        floor_differs|=inverted[i*2]!=-mix[i*2];
+    }
+    require(nonzero_negative&&floor_differs);
+    okage::StreamPlayer combined(bank);combined.play(0,1,128);combined.play_signed(0,1,-128);
+    std::vector<std::int32_t> sum(400,7);combined.mix(sum);
+    for(unsigned i=0;i<sum.size();++i)require(sum[i]==7+mix[i]+inverted[i]);
+    okage::StreamPlayer guarded(bank);guarded.play(0,1,128);
+    for(int volume:{-129,129,std::numeric_limits<int>::min(),std::numeric_limits<int>::max()}) {
+        rejects([&]{okage::stream_tone_signed(bank,0,1,volume);});
+        rejects([&]{guarded.play_signed(0,1,volume);});require(guarded.active()==1);
+    }
+    rejects([&]{okage::stream_tone(bank,0,1,std::numeric_limits<unsigned>::max());});
+    rejects([&]{guarded.play(0,1,std::numeric_limits<unsigned>::max());});require(guarded.active()==1);
     rejects([&]{player.play(-1,1,128);});rejects([&]{player.play(0,-1,128);});rejects([&]{player.play(0,1,129);});
     auto invalid=bank;invalid.bytes[45]=2;rejects([&]{okage::stream_tone(invalid,0);});
     invalid=bank;put(invalid.bytes,56,32);rejects([&]{okage::stream_tone(invalid,0);});

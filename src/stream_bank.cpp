@@ -47,13 +47,14 @@ StreamBank read_stream_bank(Bytes b){
         throw std::runtime_error("RXWS FORM trailing bytes");
     result.bytes.assign(b.begin(),b.end());return result;
 }
-StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned volume){
+namespace {
+StreamTone tone(const StreamBank& bank,int index,float speed,int volume,bool volume_in_range){
     const auto r=bank.record(index);
     // Original 0x1769b0 ignores byte 3 when flags byte 2 has bit 1 set,
     // passing -1 for voice selection. Footsteps use byte 3=0x80 here.
     if(r.size()!=28 || r[0]!=0 || (r[2]!=2&&r[2]!=3) || r[6] || r[7] || r[8] || r[9]!=1 || word(r,12) || bank.chunks[2] || bank.chunks[3])
         throw std::runtime_error("Unrecovered RXWS codec/channels/loop/markers");
-    if(!std::isfinite(speed) || speed<0 || speed>=8 || volume>128)throw std::runtime_error("RXWS cue speed/volume range");
+    if(!std::isfinite(speed) || speed<0 || speed>=8 || !volume_in_range)throw std::runtime_error("RXWS cue speed/volume range");
     StreamTone t;t.offset=word(r,16);t.size=word(r,20);t.sample_rate=unsigned(r[10])|(unsigned(r[11])<<8);
     if(!t.sample_rate || t.offset%16 || !t.size || t.size%16 || t.offset>bank.body_size || t.size>bank.body_size-t.offset)
         throw std::runtime_error("RXWS sample payload bounds");
@@ -66,9 +67,16 @@ StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned vol
     // EE0x172bf8 rate conversion, IOP0x9398 speed multiplication, and
     // EE0x176738's staged gains with recovered default global gains128.
     t.pitch=((t.sample_rate*4096/48000)*unsigned(speed*4096))>>12;
-    t.left=(int(volume)*std::bit_cast<std::int8_t>(r[4]))>>7;
-    t.right=(int(volume)*std::bit_cast<std::int8_t>(r[5]))>>7;
+    t.left=(volume*std::bit_cast<std::int8_t>(r[4]))>>7;
+    t.right=(volume*std::bit_cast<std::int8_t>(r[5]))>>7;
     return t;
+}
+}
+StreamTone stream_tone(const StreamBank& bank,int index,float speed,unsigned volume){
+    return tone(bank,index,speed,volume<=128?int(volume):0,volume<=128);
+}
+StreamTone stream_tone_signed(const StreamBank& bank,int index,float speed,int volume){
+    return tone(bank,index,speed,volume,volume>=-128&&volume<=128);
 }
 std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks,std::optional<std::uint32_t> loop_offset){
     if(blocks.empty()||blocks.size()%16||blocks.size()>2*1024*1024-128)
@@ -91,7 +99,12 @@ std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks,std::optional<std::
     return result;
 }
 void StreamPlayer::play(int index,float speed,unsigned volume){
-    const auto tone=stream_tone(bank_,index,speed,volume);
+    start(stream_tone(bank_,index,speed,volume));
+}
+void StreamPlayer::play_signed(int index,float speed,int volume){
+    start(stream_tone_signed(bank_,index,speed,volume));
+}
+void StreamPlayer::start(const StreamTone& tone){
     auto sample=prepare_stream_sample(Bytes(bank_.bytes).subspan(tone.offset,tone.size),tone.loop_offset);
     std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
     if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
