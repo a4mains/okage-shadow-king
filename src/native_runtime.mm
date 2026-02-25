@@ -818,6 +818,8 @@ struct Session {
     fs::path battle_construction_report;
     fs::path battle_stage_report;
     fs::path battle_ui_update_report;
+    unsigned battle_ordinal=0;
+    std::string battle_report_base;fs::path battle_ui_update_report_base;
     std::ostream* battle_live_trace=nullptr;
     std::ostream* load_observation_trace=nullptr;
     okage::InputJournal* input_journal=nullptr;
@@ -2249,6 +2251,15 @@ struct Session {
                 scene_fade.immediate(0);
                 scene_clear.rgb={0,0,0};scene_fade.color=0; //100ef8 fresh resource.
                 okage::initialize_scene_ui(ui_shared);
+                if(++battle_ordinal>1) {
+                    const auto suffix=".battle"+std::to_string(battle_ordinal);
+                    if(!battle_report_base.empty()) {
+                        battle_construction_report=battle_report_base+suffix+"-construction.json";
+                        battle_stage_report=battle_report_base+suffix+"-stage.json";
+                    }
+                    if(!battle_ui_update_report_base.empty())
+                        battle_ui_update_report=battle_ui_update_report_base.string()+suffix;
+                }
                 battle=std::make_unique<okage::BattleSession>(selection[1],stage,battle_input,
                     field_root.parent_path(),variables,battle_entry,*reset_camera,effect_bytes,effect_textures,effect_preparation,
                     load_observation_trace?8192:0,battle_resource_hooks());
@@ -3964,6 +3975,8 @@ int main(int argc,const char** argv) {
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
             session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
+            if(!output.empty())session.battle_report_base=output.string();
+            session.battle_ui_update_report_base=session.battle_ui_update_report;
             if(!output.empty())session.battle_stage_report=output.string()+".battle-stage.json";
             session.live_presentation_enabled=previewAt!=0||cooperativeReplay.value_or(false)||bool(headlessControlPath);
             session.save_directory=saveDirectory;
@@ -4124,6 +4137,8 @@ int main(int argc,const char** argv) {
         app->session->battle_input=battleInput;
         app->session->battle_ui_update_report=uiUpdateReport;
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
+        if(!output.empty())app->session->battle_report_base=output.string();
+        app->session->battle_ui_update_report_base=app->session->battle_ui_update_report;
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";
         app->session->live_presentation_enabled=true;
         app->session->save_directory=saveDirectory;app->session->startup_texture_report=startupTextureReport;app->session->resource_report=titleResourceReport;app->session->retirement_report=titleRetirementReport;app->session->restore_report=restoreCancelReport;
