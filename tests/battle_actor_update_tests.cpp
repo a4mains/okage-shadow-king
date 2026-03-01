@@ -464,10 +464,15 @@ void strike_schedules() {
     put(b,0x1ec,8);put(d,0x3c,3);
     services.positioned_effect=[](int,const okage::Float4&,bool){return 27u;};
     rejects([&]{okage::battle_actor_first_update(a,f.root,entities,services);});
-    require(word(b,0x30c)==27&&word(b,0x1f4)==0,"Unsupported scale retains preceding spawn and handle store");
-    put(d,0x3c,4);put(b,0x140,0,2);
+    require(word(b,0x30c)==27&&word(b,0x1f4)==0,"Missing 101758 service retains preceding spawn and handle store");
+    std::vector<std::pair<unsigned,okage::Float4>> rotations;
+    services.effect_rotation=[&](unsigned handle,const okage::Float4& r){rotations.push_back({handle,r});};
     okage::battle_actor_first_update(a,f.root,entities,services);
-    require(word(b,0x1f4)==1&&word(b,0x30c)==27,"Scaled effect with no targets advances without invoking scale");
+    require(word(b,0x1f4)==1&&rotations.size()==1&&rotations[0].first==27&&rotations[0].second==okage::Float4{0,.5f,0,1},
+            "Type3 sets the spawned job rotation to 244048 (0,.5,0) with W=1");
+    put(b,0x1f4,0);put(d,0x3c,4);put(b,0x140,0,2);
+    okage::battle_actor_first_update(a,f.root,entities,services);
+    require(word(b,0x1f4)==1&&word(b,0x30c)==27&&rotations.size()==1,"Type4 with no targets advances without rotation");
     //Equality is not expiry; negative remaining skips elapsed and every service.
     put(b,0x1ec,8);put(b,0x1f4,4);number(b,0x12c,1);number(b,0x1f8,9);
     okage::battle_actor_first_update(a,f.root,entities,services);

@@ -476,17 +476,18 @@ void strike_effect(BattleActor& actor,const BattleState& root,std::span<const Ba
         }
         break;
     case 3:
-        create(half(actor.storage,0x130),false);
-        throw std::runtime_error("Unrecovered strike effect scale101758");
-    case 4:
+    case 4: {
+        const auto rotate=[&]{
+            check(bool(services.effect_rotation),"Battle strike effect rotation101758 service missing");
+            services.effect_rotation(word(actor.storage,0x30c),{0,.5f,0,1});
+        };
+        if(type==3){create(half(actor.storage,0x130),false);rotate();break;}
         for(unsigned i=0;int(i)<half(actor.storage,0x140);++i) {
             const auto target=scheduled_target(actor,i);
-            if(target_active(root,target)) {
-                create(target,false);
-                throw std::runtime_error("Unrecovered strike effect scale101758");
-            }
+            if(target_active(root,target)){create(target,false);rotate();}
         }
         break;
+    }
     default:break;
     }
     advance_schedule(actor,0x1f4,4,0x1f0,0x3a,20);
