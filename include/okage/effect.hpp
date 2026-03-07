@@ -168,6 +168,10 @@ struct MapEffectDraw {
     unsigned clamp_mode=2;
 };
 enum class EffectDrawPass {Ordinary, Deferred};
+struct EffectMaterial {std::uint64_t zbuf=0,alpha=0,test=0;};
+EffectMaterial compile_effect_material(std::uint32_t primitive_flags);
+struct EffectDrawState {bool additive=false,subtractive=false,depth_test=false;};
+EffectDrawState effect_draw_state(std::uint32_t primitive_flags);
 using EffectTextureSizeResolver=std::function<std::array<std::uint32_t,2>(std::uint32_t)>;
 std::vector<MapEffectDraw> map_effect_draws(const MapEffect&,const Matrix4& view,
     const Float4& camera_rotation,float far_clip,const SineTable&,const Float4* light_tint=nullptr,

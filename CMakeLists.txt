@@ -521,6 +521,12 @@ if(BUILD_TESTING)
     add_executable(effect-tests tests/effect_tests.cpp)
     target_link_libraries(effect-tests PRIVATE okage_assets)
     add_test(NAME effect-tests COMMAND effect-tests)
+    # Battle strike10/projectile11. The owned-data section runs only when this
+    # ignored stage directory provides TES.EFD; otherwise it reports a skip.
+    add_executable(effect-battle-templates-tests tests/effect_battle_templates_tests.cpp)
+    target_link_libraries(effect-battle-templates-tests PRIVATE okage_assets)
+    add_test(NAME effect-battle-templates-tests COMMAND effect-battle-templates-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15/CMNDATA/2D)
     add_executable(stream-bank-tests tests/stream_bank_tests.cpp)
     target_link_libraries(stream-bank-tests PRIVATE okage_assets)
     add_test(NAME stream-bank-tests COMMAND stream-bank-tests)
