@@ -76,7 +76,11 @@ struct MapEffectElement {
     std::shared_ptr<EffectWaterSurface> water;
     //Shape33: three tagged quads, each retaining its four packed UV pairs.
     std::array<std::array<std::uint16_t,2>,12> number_uv{};
+    //0x105518 geometry links (mode3 / time17) for shapes30/31 and25: the
+    //element draws the source element's current UV packet / ring heights.
+    std::optional<std::uint32_t> quad_source_id,ring_source_id;
 };
+std::uint32_t effect_shape_texture(unsigned shape);
 enum class EffectStart {RandomPhase, FirstFrame};
 struct MapEffectVertex {Float4 position,color,uv;};
 using EffectNoiseGrid=std::array<std::uint32_t,8*8*6>;
@@ -122,6 +126,9 @@ public:
               const Float4& scale,const EffectTextureSizes&,
               const std::function<std::uint32_t()>& random,EffectStart start=EffectStart::RandomPhase);
     void bind_flame_geometry(std::shared_ptr<EffectFlameGeometry>);
+    //Shared session preparation (0x10bc78): procedural shapes10..17/43/45/
+    //55/56/62 draw its cached geometry. Also binds shape55 and the flame packet.
+    void bind_preparation(std::shared_ptr<const EffectTemplatePreparation>);
     const EffectQuadPositions& flame_positions(const MapEffectElement&) const;
     MapEffect snapshot() const;
     void set_parameter(unsigned selector,const Float4& payload);
@@ -147,6 +154,12 @@ public:
     std::vector<MapEffectElement> elements;
     std::shared_ptr<const std::vector<MapEffectVertex>> shape55_geometry;
     std::shared_ptr<EffectFlameGeometry> flame_geometry;
+    std::shared_ptr<const EffectTemplatePreparation> preparation;
+    //0x101960: job flag1/element0x10 give a private XYZ packet, job flag2/
+    //element0x40 a private UV packet; otherwise the element uses the shared
+    //0x24e790 shape cache.
+    bool private_positions(const MapEffectElement& e) const{return (flags&1)||(e.flags&0x10);}
+    bool private_uvs(const MapEffectElement& e) const{return (flags&2)||(e.flags&0x40);}
 private:
     void set_texture(MapEffectElement&,unsigned);
     EffectTextureSizes texture_sizes_;

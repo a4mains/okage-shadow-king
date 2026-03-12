@@ -527,6 +527,18 @@ if(BUILD_TESTING)
     target_link_libraries(effect-battle-templates-tests PRIVATE okage_assets)
     add_test(NAME effect-battle-templates-tests COMMAND effect-battle-templates-tests
         ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15/CMNDATA/2D)
+    # Generic template admission versus the frozen 7d876aa MapEffect oracle.
+    add_executable(effect-generic-templates-tests tests/effect_generic_templates_tests.cpp
+        tests/legacy/effect_7d876aa.cpp)
+    target_include_directories(effect-generic-templates-tests PRIVATE tests)
+    target_link_libraries(effect-generic-templates-tests PRIVATE okage_assets)
+    add_test(NAME effect-generic-templates-tests COMMAND effect-generic-templates-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15/CMNDATA/2D)
+    # Research tool: per-template support/first-blocker report for owned data.
+    add_executable(effect-template-coverage tests/effect_template_coverage.cpp
+        tests/legacy/effect_7d876aa.cpp)
+    target_include_directories(effect-template-coverage PRIVATE tests)
+    target_link_libraries(effect-template-coverage PRIVATE okage_assets)
     add_executable(stream-bank-tests tests/stream_bank_tests.cpp)
     target_link_libraries(stream-bank-tests PRIVATE okage_assets)
     add_test(NAME stream-bank-tests COMMAND stream-bank-tests)

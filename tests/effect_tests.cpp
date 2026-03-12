@@ -16,7 +16,7 @@ void check(bool v,const std::source_location where=std::source_location::current
     if(!v)throw std::runtime_error("Effect test failed at line "+std::to_string(where.line()));
 }
 void put(Data& b,std::size_t p,std::uint32_t v){for(unsigned j=0;j<4;++j)b.at(p+j)=v>>(j*8);}
-template<class F>void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid effect accepted");}
+template<class F>void rejects(F f,const std::source_location where=std::source_location::current()){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Invalid effect accepted at line "+std::to_string(where.line()));}
 int main(int argc,char** argv){try{
     Data b(16+48+2*116);put(b,0,0x20444645);put(b,4,1);put(b,16,30);put(b,20,250);
     put(b,24,0x8400);put(b,32,2);put(b,36,64);
@@ -259,7 +259,8 @@ int main(int argc,char** argv){try{
         part.values[4]=i?okage::Float4{0,1,20,0}:okage::Float4{0,1,0,1};
     }
     unsigned cylinder_rng=0;auto no_rng=[&]{++cylinder_rng;return 1u;};
-    rejects([&]{okage::MapEffect invalid(cylinder,{},{},{},sizes,no_rng);});
+    {unsigned phase_rng=0;okage::MapEffect random_phase(cylinder,{},{},{},sizes,[&]{return ++phase_rng+40;});
+     check(phase_rng==1&&random_phase.phase==41%160);}
     okage::MapEffect aura(cylinder,{},{},{1,1,1,1},sizes,no_rng,okage::EffectStart::FirstFrame);
     aura.tick(no_rng);const auto first_uv=aura.elements[0].cylinder_t;
     check(first_uv==aura.elements[1].cylinder_t&&!(aura.elements[1].program&0x3f000000));
@@ -280,16 +281,18 @@ int main(int argc,char** argv){try{
     draws=draw();check(draws[3].vertices[2].uv[1]==1050.f/32768);
     job.flags|=0x100;check(draw().empty());job.flags&=~0x100u;
     job.flags|=0x400;rejects(draw);job.flags&=~0x400u;
-    job.elements[0].flags=2;rejects(draw);job.elements[0].flags=0;
-    job.elements[0].primitive_flags=0;rejects(draw);job.elements[0].primitive_flags=1;
-    job.elements[0].shape=31;rejects(draw);
+    job.elements[0].flags=2;check(draw().size()==8);job.elements[0].flags=0;
+    job.elements[0].primitive_flags=0;check(!draw()[0].depth_test&&draw()[0].additive);
+    job.elements[0].primitive_flags=2;rejects(draw);job.elements[0].primitive_flags=1;
+    job.elements[0].shape=54;rejects(draw);
     okage::EffectDefinition dust;dust.id=17;dust.duration=30;dust.elements.resize(9);
     for(unsigned i=0;i<9;++i){auto& element=dust.elements[i];element.id=i+1;element.shape=31;
         element.flags=i?0x400601:0x400401;element.primitive_flags=0x41;
         element.program=i?0x1104c114:0x4c114;element.change_time=1.1f;
     }
     unsigned random_calls=0;auto random=[&]{++random_calls;return 7u;};
-    rejects([&]{okage::MapEffect invalid(dust,{},{},{},sizes,random);});
+    {okage::MapEffect random_phase(dust,{},{},{},sizes,random);check(random_calls==1&&random_phase.phase==7);}
+    random_calls=0;
     okage::MapEffect puff(dust,{1,2,3,1},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
     check(puff.phase==1&&random_calls==0);
     rejects([&]{okage::map_effect_draws(puff,identity,{},450,sine);});
@@ -357,7 +360,7 @@ int main(int argc,char** argv){try{
     auto missing_predecessor=vanish;missing_predecessor.elements[1].id=99;
     okage::MapEffect invalid_vanish(missing_predecessor,{},{},{1,1,1,1},sizes,vanish_random,okage::EffectStart::FirstFrame);
     rejects([&]{invalid_vanish.tick(vanish_random);});
-    rejects([&]{okage::MapEffect invalid_start(vanish,{},{},{1,1,1,1},sizes,vanish_random);});
+    {okage::MapEffect random_start(vanish,{},{},{1,1,1,1},sizes,vanish_random);check(random_start.phase<30);}
     okage::EffectDefinition torch;torch.id=91;torch.duration=9900;torch.flags=0x8000;
     torch.elements.resize(4);
     for(unsigned i=0;i<4;++i){auto& e=torch.elements[i];e.shape=i==3?40:28;
@@ -377,7 +380,8 @@ int main(int argc,char** argv){try{
     // Ordinary torch geometry cannot be submitted as a deferred job.
     flame.flags|=0x400;
     rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine);});
-    rejects([&]{okage::map_effect_draws(flame,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
+    //0x102cf8 queues any0x400 job; the deferred loop is template-independent.
+    check(okage::map_effect_draws(flame,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred).size()==4);
     torch.id=16;torch.flags=0x8403;torch.elements.resize(3);
     for(auto& e:torch.elements)e.primitive_flags=8;
     okage::MapEffect deferred(torch,{},{},{1,1,1,1},sizes,random);
@@ -386,9 +390,9 @@ int main(int argc,char** argv){try{
     const auto deferred_flames=deferred_draw();
     check(deferred_flames.size()==3);
     for(const auto& draw:deferred_flames)check(draw.vertices.size()==6&&draw.additive&&draw.texture==4);
-    deferred.elements[0].primitive_flags=9;rejects(deferred_draw);
+    deferred.elements[0].primitive_flags=0x18;rejects(deferred_draw); //ALPHA0x28.
     deferred.elements[0].primitive_flags=8;
-    deferred.elements[0].shape=40;deferred.elements[0].texture=0xffffffffu;
+    deferred.elements[0].shape=54;deferred.elements[0].texture=0xffffffffu;
     rejects(deferred_draw);
     {
         okage::EffectDefinition smoke;smoke.id=34;smoke.duration=140;smoke.flags=0x8000;
@@ -452,7 +456,7 @@ int main(int argc,char** argv){try{
     const auto ring_draws=dark_draw();check(ring_draws.size()==4);
     for(unsigned i=0;i<4;++i)check(ring_draws[i].subtractive&&!ring_draws[i].additive&&!ring_draws[i].depth_test&&
         ring_draws[i].texture==0xffffffffu&&ring_draws[i].vertices.size()==(i%2?240:120));
-    rings.elements[0].primitive_flags=0x40;rejects(dark_draw);rings.elements[0].primitive_flags=0x20;
+    rings.elements[0].primitive_flags=0x80;rejects(dark_draw);rings.elements[0].primitive_flags=0x20;
     for(unsigned i=0;i<70;++i)rings.tick(dark_random);
     check(rings.phase==71&&!(rings.flags&0x100)&&dark_rng==0);
     rings.tick(dark_random);check((rings.flags&0x100)&&dark_draw().empty()&&dark_rng==0);
@@ -512,7 +516,8 @@ int main(int argc,char** argv){try{
     strike.elements.resize(3);
     for(unsigned i=0;i<3;++i) {
         auto& part=strike.elements[i];part.id=i+1;part.shape=i==2?30:31;
-        part.flags=0x401;part.primitive_flags=i==0?0x100:0;part.channels=25;
+        //Mode1 element: private UV packet (owned flag0x40) for0x1055d8.
+        part.flags=i==0?0x441:0x401;part.primitive_flags=i==0?0x100:0;part.channels=25;
         part.program=((i==2?23u:6u)<<18)|(4u<<6)|(i==0?17u:i==1?20u:5u);
         part.change_time=1.1f;part.values[0]={.3f,.4f,.5f,.75f};
         part.values[3]={2,5,7,.25f};part.values[4]={0,1,1,0};
@@ -557,14 +562,16 @@ int main(int argc,char** argv){try{
     check(hit.elements[0].quad_uv==initial_hit.elements[0].quad_uv);
     for(unsigned i=0;i<3;++i)check(hit.elements[i].rendered[1]==initial_hit.elements[i].rendered[1]);
     hit.tick(strike_random);check((hit.flags&0x100)&&draw_hit().empty()&&strike_rng==3);
-    auto bad_strike=initial_hit;bad_strike.elements[0].primitive_flags=0x40;
+    auto bad_strike=initial_hit;bad_strike.elements[0].primitive_flags=0x04; //ZTE0, depth writes.
     rejects([&]{okage::map_effect_draws(bad_strike,identity,{},450,sine,nullptr,okage::EffectDrawPass::Deferred);});
-    rejects([&]{okage::MapEffect bad(strike,{},{},{1,1,1,1},sizes,strike_random);});
+    auto unshared=strike;unshared.elements[0].flags=0x401; //Mode1 without a private UV packet.
+    okage::MapEffect shared_rescale(unshared,{},{},{1,1,1,1},strike_sizes,strike_random,okage::EffectStart::FirstFrame);
+    rejects([&]{shared_rescale.tick(strike_random);});
     okage::EffectDefinition impact;impact.id=39;impact.duration=35;impact.flags=0x400;
     impact.elements.resize(4);
     for(unsigned i=0;i<4;++i) {
         auto& part=impact.elements[i];part.id=std::array<unsigned,4>{4,5,33,34}[i];
-        part.shape=i<2?31:30;part.flags=i<2?0x501:0x401;
+        part.shape=i<2?31:30;part.flags=i==1?0x541:i<2?0x501:0x401;
         part.primitive_flags=i==1?0x100:0;part.channels=31;part.change_time=1.1f;
         part.program=(6u<<18)|((i==3?8u:4u)<<6)|(i<2?(2u<<12)|20u:24u);
         part.values[0]={.7f,.3f,.1f,.4f};part.values[2]={2,3,4,5};
@@ -603,7 +610,10 @@ int main(int argc,char** argv){try{
     auto missing_rotation=impact;missing_rotation.elements[3].values[1][3]=99;
     okage::MapEffect broken_link(missing_rotation,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);
     rejects([&]{broken_link.tick(impact_random);});
+    //Any template id is admitted; an unrecovered shape still rejects.
     auto future_impact=impact;future_impact.id=40;
+    {okage::MapEffect renamed(future_impact,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);}
+    future_impact.elements[0].shape=54;
     rejects([&]{okage::MapEffect unsupported(future_impact,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);});
     okage::EffectProjectionContext numeric_projection{identity,{},40};
     numeric_projection.screen[0]={1,1,1,0};

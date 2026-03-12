@@ -18,7 +18,7 @@ void check(bool v,const std::source_location where=std::source_location::current
 }
 template<class F>void rejects(F f,const char* message=nullptr,const std::source_location where=std::source_location::current()){
     try{f();}catch(const std::runtime_error& error){
-        if(!message||std::string(error.what())==message)return;
+        if(!message||std::string_view(error.what()).starts_with(message))return;
         throw std::runtime_error("Unexpected rejection at line "+std::to_string(where.line())+": "+error.what());
     }
     throw std::runtime_error("Invalid battle effect accepted at line "+std::to_string(where.line()));
@@ -218,31 +218,42 @@ int main(int argc,char** argv){try{
     auto depth_write=strike_definition();depth_write.elements[3].primitive_flags=2;
     {
         okage::MapEffect job(depth_write,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
-        job.tick(random);rejects([&]{draw(job,okage::EffectDrawPass::Deferred);},"Unrecovered map effect material");
+        job.tick(random);
+        rejects([&]{draw(job,okage::EffectDrawPass::Deferred);},
+                "Unrecovered depth-writing effect material (template 10 element 20 shape 7)");
     }
+    //Generic admission: orientation8 (0x1132a8), a random start phase, other
+    //template ids and element counts are not template-gated.
     auto flipped=strike_definition();flipped.elements[0].flags=8;
     {
         okage::MapEffect job(flipped,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
-        job.tick(random);rejects([&]{draw(job,okage::EffectDrawPass::Deferred);},"Unrecovered horizontal billboard owner");
+        job.tick(random);check(draw(job,okage::EffectDrawPass::Deferred).size()==6);
     }
-    rejects([&]{okage::MapEffect job(strike_definition(),{},{},{1,1,1,1},sizes,random);},"Unrecovered map effect template");
-    auto short_strike=strike_definition();short_strike.elements.pop_back();
-    rejects([&]{okage::MapEffect job(short_strike,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},"Unrecovered map effect template");
-    auto shadow=projectile_definition();shadow.elements[4].shape=3;
-    rejects([&]{okage::MapEffect job(shadow,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},"Unrecovered shadow-effect geometry owner");
+    {okage::MapEffect job(strike_definition(),{},{},{1,1,1,1},sizes,random);}
+    auto renamed=projectile_definition();renamed.id=12;renamed.elements.pop_back();
+    {okage::MapEffect job(renamed,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);check(job.elements.size()==9);}
+    auto unlinked=strike_definition();unlinked.elements.erase(unlinked.elements.begin()+4);
+    {
+        okage::MapEffect job(unlinked,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
+        rejects([&]{job.tick(random);},"Missing referenced effect rotation");
+    }
+    auto unknown_shape=projectile_definition();unknown_shape.elements[4].shape=61;
+    rejects([&]{okage::MapEffect job(unknown_shape,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
+            "Unrecovered map effect shape 61 (template 11 element 5)");
+    auto ranged=projectile_definition();ranged.elements[1].flags=0x10000;
+    rejects([&]{okage::MapEffect job(ranged,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
+            "Unrecovered map effect element range flag 0x10000 (template 11 element 2)");
     auto timed=projectile_definition();timed.elements[0].program|=1u<<24;
     {
         okage::MapEffect job(timed,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
-        rejects([&]{job.tick(random);},"Unrecovered effect deformation geometry");
+        rejects([&]{job.tick(random);},"Unrecovered effect deformation geometry (template 11 element 1 shape 55)");
     }
-    //Source rotation case2 (0x108cbc) exists but is not implemented natively.
-    auto rotation=projectile_definition();rotation.elements[0].program=(rotation.elements[0].program&~0xfc0u)|(2u<<6);
+    //Source rotation case13 (0x1090f4, 0x103c88 aim) is not implemented natively.
+    auto rotation=projectile_definition();rotation.elements[0].program=(rotation.elements[0].program&~0xfc0u)|(13u<<6);
     {
         okage::MapEffect job(rotation,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
-        rejects([&]{job.tick(random);},"Unrecovered map effect rotation program");
+        rejects([&]{job.tick(random);},"Unrecovered map effect rotation program 13 (template 11 element 1 shape 55)");
     }
-    auto wrong_template=projectile_definition();wrong_template.id=12;
-    rejects([&]{okage::MapEffect job(wrong_template,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},"Unrecovered map effect template");
     std::cout<<"Battle effect negative cases passed\n";
     //Optional owned data.
     if(argc>1) {
