@@ -56,6 +56,10 @@ using EffectQuadPositions=std::array<std::array<std::int16_t,3>,4>;
 struct EffectFlameGeometry {
     EffectQuadPositions positions{{{32,-64,0},{-32,-64,0},{32,0,0},{-32,0,0}}};
 };
+struct EffectPositionPacket {
+    std::vector<std::array<std::int16_t,3>> xyz;
+    std::vector<std::uint8_t> tags;
+};
 struct MapEffectElement {
     Float4 position{},rotation{},scale{},color{},interval{};
     std::uint32_t id=0,shape=0,flags=0,primitive_flags=0,program=0,next_program=0;
@@ -82,6 +86,13 @@ struct MapEffectElement {
     //Shape54: packed UVs of the factory's expanded triangle vertices; the
     //0x104ba8 atlas scroll (time21..24) rewrites this private packet.
     std::vector<std::array<std::uint16_t,2>> packet_uv;
+    //Shapes57/61: the factory position pool (packed 1/64, tag per vertex)
+    //that 0x103f88 deformations (time16) rewrite in a private packet.
+    EffectPositionPacket packet_xyz;
+    //Mode-1 (0x1055d8) rescale already applied to draw-time factory UVs.
+    bool uv_rescaled=false;
+    //0x104ba8 atlas scroll of draw-time factory UVs: x step, y step, x cell, y cell.
+    std::optional<std::array<int,4>> atlas;
 };
 std::uint32_t effect_shape_texture(unsigned shape);
 enum class EffectStart {RandomPhase, FirstFrame};

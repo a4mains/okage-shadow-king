@@ -137,33 +137,72 @@ std::vector<MapEffectVertex> shape36_vertices() {
     for(unsigned k:{1u,0u,2u,0u,2u,3u})result.push_back({corners[k],{255,255,255,255},{}});
     return result;
 }
-void append_cube(std::vector<MapEffectVertex>& out,float x,float y,float z,
-                 const std::function<Float4(float,float)>& uv) {
-    const auto square=[&](float height){
-        return std::array<Float4,4>{packed_position({x,height,z,1}),packed_position({x+1.f,height,z,1}),
-                                    packed_position({x+1.f,height,z+1.f,1}),packed_position({x,height,z+1.f,1})};
-    };
-    const auto b=square(y),t=square(y+1.f);
-    const std::array<Float4,4> coords{uv(0,1),uv(0,0),uv(1,0),uv(1,1)};
-    const auto face=[&](const Float4& a,const Float4& b1,const Float4& c,const Float4& d){
-        const std::array<Float4,4> corners{a,b1,c,d};
-        for(unsigned k:{1u,0u,2u,0u,2u,3u})out.push_back({corners[k],{255,255,255,255},coords[k]});
-    };
-    face(b[0],b[1],b[2],b[3]);face(t[0],t[1],t[2],t[3]);
-    face(b[0],b[1],t[1],t[0]);face(b[3],b[2],t[2],t[3]);
-    face(b[3],b[0],t[0],t[3]);face(b[2],b[1],t[1],t[2]);
+void cube_pool(EffectPositionPacket& pool,float x,float y,float z) {
+    const auto pack=[](float v){return std::int16_t(std::round(v*64));};
+    for(unsigned level=0;level<2;++level) {
+        const float h=level?y+1.f:y;
+        const std::array<std::array<float,2>,4> corners{{{x+1.f,z},{x,z},{x+1.f,z+1.f},{x,z+1.f}}};
+        for(const auto& c:corners){pool.xyz.push_back({pack(c[0]),pack(h),pack(c[1])});pool.tags.push_back(level?1:2);}
+    }
 }
 //0x10e5f8: one cube at (-.5,-.5,-.5). 0x10e4e0(3): twelve cubes at
 //(cos(i/12)*3-.5, -.5, sin(i/12)*3-.5).
-std::vector<MapEffectVertex> cube_shape(unsigned shape,const SineTable& sine,
-                                        const std::function<Float4(float,float)>& uv) {
-    std::vector<MapEffectVertex> result;
-    if(shape==61)append_cube(result,-.5f,-.5f,-.5f,uv);
+EffectPositionPacket cube_packet(unsigned shape,const SineTable& sine) {
+    EffectPositionPacket pool;
+    if(shape==61)cube_pool(pool,-.5f,-.5f,-.5f);
     else for(unsigned i=0;i<12;++i) {
         const auto a=angle(float(i%12)/float(12));
-        append_cube(result,sine[(a+4096)&16383]*3.f-.5f,-.5f,sine[a]*3.f-.5f,uv);
+        cube_pool(pool,sine[(a+4096)&16383]*3.f-.5f,-.5f,sine[a]*3.f-.5f);
     }
-    return result;
+    return pool;
+}
+//0x10d8a8 faces: bottom, top, (b0,b1,t1,t0), (b3,b2,t2,t3), (b3,b0,t0,t3),
+//(b2,b1,t1,t2); corner UVs (0,1),(0,0),(1,0),(1,1); white; B,A,C,D order.
+std::vector<MapEffectVertex> cube_vertices(const EffectPositionPacket& pool,
+                                           const std::function<Float4(float,float)>& uv) {
+    std::vector<MapEffectVertex> out;
+    const std::array<Float4,4> coords{uv(0,1),uv(0,0),uv(1,0),uv(1,1)};
+    for(std::size_t base=0;base+8<=pool.xyz.size();base+=8) {
+        const auto at=[&](unsigned i){const auto& p=pool.xyz[base+i];return Float4{p[0]/64.f,p[1]/64.f,p[2]/64.f,1};};
+        const std::array<Float4,4> b{at(1),at(0),at(2),at(3)},t{at(5),at(4),at(6),at(7)};
+        const auto face=[&](const Float4& a,const Float4& b1,const Float4& c,const Float4& d){
+            const std::array<Float4,4> corners{a,b1,c,d};
+            for(unsigned k:{1u,0u,2u,0u,2u,3u})out.push_back({corners[k],{255,255,255,255},coords[k]});
+        };
+        face(b[0],b[1],b[2],b[3]);face(t[0],t[1],t[2],t[3]);
+        face(b[0],b[1],t[1],t[0]);face(b[3],b[2],t[2],t[3]);
+        face(b[3],b[0],t[0],t[3]);face(b[2],b[1],t[1],t[2]);
+    }
+    return out;
+}
+std::vector<MapEffectVertex> dome_vertices(unsigned n,const SineTable& sine,const std::function<Float4(float,float)>& uv) {
+    std::vector<MapEffectVertex> out;
+    const int half=int(n)/2,quarter=half>>1;
+    const auto point=[&](int column,int row){
+        const auto a=angle(float(column%int(n))/float(int(n)));const auto b=angle(float(row)/float(int(n)));
+        return packed_position({(sine[(a+4096)&16383]*sine[b])*1.f,sine[(b+4096)&16383]*1.f,(sine[a]*sine[b])*1.f,1});
+    };
+    const auto emit=[&](const std::array<Float4,4>& p,const std::array<Float4,4>& t){
+        for(unsigned k:{1u,0u,2u,0u,2u,3u})out.push_back({p[k],{255,255,255,255},t[k]});
+    };
+    for(int row=int(n)/4-1;row<half-2;++row) {
+        const int top=row+1,bottom=row+2;
+        for(int column=0;column<int(n);++column) {
+            const float u0=float(column)/float(int(n)),u1=float(column+1)/float(int(n));
+            float v0=1.f-float(top-quarter)/float(quarter),v1=1.f-float(top-quarter+1)/float(quarter);
+            if(1.f<v0)v0=1.f;
+            if(1.f<v1)v1=1.f;
+            emit({point(column,top),point(column+1,top),point(column+1,bottom),point(column,bottom)},
+                 {uv(u0,v0),uv(u1,v0),uv(u1,v1),uv(u0,v1)});
+        }
+    }
+    const float ring=.5f/(float(half)+.5f);
+    const Float4 pole=packed_position({0,-1.f,0,1});
+    for(int column=0;column<int(n);++column) {
+        const float u0=float(column)/float(int(n)),u1=float(column+1)/float(int(n));
+        emit({pole,pole,point(column,half-1),point(column+1,half-1)},{uv(u0,0),uv(u1,0),uv(u0,ring),uv(u1,ring)});
+    }
+    return out;
 }
 //0x10fe28(30) shape26 UV pool in first-use order: lower (tag2) ring i/30,0
 //at [0..30], upper ring i/30,1 at [31..61], packed as 0x1122e8/0x114340.
@@ -260,6 +299,7 @@ std::uint32_t effect_shape_texture(unsigned shape) {
     case 38:case 40:case 42: //0x10fca8, untextured selector.
     case 36: //0x1107e8 param: first requester T101 element1 has texture -1.
     case 43:case 45: //0x10dbc0 rays, untextured selector.
+    case 47:case 49:case 51: //0x10f1b8 bowls, untextured selector.
     case 55: //0x111768, untextured selector.
     case 60: //0x110c88 sets 0x112050(-1).
         return 0xffffffffu;
@@ -275,6 +315,8 @@ std::uint32_t effect_shape_texture(unsigned shape) {
     case 35:return 9;  //0x110908 param: T108 element8.
     case 56:return 30; //0x111768 param: T66 element4.
     case 54:return 10; //0x1111d0 param: T80 element9.
+    case 50:return 3;  //0x10f1b8(12) param: T62 element22.
+    case 52:return 3;  //0x10f1b8(18) param: T101 element8.
     case 59:return 25; //0x110db8 param: T99 element10.
     case 62:return 10; //0x10e918 param: T51 element23.
     case 65:return 2;  //0x10e690 param: T106 element1.
@@ -291,12 +333,29 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
     Rounding rounding;inverse_duration=1.0f/float(duration);
     const std::array<Float4,5> defaults={Float4{1,1,1,1},Float4{},Float4{},
                                        Float4{1,1,1,1},Float4{0,1,1,0}};
+    std::vector<EffectElement> imported;
     for(const auto& source:d.elements) {
+        if(!(source.flags&0x10000)){imported.push_back(source);continue;}
+        for(const auto& member:d.elements) {
+            if(member.id<source.shape)continue;
+            if(member.id>source.primitive_flags)break;
+            if(member.flags&0x10000)
+                throw std::runtime_error("Unrecovered nested map effect element range (template "+std::to_string(id)+
+                                         " element "+std::to_string(source.id)+")");
+            auto copy=member;
+            for(unsigned channel=0;channel<5;++channel)for(unsigned lane=0;lane<3;++lane) {
+                auto& value=copy.values[channel][lane];const auto other=source.values[channel][lane];
+                value=(channel==0||channel==3)?value*other:value+other;
+            }
+            copy.id=(member.id-source.shape)+source.id;
+            imported.push_back(copy);
+        }
+    }
+    for(const auto& source:imported) {
         const auto where=" (template "+std::to_string(id)+" element "+std::to_string(source.id)+")";
+        //0x10b038 hands channel bits8.. to 0x10a8a0, which rebinds the
+        //packet colours to the runtime table 0x24e788 (contents unrecovered).
         if(source.channels&~31u)throw std::runtime_error("Unrecovered map effect channel modifiers"+where);
-        //0x10ba38/0x10b318 expand element-ID ranges during preparation; the
-        //job-side meaning of such range records is not recovered.
-        if(source.flags&0x10000)throw std::runtime_error("Unrecovered map effect element range flag 0x10000"+where);
         MapEffectElement e;
         const auto channel=[&](unsigned i){return (source.channels&(1u<<i))?source.values[i]:defaults[i];};
         e.position=channel(2);e.rotation=channel(1);e.scale=channel(3);e.color=channel(0);e.interval=channel(4);
@@ -338,6 +397,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             e.quad_uv={{{0,0},{w,0},{w,h},{0,h}}};
         }
         if(e.shape==54)e.packet_uv=shape54_factory(sine_,sizes[texture]).uv;
+        if(e.shape==57||e.shape==61)e.packet_xyz=cube_packet(e.shape,sine_);
         if(e.shape==33) {
             const auto w=std::uint16_t(sizes[texture][0]*32),h=std::uint16_t((sizes[texture][1]+1)*32);
             for(unsigned q=0;q<3;++q)for(unsigned v=0;v<4;++v)
@@ -584,18 +644,24 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         //A linked shape29 (mode3) draws its source's UV packet, i.e. the
         //source's draw-time 0x1055d8 replacement.
         const MapEffectElement* uv_owner=&e;
-        if(e.shape==29&&e.quad_source_id) {
+        if(e.quad_source_id&&e.shape!=30&&e.shape!=31) {
             const auto source=std::find_if(effect.elements.begin(),effect.elements.end(),[&](const auto& v){return v.id==*e.quad_source_id;});
-            require(source!=effect.elements.end()&&source->shape==29&&source->texture==e.texture,"Invalid shape29 UV source");
+            require(source!=effect.elements.end()&&source->shape==e.shape&&source->texture==e.texture,"Invalid linked UV source");
             uv_owner=&*source;
         }
-        const bool replace=(uv_owner->program>>30)==1;
+        //Before the first update the bound texture gives a ratio of exactly 1.
+        const bool replace=uv_owner->uv_rescaled||(uv_owner->program>>30)==1;
         //0x1122e8 constructs T using height+1.0x1055d8 rescales the
         // original packed UVs with truncated5-bit fixed ratios on replacement.
         auto uv=[&](float u,float v){
             if(!textured)return Float4{};
             int s=int(u*float(base[0])*32),t=int(v*float(base[1]+1)*32);
             require(s>=0&&s<=32767&&t>=0&&t<=32767,"Unrecovered effect UV packing range");
+            if(uv_owner->atlas) {
+                //0x104ba8 remaps the template's factory UVs (time21..24).
+                const auto& a=*uv_owner->atlas;
+                return Float4{float(atlas_uv(std::uint16_t(s),a[0],a[2]))/32768,float(atlas_uv(std::uint16_t(t),a[1],a[3]))/32768,0,0};
+            }
             if(replace){
                 const auto current=texture_size?texture_size(e.texture):effect.texture_sizes().at(e.texture);
                 require(current[0]&&current[1]&&current[0]<=4096&&current[1]<=4096,
@@ -624,10 +690,13 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             else throw std::runtime_error("Missing prepared effect geometry"+where);
         } else if(e.shape==60) {
             draw.vertices=shape60_vertices(sine);
+        } else if(e.shape>=47&&e.shape<=52&&e.shape!=48) {
+            draw.vertices=dome_vertices(e.shape<=48?8:e.shape<=50?12:18,sine,uv);
         } else if(e.shape==36) {
             draw.vertices=shape36_vertices();
         } else if(e.shape==57||e.shape==61) {
-            draw.vertices=cube_shape(e.shape,sine,uv);
+            require(e.packet_xyz.xyz.size()==(e.shape==61?8u:96u),"Missing cube position packet");
+            draw.vertices=cube_vertices(e.packet_xyz,uv);
         } else if(e.shape==54) {
             auto factory=shape54_factory(sine,effect.texture_sizes().at(bound));
             require(e.packet_uv.size()==factory.vertices.size(),"Missing shape54 UV packet");
@@ -773,33 +842,46 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 //0x105e78: 0x105518 links the source's current geometry, then the
                 //source texture/UV rectangle (after its first-update replacement)
                 //is copied. Linked packets are refreshed on every update.
-                if(source==elements.end()||source->id>=e.id||source->shape!=e.shape||
-                   (e.shape!=25&&e.shape!=29&&e.shape!=30&&e.shape!=31&&e.shape!=35))
+                const bool linkable=e.shape==24||e.shape==25||e.shape==26||e.shape==29||e.shape==30||e.shape==31||
+                                    e.shape==35||e.shape==50||e.shape==52||e.shape==54||e.shape==57||e.shape==61;
+                if(source==elements.end()||source->id>=e.id||source->shape!=e.shape||!linkable)
                     throw std::runtime_error("Unrecovered shared effect texture geometry"+where);
                 e.texture=source->texture;e.uv=source->uv;
                 e.quad_uv=source->quad_uv;
                 if(e.shape==35)e.strip_source_id=source->id;
-                if(e.shape==29||e.shape==30||e.shape==31)e.quad_source_id=source->id;
-                if(e.shape==25)e.ring_source_id=source->id;
+                else if(e.shape==25)e.ring_source_id=source->id;
+                else {
+                    //Packets (UV/XYZ/cylinder T) and draw-time UV state follow the source.
+                    e.quad_source_id=source->id;
+                    if(e.shape==24)e.cylinder_source_id=source->id;
+                    if(e.shape==26)e.ring_source_id=source->id;
+                }
             } else if(mode) {
-                if(mode==1&&e.shape!=29&&e.shape!=30&&e.shape!=31)
+                const bool draw_time=e.shape==24||e.shape==29||e.shape==50||e.shape==52||e.shape==57||e.shape==61;
+                const bool packet=e.shape==26||e.shape==54;
+                if(mode==1&&!draw_time&&!packet&&e.shape!=30&&e.shape!=31)
                     unsupported("Unrecovered mode-1 UV rescale for shape",e.shape);
                 if(mode==1&&!private_uvs(e))
                     throw std::runtime_error("Unrecovered shared effect UV rescale"+where);
-                const bool private_quad=(e.shape==30||e.shape==31)&&mode==1;
+                const bool private_quad=(e.shape==30||e.shape==31||packet)&&mode==1;
                 const auto old=private_quad?texture_sizes_.at(e.texture):std::array<std::uint32_t,2>{};
                 set_texture(e,unsigned(e.interval[2]));
+                if(mode==1&&draw_time)e.uv_rescaled=true;
                 if(private_quad) {
                     const auto next=texture_sizes_.at(e.texture);
-                    for(auto& pair:e.quad_uv)for(unsigned axis=0;axis<2;++axis)
-                        pair[axis]=std::uint16_t((unsigned(pair[axis])*((next[axis]<<5)/old[axis]))>>5);
+                    const auto rescale=[&](std::array<std::uint16_t,2>& pair){
+                        for(unsigned axis=0;axis<2;++axis)
+                            pair[axis]=std::uint16_t((unsigned(pair[axis])*((next[axis]<<5)/old[axis]))>>5);
+                    };
+                    if(packet)for(auto& pair:e.packet_uv)rescale(pair);
+                    else for(auto& pair:e.quad_uv)rescale(pair);
                 }
             }
             e.interval[2]=0;
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        if(!(timing==0||timing==1||timing==5||timing==6||timing==7||timing==9||timing==12||timing==17||timing==19||timing==20||
+        if(!(timing==0||timing==1||timing==5||timing==6||timing==7||timing==9||timing==12||timing==16||timing==17||timing==18||timing==19||timing==20||timing==29||timing==30||
              (timing>=21&&timing<=24)||timing==26||timing==27||timing==32))
             unsupported("Unrecovered map effect time program",timing);
         if(timing==26||timing==27) {
@@ -928,16 +1010,58 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 throw std::runtime_error("Unrecovered effect deformation geometry"+where);
             for(auto& y:e.ring_y)y=std::int16_t(std::min(0,int(random()%50)-25-64));
         }
-        if(timing==17) {
-            //0x105518 links geometry to the element with the preceding ID.
-            // Templates17/20's shape31 packets are identical immutable quads.
-            //Shapes30/31 link the source UV packet; shape24 its animated T.
-            const auto previous=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id+1==e.id;});
-            if(previous==elements.end()||previous->texture!=e.texture||previous->shape!=e.shape||
-               (e.shape!=24&&e.shape!=30&&e.shape!=31))
+        if(timing==17||timing==18) {
+            std::int64_t wanted=std::int64_t(e.id)-1;
+            if(timing==18) {
+                if(!(std::isfinite(e.interval[3])&&e.interval[3]>-2147483648.f&&e.interval[3]<2147483648.f))
+                    throw std::runtime_error("Effect geometry link outside signed32"+where);
+                wanted=std::int32_t(e.interval[3]);
+            }
+            const auto previous=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return std::int64_t(p.id)==wanted;});
+            const bool linkable=e.shape==24||e.shape==26||e.shape==29||e.shape==30||e.shape==31||e.shape==50||
+                                e.shape==52||e.shape==54||e.shape==57||e.shape==61;
+            if(previous==elements.end()||previous->id>=e.id||previous->texture!=e.texture||previous->shape!=e.shape||!linkable)
                 throw std::runtime_error("Unrecovered effect geometry sharing"+where);
             if(e.shape==24)e.cylinder_source_id=previous->id;
             else e.quad_source_id=previous->id;
+            if(e.shape==26)e.ring_source_id=previous->id;
+        }
+        if(timing==16) {
+            if(e.packet_xyz.xyz.empty()||!private_positions(e))
+                throw std::runtime_error("Unrecovered effect deformation geometry"+where);
+            auto& pool=e.packet_xyz;
+            const auto scale_axis=[&](unsigned axis){
+                for(std::size_t i=0;i<pool.xyz.size();++i)if(pool.tags[i]==2)
+                    pool.xyz[i][axis]=std::int16_t(int(1.3f*float(pool.xyz[i][axis])));
+            };
+            scale_axis(0);scale_axis(2);
+            for(auto& point:pool.xyz) {
+                const auto word=random();
+                for(unsigned axis=0;axis<3;++axis) {
+                    const int offset=int((word>>(axis*6))&63)-32;
+                    point[axis]=std::int16_t(point[axis]+std::int16_t(int(float(offset)*.7f)));
+                }
+            }
+            //op6: compare each tag2 Y with the tracked one; raise the lower.
+            std::int16_t* tracked=nullptr;
+            for(std::size_t i=0;i<pool.xyz.size();++i) {
+                if(pool.tags[i]!=2)continue;
+                auto* current=&pool.xyz[i][1];
+                if(tracked&&*current<*tracked){*tracked=std::int16_t(*tracked+15);tracked=current;}
+                else if(tracked)*current=std::int16_t(*current+15);
+                else tracked=current;
+            }
+        }
+        if(timing==29||timing==30) {
+            if((e.shape!=30&&e.shape!=31)||e.texture==0xffffffffu||!private_uvs(e))
+                throw std::runtime_error("Unrecovered atlas frame geometry"+where);
+            const float cycle=timing==29?t+t:t*e.interval[3];
+            const float f=cycle-float(int(cycle));
+            const auto step=std::int16_t(int(texture_sizes_.at(e.texture)[0]*32)/15);
+            const auto start=std::int16_t(step*std::int16_t(int(15.f*f)));
+            const auto next=std::int16_t(start+step);
+            const std::array<std::int16_t,4> by_corner{start,next,next,start};
+            for(unsigned corner=0;corner<4;++corner)e.quad_uv[corner][0]=std::uint16_t(by_corner[corner]);
         }
         if(timing==9) {
             //0x1061fc: v=W*t+0; frac(v) while v<=W, else1 (W: interval W).
@@ -945,7 +1069,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             t=v<=e.interval[3]?v-float(int(v)):1.f;
         }
         if(timing>=21&&timing<=24) {
-            const bool packet=e.shape==26||e.shape==28||e.shape==30||e.shape==31||e.shape==54;
+            const bool draw_time=e.shape==29||e.shape==50||e.shape==52||e.shape==57||e.shape==61;
+            const bool packet=draw_time||e.shape==26||e.shape==28||e.shape==30||e.shape==31||e.shape==54;
             if(!packet||e.texture==0xffffffffu||!private_uvs(e))
                 throw std::runtime_error("Unrecovered atlas scroll geometry"+where);
             const auto size=texture_sizes_.at(e.texture);
@@ -969,7 +1094,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                     return std::array<std::uint16_t,2>{atlas_uv(original[0],dx,vertical?0:offset),
                                                        atlas_uv(original[1],dy,vertical?offset:0)};
                 };
-                if(e.shape==54||e.shape==26) {
+                if(draw_time)e.atlas={dx,dy,vertical?0:offset,vertical?offset:0};
+                else if(e.shape==54||e.shape==26) {
                     const auto factory=e.shape==54?shape54_factory(sine_,bound).uv:shape26_uv(bound);
                     for(std::size_t i=0;i<factory.size();++i)e.packet_uv[i]=remap(factory[i]);
                 } else {
@@ -1492,7 +1618,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         if(e.quad_source_id) {
             const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id==*e.quad_source_id;});
             require(source!=elements.end()&&source->id<e.id&&source->shape==e.shape,"Invalid quad geometry source");
-            e.quad_uv=source->quad_uv;
+            e.quad_uv=source->quad_uv;e.packet_uv=source->packet_uv;e.packet_xyz=source->packet_xyz;
         }
         if(e.ring_source_id) {
             const auto source=std::find_if(elements.begin(),elements.end(),[&](const auto& p){return p.id==*e.ring_source_id;});

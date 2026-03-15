@@ -289,6 +289,82 @@ void program_checks() {
         const auto draws=okage::map_effect_draws(job,{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}},{},450,sine);
         check(draws.size()==1&&draws[0].vertices.size()==180,"shape26 draw");
     }
+    {
+        //0x10b440 range record: copies elements 1..2 as 20..21 with colour*,
+        //rotation+, position+, scale*, interval+ on XYZ lanes only.
+        auto first=element(1,31,0,{1,2,3,7},{1,1,1,5},{.5f,.5f,.5f,1});
+        auto second=element(2,31,0);
+        auto range=element(20,1,0,{10,20,30,9},{2,3,4,9},{2,2,2,9},{.1f,.1f,.1f,9},{.1f,.1f,.1f,9});
+        range.flags=0x10000;range.primitive_flags=2;
+        const auto job=run(single({first,second,range}),0);
+        check(job.elements.size()==4&&job.elements[2].id==20&&job.elements[3].id==21,"range ids");
+        TowardZero z;volatile float a=1.f,b=10.f,i1=1.f,d=.1f;
+        check(job.elements[2].position==okage::Float4({a+b,2.f+20.f,3.f+30.f,7})&&
+              job.elements[2].color==okage::Float4({.5f*2.f,.5f*2.f,.5f*2.f,1})&&
+              job.elements[2].scale==okage::Float4({2,3,4,5})&&
+              job.elements[2].interval==okage::Float4({0.f+d,i1+d,i1+d,0}),"range channels");
+    }
+    {
+        //Time16 (0x1064d8) on a private cube packet: tag2 X/Z*1.3, per-vertex
+        //jitter ((w>>6k)&63-32)*.7, then op6 on tag2 Y with 15.
+        calls=0;auto e=element(1,61,tim(16));e.flags=0x10;
+        const auto job=run(single({e}),1);
+        check(calls==8&&job.elements[0].packet_xyz.xyz.size()==8,"time16 draws");
+        TowardZero z;
+        std::array<std::array<int,3>,8> expected{};std::array<int,8> tags{};
+        const std::array<std::array<float,2>,4> xz{{{.5f,-.5f},{-.5f,-.5f},{.5f,.5f},{-.5f,.5f}}};
+        for(unsigned i=0;i<8;++i) {
+            const bool top=i>=4;tags[i]=top?1:2;
+            expected[i]={int(std::round(xz[i%4][0]*64)),top?32:-32,int(std::round(xz[i%4][1]*64))};
+            if(!top)for(unsigned axis:{0u,2u}){volatile float k=1.3f;expected[i][axis]=std::int16_t(int(k*float(expected[i][axis])));}
+        }
+        for(unsigned i=0;i<8;++i)for(unsigned axis=0;axis<3;++axis) {
+            const auto w=words[i%words.size()];volatile float j=float(int((w>>(axis*6))&63)-32);volatile float k=.7f;
+            expected[i][axis]=std::int16_t(expected[i][axis]+std::int16_t(int(j*k)));
+        }
+        int previous=-1;
+        for(unsigned i=0;i<8;++i) {
+            if(tags[i]!=2)continue;
+            if(previous<0){previous=int(i);continue;}
+            if(expected[i][1]<expected[unsigned(previous)][1]){expected[unsigned(previous)][1]+=15;previous=int(i);}
+            else expected[i][1]+=15;
+        }
+        for(unsigned i=0;i<8;++i)for(unsigned axis=0;axis<3;++axis)
+            check(job.elements[0].packet_xyz.xyz[i][axis]==expected[i][axis],"time16 vertex");
+        auto shared=e;shared.flags=0;
+        rejects_message([&]{run(single({shared}),1);},"Unrecovered effect deformation geometry");
+    }
+    {
+        //0x10f1b8 bowls: n=18 (shape52) 4 rows + cap, n=12 (shape50) 2 rows + cap.
+        const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+        const auto job=run(single({element(1,52,0),element(2,50,0),element(3,51,0)}),1);
+        const auto draws=okage::map_effect_draws(job,identity,{},450,sine);
+        check(draws.size()==3&&draws[0].vertices.size()==540&&draws[1].vertices.size()==216&&
+              draws[2].vertices.size()==540&&draws[0].texture==3&&draws[2].texture==0xffffffffu,"bowl counts");
+        TowardZero z;const auto a=angle_index(float(1)/float(18)),b=angle_index(float(4)/float(18));
+        volatile float x=sine[(a+4096)&16383]*sine[b];volatile float zz=sine[a]*sine[b];
+        check(draws[0].vertices[0].position==okage::Float4({std::round(x*64)/64,std::round(sine[(b+4096)&16383]*64)/64,
+                                                            std::round(zz*64)/64,1}),"bowl point");
+    }
+    {
+        //Mode1 on a draw-time shape (cube57): 0x1055d8 ratio at draw.
+        const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+        auto e=element(1,57,0,{},{1,1,1,1},{1,1,1,1},{},{0,1,1,0});e.primitive_flags=0x100;e.flags=0x40;
+        const auto job=run(single({e}),1);
+        const auto draws=okage::map_effect_draws(job,identity,{},450,sine);
+        check(job.elements[0].texture==1&&job.elements[0].uv_rescaled&&
+              draws[0].vertices[2].uv[0]==float((4096*((32<<5)/128))>>5)/32768,"mode1 draw-time");
+    }
+    {
+        //Time29 (0x104f68 frame select) and time18 (0x105518 link to int(W)).
+        auto source=element(1,31,tim(29));source.flags=0x40;
+        auto linked=element(2,31,tim(18),{},{1,1,1,1},{1,1,1,1},{},{0,1,1,1});
+        const auto job=run(single({source,linked}),1);
+        const int step=(64*32)/15;const int start=step*int(15.f*.5f);
+        check(job.elements[0].quad_uv[0][0]==start&&job.elements[0].quad_uv[1][0]==start+step&&
+              job.elements[0].quad_uv[2][0]==start+step&&job.elements[0].quad_uv[3][0]==start,"time29");
+        check(job.elements[1].quad_uv==job.elements[0].quad_uv&&job.elements[1].quad_source_id==1u,"time18");
+    }
     std::cout<<"Recovered program/factory transcription checks passed\n";
 }
 //0x10ba38 ordinary pass in file order, with 0x10b318 element-ID ranges.
@@ -310,7 +386,7 @@ std::map<unsigned,std::pair<std::uint32_t,std::int32_t>> first_requesters(const 
 int main(int argc,char** argv){try{
     program_checks();
     //The shape table covers exactly the recovered factories.
-    for(unsigned shape:{1u,2u,4u,8u,18u,27u,34u,37u,44u,46u,53u,63u,64u,66u})
+    for(unsigned shape:{1u,2u,4u,8u,18u,27u,34u,37u,44u,46u,48u,53u,63u,64u,66u})
         try{okage::effect_shape_texture(shape);check(false,"unrecovered shape "+std::to_string(shape)+" accepted");}
         catch(const std::runtime_error& error){check(std::string(error.what())=="Unrecovered map effect shape "+std::to_string(shape));}
     check(okage::effect_shape_texture(30)==6&&okage::effect_shape_texture(31)==17&&okage::effect_shape_texture(55)==0xffffffffu);
@@ -319,7 +395,7 @@ int main(int argc,char** argv){try{
     if(!owned){std::cout<<"Owned TES.EFD/ENV_TEX not present; legacy comparison skipped\n";return 0;}
     //Parameter-textured factories bind the first requester's EFD texture.
     const auto first=first_requesters(owned->raw);
-    for(unsigned shape:{24u,26u,28u,29u,33u,35u,36u,54u,56u,57u,59u,61u,62u,65u}) {
+    for(unsigned shape:{24u,26u,28u,29u,33u,35u,36u,50u,52u,54u,56u,57u,59u,61u,62u,65u}) {
         const auto found=first.find(shape);
         check(found!=first.end()&&std::bit_cast<std::int32_t>(okage::effect_shape_texture(shape))==found->second.second,
               "shape "+std::to_string(shape)+" first-requester texture");
