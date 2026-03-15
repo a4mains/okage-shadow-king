@@ -237,9 +237,9 @@ int main(int argc,char** argv){try{
         okage::MapEffect job(unlinked,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
         rejects([&]{job.tick(random);},"Missing referenced effect rotation");
     }
-    auto unknown_shape=projectile_definition();unknown_shape.elements[4].shape=61;
+    auto unknown_shape=projectile_definition();unknown_shape.elements[4].shape=64;
     rejects([&]{okage::MapEffect job(unknown_shape,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
-            "Unrecovered map effect shape 61 (template 11 element 5)");
+            "Unrecovered map effect shape 64 (template 11 element 5)");
     auto ranged=projectile_definition();ranged.elements[1].flags=0x10000;
     rejects([&]{okage::MapEffect job(ranged,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
             "Unrecovered map effect element range flag 0x10000 (template 11 element 2)");

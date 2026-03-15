@@ -82,6 +82,104 @@ void update_water(EffectWaterSurface& water,const MapEffectElement& e,const Floa
     }
     pack_water(water,water.active,source);
 }
+Float4 packed_position(const Float4& p){
+    //0x113d88: nearest signed 1/64 positions; W becomes the homogeneous 1.
+    return {std::round(p[0]*64)/64,std::round(p[1]*64)/64,std::round(p[2]*64)/64,1};
+}
+std::vector<MapEffectVertex> shape60_vertices(const SineTable& sine) {
+    std::vector<MapEffectVertex> result;
+    const Float4 white{255,255,255,255};
+    const auto point=[&](unsigned i){
+        const auto a=angle(float(i%24)/float(24));
+        return packed_position({sine[(a+4096)&16383],0,sine[a],1});
+    };
+    for(unsigned i=0;i<24;i+=2)for(unsigned k=0;k<3;++k)result.push_back({point(i+k),white,{}});
+    return result;
+}
+struct Shape54 {std::vector<MapEffectVertex> vertices;std::vector<std::array<std::uint16_t,2>> uv;};
+Shape54 shape54_factory(const SineTable& sine,const std::array<std::uint32_t,2>& size) {
+    Shape54 result;
+    const auto matrix=effect_matrix({},{.25f,0,0,0},{1,1,1,1},sine,true);
+    const auto point=[&](unsigned column,unsigned row){
+        const float h=(float(row)/float(6))*1.0f;const float radius=std::sqrt(h);
+        const auto a=angle(float(column%12)/float(12));
+        const Float4 local{sine[(a+4096)&16383]*radius,-h,sine[a]*radius,0};
+        Float4 out{};
+        for(unsigned k=0;k<4;++k) {
+            float v=matrix[0][k]*local[0];v+=matrix[1][k]*local[1];
+            v+=matrix[2][k]*local[2];v+=matrix[3][k]*local[3];out[k]=v;
+        }
+        return packed_position(out);
+    };
+    const auto pack=[&](float u,float v){
+        return std::array<std::uint16_t,2>{std::uint16_t(unsigned(u*float(size[0])*32)),
+                                           std::uint16_t(unsigned(v*float(size[1]+1)*32))};
+    };
+    for(unsigned row=0;row<11;++row) {
+        const float top=1.f-float(row)/float(11),bottom=1.f-float(row+1)/float(11);
+        const Float4 upper{255,255,255,float(unsigned(255.f*top))},lower{255,255,255,float(unsigned(255.f*bottom))};
+        for(unsigned column=0;column<6;++column) {
+            const float u0=float(column)/float(6),u1=float(column+1)/float(6);
+            const float v0=float(row)/float(11),v1=float(row+1)/float(11);
+            const std::array<Float4,4> corners{point(column,row),point(column,row+1),point(column+1,row+1),point(column+1,row)};
+            const std::array<Float4,4> colors{upper,lower,lower,upper};
+            const std::array<std::array<std::uint16_t,2>,4> uv{pack(u0,v0),pack(u0,v1),pack(u1,v1),pack(u1,v0)};
+            for(unsigned k:{1u,0u,2u,0u,2u,3u}){result.vertices.push_back({corners[k],colors[k],{}});result.uv.push_back(uv[k]);}
+        }
+    }
+    return result;
+}
+//0x1107e8: one diamond quad (0,-1,0),(1,0,0),(0,1,0),(-1,0,0), white, UVs
+//(0,0),(1,0),(1,1),(0,1); 0x112d20 order B,A,C,D. Untextured in retail.
+std::vector<MapEffectVertex> shape36_vertices() {
+    const std::array<Float4,4> corners{Float4{0,-1,0,1},Float4{1,0,0,1},Float4{0,1,0,1},Float4{-1,0,0,1}};
+    std::vector<MapEffectVertex> result;
+    for(unsigned k:{1u,0u,2u,0u,2u,3u})result.push_back({corners[k],{255,255,255,255},{}});
+    return result;
+}
+void append_cube(std::vector<MapEffectVertex>& out,float x,float y,float z,
+                 const std::function<Float4(float,float)>& uv) {
+    const auto square=[&](float height){
+        return std::array<Float4,4>{packed_position({x,height,z,1}),packed_position({x+1.f,height,z,1}),
+                                    packed_position({x+1.f,height,z+1.f,1}),packed_position({x,height,z+1.f,1})};
+    };
+    const auto b=square(y),t=square(y+1.f);
+    const std::array<Float4,4> coords{uv(0,1),uv(0,0),uv(1,0),uv(1,1)};
+    const auto face=[&](const Float4& a,const Float4& b1,const Float4& c,const Float4& d){
+        const std::array<Float4,4> corners{a,b1,c,d};
+        for(unsigned k:{1u,0u,2u,0u,2u,3u})out.push_back({corners[k],{255,255,255,255},coords[k]});
+    };
+    face(b[0],b[1],b[2],b[3]);face(t[0],t[1],t[2],t[3]);
+    face(b[0],b[1],t[1],t[0]);face(b[3],b[2],t[2],t[3]);
+    face(b[3],b[0],t[0],t[3]);face(b[2],b[1],t[1],t[2]);
+}
+//0x10e5f8: one cube at (-.5,-.5,-.5). 0x10e4e0(3): twelve cubes at
+//(cos(i/12)*3-.5, -.5, sin(i/12)*3-.5).
+std::vector<MapEffectVertex> cube_shape(unsigned shape,const SineTable& sine,
+                                        const std::function<Float4(float,float)>& uv) {
+    std::vector<MapEffectVertex> result;
+    if(shape==61)append_cube(result,-.5f,-.5f,-.5f,uv);
+    else for(unsigned i=0;i<12;++i) {
+        const auto a=angle(float(i%12)/float(12));
+        append_cube(result,sine[(a+4096)&16383]*3.f-.5f,-.5f,sine[a]*3.f-.5f,uv);
+    }
+    return result;
+}
+//0x10fe28(30) shape26 UV pool in first-use order: lower (tag2) ring i/30,0
+//at [0..30], upper ring i/30,1 at [31..61], packed as 0x1122e8/0x114340.
+std::vector<std::array<std::uint16_t,2>> shape26_uv(const std::array<std::uint32_t,2>& size) {
+    std::vector<std::array<std::uint16_t,2>> result(62);
+    for(unsigned i=0;i<=30;++i) {
+        const auto s=std::uint16_t(unsigned((float(i)/float(30))*float(size[0])*32));
+        result[i]={s,0};result[31+i]={s,std::uint16_t(unsigned(1.f*float(size[1]+1)*32))};
+    }
+    return result;
+}
+//0x104ba8: rescale one packed template UV into a cell of the current texture.
+std::uint16_t atlas_uv(std::uint16_t original,int step,int cell) {
+    const auto scaled=(std::int32_t(std::bit_cast<std::int16_t>(original))*4096)/step;
+    return std::uint16_t((scaled>>7)+cell*32);
+}
 }
 EffectMaterial compile_effect_material(std::uint32_t flags) {
     //0x101b70..0x101c68: prioritized ZBUF/TEST, then ALPHA. Bit0x40 also
@@ -157,13 +255,18 @@ std::uint32_t effect_shape_texture(unsigned shape) {
     case 3:  //0x10ec68, even selector: untextured.
     case 7:case 9: //0x10faa0(20/40), texture -1.
     case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17: //0x10e138 noise faces.
-    case 25: //0x10fe28, odd selector: untextured.
+    case 23:case 25: //0x10fe28, even selector (shape-19): untextured.
     case 32: //0x1106b8 with -1.
-    case 40: //0x10fca8, untextured selector.
+    case 38:case 40:case 42: //0x10fca8, untextured selector.
+    case 36: //0x1107e8 param: first requester T101 element1 has texture -1.
     case 43:case 45: //0x10dbc0 rays, untextured selector.
     case 55: //0x111768, untextured selector.
+    case 60: //0x110c88 sets 0x112050(-1).
         return 0xffffffffu;
     case 24:return 20; //0x10fe28 param: T83 element1.
+    case 26:return 1;  //0x10fe28 param: T66 element2.
+    case 57:return 10; //0x10e4e0 param: T102 element4.
+    case 61:return 10; //0x10e5f8 param: T102 element5.
     case 28:return 4;  //0x1106b8 param: T91 element1.
     case 29:return 5;  //0x1106b8 param: T118 element10.
     case 30:return 6;  //0x103938(6).
@@ -171,6 +274,7 @@ std::uint32_t effect_shape_texture(unsigned shape) {
     case 33:return 12; //0x110528 param: T119 element4.
     case 35:return 9;  //0x110908 param: T108 element8.
     case 56:return 30; //0x111768 param: T66 element4.
+    case 54:return 10; //0x1111d0 param: T80 element9.
     case 59:return 25; //0x110db8 param: T99 element10.
     case 62:return 10; //0x10e918 param: T51 element23.
     case 65:return 2;  //0x10e690 param: T106 element1.
@@ -212,7 +316,8 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             for(unsigned y=0;y<32;++y)for(unsigned x=0;x<32;++x)
                 e.water->packed_uv[y*32+x]={std::uint16_t(sizes[texture][0]*x),std::uint16_t((sizes[texture][1]+1)*y)};
         }
-        if(e.shape==25)e.ring_y.assign(30,-192);
+        if(e.shape==25||e.shape==26)e.ring_y.assign(30,-192);
+        if(e.shape==26)e.packet_uv=shape26_uv(sizes[texture]);
         if(e.shape==35) {
             //0x110908 accumulates six float steps before XYZ/UV packing.
             std::array<float,7> along{};const float delta=1.f/6;
@@ -232,6 +337,7 @@ MapEffect::MapEffect(const EffectDefinition& d,const Float4& p,const Float4& r,
             const auto w=std::uint16_t(sizes[texture][0]*32),h=std::uint16_t((sizes[texture][1]+1)*32);
             e.quad_uv={{{0,0},{w,0},{w,h},{0,h}}};
         }
+        if(e.shape==54)e.packet_uv=shape54_factory(sine_,sizes[texture]).uv;
         if(e.shape==33) {
             const auto w=std::uint16_t(sizes[texture][0]*32),h=std::uint16_t((sizes[texture][1]+1)*32);
             for(unsigned q=0;q<3;++q)for(unsigned v=0;v<4;++v)
@@ -434,7 +540,7 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             }
             result.push_back(std::move(draw));continue;
         }
-        if(e.shape==28||e.shape==40) {
+        if(e.shape==28||e.shape==38||e.shape==40||e.shape==42) {
             if(e.shape==28) {
                 require(textured,"Unrecovered flame texture");
                 // Stored geometry already has original strip order B,A,C,D.
@@ -444,11 +550,13 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                                              {uv[0]/32768.f,uv[1]/32768.f,0,0}});
                 }
             } else {
-                //0x10fca8 emits sixteen independent center/next/current triangles.
-                const auto point=[&](unsigned i){const auto a=(i%16)*1024;
+                //0x10fca8 emits independent center/next/current triangles; the
+                //0x10a970 table gives 10 (38), 16 (40) or 4 (42) segments.
+                const unsigned count=e.shape==38?10:e.shape==40?16:4;
+                const auto point=[&](unsigned i){const auto a=count==16?(i%16)*1024:angle(float(i%count)/float(count));
                     return Float4{std::round(sine[(a+4096)&16383]*64)/64,0,
                                   std::round(sine[a]*64)/64,1};};
-                for(unsigned i=0;i<16;++i) {
+                for(unsigned i=0;i<count;++i) {
                     draw.vertices.push_back({{0,0,0,1},white,{}});
                     draw.vertices.push_back({point(i+1),clear,{}});
                     draw.vertices.push_back({point(i),clear,{}});
@@ -473,7 +581,15 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         }
         //Packed factory UVs are built against the shape's bound texture.
         const auto base=effect.texture_sizes().at(bound==0xffffffffu?5:bound);
-        const bool replace=(e.program>>30)==1;
+        //A linked shape29 (mode3) draws its source's UV packet, i.e. the
+        //source's draw-time 0x1055d8 replacement.
+        const MapEffectElement* uv_owner=&e;
+        if(e.shape==29&&e.quad_source_id) {
+            const auto source=std::find_if(effect.elements.begin(),effect.elements.end(),[&](const auto& v){return v.id==*e.quad_source_id;});
+            require(source!=effect.elements.end()&&source->shape==29&&source->texture==e.texture,"Invalid shape29 UV source");
+            uv_owner=&*source;
+        }
+        const bool replace=(uv_owner->program>>30)==1;
         //0x1122e8 constructs T using height+1.0x1055d8 rescales the
         // original packed UVs with truncated5-bit fixed ratios on replacement.
         auto uv=[&](float u,float v){
@@ -499,18 +615,44 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
         } else if((e.shape>=10&&e.shape<=17)||e.shape==43||e.shape==45||e.shape==56||e.shape==62) {
             //Session-prepared procedural geometry (0x10e138/0x10dbc0/0x111768/
             //0x10e918 caches). Positions/colours/UVs are drawn unchanged.
-            if(!effect.preparation||!effect.preparation->geometry[e.shape])
-                throw std::runtime_error("Missing prepared effect geometry"+where);
-            draw.vertices=effect.preparation->geometry[e.shape]->vertices;
-        } else if(e.shape==25) {
-            require(!textured&&e.ring_y.size()==30,"Unrecovered summoning ring");
+            if(!effect.preparation)throw std::runtime_error("Missing prepared effect geometry"+where);
+            if(effect.preparation->geometry[e.shape])draw.vertices=effect.preparation->geometry[e.shape]->vertices;
+            //0x10e138 noise faces are a pure function of the session grid; the
+            //preparation may leave a cache slot unconstructed after a 0x10000
+            //range record claimed it, so rebuild them from that grid.
+            else if(e.shape>=10&&e.shape<=17)draw.vertices=make_effect_noise_shape(e.shape,effect.preparation->noise);
+            else throw std::runtime_error("Missing prepared effect geometry"+where);
+        } else if(e.shape==60) {
+            draw.vertices=shape60_vertices(sine);
+        } else if(e.shape==36) {
+            draw.vertices=shape36_vertices();
+        } else if(e.shape==57||e.shape==61) {
+            draw.vertices=cube_shape(e.shape,sine,uv);
+        } else if(e.shape==54) {
+            auto factory=shape54_factory(sine,effect.texture_sizes().at(bound));
+            require(e.packet_uv.size()==factory.vertices.size(),"Missing shape54 UV packet");
+            for(std::size_t i=0;i<factory.vertices.size();++i) {
+                auto vertex=factory.vertices[i];
+                vertex.uv={e.packet_uv[i][0]/32768.f,e.packet_uv[i][1]/32768.f,0,0};
+                draw.vertices.push_back(vertex);
+            }
+        } else if(e.shape==25||e.shape==26) {
+            //0x10fe28(30): lower ring tag2 (heights from ring_y), upper ring at0;
+            //shape26 adds UVs (i/30, 0 lower / 1 upper).
+            require(e.ring_y.size()==30&&(e.shape==25||e.packet_uv.size()==62),"Unrecovered summoning ring");
+            const auto packed=[&](const std::array<std::uint16_t,2>& value){
+                return textured?Float4{value[0]/32768.f,value[1]/32768.f,0,0}:Float4{};};
             const auto point=[&](unsigned i,bool lower){
                 const auto a=angle(float(i%30)/30);
                 return Float4{std::round(sine[(a+4096)&16383]*64)/64,
                     lower?e.ring_y[i%30]/64.f:0,std::round(sine[a]*64)/64,1};};
-            for(unsigned i=0;i<30;++i)
+            for(unsigned i=0;i<30;++i) {
                 quad({point(i,true),point(i,false),point(i+1,false),point(i+1,true)},
-                     {clear,white,white,clear},{Float4{},Float4{},Float4{},Float4{}});
+                     {clear,white,white,clear},
+                     e.shape==25?std::array<Float4,4>{Float4{},Float4{},Float4{},Float4{}}:
+                                 std::array<Float4,4>{packed(e.packet_uv[i]),packed(e.packet_uv[31+i]),
+                                                      packed(e.packet_uv[32+i]),packed(e.packet_uv[i+1])});
+            }
         } else if(e.shape==59) {
             require(textured,"Unrecovered summoning spiral texture");
             //0x110db8 constructs five turns of ten quads. Keep the original
@@ -533,8 +675,9 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
                     phase=next;
                 }
             }
-        } else if(e.shape==24) {
-            require(e.cylinder_t.size()==17,"Missing animated cylinder UVs");
+        } else if(e.shape==23||e.shape==24) {
+            //0x10fe28(16): shape23 is the untextured form of the24 cylinder.
+            require(!textured||e.cylinder_t.size()==17,"Missing animated cylinder UVs");
             //Lower-ring T comes from the (possibly animated) tag2 packet.
             const auto lower_uv=[&](unsigned i){
                 auto value=uv(float(i)/16,0);
@@ -607,6 +750,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             throw std::runtime_error(std::string(what)+" "+std::to_string(value)+where);};
         require(e.interval[0]<e.interval[1],"Invalid map effect interval");
         float t=time<e.interval[0]?0:time>e.interval[1]?1:(time-e.interval[0])/(e.interval[1]-e.interval[0]);
+        //0x105a40 keeps its argument (f23) besides the adjusted/timed t (f22).
+        const float raw_t=t;
         //0x105a40 snapshots the current program before storing its successor.
         // The successor therefore starts on the following update, even when
         // the threshold was crossed on the first tick.
@@ -629,12 +774,12 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 //source texture/UV rectangle (after its first-update replacement)
                 //is copied. Linked packets are refreshed on every update.
                 if(source==elements.end()||source->id>=e.id||source->shape!=e.shape||
-                   (e.shape!=25&&e.shape!=30&&e.shape!=31&&e.shape!=35))
+                   (e.shape!=25&&e.shape!=29&&e.shape!=30&&e.shape!=31&&e.shape!=35))
                     throw std::runtime_error("Unrecovered shared effect texture geometry"+where);
                 e.texture=source->texture;e.uv=source->uv;
                 e.quad_uv=source->quad_uv;
                 if(e.shape==35)e.strip_source_id=source->id;
-                if(e.shape==30||e.shape==31)e.quad_source_id=source->id;
+                if(e.shape==29||e.shape==30||e.shape==31)e.quad_source_id=source->id;
                 if(e.shape==25)e.ring_source_id=source->id;
             } else if(mode) {
                 if(mode==1&&e.shape!=29&&e.shape!=30&&e.shape!=31)
@@ -654,7 +799,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         }
         if((e.flags&0x2000)&&e.interval[2]<t)program&=0xc0ffffff;
         const auto timing=(program>>24)&63;
-        if(!(timing==0||timing==1||timing==5||timing==6||timing==7||timing==12||timing==17||timing==20||timing==26||timing==27||timing==32))
+        if(!(timing==0||timing==1||timing==5||timing==6||timing==7||timing==9||timing==12||timing==17||timing==19||timing==20||
+             (timing>=21&&timing<=24)||timing==26||timing==27||timing==32))
             unsupported("Unrecovered map effect time program",timing);
         if(timing==26||timing==27) {
             //0x104ba8/0x104d78 remap the shape's factory quads (33: three
@@ -733,7 +879,28 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 e.rendered[0][3]=(flags&0x20)?t:0;
             }
         }
-        if(timing==20) {
+        if((timing==19||timing==20)&&e.shape==26) {
+            if(e.packet_uv.size()!=62||!private_uvs(e))
+                throw std::runtime_error("Unrecovered animated cylinder UV mode"+where);
+            if(timing==19){const float cycle=t*5.f;t=cycle-float(int(cycle));}
+            const float w=e.interval[3];
+            if(!(std::isfinite(w)&&w>-2147483648.f&&w<2147483648.f))
+                throw std::runtime_error("Animated cylinder UV mode outside signed32"+where);
+            const auto mode=std::int8_t(std::int32_t(w));
+            const float step=1.f/(float(62)*.5f);float local=0;
+            for(unsigned i=0;i<=30;++i) {
+                auto& uv=e.packet_uv[i];
+                if(mode==1)uv[1]=std::uint16_t(int(sine_[angle(local+t)]*300.f)+0x131);
+                else if(mode==2)uv[0]=std::uint16_t(int(sine_[angle(local+t)]*300.f)+0x131);
+                else if(mode==3)uv[1]=std::uint16_t(int(t*1200.f));
+                else if(mode==0) {
+                    const float x=local+t;const int value=int(((x*4.f)*(1.f-x))*300.f);
+                    const auto low=std::int16_t(std::uint16_t(value));
+                    uv[1]=std::uint16_t(low<0?-low:low);
+                }
+                local+=step;if(local>=1)local-=1;
+            }
+        } else if(timing==20) {
             //0x105790 mode1 rewrites the tag2 UVs of a private UV packet.
             if(e.shape!=24||e.cylinder_t.size()!=17||e.interval[3]!=1||!private_uvs(e))
                 throw std::runtime_error("Unrecovered animated cylinder UV mode"+where);
@@ -757,7 +924,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             //0x105f80 ->0x103f88(1,handle,elementID,tag2,axisY/mode0).
             // Shape25 has thirty tag2 vertices; preserve their packed Y values
             // as well as the RNG advancement needed by later elements.
-            if(e.shape!=25||e.ring_y.size()!=30||!private_positions(e))
+            if((e.shape!=25&&e.shape!=26)||e.ring_y.size()!=30||!private_positions(e))
                 throw std::runtime_error("Unrecovered effect deformation geometry"+where);
             for(auto& y:e.ring_y)y=std::int16_t(std::min(0,int(random()%50)-25-64));
         }
@@ -772,12 +939,204 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             if(e.shape==24)e.cylinder_source_id=previous->id;
             else e.quad_source_id=previous->id;
         }
+        if(timing==9) {
+            //0x1061fc: v=W*t+0; frac(v) while v<=W, else1 (W: interval W).
+            const float v=e.interval[3]*t+0.f;
+            t=v<=e.interval[3]?v-float(int(v)):1.f;
+        }
+        if(timing>=21&&timing<=24) {
+            const bool packet=e.shape==26||e.shape==28||e.shape==30||e.shape==31||e.shape==54;
+            if(!packet||e.texture==0xffffffffu||!private_uvs(e))
+                throw std::runtime_error("Unrecovered atlas scroll geometry"+where);
+            const auto size=texture_sizes_.at(e.texture);
+            const float w=e.interval[3];
+            if(!(std::isfinite(w)&&w>-2147483648.f&&w<2147483648.f))
+                throw std::runtime_error("Atlas scroll cell outside signed32"+where);
+            const bool vertical=timing==21||timing==23;
+            const float extent=float(vertical?size[1]:size[0])-w;
+            const float along=(timing==21||timing==22)?t*extent:(1.f-t)*extent;
+            if(!(along>-2147483648.f&&along<2147483648.f))
+                throw std::runtime_error("Atlas scroll offset outside signed32"+where);
+            const int offset=int(along),cell=int(w);
+            const int xdiv=vertical?int(size[0]):cell,ydiv=vertical?cell:int(size[1]);
+            //0x104ba8 traps (break7) on a zero horizontal divisor; the vertical
+            //division by zero has no recovered result.
+            if(xdiv==0||ydiv==0)throw std::runtime_error("Atlas scroll divisor zero"+where);
+            const int dx=int(size[0]*32)/xdiv,dy=int(size[1]*32)/ydiv;
+            if(dx!=0&&dy!=0) {
+                const auto bound=texture_sizes_.at(effect_shape_texture(e.shape));
+                const auto remap=[&](const std::array<std::uint16_t,2>& original){
+                    return std::array<std::uint16_t,2>{atlas_uv(original[0],dx,vertical?0:offset),
+                                                       atlas_uv(original[1],dy,vertical?offset:0)};
+                };
+                if(e.shape==54||e.shape==26) {
+                    const auto factory=e.shape==54?shape54_factory(sine_,bound).uv:shape26_uv(bound);
+                    for(std::size_t i=0;i<factory.size();++i)e.packet_uv[i]=remap(factory[i]);
+                } else {
+                    const auto fw=std::uint16_t(bound[0]*32),fh=std::uint16_t((bound[1]+1)*32);
+                    const std::array<std::array<std::uint16_t,2>,4> factory=e.shape==28?
+                        std::array<std::array<std::uint16_t,2>,4>{{{fw,0},{0,0},{fw,fh},{0,fh}}}:
+                        std::array<std::array<std::uint16_t,2>,4>{{{0,0},{fw,0},{fw,fh},{0,fh}}};
+                    for(unsigned i=0;i<4;++i)e.quad_uv[i]=remap(factory[i]);
+                }
+            }
+        }
         if(timing==7){t=t*3.0f+e.interval[3];t-=float(int(t));}
         if(timing==6){t=t*3.0f+e.interval[3];t=t>3?1:t-float(int(t));}
         if((e.flags&0x1000)&&e.interval[2]<t)program&=0xfffc0fff;
         auto& p=e.rendered[0];auto& r=e.rendered[1];auto& s=e.rendered[2];auto& c=e.rendered[3];
+        //Shared helpers of the recovered program cases (0x105a40). Element
+        //references resolve by element ID (0x103e78 source / 0x103f00 render);
+        //the source dereferences a null pointer when the ID is missing.
+        const auto spread=[&]{return float(int(random()%40)-20);};
+        const auto cosine=[&](float turns){return sine_[(angle(turns)+4096)&16383];};
+        const auto sine=[&](float turns){return sine_[angle(turns)];};
+        const auto element_id=[&](float value){
+            if(!(std::isfinite(value)&&value>-2147483648.f&&value<2147483648.f))
+                throw std::runtime_error("Effect element reference outside signed32"+where);
+            return std::int32_t(value);
+        };
+        const auto referenced=[&](std::int64_t wanted)->MapEffectElement& {
+            const auto found=std::find_if(elements.begin(),elements.end(),[&](const auto& v){return std::int64_t(v.id)==wanted;});
+            if(found==elements.end())throw std::runtime_error("Missing referenced effect element "+std::to_string(wanted)+where);
+            return *found;
+        };
+        auto& P=e.position;const auto& Q=parameters;
         switch((program>>12)&63) {
         case 0:break;
+        case 3:
+            //0x106d48: three draws scale authored XYZ.
+            p[0]=spread()*P[0];p[1]=spread()*P[1];p[2]=spread()*P[2];break;
+        case 4:
+            //0x106dd4: draws scale authored XYZ, plus job parameters.
+            p[0]=spread()*P[0]+Q[0];p[1]=spread()*P[1]+Q[1];p[2]=spread()*P[2]+Q[2];break;
+        case 5:
+            //0x106e78: rewrites the authored XYZ (not the rendered point) from W.
+            P[0]=spread()*P[3];P[1]=spread()*P[3];P[2]=spread()*P[3];break;
+        case 6:case 7: {
+            //0x106f04/0x106f30: copy the rendered point of element ID-1 into the
+            //authored and rendered XYZ (case7 keeps the authored Y).
+            const auto source=referenced(std::int64_t(e.id)-1).rendered[0];
+            P[0]=source[0];p[0]=source[0];
+            if(((program>>12)&63)==6)P[1]=source[1];
+            p[1]=P[1];P[2]=source[2];p[2]=source[2];break;
+        }
+        case 8:case 9: {
+            //0x106f68 (ID=int(authored W)) / 0x106fb0 (ID-1): rendered point plus authored XYZ.
+            const auto source=referenced(((program>>12)&63)==8?std::int64_t(element_id(P[3])):std::int64_t(e.id)-1).rendered[0];
+            p[0]=source[0]+P[0];p[1]=source[1]+P[1];p[2]=source[2]+P[2];break;
+        }
+        case 11:
+            //0x10701c: while t<interval Z, jitter .15 around a raw-t blend.
+            if(t<e.interval[2]) {
+                const float keep=1.f-raw_t;
+                p[0]=(spread()*.15f+P[0]*keep)+Q[0]*raw_t;
+                p[1]=(spread()*.15f+P[1]*keep)+Q[1]*raw_t;
+                const float last=Q[2]*raw_t;
+                p[2]=(spread()*.15f+P[2]*keep)+last;
+            }
+            break;
+        case 16: {
+            const float f=t<P[3]?t/P[3]:1.f;
+            p[1]=P[1]-f;break;
+        }
+        case 18: {
+            float f=1.f;if(t<P[3])f=t/P[3];
+            p[1]=(1.f-f)*P[1]+f*(-P[1]);break;
+        }
+        case 19:
+            //0x1074b0: integrate W per update once local time exceeds interval Z.
+            if(e.interval[2]<t)p[1]=p[1]+P[3];else p[1]=P[1];
+            break;
+        case 20:p[1]=std::sqrt(t)*P[3]+P[1];break;
+        case 21:p[0]=P[0]+P[3]*t;break;
+        case 22: {
+            float f=1.f;if(t<P[3])f=t/P[3];
+            const float target=f*Q[1];p[1]=(1.f-f)*P[1]+target;break;
+        }
+        case 24:p[1]=spread()*.02f+P[1];break;
+        case 25: {
+            const float v=spread()*.1f+P[1];P[1]=v;p[1]=v;break;
+        }
+        case 27:
+            p[0]=t*P[0];p[1]=((t*4.f)*(1.f-t))*P[3]+P[1];p[2]=t*P[2];break;
+        case 29: {
+            //0x1076a8: 0x10d600 ring point int(X)%12 of12, scaled by W*(t+Z).
+            const auto index=element_id(P[0]);
+            const auto a=angle(float(index%12)/float(12));
+            const float along=t+P[2];
+            p[0]=(sine_[(a+4096)&16383]*P[3])*along;
+            p[2]=(sine_[a]*P[3])*along;break;
+        }
+        case 31: {
+            const float keep=1.f-t,doubled=t+t;
+            p[0]=(sine(t)*P[3]+keep*P[0])+t*Q[0];
+            p[1]=(sine(doubled-float(int(doubled)))*P[3]+keep*P[1])+t*Q[1];
+            p[2]=keep*P[2]+t*Q[2];break;
+        }
+        case 32: {
+            const float doubled=t+t,rest=(1.f-t)*5.f;
+            p[0]=(sine(t)*5.f+P[0])+Q[2]*(1.f-t);
+            p[1]=(sine(doubled-float(int(doubled)))*5.f+rest)+P[1];
+            p[2]=rest+P[2];break;
+        }
+        case 33:for(unsigned i=0;i<3;++i)p[i]=Q[i]+P[i]*t;break;
+        case 34:for(unsigned i=0;i<3;++i)p[i]=Q[i]+P[i];break;
+        case 35:for(unsigned i=0;i<3;++i)p[i]=(1.f-t)*P[i];break;
+        case 36:case 47: {
+            //0x107ab8 (towards the parameters' origin) / 0x108250 (blend).
+            float f=t<0?0.f:P[3]<t?1.f:(t-0.f)/(P[3]-0.f);
+            if(((program>>12)&63)==36){f=1.f-f;for(unsigned i=0;i<3;++i)p[i]=f*P[i]+Q[i];}
+            else {const float keep=1.f-f;for(unsigned i=0;i<3;++i)p[i]=keep*P[i]+f*Q[i];}
+            break;
+        }
+        case 38:
+            //0x107bcc: first update rescales the authored XYZ by draws.
+            if(flags&0x20){p[0]=t*P[0]+Q[0];p[1]=t*P[1]+Q[1];p[2]=t*P[2]+Q[2];}
+            else {
+                P[0]=(float(random()%100)*.01f)*P[0];
+                P[1]=(float(int(random()%100)-50)*.01f)*P[1];
+                P[2]=(float(int(random()%100)-50)*.01f)*P[2];
+            }
+            break;
+        case 39: {
+            const float keep=1.f-t,turn=t*P[3];
+            p[0]=(keep*P[0])*cosine(turn);p[1]=keep*P[1];p[2]=(keep*P[2])*sine(turn);break;
+        }
+        case 40:case 43: {
+            //0x107f68: spiral in from the authored XYZ of element int(W) (0x103e78 selector0).
+            const auto origin=referenced(element_id(P[3])).position;
+            const float keep=1.f-t;
+            p[0]=(keep*P[0])*cosine(t)+origin[0];
+            p[1]=keep*P[1]+origin[1];
+            p[2]=(keep*P[2])*sine(t)+origin[2];break;
+        }
+        case 41: {
+            const float turn=t*P[3]+P[2];
+            p[0]=P[0]*cosine(turn);p[1]=P[1];p[2]=P[0]*sine(turn);break;
+        }
+        case 44: {
+            const float q=-.05f/t;const float f=q< -1.f?0.f:q+1.f;
+            const float turn=f*P[3]+P[2];
+            p[0]=P[0]*cosine(turn);p[1]=t*P[1];p[2]=P[0]*sine(turn);break;
+        }
+        case 45: {
+            //0x1080fc: raw-t ring of radius Y at angle W, jittered by two draws.
+            const float c0=cosine(P[3]);
+            p[1]=0;p[0]=((raw_t*P[1])*c0+spread()*.3f)+P[0];
+            const float s0=sine(P[3]);
+            p[2]=((raw_t*P[1])*s0+spread()*.1f)+P[2];break;
+        }
+        case 46: {
+            const float keep=1.f-t;
+            for(unsigned i=0;i<3;++i)p[i]=keep*P[i]+t*Q[i];break;
+        }
+        case 54: {
+            //0x108b4c: blend authored XYZ to the rendered point of element int(W).
+            const auto target=referenced(element_id(P[3])).rendered[0];
+            const float keep=1.f-t;
+            for(unsigned i=0;i<3;++i)p[i]=keep*P[i]+t*target[i];break;
+        }
         case 1:
             for(unsigned i=0;i<3;++i)p[i]=float(int(random()%40)-20)*parameters[i]+e.position[i];
             break;
@@ -890,6 +1249,28 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 7:if(t<e.interval[2])r[2]=float(random()%360+360)*.00278f;break;
         case 1:{const float cycle=t*e.rotation[3];r[1]=(cycle-float(int(cycle)))+e.rotation[1];break;}
         case 4:r[2]=float(random()%360+360)*.00278f;break;case 11:r[1]=float(random()%360+360)*.00278f;break;
+        case 2: {
+            //0x108cbc..0x108cec: Z = frac(t*authoredW) + authored Z.
+            const float cycle=t*e.rotation[3];
+            r[2]=(cycle-float(int(cycle)))+e.rotation[2];break;
+        }
+        case 9: {
+            //0x108fcc..0x109008: one fraction f=frac(t*authoredW) added to
+            //authored X and Y (Z, W unchanged).
+            const float cycle=t*e.rotation[3];const float fraction=cycle-float(int(cycle));
+            r[0]=fraction+e.rotation[0];r[1]=fraction+e.rotation[1];break;
+        }
+        case 10: {
+            //0x10900c..0x109034: Y = frac(t*job parameter W) (job+0x5c).
+            const float cycle=t*parameters[3];
+            r[1]=cycle-float(int(cycle));break;
+        }
+        case 6:
+            //0x108dfc..0x108ee8: three draws, X then Y then Z, each
+            //(rand()%360+360)*0x3b3630a9 (the .00278f of cases4/7/11).
+            r[0]=float(random()%360+360)*.00278f;
+            r[1]=float(random()%360+360)*.00278f;
+            r[2]=float(random()%360+360)*.00278f;break;
         case 3:
             //0x108cf0..0x108d6c: X/Z each add (rand()%10-5)*.001f to the
             //authored angle, X drawn first; Y copies the authored angle.
@@ -931,6 +1312,34 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 4:{const float local=t<0?0:t>e.scale[3]?1:t/e.scale[3];
             const float factor=std::sqrt(local);for(unsigned i=0;i<3;++i)s[i]=factor*e.scale[i];break;}
         case 16:s[1]+=e.scale[3];break;
+        //0x10934c (5), 0x1093e8 (7), 0x109498 (9), 0x1095c0..0x10962c (11,12,14),
+        //0x10968c..0x1096a8 (17,18), 0x1096ec (19), 0x109830 (22), 0x109a54/
+        //0x109a6c (26,27), 0x109afc (29), 0x109ba4 (30).
+        case 5:{const float q=-.1f/t;const float f=q< -1.f?0.f:q+1.f;
+            for(unsigned i=0;i<3;++i)s[i]=f*e.scale[i];break;}
+        case 7:s[1]=(t*t)*e.scale[1];break;
+        case 9:{const float q=-e.scale[3]/t;const float f=q< -1.f?0.f:q+1.f;s[1]=f*e.scale[1];break;}
+        case 11:s[0]=t*t;s[1]=t*e.scale[1];break;
+        case 12:s[0]=(1.f-t)*e.scale[0];s[1]=t*e.scale[1];s[2]=(1.f-t)*e.scale[2];break;
+        case 14:s[0]=(1.f-t)*e.scale[0];s[2]=(1.f-t)*e.scale[2];break;
+        case 17:s[1]=1.f-t*e.scale[1];break;
+        case 18:{const float cycle=t*e.scale[3];const float f=cycle-float(int(cycle));
+            for(unsigned i=0;i<3;++i)s[i]=f*e.scale[i];break;}
+        case 19:case 26:case 27: {
+            const auto selector=(program>>18)&63;
+            const float w=e.scale[3];
+            const float f=t<0?0.f:t<=w?(t-0.f)/(w-0.f):1.f;
+            if(selector==19)s[0]=f*e.scale[0];
+            if(selector==26)s[0]=(1.f-t)*e.scale[0];
+            s[2]=f*e.scale[2];break;
+        }
+        case 22:{const float cycle=t*float(int(e.scale[3]));
+            const float f=(1.f-(cycle-float(int(cycle))))*.15f+1.f;
+            for(unsigned i=0;i<3;++i)s[i]=f*e.scale[i];break;}
+        case 29:{const float wave=sine_[angle(t)];
+            for(unsigned i=0;i<3;++i)s[i]=wave*e.scale[3]+e.scale[i];break;}
+        case 30:s[1]=((float(random()%100+100)*.01f)*(e.scale[3]-e.scale[1]))+e.scale[1];break;
+        case 28:for(unsigned i=0;i<3;++i)s[i]=(1.f-t)*e.scale[i];break; //0x109ac8
         case 15:s[1]=((t*4.f)*(1.f-t))*e.scale[1];break;
         case 20:{const float x=e.scale[0],cycle=t*30.0f;
             const float size=((x*.75f+x)-(t*.75f)*x)+((1.0f-(cycle-float(int(cycle))))*x)*.15f;
@@ -984,6 +1393,50 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             //The branch has no special zero-time clamp; preserve alpha at t=0.
             c[3]=t<.7f?(1.f-t/.7f)*e.color[3]:e.color[3]*0.f;break;
         case 24:c[3]=t==0?0:1.f-t;break;
+        //0x109c44 family tables at 0x221e60 (3..7), 0x221e78 (8..11),
+        //0x221e88/0x221ea8 (15..21 head/tail), 0x221ec8 (25..28).
+        case 4:case 7: {
+            const float knee=(program&63)==4?.2f:.8f;
+            c[3]=(t==0||t==1)?0:(knee<t?(1.f-(t-knee)/(1.f-knee))*e.color[3]:e.color[3]);break;
+        }
+        case 8:case 11: {
+            const float knee=(program&63)==8?.3f:1.f;
+            c[3]=t<knee?(1.f-t/knee)*e.color[3]:e.color[3]*0.f;break;
+        }
+        case 12: {
+            const float cycle=t*5.f;const float f=cycle-float(int(cycle));
+            c[3]=f<=.6f?(f<.4f?f/.4f:1.f):1.f-(f-.6f)/.39999998f;break;
+        }
+        case 18:case 19:case 21: {
+            const auto selector=program&63;
+            const float head=selector==18?.01f:.1f;
+            const float tail=selector==18?.7f:selector==19?.6f:std::bit_cast<float>(0x3dced917u);
+            float alpha=0;
+            if(t!=0&&t!=1){alpha=1;if(t>tail)alpha=1.0f-(t-tail)/(1.0f-tail);else if(t<head)alpha=t/head;alpha*=e.color[3];}
+            c[3]=alpha;break;
+        }
+        case 22: {
+            const float f=t<.01f?0.f:.8f<t?1.f:(t-.01f)/.79f;
+            c[3]=f<=.5f?(f<.01f?f/.01f:1.f):1.f-(f-.5f)/.5f;break;
+        }
+        case 23: {
+            const float f=t<0?0.f:.3f<t?1.f:(t-0.f)/.3f;
+            c[3]=1.f-f;break;
+        }
+        case 25:case 26:case 27:case 28: {
+            const std::array<float,4> knees{0.f,.1f,.3f,.7f};
+            const float knee=knees[(program&63)-25];
+            c[3]=knee<t?((t-knee)/(1.f-knee))*e.color[3]:e.color[3]*0.f;break;
+        }
+        case 29:
+            if(t==1){c[3]=0;break;}
+            for(unsigned i=0;i<3;++i)c[i]=(1.f-e.color[i])*t+e.color[i];
+            c[3]=(1.f-e.color[3])*t+e.color[3];break;
+        case 31:c[3]=(e.color[3]*t)*t;break;
+        case 33: {
+            const float f=t*e.color[3];
+            c[3]=f-float(int(f))<.5f?0.f:t<1?1.f:0.f;break;
+        }
         case 32:c[3]=(t==0||t==1)?0:e.color[3];break;
         case 3:
             c[3]=(t==0||t==1)?0:(t>.1f?(1.0f-(t-.1f)/(1.0f-.1f))*e.color[3]:e.color[3]);break;

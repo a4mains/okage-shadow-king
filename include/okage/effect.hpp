@@ -79,6 +79,9 @@ struct MapEffectElement {
     //0x105518 geometry links (mode3 / time17) for shapes30/31 and25: the
     //element draws the source element's current UV packet / ring heights.
     std::optional<std::uint32_t> quad_source_id,ring_source_id;
+    //Shape54: packed UVs of the factory's expanded triangle vertices; the
+    //0x104ba8 atlas scroll (time21..24) rewrites this private packet.
+    std::vector<std::array<std::uint16_t,2>> packet_uv;
 };
 std::uint32_t effect_shape_texture(unsigned shape);
 enum class EffectStart {RandomPhase, FirstFrame};

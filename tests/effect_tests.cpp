@@ -284,7 +284,7 @@ int main(int argc,char** argv){try{
     job.elements[0].flags=2;check(draw().size()==8);job.elements[0].flags=0;
     job.elements[0].primitive_flags=0;check(!draw()[0].depth_test&&draw()[0].additive);
     job.elements[0].primitive_flags=2;rejects(draw);job.elements[0].primitive_flags=1;
-    job.elements[0].shape=54;rejects(draw);
+    job.elements[0].shape=64;rejects(draw);
     okage::EffectDefinition dust;dust.id=17;dust.duration=30;dust.elements.resize(9);
     for(unsigned i=0;i<9;++i){auto& element=dust.elements[i];element.id=i+1;element.shape=31;
         element.flags=i?0x400601:0x400401;element.primitive_flags=0x41;
@@ -392,7 +392,7 @@ int main(int argc,char** argv){try{
     for(const auto& draw:deferred_flames)check(draw.vertices.size()==6&&draw.additive&&draw.texture==4);
     deferred.elements[0].primitive_flags=0x18;rejects(deferred_draw); //ALPHA0x28.
     deferred.elements[0].primitive_flags=8;
-    deferred.elements[0].shape=54;deferred.elements[0].texture=0xffffffffu;
+    deferred.elements[0].shape=64;deferred.elements[0].texture=0xffffffffu;
     rejects(deferred_draw);
     {
         okage::EffectDefinition smoke;smoke.id=34;smoke.duration=140;smoke.flags=0x8000;
@@ -613,7 +613,7 @@ int main(int argc,char** argv){try{
     //Any template id is admitted; an unrecovered shape still rejects.
     auto future_impact=impact;future_impact.id=40;
     {okage::MapEffect renamed(future_impact,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);}
-    future_impact.elements[0].shape=54;
+    future_impact.elements[0].shape=64;
     rejects([&]{okage::MapEffect unsupported(future_impact,{},{},{1,1,1,1},sizes,impact_random,okage::EffectStart::FirstFrame);});
     okage::EffectProjectionContext numeric_projection{identity,{},40};
     numeric_projection.screen[0]={1,1,1,0};

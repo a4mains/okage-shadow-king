@@ -110,6 +110,187 @@ unsigned compare_template(const okage::EffectDefinition& d,const okage::EffectTe
     }
     return rn.calls;
 }
+template<class F>void rejects_message(F f,const char* prefix,const std::source_location where=std::source_location::current()){
+    try{f();}catch(const std::runtime_error& error){
+        if(std::string_view(error.what()).starts_with(prefix))return;
+        throw std::runtime_error("Unexpected rejection at line "+std::to_string(where.line())+": "+error.what());
+    }
+    throw std::runtime_error("Invalid effect accepted at line "+std::to_string(where.line()));
+}
+struct TowardZero {
+    int old=std::fegetround();
+    TowardZero(){check(std::fesetround(FE_TOWARDZERO)==0);}
+    ~TowardZero(){std::fesetround(old);}
+};
+okage::EffectElement element(unsigned id,unsigned shape,std::uint32_t program,const okage::Float4& position={},
+                             const okage::Float4& scale={1,1,1,1},const okage::Float4& color={1,1,1,1},
+                             const okage::Float4& rotation={},const okage::Float4& interval={0,1,1,0}) {
+    okage::EffectElement e;e.id=id;e.shape=shape;e.program=program;e.channels=31;e.change_time=1.1f;
+    e.values={color,rotation,position,scale,interval};
+    return e;
+}
+okage::EffectDefinition single(std::vector<okage::EffectElement> elements,unsigned duration=4) {
+    okage::EffectDefinition d;d.id=120;d.duration=duration;d.elements=std::move(elements);return d;
+}
+unsigned angle_index(float turns){
+    volatile float scaled=turns*32768.0f;
+    return (std::uint32_t(std::int32_t(scaled))>>1)&16383;
+}
+void program_checks() {
+    const auto sine=okage::make_sine_table();
+    okage::EffectTextureSizes sizes;for(auto& size:sizes)size={64,32};sizes[17]={64,64};sizes[10]={128,64};sizes[1]={32,32};
+    unsigned calls=0;std::vector<std::uint32_t> words{7,13,29,41,55,68};
+    const auto random=[&]{return words[calls++%words.size()];};
+    const auto run=[&](const okage::EffectDefinition& d,unsigned updates){
+        okage::MapEffect job(d,{0,0,0,1},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
+        for(unsigned i=0;i<updates;++i)job.tick(random);
+        return job;
+    };
+    const auto pos=[](unsigned v){return v<<12;};const auto rot=[](unsigned v){return v<<6;};
+    const auto scl=[](unsigned v){return v<<18;};const auto tim=[](unsigned v){return v<<24;};
+    {
+        //Position21 (0x1074f8): X = authored X + W*t.
+        const auto job=run(single({element(1,31,pos(21),{2,0,0,8})}),1);
+        TowardZero z;volatile float x=2.f,w=8.f,t=.25f;
+        check(job.elements[0].rendered[0][0]==x+w*t,"position21");
+    }
+    {
+        //Position7 (0x106f30): rendered/authored XZ from element ID-1's rendered point.
+        const auto job=run(single({element(1,31,0,{5,6,7,0}),element(2,31,pos(7),{1,2,3,0})}),1);
+        check(job.elements[1].rendered[0]==okage::Float4({5,2,7,0})&&job.elements[1].position==okage::Float4({5,2,7,0}),"position7");
+    }
+    {
+        //Position40 (0x107f68): (1-t)*XYZ spiral (cos/sin of angle(t)) + source XYZ of element int(W).
+        const auto job=run(single({element(1,31,0,{1,2,3,0}),element(2,31,pos(40),{4,5,6,1})}),1);
+        TowardZero z;volatile float keep=1.f-.25f;const auto a=angle_index(.25f);
+        volatile float x=(keep*4.f)*sine[(a+4096)&16383];volatile float zz=(keep*6.f)*sine[a];
+        volatile float y=keep*5.f;
+        check(job.elements[1].rendered[0][0]==x+1.f&&job.elements[1].rendered[0][1]==y+2.f&&
+              job.elements[1].rendered[0][2]==zz+3.f,"position40");
+    }
+    {
+        //Position29 (0x1076a8): 0x10d600 point int(X)%12/12, scaled by W*(t+Z).
+        const auto job=run(single({element(1,31,pos(29),{5,9,.5f,2})}),1);
+        TowardZero z;volatile float n=5.f,d=12.f;const auto a=angle_index(n/d);volatile float along=.25f+.5f;
+        volatile float c=sine[(a+4096)&16383]*2.f,s=sine[a]*2.f;
+        check(job.elements[0].rendered[0][0]==c*along&&job.elements[0].rendered[0][2]==s*along&&
+              job.elements[0].rendered[0][1]==9.f,"position29");
+    }
+    {
+        //Position45 (0x1080fc): raw t ring + two draws (*.3, *.1); Y=0.
+        calls=0;const auto job=run(single({element(1,31,pos(45),{1,2,3,.25f})}),1);
+        TowardZero z;const auto a=angle_index(.25f);volatile float r=.25f*2.f;
+        volatile float j0=float(int(7%40)-20),j1=float(int(13%40)-20);
+        volatile float x=(r*sine[(a+4096)&16383]+j0*.3f)+1.f;volatile float zz=(r*sine[a]+j1*.1f)+3.f;
+        check(calls==2&&job.elements[0].rendered[0]==okage::Float4({x,0,zz,.25f}),"position45");
+    }
+    {
+        //Position3 (0x106d48): three draws scale authored XYZ.
+        calls=0;const auto job=run(single({element(1,31,pos(3),{1,2,3,0})}),1);
+        check(calls==3&&job.elements[0].rendered[0]==okage::Float4({-13.f,-14.f,27.f,0}),"position3");
+    }
+    {
+        //Rotation6 (0x108dfc): three draws (rand%360+360)*.00278f.
+        calls=0;const auto job=run(single({element(1,31,rot(6))}),1);
+        TowardZero z;volatile float k=.00278f;
+        check(calls==3&&job.elements[0].rendered[1]==okage::Float4({367.f*k,373.f*k,389.f*k,0}),"rotation6");
+    }
+    {
+        //Rotation9 (0x108fcc): f=frac(t*W) added to authored X and Y.
+        const auto job=run(single({element(1,31,rot(9),{},{1,1,1,1},{1,1,1,1},{.5f,.25f,.75f,3})}),1);
+        TowardZero z;volatile float f=.25f*3.f;volatile float frac=f-float(int(f));
+        check(job.elements[0].rendered[1]==okage::Float4({frac+.5f,frac+.25f,.75f,3}),"rotation9");
+    }
+    {
+        //Scale5 (0x10934c), scale22 (0x109830), scale28 (0x109ac8), scale19 (0x1096ec).
+        TowardZero z;
+        auto job=run(single({element(1,31,scl(5),{},{2,3,4,1})}),1);
+        volatile float q=-.1f/.25f;volatile float f=q+1.f;
+        check(job.elements[0].rendered[2]==okage::Float4({f*2.f,f*3.f,f*4.f,1}),"scale5");
+        job=run(single({element(1,31,scl(22),{},{2,3,4,3})}),1);
+        volatile float cycle=.25f*3.f;volatile float g=(1.f-(cycle-float(int(cycle))))*.15f+1.f;
+        check(job.elements[0].rendered[2]==okage::Float4({g*2.f,g*3.f,g*4.f,3}),"scale22");
+        job=run(single({element(1,31,scl(28),{},{2,3,4,3})}),1);
+        check(job.elements[0].rendered[2]==okage::Float4({.75f*2.f,.75f*3.f,.75f*4.f,3}),"scale28");
+        job=run(single({element(1,31,scl(19),{},{2,3,4,.5f})}),1);
+        check(job.elements[0].rendered[2]==okage::Float4({.5f*2.f,3.f,.5f*4.f,.5f}),"scale19");
+    }
+    {
+        //Colours19 (head .1, tail .6), 4 (knee .2), 22, 12 (0x109c44 tables 0x221e60..0x221ec0).
+        TowardZero z;
+        auto job=run(single({element(1,31,19,{},{1,1,1,1},{1,1,1,.8f})}),3);
+        volatile float t=.75f;volatile float a19=(1.f-(t-.6f)/(1.f-.6f))*.8f;
+        check(job.elements[0].rendered[3][3]==a19,"colour19");
+        job=run(single({element(1,31,4,{},{1,1,1,1},{1,1,1,.8f})}),1);
+        volatile float u=.25f;volatile float a4=(1.f-(u-.2f)/(1.f-.2f))*.8f;
+        check(job.elements[0].rendered[3][3]==a4,"colour4");
+        job=run(single({element(1,31,22,{},{1,1,1,1},{1,1,1,.8f})}),1);
+        check(job.elements[0].rendered[3][3]==1.f,"colour22");
+        job=run(single({element(1,31,12,{},{1,1,1,1},{1,1,1,.8f})}),1);
+        volatile float c5=.25f*5.f;volatile float f12=c5-float(int(c5));
+        check(job.elements[0].rendered[3][3]==f12/.4f,"colour12");
+    }
+    {
+        //Time9 (0x1061fc): t'=frac(W*t) feeds scale3 (t*XYZ).
+        const auto job=run(single({element(1,31,tim(9)|scl(3),{},{2,3,4,1},{1,1,1,1},{},{0,1,1,3})}),1);
+        check(job.elements[0].rendered[2]==okage::Float4({.75f*2.f,.75f*3.f,.75f*4.f,1}),"time9");
+    }
+    {
+        //Time23 (0x1066e8 ->0x104ba8): vertical scroll of the private quad UVs.
+        auto e=element(1,31,tim(23),{},{1,1,1,1},{1,1,1,1},{},{0,1,1,8});e.flags=0x40;
+        const auto job=run(single({e}),1);
+        TowardZero z;
+        volatile float extent=float(64)-8.f;volatile float along=(1.f-.25f)*extent;const int cell=int(along);
+        const int dy=(64*32)/8;
+        const auto remap=[&](int original){return std::uint16_t(((original*4096)/dy>>7)+cell*32);};
+        const auto w=std::uint16_t(64*32),h=std::uint16_t(65*32);
+        check(job.elements[0].quad_uv[2]==std::array<std::uint16_t,2>{w,remap(std::int16_t(h))}&&
+              job.elements[0].quad_uv[0]==std::array<std::uint16_t,2>{0,remap(0)},"time23");
+        auto shared=e;shared.flags=0;
+        rejects_message([&]{run(single({shared}),1);},"Unrecovered atlas scroll geometry");
+    }
+    {
+        //Shape60 (0x110c88): twelve white triangles P_i,P_i+1,P_i+2 (i even) on the unit ring.
+        const auto job=run(single({element(1,60,0)}),1);
+        const auto draws=okage::map_effect_draws(job,{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}},{},450,sine);
+        check(draws.size()==1&&draws[0].vertices.size()==36&&draws[0].texture==0xffffffffu,"shape60 count");
+        const auto a=angle_index(1.f/24);
+        check(draws[0].vertices[1].position==okage::Float4({std::round(sine[(a+4096)&16383]*64)/64,0,std::round(sine[a]*64)/64,1})&&
+              draws[0].vertices[0].position==okage::Float4({1,0,0,1})&&draws[0].vertices[2].color==okage::Float4({255,255,255,255}),"shape60 ring");
+    }
+    {
+        //Shape54 (0x1111d0): 11x6 quads, alpha 255*(1-row/11), textured (bound10).
+        const auto job=run(single({element(1,54,0)}),1);
+        const auto draws=okage::map_effect_draws(job,{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}},{},450,sine);
+        check(draws.size()==1&&draws[0].vertices.size()==396&&draws[0].texture==10,"shape54 count");
+        TowardZero z;volatile float last=1.f-float(1)/float(11);
+        check(draws[0].vertices[0].color[3]==float(unsigned(255.f*last))&&draws[0].vertices[1].color[3]==255.f,"shape54 alpha");
+        //B of the first quad: column0,row1: h=1/6 (point rotated about X), UV (0,1/11).
+        volatile float v=float(1)/float(11);
+        check(draws[0].vertices[0].uv==okage::Float4({0,float(std::uint16_t(unsigned(v*float(65)*32)))/32768,0,0}),"shape54 uv");
+    }
+    {
+        //Shapes36/61/57: diamond quad, unit cube, ring of twelve cubes.
+        const okage::Matrix4 identity{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}};
+        auto job=run(single({element(1,36,0),element(2,61,0),element(3,57,0)}),1);
+        const auto draws=okage::map_effect_draws(job,identity,{},450,sine);
+        check(draws.size()==3&&draws[0].vertices.size()==6&&draws[1].vertices.size()==36&&draws[2].vertices.size()==432,"cube counts");
+        check(draws[0].vertices[0].position==okage::Float4({1,0,0,1})&&draws[0].vertices[1].position==okage::Float4({0,-1,0,1}),"diamond");
+        check(draws[1].vertices[0].position==okage::Float4({.5f,-.5f,-.5f,1})&&draws[1].vertices[1].position==okage::Float4({-.5f,-.5f,-.5f,1}),"cube");
+        check(draws[1].texture==10&&draws[1].vertices[0].uv==okage::Float4({0,0,0,0})&&
+              draws[1].vertices[2].uv[0]==float(128*32)/32768,"cube uv");
+    }
+    {
+        //Shape26 (0x10fe28(30)) and time20 mode3 (0x105790): T=int(t*1200) on the lower ring.
+        auto e=element(1,26,tim(20),{},{1,1,1,1},{1,1,1,1},{},{0,1,1,3});e.flags=0x40;
+        const auto job=run(single({e}),1);
+        check(job.elements[0].texture==1&&job.elements[0].packet_uv.size()==62&&
+              job.elements[0].packet_uv[5][1]==std::uint16_t(int(.25f*1200.f))&&job.elements[0].packet_uv[36][1]==33*32,"shape26 time20");
+        const auto draws=okage::map_effect_draws(job,{{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}},{},450,sine);
+        check(draws.size()==1&&draws[0].vertices.size()==180,"shape26 draw");
+    }
+    std::cout<<"Recovered program/factory transcription checks passed\n";
+}
 //0x10ba38 ordinary pass in file order, with 0x10b318 element-ID ranges.
 std::map<unsigned,std::pair<std::uint32_t,std::int32_t>> first_requesters(const std::vector<okage::EffectDefinition>& raw) {
     std::map<unsigned,std::pair<std::uint32_t,std::int32_t>> first;
@@ -127,8 +308,9 @@ std::map<unsigned,std::pair<std::uint32_t,std::int32_t>> first_requesters(const 
 }
 }
 int main(int argc,char** argv){try{
+    program_checks();
     //The shape table covers exactly the recovered factories.
-    for(unsigned shape:{1u,2u,4u,8u,18u,23u,27u,34u,36u,44u,46u,53u,57u,60u,61u,63u,64u,66u})
+    for(unsigned shape:{1u,2u,4u,8u,18u,27u,34u,37u,44u,46u,53u,63u,64u,66u})
         try{okage::effect_shape_texture(shape);check(false,"unrecovered shape "+std::to_string(shape)+" accepted");}
         catch(const std::runtime_error& error){check(std::string(error.what())=="Unrecovered map effect shape "+std::to_string(shape));}
     check(okage::effect_shape_texture(30)==6&&okage::effect_shape_texture(31)==17&&okage::effect_shape_texture(55)==0xffffffffu);
@@ -137,9 +319,9 @@ int main(int argc,char** argv){try{
     if(!owned){std::cout<<"Owned TES.EFD/ENV_TEX not present; legacy comparison skipped\n";return 0;}
     //Parameter-textured factories bind the first requester's EFD texture.
     const auto first=first_requesters(owned->raw);
-    for(unsigned shape:{24u,28u,29u,33u,35u,56u,59u,62u,65u}) {
+    for(unsigned shape:{24u,26u,28u,29u,33u,35u,36u,54u,56u,57u,59u,61u,62u,65u}) {
         const auto found=first.find(shape);
-        check(found!=first.end()&&std::int64_t(okage::effect_shape_texture(shape))==found->second.second,
+        check(found!=first.end()&&std::bit_cast<std::int32_t>(okage::effect_shape_texture(shape))==found->second.second,
               "shape "+std::to_string(shape)+" first-requester texture");
     }
     Random prep_random;
