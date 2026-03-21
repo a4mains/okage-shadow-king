@@ -240,9 +240,10 @@ int main(int argc,char** argv){try{
     auto unknown_shape=projectile_definition();unknown_shape.elements[4].shape=64;
     rejects([&]{okage::MapEffect job(unknown_shape,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
             "Unrecovered map effect shape 64 (template 11 element 5)");
-    auto ranged=projectile_definition();ranged.elements[1].flags=0x10000;
+    //A 0x10000 range record covering itself (a nested range) is unrecovered.
+    auto ranged=projectile_definition();ranged.elements[1].flags=0x10000;ranged.elements[1].shape=1;ranged.elements[1].primitive_flags=10;
     rejects([&]{okage::MapEffect job(ranged,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);},
-            "Unrecovered map effect element range flag 0x10000 (template 11 element 2)");
+            "Unrecovered nested map effect element range (template 11 element 2)");
     auto timed=projectile_definition();timed.elements[0].program|=1u<<24;
     {
         okage::MapEffect job(timed,{},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
