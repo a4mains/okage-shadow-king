@@ -462,6 +462,7 @@ void MapEffect::bind_flame_geometry(std::shared_ptr<EffectFlameGeometry> geometr
 }
 void MapEffect::bind_preparation(std::shared_ptr<const EffectTemplatePreparation> prepared) {
     require(bool(prepared),"Missing effect template preparation");
+    require_cache_sources(*prepared);
     for(const auto& e:elements)if(e.shape==55) {
         require(bool(prepared->geometry[55]),"Effect preparation lacks shape55 geometry");
         shape55_geometry=std::shared_ptr<const std::vector<MapEffectVertex>>(prepared->geometry[55],&prepared->geometry[55]->vertices);
@@ -469,6 +470,12 @@ void MapEffect::bind_preparation(std::shared_ptr<const EffectTemplatePreparation
     }
     if(flame_geometry)bind_flame_geometry(prepared->flame);
     preparation=std::move(prepared);
+}
+void MapEffect::require_cache_sources(const EffectTemplatePreparation& prepared) const {
+    for(const auto& e:elements)
+        if(prepared.redirected_elements.count(std::uint64_t(id)<<32|e.id))
+            throw std::runtime_error("Unrecovered range-redirected effect geometry: shape "+std::to_string(e.shape)+
+                " (template "+std::to_string(id)+" element "+std::to_string(e.id)+")");
 }
 const EffectQuadPositions& MapEffect::flame_positions(const MapEffectElement& e) const {
     //Shape28 without a private XYZ packet draws the shared factory packet
@@ -683,10 +690,6 @@ std::vector<MapEffectDraw> map_effect_draws(const MapEffect& effect,const Matrix
             //0x10e918 caches). Positions/colours/UVs are drawn unchanged.
             if(!effect.preparation)throw std::runtime_error("Missing prepared effect geometry"+where);
             if(effect.preparation->geometry[e.shape])draw.vertices=effect.preparation->geometry[e.shape]->vertices;
-            //0x10e138 noise faces are a pure function of the session grid; the
-            //preparation may leave a cache slot unconstructed after a 0x10000
-            //range record claimed it, so rebuild them from that grid.
-            else if(e.shape>=10&&e.shape<=17)draw.vertices=make_effect_noise_shape(e.shape,effect.preparation->noise);
             else throw std::runtime_error("Missing prepared effect geometry"+where);
         } else if(e.shape==60) {
             draw.vertices=shape60_vertices(sine);
@@ -889,6 +892,8 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             //digit cells; 30: one cell) inside the bound atlas.
             if(!((timing==26&&e.shape==33)||(timing==27&&e.shape==30)))
                 throw std::runtime_error("Unrecovered numeric atlas owner"+where);
+            //The remap rewrites the UV packet; a shared cache packet is unmodeled.
+            if(!private_uvs(e))throw std::runtime_error("Unrecovered shared numeric atlas UV packet"+where);
             const auto atlas=texture_sizes_.at(e.texture);
             const auto original=texture_sizes_.at(effect_shape_texture(e.shape));
             const auto remap=[&](unsigned corner,int x,int width,int height,
@@ -982,6 +987,9 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
                 }
                 local+=step;if(local>=1)local-=1;
             }
+        } else if(timing==19) {
+            //0x10659c applies 0x105790 to every shape; only shape26 is recovered.
+            throw std::runtime_error("Unrecovered time19 UV animation shape"+where);
         } else if(timing==20) {
             //0x105790 mode1 rewrites the tag2 UVs of a private UV packet.
             if(e.shape!=24||e.cylinder_t.size()!=17||e.interval[3]!=1||!private_uvs(e))
@@ -1282,6 +1290,7 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
         case 10: {
             //0x104ba8 maps the original quad UVs into a32x64 atlas cell.
             if(e.shape!=28)throw std::runtime_error("Unrecovered effect atlas geometry"+where);
+            if(!private_uvs(e))throw std::runtime_error("Unrecovered shared torch atlas UV packet"+where);
             const auto column=((int(e.id)-1)>>2)*32;
             const auto width=texture_sizes_[e.texture][0],height=texture_sizes_[e.texture][1];
             const int xstep=int(width*32)/32,ystep=int(height*32)/64;

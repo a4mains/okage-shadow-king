@@ -224,7 +224,10 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
                 constructed=true;
             }
         }
-        cache_owners[e.shape]={definition.id,e.id};
+        const auto& owner=cache_owners[e.shape];
+        if(!miss&&(range_slots[e.shape]||redirected_elements.count(std::uint64_t(owner[0])<<32|owner[1])))
+            redirected_elements.insert(std::uint64_t(definition.id)<<32|e.id);
+        cache_owners[e.shape]={definition.id,e.id};range_slots[e.shape]=false;
         if(trace) {
             trace->requests.push_back({definition.id,e.id,e.shape,miss});
             if(constructed){trace->construction_order.push_back(e.shape);trace->construction_draws[e.shape]=draws-before;}
@@ -244,7 +247,7 @@ EffectTemplatePreparation::EffectTemplatePreparation(const std::vector<EffectDef
                     if(source.flags&0x10000)throw std::runtime_error("Unrecovered nested template range");
                     request(d,source);
                 }
-                cache_owners[e.shape]={d.id,e.id};
+                cache_owners[e.shape]={d.id,e.id};range_slots[e.shape]=true;
             } else request(d,e);
         }
     }

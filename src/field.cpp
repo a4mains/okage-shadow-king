@@ -500,6 +500,7 @@ void OpeningField::load_effects(Bytes bytes,std::shared_ptr<const EffectTemplate
     effect_preparation_=std::move(prepared);
 }
 void OpeningField::bind_effect_geometry(MapEffect& effect) const {
+    if(effect_preparation_)effect.require_cache_sources(*effect_preparation_);
     if(effect.flame_geometry&&effect_preparation_)effect.bind_flame_geometry(effect_preparation_->flame);
     for(const auto& e:effect.elements)if(e.shape==55) {
         if(!effect_preparation_||!effect_preparation_->geometry[55])

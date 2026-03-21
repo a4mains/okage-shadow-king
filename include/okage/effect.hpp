@@ -3,6 +3,7 @@
 #include <memory>
 #include <functional>
 #include <optional>
+#include <set>
 #include <string_view>
 #include <variant>
 
@@ -123,6 +124,8 @@ struct EffectTemplatePreparation {
     std::shared_ptr<EffectFlameGeometry> flame=std::make_shared<EffectFlameGeometry>();
     EffectNoiseGrid noise;
     std::array<std::array<std::uint32_t,2>,66> cache_owners{};
+    std::array<bool,66> range_slots{};
+    std::set<std::uint64_t> redirected_elements;
     std::array<std::shared_ptr<const ProceduralEffectGeometry>,66> geometry{};
     EffectTemplatePreparation(const std::vector<EffectDefinition>&,const EffectTextureSizes&,
         const SineTable&,const std::function<std::uint32_t()>& random,EffectPreparationTrace* trace=nullptr);
@@ -143,6 +146,9 @@ public:
     //Shared session preparation (0x10bc78): procedural shapes10..17/43/45/
     //55/56/62 draw its cached geometry. Also binds shape55 and the flame packet.
     void bind_preparation(std::shared_ptr<const EffectTemplatePreparation>);
+    //Rejects elements whose shape slot a range record owns: the copied
+    //0x113508 member geometry is not recovered.
+    void require_cache_sources(const EffectTemplatePreparation&) const;
     const EffectQuadPositions& flame_positions(const MapEffectElement&) const;
     MapEffect snapshot() const;
     void set_parameter(unsigned selector,const Float4& payload);

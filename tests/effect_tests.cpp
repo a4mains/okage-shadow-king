@@ -247,6 +247,37 @@ int main(int argc,char** argv){try{
         catch(const std::runtime_error&){threw=true;}
         check(threw&&bad_draws==384);
     }
+    const auto rejects_with=[](auto f,std::string_view text,const std::source_location where=std::source_location::current()) {
+        try{f();}catch(const std::runtime_error& error){if(std::string_view(error.what()).find(text)!=std::string_view::npos)return;
+            throw std::runtime_error("Unexpected rejection at line "+std::to_string(where.line())+": "+error.what());}
+        throw std::runtime_error("Invalid effect accepted at line "+std::to_string(where.line()));
+    };
+    {
+        okage::EffectDefinition ranged;ranged.id=90;
+        okage::EffectElement range;range.id=1;range.flags=0x10000;range.shape=25;range.primitive_flags=26;
+        okage::EffectElement member;member.id=25;member.shape=9;auto second=member;second.id=26;
+        ranged.elements={range,member,second};
+        auto chained=shadow;chained.id=23;
+        unsigned redirect_rng=0;const auto redirect_random=[&]{return ++redirect_rng;};
+        const okage::EffectTemplatePreparation redirect({ranged,shadow,chained},sizes,sine,redirect_random);
+        const auto key=[](std::uint64_t t,std::uint64_t e){return t<<32|e;};
+        check(!redirect.range_slots[25]&&redirect.cache_owners[25]==std::array<std::uint32_t,2>{23,3});
+        for(std::uint64_t e:{1u,2u,3u})check(redirect.redirected_elements.count(key(24,e))&&redirect.redirected_elements.count(key(23,e)));
+        check(!redirect.redirected_elements.count(key(24,4))&&!redirect.redirected_elements.count(key(24,6))&&
+              !redirect.redirected_elements.count(key(90,25)));
+        rejects_with([&]{transition.require_cache_sources(redirect);},"range-redirected effect geometry: shape 25 (template 24 element 1)");
+        const okage::EffectTemplatePreparation first_requester({shadow,ranged},sizes,sine,redirect_random);
+        check(first_requester.range_slots[25]&&first_requester.redirected_elements.empty());
+        transition.require_cache_sources(first_requester);
+    }
+    {
+        //0x10659c applies 0x105790 to any shape; only shape26 is recovered.
+        okage::EffectDefinition animated;animated.id=31;animated.duration=60;animated.elements.resize(1);
+        auto& e=animated.elements[0];e.id=1;e.shape=25;e.primitive_flags=0x21;e.program=19u<<24;
+        unsigned animated_rng=0;
+        okage::MapEffect job(animated,{},{},{1,1,1,1},sizes,[&]{return ++animated_rng;},okage::EffectStart::FirstFrame);
+        rejects_with([&]{job.tick([&]{return ++animated_rng;});},"Unrecovered time19 UV animation shape");
+    }
     rejects([&]{okage::make_procedural_effect_shape(62,sine,preparation_random,{});});
     rejects([&]{okage::make_procedural_effect_shape(43,sine,{},{});});
     okage::EffectDefinition cylinder;cylinder.id=26;cylinder.duration=160;cylinder.flags=0x8000;
