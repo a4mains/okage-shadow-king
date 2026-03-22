@@ -639,7 +639,8 @@ void StartupTextureOwner::note_mode_wrapper_free(unsigned selector, unsigned mod
 void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t frame, unsigned site) {
     if (!record_ || stage_ == ResourceStage::Unmodeled || coverage_ != StartupCoverage::PreSchedulerOnly) return;
     if (rng_log_.size() >= StartupRandomStream::log_limit) {
-        mark_unmodeled("session RNG log limit reached (draws past it are not logged)");
+        ++rng_log_dropped_;
+        ++rng_draws_;
         return;
     }
     const bool restore = stage_ >= ResourceStage::RestoreActive && stage_ <= ResourceStage::RestoreWrappersFreed;
@@ -1319,6 +1320,8 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         if ((!second_return && (owner.stage() < ResourceStage::TitleActive || owner.stage() == ResourceStage::Unmodeled)) ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
             throw std::logic_error("title checkpoint report outside the modeled title/Restore stages");
+        if (owner.rng_log_dropped())
+            throw std::runtime_error("title checkpoint: session RNG log truncated after its limit");
         if (owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state)
             throw std::runtime_error("title checkpoint: Session RNG drew after 0x100618; draws are not logged");
         o << "{\n \"coverage\":{\"lifecycle\":\"" << label << "\",\"checkpoint\":\"" << checkpoint
@@ -1354,6 +1357,7 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
     }
     o << "\n \"rand_state_after_noise\":" << owner.rand_state_after_noise() << ",";
     o << "\n \"rng_draws\":" << owner.rng_draws() << ",";
+    if (owner.rng_log_dropped()) o << "\n \"rng_log_dropped\":" << owner.rng_log_dropped() << ",";
     o << "\n \"checkpoints\":[";
     bool first = true;
     for (const auto& c : owner.checkpoints()) {

@@ -505,6 +505,25 @@ int main() {
             in.record_observations = true;
             run(o, in, r, h);
             o.begin_scheduled_frames();
+            const auto stage = o.stage();
+            const auto draws = o.rng_draws();
+            while (o.rng_log().size() < StartupRandomStream::log_limit) { r.next(); o.note_session_draw(r.state, 2); }
+            const auto logged_draws = o.rng_draws();
+            r.next();
+            o.note_session_draw(r.state, 3);
+            require(o.stage() == stage && o.stage() != ResourceStage::Unmodeled && o.unmodeled_reason().empty(),
+                    "log limit keeps the modeled stage");
+            require(o.rng_log().size() == StartupRandomStream::log_limit && o.rng_log_dropped() == 1 &&
+                    o.rng_draws() == logged_draws + 1 && logged_draws > draws, "dropped draw counted, not logged");
+        });
+        scenario([&] {
+            StartupTextureOwner o;
+            GameRandom r{1};
+            Hook h;
+            auto in = inputs();
+            in.record_observations = true;
+            run(o, in, r, h);
+            o.begin_scheduled_frames();
             o.begin_logo_construction();
             o.append_image(effect_xim({19, 256, 64, 32}, 50));
             o.retire_image_list();
