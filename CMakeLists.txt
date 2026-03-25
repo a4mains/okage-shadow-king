@@ -361,7 +361,10 @@ if(BUILD_TESTING)
     add_test(NAME battle-projectiles-tests COMMAND battle-projectiles-tests)
     add_executable(battle-actor-update-tests tests/battle_actor_update_tests.cpp)
     target_link_libraries(battle-actor-update-tests PRIVATE okage_assets)
-    add_test(NAME battle-actor-update-tests COMMAND battle-actor-update-tests)
+    # The owned action205 (154b38 state8 / 156c70) section runs only when this
+    # ignored stage provides the owned action, XDB and RUW inputs.
+    add_test(NAME battle-actor-update-tests COMMAND battle-actor-update-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
     add_executable(battle-roster-update-tests tests/battle_roster_update_tests.cpp)
     target_link_libraries(battle-roster-update-tests PRIVATE okage_assets)
     add_test(NAME battle-roster-update-tests COMMAND battle-roster-update-tests)

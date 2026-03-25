@@ -839,6 +839,7 @@ struct BattleSession::Impl {
                     case BattleActor::FirstCallback::RangedAttack:return 0x1567c8u;
                     case BattleActor::FirstCallback::EnemyDeath:return 0x15bb90u;
                     case BattleActor::FirstCallback::PartyDeath:return 0x154120u;
+                    case BattleActor::FirstCallback::ActionSequence:return 0x156c70u;
                     }
                     throw std::runtime_error("Unknown native battle actor callback");
                 };
@@ -1090,6 +1091,13 @@ struct BattleSession::Impl {
                     strike.effect_stop=[&](unsigned handle){ //101648 -> 103640
                         if(handle>=effects.size())throw std::runtime_error("Battle effect stop handle outside pool");
                         if(effects[handle]&&!(effects[handle]->flags&0x4000))effects[handle]->request_removal();
+                    };
+                    strike.camera_sequence=[&](int offset){ //151170(offset) on the live camera owner
+                        if(offset<0||!camera_data)throw std::runtime_error("Battle151170 camera sequence ownership");
+                        camera->restart_sequence(camera_data->sequence_at_offset(stage,unsigned(offset)));
+                    };
+                    strike.action_name=[&](std::int16_t action){ //168380
+                        context.shared.hud.show_action_name(*ui_resources[0],context.tables,action);
                     };
                     battle_actor_first_update(*actor,root,roster.entities(),strike,&hits);
                     actor_snapshot(*actor,"after-first");

@@ -1,11 +1,14 @@
 #include "okage/battle_actor.hpp"
+#include "okage/battle_command_queue.hpp"
 #include "okage/battle_hit.hpp"
 #include "okage/camera.hpp"
 #include <bit>
 #include <cfenv>
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
@@ -262,6 +265,31 @@ void select_attack_callback(BattleActor& actor,std::span<const BattleEntityBindi
         ballistic?BattleActor::FirstCallback::BallisticAttack:BattleActor::FirstCallback::ApproachAttack;
     put(actor.storage,0,0);
     put(actor.storage,0x30,std::uint32_t(std::int32_t(half(actor.storage,0x130))));
+}
+bool select_action_sequence(BattleActor& actor,std::span<const BattleEntityBinding> entities,
+                            const BattleDiagnosticLog& log) {
+    const int count=half(actor.storage,0x140);
+    for(int i=0;i<count;++i) {
+        check(i<14,"Battle state8 target list exceeds embedded descriptor");
+        const int target=std::bit_cast<std::int8_t>(actor.storage[0x132+unsigned(i)]);
+        //A negative or unregistered index reads unrelated root words in the
+        //source; that is not a supported native table lookup.
+        check(target>=0&&unsigned(target)<entities.size(),
+              "Unrecovered battle state8 target outside native entity bindings");
+        if(entities[unsigned(target)].actor)continue;
+        const auto text="OBJ:"+std::to_string(half(actor.storage,0x130))+" TGT:"+std::to_string(target)+
+                        " CAUTION!! ILLEGAL TARGET NUMBER!!!!\n";
+        if(log)log(text);else std::cerr<<text;
+        return false;
+    }
+    //154dac: phase, saved callback, callback, then sign-extended selector.
+    put(actor.storage,0x24,0);
+    actor.saved_first_callback=actor.first_callback; //TASK28 is a normalized pointer lane.
+    put(actor.storage,0x28,0);
+    actor.first_callback=BattleActor::FirstCallback::ActionSequence;
+    put(actor.storage,0,0);
+    put(actor.storage,0x30,std::uint32_t(std::int32_t(half(actor.storage,0x130))));
+    return true;
 }
 struct ApproachDirection {Float4 difference;float distance;};
 ApproachDirection approach_direction(const Float4& origin,const Float4& target) {
@@ -842,6 +870,82 @@ void approach_attack_update(BattleActor& task,const BattleState& root,std::span<
     }
     step_model(actor);
 }
+void action_sequence_update(BattleActor& task,BattleState& root,std::span<const BattleEntityBinding> entities,
+                            const BattleStrikeServices& services,const BattleHitServices* hits) {
+    auto& actor=bound_actor(entities,std::bit_cast<std::int32_t>(word(task.storage,0x30)));
+    switch(std::bit_cast<std::int32_t>(word(task.storage,0x24))) {
+    case 0: {
+        if(battle_command_available(root)==0)return; //151978: root81a8.
+        const int motion=half(actor.storage,0x21a);
+        check(motion>=0,"Unrecovered battle action sequence negative1bb908 motion selector");
+        std::uint32_t duration=0xbf800000u;
+        if(half(actor.storage,0x218)!=0x1c) {
+            check(bool(actor.action_secondary),"Battle action sequence156c70 has no secondary descriptor owner");
+            duration=word(actor.action_secondary->bytes,0);
+        }
+        put(actor.storage,0x128,std::uint32_t(motion));model(actor).select_motion(unsigned(motion));
+        put(actor.storage,0x12c,duration);
+        step_model(actor); //1547b8
+        put(task.storage,0x20,0);
+        battle_command_push(root,half(actor.storage,0x130),1); //1517e0(lh BODY+f0,1)
+        check(bool(services.action_name),"Battle action-name HUD168380 service missing");
+        services.action_name(half(actor.storage,0x1fc)); //lh BODY+1bc
+        put(actor.storage,0x300,0);put(actor.storage,0x308,0xffffffffu);
+        put(task.storage,0x24,word(task.storage,0x24)+1);
+        return;
+    }
+    case 1:
+        //156d5c: unless BODY+1d8 is0x1c, 1546a0(-1,BODY,live primary2..5?5:1).
+        if(half(actor.storage,0x218)!=0x1c) {
+            const auto primary=status(actor,1);
+            select_timed_motion(actor,primary<6&&primary>1?5u:1u,-1.f);
+        }
+        put(task.storage,0x24,word(task.storage,0x24)+1);
+        [[fallthrough]];
+    case 2: {
+        const float elapsed=single(scalar(actor.storage,0x1f8),scalar(actor.storage,0x2c),Operation::Add);
+        scalar(actor.storage,0x1f8,elapsed);
+        if(scalar(strike_descriptor(actor).bytes,0)<elapsed) {
+            put(task.storage,0x24,word(task.storage,0x24)+1);put(actor.storage,0x300,0);
+            return;
+        }
+        //154f98,1550d0,155180 on BODY, in that order (156df8..156e18).
+        strike_damage(actor,root,entities,services);
+        strike_sound(actor,services);
+        strike_effect(actor,root,entities,services);
+        return;
+    }
+    case 3: {
+        check(bool(services.camera_sequence),"Battle action sequence camera151170 service missing");
+        services.camera_sequence(1); //151170(1)
+        const auto selector=half(actor.storage,0x1fc); //lh BODY+1bc
+        if(selector==0x71||selector==0xc0||selector==0x72||selector==0xc1) {
+            //156e6c/156eb4: ADDIU on the live HP word, signed SLT against
+            //lh BODY+124 (TASK164), then1015e8(0x23,BODY+e0) and1016a8.
+            const std::int32_t amount=selector==0x71||selector==0xc0?50:100;
+            check(actor.stat_bindings[0].size()>=4,"Battle action sequence HP binding missing");
+            const auto next=word(actor.stat_bindings[0],0)+std::uint32_t(amount);
+            put(actor.stat_bindings[0],0,next);
+            const std::int32_t maximum=half(actor.storage,0x164);
+            if(!(std::bit_cast<std::int32_t>(next)<maximum))put(actor.stat_bindings[0],0,std::uint32_t(maximum));
+            check(hits&&bool(hits->attached_effect),"Battle action sequence attached effect1015e8 service missing");
+            const auto handle=hits->attached_effect(0x23,actor);
+            check(bool(hits->effect_value),"Battle action sequence effect value1016a8 service missing");
+            hits->effect_value(handle,-amount);
+        }
+        //156efc: state99 stored in1544b0's delay slot, then the clear.
+        put(actor.storage,0x21c,99);
+        for(int i=9;i>=0;--i)actor.storage[0x132+unsigned(i)]=0xff; //1544b0(BODY+f2)
+        for(unsigned at:{0x146u,0x140u,0x142u,0x144u})put(actor.storage,at,0,2);
+        put(task.storage,0x34,0);
+        check(task.saved_first_callback.has_value(),"Battle action sequence lacks saved callback");
+        task.first_callback=*task.saved_first_callback;put(task.storage,0,0);
+        put(task.storage,0x24,0);
+        return;
+    }
+    default:return;
+    }
+}
 }
 void ranged_attack_update(BattleActor& task,const BattleState& root,std::span<const BattleEntityBinding> entities,
                           const BattleStrikeServices& services) {
@@ -873,7 +977,8 @@ void battle_actor_reset_after_victory(BattleActor& actor) {
     actor.stat_bindings[1][0]=1;
     put(actor.stat_bindings[2],0,0,2);
 }
-void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities,const BattleState* root) {
+void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities,const BattleState* root,
+                                const BattleDiagnosticLog& log) {
     TowardZero rounding;
     put(actor.storage,0x20,0);
     switch(word(actor.storage,0x21c)) { //B+1dc, not C+1dc.
@@ -908,7 +1013,11 @@ void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityB
         break;
     }
     case 5:case 6:select_attack_callback(actor,entities);break;
-    default:throw std::runtime_error("Unrecovered battle actor motion/action state");
+    case 8:
+        if(!select_action_sequence(actor,entities,log))return; //154e7c skips154e20.
+        break;
+    default:throw std::runtime_error("Unrecovered battle actor motion/action state "+
+                                     std::to_string(word(actor.storage,0x21c)));
     }
     auto& animation=model(actor).animation();
     animation.set_channel(0,vector(actor.storage,0x90));
@@ -916,24 +1025,27 @@ void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityB
     animation.set_channel(2,vector(actor.storage,0xc0));
 }
 void battle_party_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
-                               const BattleHitServices* hits) {
+                               const BattleHitServices* hits,const BattleDiagnosticLog& log) {
     check(!actor.enemy&&!actor.dead_callback,"Unrecovered party first callback identity");
     TowardZero rounding;
     if(half(actor.storage,0x42)!=3)party_status_and_motion(actor,root,hits);
-    battle_actor_motion_update(actor,entities,&root);
+    battle_actor_motion_update(actor,entities,&root,log);
 }
 void battle_actor_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
-                               const BattleStrikeServices& services,const BattleHitServices* hits) {
+                               const BattleStrikeServices& services,const BattleHitServices* hits,
+                               const BattleDiagnosticLog& log) {
     TowardZero rounding;
     switch(actor.first_callback) {
     case BattleActor::FirstCallback::Roster:
-        if(actor.enemy)battle_enemy_first_update(actor,root,entities,hits);else battle_party_first_update(actor,root,entities,hits);
+        if(actor.enemy)battle_enemy_first_update(actor,root,entities,hits,log);
+        else battle_party_first_update(actor,root,entities,hits,log);
         break;
     case BattleActor::FirstCallback::ApproachAttack:approach_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::BallisticAttack:ballistic_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::RangedAttack:ranged_attack_update(actor,root,entities,services);break;
     case BattleActor::FirstCallback::EnemyDeath:enemy_death_update(actor,services,hits);break;
     case BattleActor::FirstCallback::PartyDeath:party_death_update(actor,root,services,hits);break;
+    case BattleActor::FirstCallback::ActionSequence:action_sequence_update(actor,root,entities,services,hits);break;
     }
 }
 void battle_actor_second_suffix(BattleActor& actor) {
@@ -962,12 +1074,12 @@ void battle_party_second_update(BattleActor& actor,const BattleState& root) {
     battle_actor_second_suffix(actor);
 }
 void battle_enemy_first_update(BattleActor& actor,BattleState& root,std::span<const BattleEntityBinding> entities,
-                               const BattleHitServices* hits) {
+                               const BattleHitServices* hits,const BattleDiagnosticLog& log) {
     check(actor.enemy&&!actor.dead_callback,"Unrecovered enemy first callback identity");
     TowardZero rounding;
     put(actor.storage,0x20,0);
     enemy_status_and_motion(actor,root,hits);
-    battle_actor_motion_update(actor,entities,&root); //154b38 writes C+20 a second time.
+    battle_actor_motion_update(actor,entities,&root,log); //154b38 writes C+20 a second time.
 }
 void battle_enemy_second_update(BattleActor& actor,const BattleState& root) {
     check(actor.enemy,"Enemy second callback received party actor");

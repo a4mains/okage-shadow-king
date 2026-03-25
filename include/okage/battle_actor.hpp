@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <string_view>
 
 namespace okage {
 struct BattleHitServices;
@@ -16,7 +17,8 @@ struct SceneModelAsset;
 using BattleModelAssetProvider = std::function<std::shared_ptr<const SceneModelAsset>(
     const std::filesystem::path&, unsigned requested_flags)>;
 struct BattleActor {
-    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,RangedAttack,EnemyDeath,PartyDeath};
+    //ActionSequence is 156c70, installed by 154b38 state8 (Stan action205).
+    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,RangedAttack,EnemyDeath,PartyDeath,ActionSequence};
     FirstCallback first_callback=FirstCallback::Roster;
     std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};
@@ -52,7 +54,11 @@ struct BattleStrikeServices {
     std::function<const BattleProjectile&(std::uint32_t source_pointer)> projectile;
     std::function<void(unsigned,const Float4&)> effect_position,effect_rotation;
     std::function<void(unsigned)> effect_stop;
+    std::function<void(int row_offset)> camera_sequence;
+    //156c70 substep0: 168380(action) writes the Waza name into the type3 HUD.
+    std::function<void(std::int16_t action)> action_name;
 };
+using BattleDiagnosticLog=std::function<void(std::string_view)>;
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
 void battle_register_action(BattleState&,unsigned owner,unsigned target,
                             std::uint32_t registration_flag);
@@ -62,18 +68,18 @@ void battle_clear_action(BattleState&,unsigned owner); //158868, preserves links
 //158b70: fixed 64 passes, indexes0..62 only; slot0 null returns immediately.
 void battle_compact_actions(BattleState&,unsigned entity);
 void battle_party_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding> = {},
-                               const BattleHitServices* =nullptr);  //153a20
+                               const BattleHitServices* =nullptr,const BattleDiagnosticLog& = {});  //153a20
 void battle_party_second_update(BattleActor&,const BattleState&); //153ce8
 void battle_enemy_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding> = {},
-                               const BattleHitServices* =nullptr);  //15b9a0
+                               const BattleHitServices* =nullptr,const BattleDiagnosticLog& = {});  //15b9a0
 void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
-// Dispatch the typed first callback selected by the previous task invocation.
 void battle_actor_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding>,
-                               const BattleStrikeServices& = {},const BattleHitServices* =nullptr);
+                               const BattleStrikeServices& = {},const BattleHitServices* =nullptr,
+                               const BattleDiagnosticLog& = {});
 //14b498: keep primary6 unchanged; otherwise reset live primary, then counter.
 void battle_actor_reset_after_victory(BattleActor&);
 void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {},
-                                const BattleState* =nullptr);
+                                const BattleState* =nullptr,const BattleDiagnosticLog& = {});
 void battle_actor_second_suffix(BattleActor&);
 class BattleRoster {
 public:

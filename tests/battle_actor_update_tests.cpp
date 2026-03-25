@@ -1,8 +1,15 @@
 #include "okage/battle_actor.hpp"
+#include "okage/battle_action_setup.hpp"
+#include "okage/battle_command_queue.hpp"
 #include "okage/battle_hit.hpp"
+#include "okage/battle_hud.hpp"
 #include <bit>
 #include <cfenv>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
+#include <string>
 #include <limits>
 #include <source_location>
 #include <stdexcept>
@@ -859,7 +866,211 @@ void queued_enemy_hit() {
     require(events.empty(),"Completed death callback does not award repeatedly");
 }
 }
-int main(){try {
+namespace {
+using Callback=okage::BattleActor::FirstCallback;
+template<class F> void rejects_with(F action,const char* text) {
+    try{action();}catch(const std::runtime_error& e){
+        require(std::string(e.what()).find(text)!=std::string::npos,"Guard message names the unrecovered source boundary");return;}
+    throw std::runtime_error(std::string("Expected rejection: ")+text);
+}
+struct SequenceFixture {
+    okage::BattleState root;
+    std::array<Fixture,14> actors;
+    std::vector<okage::BattleEntityBinding> entities;
+    SequenceFixture():entities(14) {
+        root.initialize_root({1,10,1});put(root.bytes,0x50,14);
+        for(unsigned i=0;i<14;++i) {
+            auto& a=actors[i].actor;a.entity_id=i;put(a.storage,0x130,i,2);
+            entities[i]={&a,actors[i].record,i<4?0u:1u};
+            put(root.entity(i),0x1fc,i>=4&&i!=6&&i!=8?0x80000000u:0u);
+        }
+        stan().stat_bindings[0]=std::span(actors[3].record).subspan(8,4);
+        put(stan().storage,0x42,3,2);put(stan().storage,0x44,6,2);
+    }
+    okage::BattleActor& stan(){return actors[3].actor;}
+    void targets(std::initializer_list<int> list) {
+        for(unsigned i=0;i<10;++i)stan().storage[0x132+i]=0xff;
+        unsigned n=0;for(int t:list)stan().storage[0x132+n++]=std::uint8_t(t);
+        put(stan().storage,0x140,n,2);
+    }
+    void installed() {
+        auto& s=stan();s.first_callback=Callback::ActionSequence;s.saved_first_callback=Callback::Roster;
+        put(s.storage,0x30,3);put(s.storage,0x24,0);
+    }
+};
+void state8_install_guards() {
+    {
+        //return before154dac and before the154e20 channel writes.
+        SequenceFixture f;auto& s=f.stan();f.targets({6,8});f.entities[8].actor=nullptr;
+        put(s.storage,0x21c,8);put(s.storage,0x24,19);put(s.storage,0x30,77);put(s.storage,0x20,5);
+        s.model->animation().set_channel(1,{9,9,9,1});
+        std::vector<std::string> logs;
+        okage::battle_party_first_update(s,f.root,f.entities,nullptr,[&](std::string_view t){logs.emplace_back(t);});
+        require(logs==std::vector<std::string>{"OBJ:3 TGT:8 CAUTION!! ILLEGAL TARGET NUMBER!!!!\n"},
+                "Missing target logs the pinned 243e70 text with owner and target");
+        require(s.first_callback==Callback::Roster&&!s.saved_first_callback&&word(s.storage,0x24)==19&&
+                word(s.storage,0x30)==77&&word(s.storage,0x20)==0&&word(s.storage,0x21c)==8,
+                "Missing target returns after the TASK20 clear and before the install");
+        require(s.model->animation().value(1)==okage::Float4({9,9,9,1}),"Early return skips the three 1b4220 writes");
+        f.entities[8].actor=&f.actors[8].actor;f.entities[6].actor=nullptr;logs.clear();
+        okage::battle_party_first_update(s,f.root,f.entities,nullptr,[&](std::string_view t){logs.emplace_back(t);});
+        require(logs==std::vector<std::string>{"OBJ:3 TGT:6 CAUTION!! ILLEGAL TARGET NUMBER!!!!\n"},"First missing target stops the scan");
+        f.targets({6,-1});f.entities[6].actor=&f.actors[6].actor;
+        rejects_with([&]{okage::battle_party_first_update(s,f.root,f.entities);},"outside native entity bindings");
+        require(s.first_callback==Callback::Roster,"Unsupported negative target never installs");
+    }
+    {
+        SequenceFixture f;auto& s=f.stan();f.targets({});put(s.storage,0x21c,8);put(s.storage,0x24,19);
+        s.model->animation().set_channel(1,{9,9,9,1});
+        okage::battle_party_first_update(s,f.root,f.entities);
+        require(s.first_callback==Callback::ActionSequence&&s.saved_first_callback==Callback::Roster&&
+                word(s.storage,0x24)==0&&word(s.storage,0x30)==3&&word(s.storage,0)==0&&word(s.storage,0x28)==0,
+                "State8 installs 156c70, saves the roster callback and records the selector");
+        for(unsigned i=0;i<4;++i)require(s.model->animation().value(1)[i]==number(s.storage,0x60+4*i),"Install path keeps the channel tail");
+        require(word(s.storage,0x21c)==8,"154b38 leaves BODY state8 for the callback");
+    }
+}
+void action_sequence_paths() {
+    {
+        SequenceFixture f;f.installed();auto& s=f.stan();put(f.root.bytes,0x81a8,0);
+        const auto before=s.storage;const auto root=f.root.bytes;
+        okage::battle_actor_first_update(s,f.root,f.entities);
+        require(s.storage==before&&f.root.bytes==root,"Closed 151978 gate returns before any write");
+        put(s.storage,0x24,4);okage::battle_actor_first_update(s,f.root,f.entities);
+        require(word(s.storage,0x24)==4&&s.first_callback==Callback::ActionSequence,"Unlisted substeps return without work");
+    }
+    {   //BODY+1d8==0x1c: duration -1 without a secondary owner; substep1 does
+        //not reselect, then increments twice when the deadline already passed.
+        SequenceFixture f;f.installed();auto& s=f.stan();
+        put(s.storage,0x218,0x1c,2);put(s.storage,0x21a,6,2);put(s.storage,0x1fc,0x1c,2);
+        s.action_motion.emplace();number(s.action_motion->bytes,0,0);
+        std::vector<int> names;okage::BattleStrikeServices services;
+        services.action_name=[&](std::int16_t action){names.push_back(action);};
+        okage::battle_actor_first_update(s,f.root,f.entities,services);
+        require(s.model->motion()==6&&word(s.storage,0x128)==6&&word(s.storage,0x12c)==0xbf800000u&&
+                names==std::vector<int>{0x1c}&&word(s.storage,0x24)==1,"Selector0x1c uses -1 and the BODY+1da motion");
+        okage::battle_actor_first_update(s,f.root,f.entities,services);
+        require(s.model->motion()==6&&word(s.storage,0x12c)==0xbf800000u&&word(s.storage,0x24)==3&&
+                number(s.storage,0x1f8)==1&&word(s.storage,0x300)==0,"Selector0x1c skips the idle reselect; passed deadline advances twice");
+    }
+    {
+        SequenceFixture f;f.installed();auto& s=f.stan();put(s.storage,0x24,2);
+        number(s.storage,0x2c,.1f);number(s.storage,0x1f8,1);
+        s.action_motion.emplace();put(s.action_motion->bytes,0,0x3f8ccccc);
+        for(unsigned at:{0x1e4u,0x1f4u})put(s.storage,at,4);put(s.storage,0x1ec,8);
+        okage::battle_actor_first_update(s,f.root,f.entities);
+        require(word(s.storage,0x1f8)==0x3f8ccccc&&word(s.storage,0x24)==2,"Toward-zero sum equals the deadline, which is not expiry");
+        okage::battle_actor_first_update(s,f.root,f.entities);
+        require(word(s.storage,0x24)==3,"The following strictly greater sum expires");
+    }
+    for(int selector:{0x71,0xc0,0x72,0xc1,205}) {
+        //Substep3: 151170(1), then only 0x71/0xc0 (+50) and 0x72/0xc1 (+100)
+        //restore the live HP word clamped at TASK164 and spawn1015e8/1016a8.
+        SequenceFixture f;f.installed();auto& s=f.stan();put(s.storage,0x24,3);
+        put(s.storage,0x1fc,std::uint32_t(selector),2);put(s.storage,0x164,120,2);put(f.actors[3].record,8,40);
+        f.targets({6,8});put(s.storage,0x142,205,2);put(s.storage,0x144,10,2);put(s.storage,0x146,0,2);
+        s.storage[0x13c]=0x5a;put(s.storage,0x34,9);
+        std::vector<std::string> events;okage::BattleStrikeServices services;
+        okage::BattleHitServices hits;
+        hits.attached_effect=[&](int id,okage::BattleActor& owner){require(&owner==&s,"HP effect attaches to BODY+e0");events.push_back("attach "+std::to_string(id));return 44u;};
+        hits.effect_value=[&](unsigned handle,int value){events.push_back("value "+std::to_string(handle)+" "+std::to_string(value));};
+        rejects_with([&]{okage::battle_actor_first_update(s,f.root,f.entities,services,&hits);},"camera151170");
+        require(word(s.storage,0x21c)==0&&word(s.storage,0x24)==3,"Missing camera owner stops before the tail");
+        services.camera_sequence=[&](int row){events.push_back("camera "+std::to_string(row));};
+        okage::battle_actor_first_update(s,f.root,f.entities,services,&hits);
+        const int amount=selector==0x71||selector==0xc0?50:selector==205?0:100;
+        std::vector<std::string> expected{"camera 1"};
+        if(amount){expected.push_back("attach 35");expected.push_back("value 44 "+std::to_string(-amount));}
+        require(events==expected,"Camera precedes the selector-only restore effect");
+        require(word(f.actors[3].record,8)==(amount==50?90u:amount==100?120u:40u),"ADDIU then signed clamp to TASK164");
+        require(word(s.storage,0x21c)==99&&s.storage[0x132]==0xff&&s.storage[0x13b]==0xff&&s.storage[0x13c]==0x5a&&
+                half(s.storage,0x140)==0&&half(s.storage,0x142)==0&&half(s.storage,0x144)==0&&half(s.storage,0x146)==0,
+                "State99 and 1544b0 clear exactly ten targets and four halfwords");
+        require(s.first_callback==Callback::Roster&&word(s.storage,0x24)==0&&word(s.storage,0x34)==0,
+                "Tail restores the saved callback and resets substep and param13");
+    }
+    {
+        SequenceFixture f;f.installed();auto& s=f.stan();put(s.storage,0x21a,7,2);
+        s.action_secondary.emplace();number(s.action_secondary->bytes,0,160);
+        rejects_with([&]{okage::battle_actor_first_update(s,f.root,f.entities);},"HUD168380");
+        require(okage::battle_command_available(f.root)==0&&word(f.root.bytes,0x81a4)==1&&word(s.storage,0x24)==0,
+                "Missing 168380 owner retains the preceding command push");
+    }
+}
+std::vector<std::uint8_t> read_file(const std::filesystem::path& path) {
+    std::ifstream in(path,std::ios::binary);
+    if(!in)throw std::runtime_error("Cannot read owned stage input "+path.string());
+    return {std::istreambuf_iterator<char>(in),{}};
+}
+void action205_owned(const std::filesystem::path& stage) {
+    okage::BattleActionData data(read_file(stage/"NATIVE_UI/battle-actions.bin"));
+    okage::GameDataTables tables(read_file(stage/"CMNDATA/XDB/BKDATA.XDB"),read_file(stage/"CMNDATA/XDB/ITEM.XDB"));
+    okage::RuwResource ruw(read_file(stage/"NATIVE_UI/BTL.RUW"));
+    okage::BattleHud hud;
+    SequenceFixture f;auto& s=f.stan();
+    put(s.storage,0x142,205,2);put(s.storage,0x144,10,2);put(s.storage,0x146,0,2);f.targets({});
+    (void)okage::battle_setup_action(s,f.root,tables,data);
+    require(s.action_motion->identity==318&&s.action_secondary->identity==360,
+            "Owned action205 resolves motion318 and secondary360");
+    require(s.storage[0x132]==6&&s.storage[0x133]==8&&s.storage[0x134]==0xff&&half(s.storage,0x140)==2&&
+            half(s.storage,0x1fc)==205&&half(s.storage,0x218)==205&&half(s.storage,0x21a)==7,
+            "Owned registration matches the natural row targets 06 08 ff");
+    number(s.storage,0x2c,.5f);put(s.storage,0x21c,8);
+    okage::battle_party_first_update(s,f.root,f.entities);
+    require(s.first_callback==Callback::ActionSequence&&s.saved_first_callback==Callback::Roster,"Owned state8 installs 156c70");
+    std::vector<std::string> events;
+    okage::BattleStrikeServices services;
+    services.damage_event=[&](int command,int owner,int target){events.push_back("damage "+std::to_string(command)+" "+std::to_string(owner)+" "+std::to_string(target));};
+    services.sound=[&](int id){events.push_back("sound "+std::to_string(id));};
+    services.positioned_effect=[&](int id,const okage::Float4&,bool){events.push_back("effect "+std::to_string(id));return 70u+unsigned(events.size());};
+    services.action_name=[&](std::int16_t action){events.push_back("hud "+std::to_string(action));hud.show_action_name(ruw,tables,action);};
+    services.camera_sequence=[&](int row){events.push_back("camera "+std::to_string(row));};
+    put(f.root.bytes,0x81a8,0);
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(events.empty()&&word(s.storage,0x24)==0,"Substep0 waits for the 151978 command gate");
+    put(f.root.bytes,0x81a8,1);const auto queue=word(f.root.bytes,0x81a4);
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(s.model->motion()==7&&word(s.storage,0x128)==7&&number(s.storage,0x12c)==160&&word(s.storage,0x20)==0,
+            "Substep0 1546a0 uses secondary type7 and its authored 160 duration");
+    const unsigned slot=0x80a4+(queue+1)*8;
+    require(word(f.root.bytes,0x81a4)==queue+1&&word(f.root.bytes,slot)==3&&word(f.root.bytes,slot+4)==1&&
+            okage::battle_command_available(f.root)==0,"1517e0(owner3,1) closes the command gate");
+    require(events==std::vector<std::string>{"hud 205"}&&word(s.storage,0x300)==0&&word(s.storage,0x308)==0xffffffffu&&
+            word(s.storage,0x24)==1,"Substep0 HUD, BODY+2c0/2c8 writes and advance");
+    const auto& text=*ruw.widget(5,0x2e).runtime->text;
+    require(std::string(text.data())=="\\f[2]\\s[0.95,1.0]Burning Devil"&&
+            ruw.widget(5,0x2e).runtime->words[6]==std::uint32_t(320-5*13)&&hud.type3_reset==1&&hud.type3_ready==1,
+            "168380 formats sysmes0x72 with the Waza name, centers by strlen and sets both HUD flags");
+    for(const auto& w:ruw.widgets()[5])if(w.runtime&&w.words[8]==0xffffffffu)
+        require((w.runtime->words[4]>>24)==0,"168380 hides class-1 rows");
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(s.model->motion()==1&&number(s.storage,0x12c)==-1&&number(s.storage,0x1f8)==.5f&&word(s.storage,0x24)==2,
+            "Substep1 reselects idle, then accumulates the first half step");
+    require(events==std::vector<std::string>{"hud 205","damage 16 3 6","damage 16 3 8","sound 54","effect 12","effect 12"},
+            "154f98 damage per live target, then 1550d0 sound, then 155180 type2 effects");
+    require(word(s.storage,0x1e4)==4&&word(s.storage,0x1ec)==8&&word(s.storage,0x1f4)==4,"Authored -1 next times terminate each schedule");
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(number(s.storage,0x1f8)==1&&word(s.storage,0x24)==2&&events.size()==6,"Equality with the 1.0 deadline stays in substep2");
+    put(s.storage,0x300,5);
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(number(s.storage,0x1f8)==1.5f&&word(s.storage,0x24)==3&&word(s.storage,0x300)==0&&events.size()==6,
+            "Passing the deadline advances and clears BODY+2c0 without schedule calls");
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(events.back()=="camera 1"&&events.size()==7&&word(s.storage,0x21c)==99&&s.storage[0x132]==0xff&&
+            half(s.storage,0x140)==0&&half(s.storage,0x142)==0&&s.first_callback==Callback::Roster&&word(s.storage,0x24)==0,
+            "Substep3 camera, state99, participant clear and callback restoration");
+    okage::battle_actor_first_update(s,f.root,f.entities,services);
+    require(word(s.storage,0x21c)==99&&events.size()==7,"Restored roster callback runs state99 without new services");
+    std::cout<<"Owned action205 state8/156c70 sequence passed\n";
+}
+}
+int main(int argc,char** argv){try {
     first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ranged_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
+    state8_install_guards();action_sequence_paths();
+    if(argc==2) {
+        const std::filesystem::path stage=argv[1];
+        if(std::filesystem::exists(stage/"NATIVE_UI/battle-actions.bin"))action205_owned(stage);
+        else std::cout<<"Owned action205 section skipped: stage lacks NATIVE_UI/battle-actions.bin\n";
+    } else require(argc==1,"Expected optional owned stage directory");
     std::cout<<"Battle actor startup callback tests passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

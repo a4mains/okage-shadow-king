@@ -633,6 +633,23 @@ void BattleHud::reset_type3(RuwResource& r) {
     type3_reset=0;r.add_class_rgba(5,-1,{keep,keep,keep,128});
     r.set_class_rgba(5,0,{keep,keep,keep,0});type3_ready=1;
 }
+void BattleHud::show_action_name(RuwResource& r,const GameDataTables& tables,std::int16_t action) {
+    //1254a0 copies the owned Waza row first; word0 is the resolved name.
+    const auto& record=tables.action(action);
+    r.set_class_rgba(5,-1,{keep,keep,keep,0});   //1ab410(0,5,-1,keep,keep,keep,0)
+    r.add_class_rgba(5,0,{keep,keep,keep,0x80}); //1ab600(0,5,0,keep,keep,keep,128)
+    //123530(0x72) -> 1256a8 sysmes; 1f15a8 formats into a 128-byte stack buffer.
+    const auto name=std::string_view(record.name).substr(0,std::string_view(record.name).find('\0'));
+    const std::array args{std::string(name)};
+    const std::array<std::string_view,1> conversion{"%s"};
+    const auto formatted=format_reached(tables.system_message(0x72),args,conversion);
+    if(formatted.size()>=128)throw std::runtime_error("Action-name HUD text exceeds168380 stack buffer");
+    r.set_text(5,0x2e,formatted); //1aa2b8
+    //1f1b70 strlen, then SLL/ADDU/SUBU: 0x140-5*length with32-bit wrap.
+    const auto x=std::bit_cast<std::int32_t>(0x140u-std::uint32_t(name.size())*5u);
+    r.set_position(5,0x2e,x,keep); //1a9e88(0,5,0x2e,x,keep)
+    type3_reset=1;type3_ready=1;   //1fdb7c then1fdb78
+}
 void BattleHud::initialize_type3(RuwResource& r,const GameDataTables& tables) {
     reset_type3(r);type3_ready=1;type3_history_cursor=0;type3_slots.fill(-1);type3_demo_counter=0;
     for(unsigned i=0;i<5;++i) {

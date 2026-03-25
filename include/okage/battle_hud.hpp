@@ -71,6 +71,7 @@ struct BattleHud {
     void update_target_confirm(RuwResource&,int category,int selected_row);
     void clear_target_confirm_cursor(RuwResource&);
     void reset_type3(RuwResource&);
+    void show_action_name(RuwResource&,const GameDataTables&,std::int16_t action);
     void initialize_type3(RuwResource&,const GameDataTables&);
     void append_history_event(RuwResource&,const BattleHudData&,const GameDataTables&,
         const BattleData&,unsigned formation_index,unsigned kind,
