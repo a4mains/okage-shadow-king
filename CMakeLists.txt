@@ -563,6 +563,12 @@ if(BUILD_TESTING)
     add_executable(dialogue-tests tests/dialogue_tests.cpp)
     target_link_libraries(dialogue-tests PRIVATE okage_assets)
     add_test(NAME dialogue-tests COMMAND dialogue-tests)
+    # Stan's roar messages 100001..100013 use owned F2.PME/BKDATA from this
+    # ignored stage; the owned section reports a skip when it is absent.
+    add_executable(stan-roar-dialogue-tests tests/stan_roar_dialogue_tests.cpp)
+    target_link_libraries(stan-roar-dialogue-tests PRIVATE okage_assets)
+    add_test(NAME stan-roar-dialogue-tests COMMAND stan-roar-dialogue-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
     add_executable(font-tests tests/font_tests.cpp)
     target_link_libraries(font-tests PRIVATE okage_assets)
     add_test(NAME font-tests COMMAND font-tests)
