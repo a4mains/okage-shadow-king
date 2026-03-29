@@ -1,6 +1,8 @@
 #pragma once
 #include "okage/font.hpp"
 #include "okage/assets.hpp"
+#include <array>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -15,6 +17,9 @@ struct MessagePath {
 struct MessageBank {
     std::vector<std::string> strings;
     std::vector<MessageNode> nodes;
+    // Original record sizes including the terminator (read_pme only). In-place
+    // bindings by 0x19a5c8 sprintf must fit this storage; empty means unknown.
+    std::vector<std::uint32_t> capacities;
     // Original message-ID lookup and positional fallback (0x19a150).
     std::vector<std::uint32_t> message_indices(std::int32_t id) const;
     std::vector<std::string> message(std::int32_t id) const;
@@ -25,6 +30,8 @@ struct MessageBank {
     // Original 0x19a5c8 replaces the first matching tagged system child.
     // Shared string indices make the binding visible to every referring message.
     bool bind(std::string_view tag,std::string_view value);
+    // String index bind() would rewrite for this tag (first matching system child).
+    std::optional<std::size_t> tagged_string(std::string_view tag) const;
 };
 MessageBank read_pme(Bytes bytes);
 
@@ -34,7 +41,11 @@ struct TextState {
     std::uint32_t x=0, y=0, line_origin=0, line_height=24, font=0;
     std::uint32_t period=2, phase=0, delay=0;
     std::string speaker, window, option, replacement, description;
+    std::array<char,256> replacement_bytes{};
 };
+// 0x19bd98: one plus the number of "\\n" separators before the terminator.
+unsigned replacement_segments(std::string_view replacement);
+std::string replacement_segment(const std::array<char,256>& bytes,unsigned index);
 unsigned consume_text_control(std::string_view text, std::size_t& cursor, TextState& state);
 
 struct TextClock {
@@ -59,6 +70,7 @@ class DialogueText {
     MessagePath path_;
     std::size_t fragment_=0, cursor_=0;
     bool loaded_=false;
+    void load_fragment();
 public:
     explicit DialogueText(std::vector<std::string> fragments):fragments_(std::move(fragments)) {}
     // Bank must outlive the dialogue, including any branch selections.

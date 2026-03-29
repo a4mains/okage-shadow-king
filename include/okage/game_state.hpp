@@ -44,7 +44,11 @@ public:
     std::size_t action_count() const {return actions_.size();}
     std::int32_t learned_skill(int unit_id,int level) const;
     std::int32_t encounter_formation(unsigned row,unsigned column) const;
+    // 0x125708: BKDATA `sysval` words (0x1468c8 question-choice records),
+    // terminated by 999999999. Empty when the optional section is absent.
+    const std::vector<std::int32_t>& system_values() const {return system_values_;}
 private:
+    std::vector<std::int32_t> system_values_;
     std::vector<GameActionRecord> actions_;
     std::vector<std::string> unit_model_names_;
     std::vector<GameUnitUiRecord> ui_units_;

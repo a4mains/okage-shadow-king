@@ -126,6 +126,8 @@ GameDataTables::GameDataTables(Bytes battle_data,Bytes item_data) {
     learned_skills_=records<6>(battle_data,"learn",{},-1,nullptr,true);
     encounter_formations_=records<24>(battle_data,"bunpu",{},-1,nullptr,true);
     (void)records<1>(battle_data,"sysmes",{0},0,&system_messages_,true);
+    for(const auto& row:records<1>(battle_data,"sysval",{},-1,nullptr,true))
+        system_values_.push_back(std::bit_cast<std::int32_t>(row[0]));
     std::vector<std::string> names,descriptions;
     const auto actions=records<13>(battle_data,"waza",{0,12},0,&names,true);
     (void)records<13>(battle_data,"waza",{0,12},12,&descriptions,true);

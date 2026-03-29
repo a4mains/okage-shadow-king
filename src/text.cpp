@@ -42,6 +42,7 @@ MessageBank read_pme(Bytes b) {
         if(std::find(b.begin()+at,b.begin()+at+size-1,0)!=b.begin()+at+size-1)
             throw std::runtime_error("Embedded PME string terminator");
         result.strings.emplace_back(reinterpret_cast<const char*>(b.data()+at),size-1);
+        result.capacities.push_back(size);
         at+=size;
     }
     if(at!=b.size())throw std::runtime_error("PME trailing bytes");
@@ -59,7 +60,7 @@ MessagePath MessageBank::message_path(std::int32_t id) const {
     if(roots.empty())throw std::runtime_error("PME has no message roots");
     auto root=roots[std::clamp<std::int64_t>(id,0,roots.size()-1)];
     for(auto candidate:roots) {
-        if(__builtin_bit_cast(std::int32_t, (decimal(strings.at(nodes[candidate].string_index),true)))==id) {
+        if(std::bit_cast<std::int32_t>(decimal(strings.at(nodes[candidate].string_index),true))==id) {
             root=candidate;break;
         }
     }
@@ -126,10 +127,40 @@ bool MessageBank::select_branch(MessagePath& path,std::size_t fragment,unsigned 
 DialogueText::DialogueText(const MessageBank& bank,std::int32_t id):bank_(&bank),path_(bank.message_path(id)) {
     for(auto index:path_.strings)fragments_.push_back(bank.strings.at(index));
 }
+unsigned replacement_segments(std::string_view text) {
+    unsigned count=1;
+    for(std::size_t at=0;at<text.size();) {
+        if(text[at]=='\\' && at+1<text.size() && text[at+1]=='n'){++count;at+=2;}
+        else ++at;
+    }
+    return count;
+}
+std::string replacement_segment(const std::array<char,256>& bytes,unsigned index) {
+    auto byte=[&](std::size_t at) {
+        if(at>=bytes.size())throw std::runtime_error("0x120d68 segment read beyond the text-object replacement buffer");
+        return bytes[at];
+    };
+    std::string out;std::size_t at=0;unsigned segment=0;
+    if(!byte(0)) {
+        // Source starts at segment1 after the leading NUL when index!=0.
+        if(!index)return out;
+        segment=1;
+    } else goto body;
+    for(;;) {
+        ++at;out.clear();
+    body:
+        while(const char c=byte(at)) {
+            if(c=='\\' && byte(at+1)=='n') {
+                if(segment++==index)return out;
+                at+=2;out.clear();
+            } else {out.push_back(c);++at;}
+        }
+        if(segment++==index)return out;
+    }
+}
 void DialogueText::move_choice(int delta) {
     if(!delta)return;
-    int count=1;std::size_t at=0;
-    while((at=state.replacement.find("\\n",at))!=std::string::npos){++count;at+=2;}
+    const int count=int(replacement_segments(state.replacement));
     const auto next=std::int64_t(choice_cursor)+delta;
     choice_cursor=next<0 ? count-1 : next%count;
 }
@@ -150,17 +181,23 @@ bool DialogueText::select_choice(unsigned selection) {
     state.color=0x80808080;state.phase=state.x=state.y=state.line_origin=0;
     state.option.assign(1,char(255));return true;
 }
-bool MessageBank::bind(std::string_view tag,std::string_view value) {
-    if(tag.size()>250 || value.size()>4096 || tag.find('\0')!=tag.npos || value.find('\0')!=value.npos)
-        throw std::runtime_error("Invalid PME binding string");
-    if(nodes.empty())return false;
+std::optional<std::size_t> MessageBank::tagged_string(std::string_view tag) const {
+    if(tag.size()>250 || tag.find('\0')!=tag.npos)throw std::runtime_error("Invalid PME binding string");
+    if(nodes.empty())return std::nullopt;
     const auto prefix=std::string("\\r[")+std::string(tag)+"]";
     for(std::size_t i=1;i<nodes.size() && nodes[i].depth>nodes[0].depth;++i) {
         if(nodes[i].depth!=nodes[0].depth+1)continue;
-        auto& text=strings.at(nodes[i].string_index);
-        if(text.starts_with(prefix)) {text=prefix+std::string(value);return true;}
+        if(strings.at(nodes[i].string_index).starts_with(prefix))return nodes[i].string_index;
     }
-    return false;
+    return std::nullopt;
+}
+bool MessageBank::bind(std::string_view tag,std::string_view value) {
+    if(value.size()>4096 || value.find('\0')!=value.npos)
+        throw std::runtime_error("Invalid PME binding string");
+    const auto index=tagged_string(tag);
+    if(!index)return false;
+    strings.at(*index)="\\r["+std::string(tag)+"]"+std::string(value);
+    return true;
 }
 unsigned consume_text_control(std::string_view text,std::size_t& cursor,TextState& state) {
     if(cursor>=text.size())throw std::runtime_error("Text cursor outside fragment");
@@ -206,11 +243,32 @@ unsigned consume_text_control(std::string_view text,std::size_t& cursor,TextStat
         case 'm':next.speaker=argument();break;
         case 'y':next.window=argument();break;
         case 'o':next.option=argument();break;
-        case 'z':next.replacement=argument();break;
+        case 'z': {
+            next.replacement=argument();
+            std::copy(next.replacement.begin(),next.replacement.end(),next.replacement_bytes.begin());
+            next.replacement_bytes[next.replacement.size()]='\0';
+            break;
+        }
         case 'd':next.description=argument();break;
-        case 'r':argument();break;
+        case 'r': {
+            // 0x19d9a0 \r stores nothing. Its skip loop tests the byte after a
+            // lead >0x80 for ']' (one byte ahead of the other copy loops). The
+            // remaining text renders, including any 0x19a5c8 binding value.
+            if(end>=text.size() || text[end]!='[')break;
+            if(end+1>=text.size())throw std::runtime_error("Unterminated text argument");
+            char current=text[end+1];end+=2;
+            while(current!=']') {
+                if(end>=text.size())throw std::runtime_error("Unterminated text argument");
+                std::size_t tested=end;
+                if(static_cast<unsigned char>(text[end])>0x80){tested=end+1;end+=2;}
+                else ++end;
+                if(tested>=text.size())throw std::runtime_error("Unterminated text argument");
+                current=text[tested];
+            }
+            break;
+        }
         case 'l':next.x=next.y=next.phase=0;next.window.clear();next.option.clear();
-                 next.replacement.clear();break;
+                 next.replacement.clear();next.replacement_bytes[0]='\0';break;
         case 't':break;
         default:throw std::runtime_error("Unrecovered text command");
     }
@@ -232,9 +290,9 @@ void tick_text_clock(TextState& state,TextClock& clock) {
             --state.delay;
         } else {
             ++state.phase;
-            if(__builtin_bit_cast(std::int32_t, (state.phase))>__builtin_bit_cast(std::int32_t, (state.period))) {
+            if(std::bit_cast<std::int32_t>(state.phase)>std::bit_cast<std::int32_t>(state.period)) {
                 state.phase=0;
-                clock.revealed+=__builtin_bit_cast(std::int32_t, (state.period))<0 ? 0u-state.period : 1;
+                clock.revealed+=std::bit_cast<std::int32_t>(state.period)<0 ? 0u-state.period : 1;
             }
             if(!(state.flags&0x20))state.flags|=1;
         }
@@ -253,14 +311,14 @@ void DialogueText::frame(TextClock& clock,bool visible) {
     if(!(state.flags&0x8000) || !((clock.display_modes>>4)&3) || (state.flags&0x20) || !(state.flags&1))return;
     if(visible) {
         const auto phase=state.phase,period=state.period;
-        auto remaining=__builtin_bit_cast(std::int32_t, (period));
+        auto remaining=std::bit_cast<std::int32_t>(period);
         if(remaining<0)++remaining;
         if(fragment_==fragments_.size()) {state.flags=(state.flags|0x22)&~1u;return;}
-        if(__builtin_bit_cast(std::int32_t, (phase))<1 && !state.delay) {
+        if(std::bit_cast<std::int32_t>(phase)<1 && !state.delay) {
             for(unsigned budget=0;;++budget) {
                 if(budget==100000)throw std::runtime_error("Text frame instruction limit");
                 if(fragment_==fragments_.size())break;
-                if(!loaded_) {loaded_=true;cursor_=0;break;}
+                if(!loaded_) {load_fragment();cursor_=0;break;}
                 const auto& text=fragments_[fragment_];
                 if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;continue;}
                 const auto old=cursor_;
@@ -285,21 +343,21 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                     const auto* found=fonts[state.font].find(glyph);
                     if(!found)throw std::runtime_error("Missing text glyph");
                     const auto& m=found->metrics;
-                    auto x=__builtin_bit_cast(std::int32_t, (state.x)),y=__builtin_bit_cast(std::int32_t, (state.y));
+                    auto x=std::bit_cast<std::int32_t>(state.x),y=std::bit_cast<std::int32_t>(state.y);
                     const int glyph_width=glyph==32 ? 10 : m[8]/16;
                     const int glyph_height=glyph==32 ? state.line_height : (m[9]>>2)/2;
                     if((state.flags&0x40) && std::int64_t(x)+glyph_width>32*24) {
-                        x=0;y=__builtin_bit_cast(std::int32_t, (state.y+state.line_height));
+                        x=0;y=std::bit_cast<std::int32_t>(state.y+state.line_height);
                     }
                     // 0x19c568: normal unit-scale placement, including baseline
                     // and left bearing. Space has no bearing or baseline offset.
-                    const int bearing=glyph==32 ? 0 : __builtin_bit_cast(std::int16_t, (m[2]))/16;
-                    const int baseline=glyph==32 ? 0 : __builtin_bit_cast(std::int16_t, (m[1]))/8;
+                    const int bearing=glyph==32 ? 0 : std::bit_cast<std::int16_t>(m[2])/16;
+                    const int baseline=glyph==32 ? 0 : std::bit_cast<std::int16_t>(m[1])/8;
                     const auto px=std::int64_t(x)-bearing+24,py=std::int64_t(y)-baseline+36;
                     if(px<INT32_MIN || px>INT32_MAX || py<INT32_MIN || py>INT32_MAX)
                         throw std::runtime_error("Text layout coordinate overflow");
                     glyphs.push_back({glyph,state.font,state.color,std::int32_t(px),std::int32_t(py),glyph_width,glyph_height});
-                    state.x=__builtin_bit_cast(std::uint32_t, (x))+1u+glyph_width;state.y=__builtin_bit_cast(std::uint32_t, (y));
+                    state.x=std::bit_cast<std::uint32_t>(x)+1u+glyph_width;state.y=std::bit_cast<std::uint32_t>(y);
                 }
                 page.append(text,cursor_,width);cursor_+=width;
                 if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
@@ -313,8 +371,8 @@ void DialogueText::frame(TextClock& clock,bool visible) {
     state.flags&=~1u;
 }
 void DialogueText::confirm(std::int32_t normal_period) {
-    if(__builtin_bit_cast(std::int32_t, (state.delay))>0)return;
-    if(state.delay || (state.flags&0x910)) {resume();state.period=__builtin_bit_cast(std::uint32_t, (normal_period));}
+    if(std::bit_cast<std::int32_t>(state.delay)>0)return;
+    if(state.delay || (state.flags&0x910)) {resume();state.period=std::bit_cast<std::uint32_t>(normal_period);}
     else state.period=0xfffffffcu;
 }
 Texture rasterize_text(std::span<const Font> fonts,std::span<const TextGlyph> glyphs,unsigned width,unsigned height) {
@@ -352,9 +410,9 @@ TextStep DialogueText::step() {
     if(state.flags&0x20)return TextStep::end;
     if(state.flags&0x910 || state.delay)return TextStep::pause;
     while(fragment_<fragments_.size()) {
+        if(!loaded_)load_fragment();
         const auto& text=fragments_[fragment_];
         if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;continue;}
-        loaded_=true;
         const auto old=cursor_;
         const auto control=consume_text_control(text,cursor_,state);
         if(control) {
@@ -372,6 +430,10 @@ TextStep DialogueText::step() {
         page.append(text,cursor_,width);cursor_+=width;return TextStep::glyph;
     }
     state.flags|=0x22;return TextStep::end;
+}
+void DialogueText::load_fragment() {
+    if(bank_ && fragment_<path_.strings.size())fragments_[fragment_]=bank_->strings.at(path_.strings[fragment_]);
+    loaded_=true;
 }
 void DialogueText::resume() {
     state.period=2;state.delay=0;state.flags&=0xfffff6ef;state.phase=0;
