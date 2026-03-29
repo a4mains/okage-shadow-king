@@ -3,6 +3,7 @@
 #include <cfenv>
 #include <cmath>
 #include <charconv>
+#include <cstdlib>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
@@ -38,7 +39,11 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
     const bool option=!text.state.option.empty() && static_cast<unsigned char>(text.state.option[0])!=255;
     const bool comparison=option && text.state.option.starts_with("CMP(");
     const bool flag_branch=option && text.state.option.starts_with("FFF(");
-    if(option && !comparison && !flag_branch && text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
+    // 0x1fcbd8 option table: CC->1, BC->2, QC->3 (mode0); ANSWERCMP->0x10.
+    const bool question=option && text.state.option=="QC";
+    const bool answer=option && text.state.option=="ANSWERCMP";
+    if(option && !comparison && !flag_branch && !question && !answer &&
+       text.state.option!="CC" && text.state.option!="BC" && text.state.option!="BC=0")
         throw std::runtime_error("Dialogue option outside recovered scope");
     auto resume=[&]{text.resume();text.state.period=std::bit_cast<std::uint32_t>(normal_period);++effects.resume_calls;};
     auto& command=text.state.window;
@@ -146,6 +151,31 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
                 effects.reset_text_clock=text.select_choice(text.choice_cursor);
                 choice_armed=false;resume();++advance_count;
             }
+        } else if(question) {
+            choice_active=true;
+            const auto repeat=filtered(buttons.repeat),pressed=filtered(buttons.pressed);
+            if(!choice_armed){if(repeat&0x5000)choice_armed=true;}
+            else {
+                if(repeat&0x1000) {
+                    text.move_choice(-1);
+                    if(text.choice_cursor>2)text.move_choice(text.choice_cursor+4);
+                }
+                if(repeat&0x4000) {
+                    text.move_choice(1);
+                    if(text.choice_cursor==3)text.move_choice(-3);
+                }
+            }
+            question_flash_row=0;question_flash=0;
+            if(choice_armed && (layer_flags&0x10) && (pressed&0x40)) {
+                question_flash=10;choice_armed=false;question_flash_row=text.choice_cursor;
+                effects.reset_text_clock=text.select_choice(unsigned(text.choice_cursor));
+                resume();++advance_count;
+            }
+        } else if(answer) {
+            // 0x148dc8 return0x10: branch1 when 0x146288 left layer flag8 set
+            // (all three bound positions equal the generated answers), else
+            // branch0. Selection/resume without an input-counter increment.
+            effects.reset_text_clock=text.select_choice((layer_flags&8)?1:0);resume();
         } else if(flag_branch) {
             const auto values=arguments(text.state.option,"FFF(",4);
             if(values[0]<0||values[1]<0||values[2]<0||values[3]<0||!get_variable)
@@ -396,6 +426,111 @@ std::vector<TextGlyph> ChoiceMenu::glyphs(const Font& font) const {
         }
     }
     return result;
+}
+void QuestionChoice::initialize(std::int32_t id,std::span<const std::int32_t> sysval,
+                                const std::function<std::uint32_t()>& random,
+                                DialogueController& controller,ChoiceMenu& menu) {
+    // 0x1468c8 prologue: 1fcb74 (CC acceptance) and 1fcb78 are cleared for
+    // every message; 1fcb70/1fcb64 have no other native owner here.
+    menu.accepted=0;controller.question_flash=0;
+    // 0x125708 returns 0 for a missing table, so the scan would never end.
+    std::int64_t found=-1;
+    for(std::size_t i=0;;++i) {
+        if(i>=sysval.size())throw std::runtime_error("Question-choice sysval table missing or unterminated");
+        if(sysval[i]==999999999)break;
+        if(sysval[i]==id)found=std::int64_t(i); // movz: the last match wins.
+    }
+    generated=false;
+    if(found<0)return;
+    auto at=[&](std::int64_t index) {
+        if(index<0 || std::size_t(index)>=sysval.size())
+            throw std::runtime_error("Question-choice record read outside sysval (0x125708 is unchecked)");
+        return sysval[std::size_t(index)];
+    };
+    auto draw=[&]{
+        if(!random)throw std::runtime_error("Question-choice random stream unavailable");
+        const auto value=std::bit_cast<std::int32_t>(random());
+        if(value<0)throw std::runtime_error("Question-choice rand produced a negative value");
+        return value;
+    };
+    const auto sets=at(found+4);
+    words.fill(-1);answers.fill(-1);
+    std::array<std::int32_t,3> counts{};
+    for(unsigned k=0;k<3;++k)counts[k]=at(found+1+k);
+    if(sets==0)throw std::runtime_error("Question-choice set count zero (division trap)");
+    // Exclusion and candidate arrays are 16-word stack buffers in the source.
+    if(sets<0 || sets>16)throw std::runtime_error("Question-choice answer-set count outside source stack storage");
+    const auto offset=std::int64_t(draw()%sets)*3+4;
+    for(unsigned slot=0;slot<3;++slot) {
+        answers[slot]=draw()%3;
+        const auto correct_at=std::size_t(slot*3+unsigned(answers[slot]));
+        words[correct_at]=at(found+1+offset+slot);
+        std::array<std::int32_t,16> excluded;excluded.fill(-1);
+        for(std::int32_t k=0;k<sets;++k)excluded[std::size_t(k)]=at(found+1+slot+4+3*std::int64_t(k));
+        auto is_excluded=[&](std::int32_t word) {
+            bool hit=false;for(std::int32_t k=0;k<sets;++k)if(excluded[std::size_t(k)]==word)hit=true;
+            return hit;
+        };
+        std::int32_t first=-1;
+        for(unsigned pick=0;pick<2;++pick) {
+            std::vector<std::int32_t> candidates;
+            for(std::int32_t word=0;word<counts[slot];++word) {
+                if(words[correct_at]==word || (pick && first==word) || is_excluded(word))continue;
+                if(candidates.size()==16)throw std::runtime_error("Question-choice candidates overflow source stack storage");
+                candidates.push_back(word);
+            }
+            for(unsigned position=0;position<3;++position) {
+                auto& target=words[slot*3+position];
+                if(target!=-1)continue;
+                if(candidates.empty())throw std::runtime_error("Question-choice has no distractor candidate (division trap)");
+                target=candidates[std::size_t(draw()%std::int32_t(candidates.size()))];
+                if(!pick)first=target;
+                break;
+            }
+        }
+    }
+    generated=true;
+}
+void QuestionChoice::update(DialogueText& text,MessageBank& bank,DialogueController& controller,ChoiceMenu& menu) {
+    active=false;
+    const auto& replacement=text.state.replacement;
+    if(replacement_segments(replacement)<=3)return; //0x19b8f8 > 3 only.
+    active=true;
+    if(!generated)throw std::runtime_error("Question-choice widget without a matching sysval record reads stale 0x2dc6f0 tables");
+    const auto& bytes=text.state.replacement_bytes;
+    // 1f0558 = strtol(segment0,0,10).
+    const auto first=replacement_segment(bytes,0);
+    char* end=nullptr;const long parsed=std::strtol(first.c_str(),&end,10);
+    if(parsed<0 || parsed>2)throw std::runtime_error("Question-choice slot outside the three recovered table rows");
+    slot=int(parsed);
+    const int cursor=text.choice_cursor;
+    if(controller.question_flash<1){controller.question_flash_row=0;highlight_row=cursor;}
+    else {--controller.question_flash;highlight_row=controller.question_flash_row;}
+    const bool armed=controller.choice_armed;
+    const int scaled=controller.question_flash==0?cursor:controller.question_flash_row;
+    static constexpr std::array<std::string_view,3> tags{"##########$$","########$$$$","######$$$$$$"}; //sysmes0xc9..0xcb
+    for(unsigned i=0;i<3;++i) {
+        const auto word=words[unsigned(slot)*3+i];
+        if(word<0)throw std::runtime_error("Question-choice word index selects the slot header");
+        lines[i]=replacement_segment(bytes,unsigned(word)+1);
+        scale[i]=int(i)==scaled&&armed?std::array<float,2>{1.1f,1.2f}:std::array<float,2>{1.f,1.f};
+        if(text.choice_result==int(i)) {
+            // sysmes0xcc "\c[%d]%s\c[0]" with 0x78505050, bound by 0x19a5c8
+            // sprintf "\r[%s]%s" into the tag's own PME storage.
+            const auto value="\\c[2018529360]"+lines[i]+"\\c[0]";
+            const auto index=bank.tagged_string(tags[unsigned(slot)]);
+            if(!index)throw std::runtime_error("Question-choice answer tag missing from message bank");
+            const auto size=4+tags[unsigned(slot)].size()+value.size()+1;
+            if(*index>=bank.capacities.size() || size>bank.capacities[*index])
+                throw std::runtime_error("Question-choice binding exceeds its PME string storage");
+            bank.bind(tags[unsigned(slot)],value);
+            chosen[unsigned(slot)]=int(i);
+            if(answers==chosen)controller.layer_flags|=8u;else controller.layer_flags&=~8u;
+        }
+    }
+    // Widgets0x12..0x14 absolute alpha0x80 after 0x146ee8's CC fade; widget3
+    // alpha is 0x30 only when armed (else 0xf0,0xf0,100 at alpha0).
+    menu.lines=lines;menu.alpha=0x80;menu.cursor=highlight_row;menu.highlighted=armed;
 }
 void DialogueOpacity::set(float initial,float step,float minimum,float maximum) {
     if(!std::isfinite(initial)||!std::isfinite(step)||!std::isfinite(minimum)||!std::isfinite(maximum)||minimum>maximum)

@@ -2,6 +2,7 @@
 #include "okage/text.hpp"
 #include <functional>
 #include <optional>
+#include <span>
 
 namespace okage {
 struct DialogueButtons {std::uint16_t held=0,pressed=0,repeat=0;};
@@ -25,6 +26,7 @@ struct DialogueController {
     std::int32_t normal_period=1,window_type=0;
     bool automatic=false;
     bool choice_active=false,choice_armed=false;
+    std::int32_t question_flash=0,question_flash_row=0;
     unsigned stage=5;
     std::function<void(unsigned,unsigned,std::int32_t)> set_variable;
     std::function<std::int32_t(unsigned,unsigned)> get_variable;
@@ -67,6 +69,21 @@ struct ChoiceMenu {
     bool highlighted=false;
     void update(std::string_view replacement,int selection,bool armed,std::string_view player_name);
     std::vector<TextGlyph> glyphs(const Font&) const;
+};
+struct QuestionChoice {
+    std::array<std::int32_t,48> words{};
+    std::array<std::int32_t,3> answers{},chosen{};
+    bool generated=false; // Latest 0x1468c8 found its message ID.
+    // Logical widget state from the latest update.
+    bool active=false;
+    int slot=-1,highlight_row=0;
+    std::array<std::string,3> lines;           // Word text in widgets0x12..0x14.
+    std::array<std::array<float,2>,3> scale{}; // 0x1aa3c0 values per line.
+    // Also clears 0x1fcb74/0x1fcb78 (menu.accepted, controller.question_flash).
+    // `random` is the shared libc rand stream (0x1f14b0, 31-bit result).
+    void initialize(std::int32_t message_id,std::span<const std::int32_t> sysval,
+                    const std::function<std::uint32_t()>& random,DialogueController&,ChoiceMenu&);
+    void update(DialogueText&,MessageBank&,DialogueController&,ChoiceMenu&);
 };
 struct DialogueOpacity {
     float value=128,upper=128,lower=0,delta=0;

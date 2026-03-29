@@ -165,6 +165,7 @@ struct Session {
     okage::SceneFade scene_fade;
     okage::Narration narration;
     okage::ChoiceMenu choices;
+    okage::QuestionChoice question; // 0x1468c8/0x146288 tables persist across messages.
     std::vector<std::uint32_t> choice_trace;
     std::array<std::uint8_t,0x1000> variables{};
     okage::UiPartySelection ui_party;
@@ -924,6 +925,10 @@ struct Session {
             clock={};clock.glyph_flags=0x10;controller={};closure={};opacity.set(1,8);
             opening.reset();
             if(!legacy_diagnostic){opening.emplace();opening->initialize(text,clock,controller,opacity,closure);}
+            // 0x11f7a0 runs the body layer's 0x1468c8 inside 0x11f570, so its
+            // sysval RNG draws follow any caller draw (phase8's r%13) directly.
+            if(game_data)question.initialize(id,game_data->system_values(),[this]{return random.next();},controller,choices);
+            else question.generated=false; // A QC widget then fails explicitly.
             controller.get_variable=[this](unsigned index,unsigned bank){return okage::event_variable(variables,(bank<<16)|index);};
             controller.set_variable=[this](unsigned index,unsigned bank,std::int32_t value){okage::set_event_variable(variables,index,bank,value);};
             controller.shadow_request=[this](std::uint32_t request){
@@ -2623,6 +2628,7 @@ struct Session {
         }
         if(closure.finished() && !close_frame)close_frame=frame;
         choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed,player_name);
+        if(dialogue_active && !closure.finished())question.update(text,messages,controller,choices);
         choice_trace.insert(choice_trace.end(),{frame,unsigned(message_id),unsigned(text.position().fragment),unsigned(text.position().cursor),
             unsigned(text.choice_cursor),unsigned(text.choice_result),controller.choice_active?1u:0u,controller.choice_armed?1u:0u,
             input.held,input.pressed,input.repeat,choices.alpha});
