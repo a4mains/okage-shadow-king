@@ -37,8 +37,20 @@ unsigned choose(std::int16_t group,const BattleState& root,std::span<const Battl
     check(index>=0,"Battle157ce8 RNG produced negative candidate index");
     return candidates[unsigned(index)];
 }
-void register_target_group(BattleActor& actor,BattleState& root,int owner,std::uint32_t flag) {
-    check(owner>=0,"Battle group action signed owner outside entity storage");
+//158548 differs from158490: one owner node/self-link, then ordered target
+//links. Repeated battle_register_action would overwrite target-1 and duplicate
+//the owner registration once per target.
+const BattleActor* filtered_actor(const BattleState& root,std::span<const BattleEntityBinding> bindings,unsigned i) {
+    const auto count=std::bit_cast<std::int32_t>(word(root.bytes,0x50));
+    check(count>=0&&count<=64&&bindings.size()==unsigned(count),
+          "Battle158548 actor-filtered target group entity count/binding mismatch");
+    return i<bindings.size()?bindings[i].actor:nullptr;
+}
+}
+void battle_register_target_group(BattleActor& actor,BattleState& root,
+    std::span<const BattleEntityBinding> bindings,std::uint32_t flag) {
+    const int owner=half(actor.storage,0x130);
+    check(owner>=0&&owner<64,"Battle group action signed owner outside entity storage");
     auto node=root.entity(unsigned(owner));
     put(node,0x60,unsigned(owner),2);put(node,0x62,0xffff,2);
     const auto previous=std::uint16_t(half(node,0x16c));
@@ -54,21 +66,32 @@ void register_target_group(BattleActor& actor,BattleState& root,int owner,std::u
     };
     store_link(unsigned(owner),previous);
     auto& b=actor.storage;put(b,0x140,0,2);
-    const int group=half(b,0x144);
-    check(group==10||group==11,"Battle158548 actor-filtered target group is unrecovered");
-    //158688/158714 fixed ranges, independent of root+50 and actor pointers.
-    for(unsigned target=group==10?4:0;target<(group==10?14u:3u);++target) {
+    const auto append=[&](unsigned target) {
         auto target_node=root.entity(target);
-        if(word(target_node,0x1fc)&0x80000000u)continue;
         const int count=half(b,0x140);
         put(b,0x140,std::uint16_t(count+1),2);
-        check(count>=0&&count<10,"Battle group action target storage extent");
+        check(count>=0&&count<14,"Battle group action target storage extent");
         b[0x132+unsigned(count)]=std::uint8_t(target);
         const auto old=std::uint16_t(half(target_node,0x16c));
         put(target_node,0x16c,std::uint16_t(old+1),2);
         store_link(target,old);
+    };
+    const auto live=[&](unsigned i){return (word(root.entity(i),0x1fc)&0x80000000u)==0;};
+    //The selector is re-read after the owner prefix (lh BODY+104 at1585c8).
+    const int group=half(b,0x144);
+    if(group==10||group==11) {
+        //158688/158714 fixed ranges, independent of root+50 and actor pointers.
+        for(unsigned target=group==10?4:0;target<(group==10?14u:3u);++target)if(live(target))append(target);
+        return;
+    }
+    for(unsigned target=0;target<14;++target) {
+        const auto* candidate=filtered_actor(root,bindings,target);
+        if(!candidate)continue;
+        if(group!=12&&half(candidate->storage,0x46)!=half(b,0x144))continue;
+        if(live(target))append(target);
     }
 }
+namespace {
 class Rounding {
     std::fenv_t saved_{};
 public:
@@ -115,7 +138,8 @@ void battle_setup_secondary_action(BattleActor& actor,const BattleActionData& da
     const auto aux_first=actor.action_secondary->half(0x1a);put(b,0x210,0);number(b,0x204,float(aux_first));
     const auto aux_second=actor.action_secondary->half(0x3a);put(b,0x214,0);number(b,0x20c,float(aux_second));
 }
-float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTables& tables,const BattleActionData& data) {
+float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTables& tables,const BattleActionData& data,
+                          std::span<const BattleEntityBinding> bindings) {
     auto& b=actor.storage;
     const auto action=half(b,0x142);
     put(b,0x1fc,action,2);
@@ -132,14 +156,24 @@ float battle_setup_action(BattleActor& actor,BattleState& root,const GameDataTab
     case 0:case 3:
         put(b,0x140,1,2);b[0x132]=b[0x146];
         register_target(std::bit_cast<std::int8_t>(b[0x146]));break;
-    case 2:
-        register_target_group(actor,root,owner,action==208?1u:0u);break;
+    case 1:case 2:case 4:
+        battle_register_target_group(actor,root,bindings,action==208?1u:0u);break;
     case 5:case 6:
         b[0x132]=std::uint8_t(owner);put(b,0x140,1,2);
         register_target(std::bit_cast<std::int8_t>(b[0x132]));break;
+    case 8: {
+        //158328 case8 (action3): group construction, then append Stan3 as a
+        //direct target and register it with158490.
+        battle_register_target_group(actor,root,bindings,action==208?1u:0u);
+        const int count=half(b,0x140);
+        put(b,0x140,std::uint16_t(count+1),2);
+        check(count>=0&&count<14,"Battle action3 target storage extent");
+        b[0x132+unsigned(count)]=3;
+        register_target(3);break;
+    }
     default:
-        if(type!=1&&type!=2&&type!=4&&type!=8){put(b,0x144,12,2);put(b,0x146,0xffff,2);}
-        throw std::runtime_error("Battle158548 multi-target action construction is unrecovered");
+        put(b,0x144,12,2);put(b,0x146,0xffff,2);
+        battle_register_target_group(actor,root,bindings,action==208?1u:0u);break;
     }
     put(b,0x1e4,0);
     const auto first=actor.action_motion->half(8);put(b,0x1ec,0);number(b,0x1e0,float(first));

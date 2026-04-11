@@ -6,11 +6,12 @@
 #include <cfenv>
 #include <fstream>
 #include <iostream>
+#include <source_location>
 #include <stdexcept>
 
 namespace {
-void require(bool v,const char* m,unsigned at=__builtin_LINE()) {
-    if(!v)throw std::runtime_error(std::string(m)+" line "+std::to_string(at));
+void require(bool v,const char* m,const std::source_location at=std::source_location::current()) {
+    if(!v)throw std::runtime_error(std::string(m)+" line "+std::to_string(at.line()));
 }
 template<class F>void rejects(F f,const char* text) {
     try{f();}catch(const std::runtime_error& e){require(std::string(e.what()).find(text)!=std::string::npos,"Wrong guard");return;}
@@ -108,8 +109,15 @@ void setup_and_failures() {
     require(bad.actors[0].action_motion&&half(bad.actors[0].storage,0x140)==1&&bad.actors[0].storage[0x132]==255&&!bad.actors[0].action_secondary,"Invalid target retains preceding setup writes only");
     Fixture multi;auto& m=multi.actors[0];put(m.storage,0x142,200,2);put(m.storage,0x144,5,2);put(m.storage,0x146,2,2);
     okage::GameDataTables unknown(xdb(true,7),xdb(false));
-    rejects([&]{okage::battle_setup_action(m,multi.root,unknown,data);},"158548");
-    require(half(m.storage,0x144)==12&&half(m.storage,0x146)==0xffff&&m.action_motion&&!m.action_secondary,"Fallback stores before guarded group construction");
+    rejects([&]{okage::battle_setup_action(m,multi.root,unknown,data);},"binding mismatch");
+    require(half(m.storage,0x144)==12&&half(m.storage,0x146)==0xffff&&m.action_motion&&!m.action_secondary&&
+            half(multi.root.entity(0),0x16c)==1&&half(m.storage,0x140)==0,
+            "Unbound actor-filtered group fails after the default stores and the 158548 owner prefix");
+    Fixture bound;auto& n=bound.actors[0];put(n.storage,0x142,200,2);put(n.storage,0x144,5,2);put(n.storage,0x146,2,2);
+    bound.bindings[2].actor=nullptr;
+    require(okage::battle_setup_action(n,bound.root,unknown,data,bound.bindings)==40&&n.action_secondary,"Default type completes with bindings");
+    require(half(n.storage,0x144)==12&&half(n.storage,0x146)==0xffff&&half(n.storage,0x140)==3&&
+            n.storage[0x132]==0&&n.storage[0x133]==1&&n.storage[0x134]==3,"Default type7 becomes group12 over typed live owners");
     const int old=std::fegetround();std::fesetround(FE_UPWARD);
     for(int delay:{16777219,-16777219}) {
         Fixture g;put(g.actors[0].storage,0x142,200,2);put(g.actors[0].storage,0x146,2,2);
@@ -158,7 +166,43 @@ void group_target_registration() {
     require(half(e.storage,0x140)==0&&empty.root.action_links[0][0]==0&&half(empty.root.entity(0),0x64)==1&&e.action_secondary,"Empty range retains real self registration and finishes setup");
     Fixture invalid;auto& v=prepare(invalid,0,12);
     rejects([&]{okage::battle_setup_action(v,invalid.root,tables,data);},"actor-filtered");
-    require(half(v.storage,0x140)==0&&invalid.root.action_links[0][0]==0&&half(invalid.root.entity(0),0x62)==0xffff&&!v.action_secondary,"Unsupported actor-filtered group retains158548 common prefix");
+    require(half(v.storage,0x140)==0&&invalid.root.action_links[0][0]==0&&half(invalid.root.entity(0),0x62)==0xffff&&!v.action_secondary,"Unbound actor-filtered group retains158548 common prefix");
+    //1585f0 group12: entities0..13 with a typed owner and a clear flag,
+    //independent of root+50 beyond the binding span (unregistered = null).
+    Fixture twelve(14);auto& t=prepare(twelve,2,12);
+    for(unsigned i:{0u,1u,2u,5u,9u,13u})put(twelve.root.entity(i),0x1fc,0);
+    twelve.bindings[5].actor=nullptr;put(twelve.root.entity(14),0x1fc,0);
+    okage::battle_setup_action(t,twelve.root,tables,data,twelve.bindings);
+    require(half(t.storage,0x140)==5&&t.storage[0x132]==0&&t.storage[0x133]==1&&t.storage[0x134]==2&&t.storage[0x135]==9&&
+            t.storage[0x136]==13&&t.storage[0x137]==0xa5&&half(t.storage,0x146)==0xbeef,"Group12 typed live owners in order, self included");
+    require(twelve.root.action_links[2][0]==2&&twelve.root.action_links[2][1]==2&&!twelve.root.action_links[5][0]&&
+            !twelve.root.action_links[14][0]&&twelve.root.action_links[13][0]==2,"Group12 links");
+    Fixture other(14);auto& g=prepare(other,0,0xfffe);
+    for(unsigned i=0;i<14;++i){put(other.root.entity(i),0x1fc,i==7?0x80000000u:0u);put(other.actors[i].storage,0x46,i%3?0xfffe:3,2);}
+    okage::battle_setup_action(g,other.root,tables,data,other.bindings);
+    require(half(g.storage,0x140)==8&&g.storage[0x132]==1&&g.storage[0x133]==2&&g.storage[0x134]==4&&g.storage[0x135]==5&&
+            g.storage[0x136]==8&&g.storage[0x137]==10&&g.storage[0x138]==11&&g.storage[0x139]==13,"Actor-filtered group match and order");
+    for(unsigned type:{1u,4u}) {
+        okage::GameDataTables direct(xdb(true,type),xdb(false));
+        Fixture d(14);auto& x=prepare(d,0,0xfffe);
+        for(unsigned i=0;i<14;++i){put(d.root.entity(i),0x1fc,0);put(d.actors[i].storage,0x46,i==6||i==9?0xfffe:1,2);}
+        okage::battle_setup_action(x,d.root,direct,data,d.bindings);
+        require(half(x.storage,0x140)==2&&x.storage[0x132]==6&&x.storage[0x133]==9&&half(x.storage,0x144)==0xfffe,"Types1/4 use the authored group directly");
+    }
+    //14 matches fill TASK+132..13f (ten bytes plus the four-byte tail).
+    Fixture all14(14);auto& w=prepare(all14,0,12);for(unsigned i=0;i<14;++i)put(all14.root.entity(i),0x1fc,0);
+    okage::battle_setup_action(w,all14.root,tables,data,all14.bindings);
+    require(half(w.storage,0x140)==14&&w.storage[0x13f]==13&&w.action_secondary,"Fourteen-target capacity reaches TASK+13f");
+    //158328 case8 (action3): group then appended target3 and 158490(owner,3,0).
+    Fixture three(14);auto& r=prepare(three,0,10);put(r.storage,0x142,3,2);
+    for(unsigned i:{0u,5u,8u})put(three.root.entity(i),0x1fc,0);
+    okage::battle_setup_action(r,three.root,tables,data,three.bindings);
+    const auto node=three.root.entity(0);
+    require(half(r.storage,0x140)==3&&r.storage[0x132]==5&&r.storage[0x133]==8&&r.storage[0x134]==3&&r.storage[0x135]==0xa5,
+            "Action3 appends target3 after the group");
+    require(half(node,0x60)==0&&half(node,0x62)==3&&half(node,0x64)==2&&word(node,0x68)==0&&half(node,0x16c)==2&&
+            three.root.action_links[0][0]==0&&three.root.action_links[0][1]==0&&three.root.action_links[3][0]==0&&
+            three.root.action_links[5][0]==0,"158490 overwrites the target lane and appends target then owner");
     Fixture overflow;auto& o=prepare(overflow,0,10);put(overflow.root.entity(0),0x16c,64,2);
     rejects([&]{okage::battle_setup_action(o,overflow.root,tables,data);},"append outside");
     require(half(overflow.root.entity(0),0x16c)==65&&half(overflow.root.entity(0),0x64)==1&&half(o.storage,0x140)==0x5678&&!o.action_secondary,"Owner append failure precedes target-count reset and later timers");
