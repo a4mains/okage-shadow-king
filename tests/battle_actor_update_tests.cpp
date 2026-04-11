@@ -3,6 +3,7 @@
 #include "okage/battle_command_queue.hpp"
 #include "okage/battle_hit.hpp"
 #include "okage/battle_hud.hpp"
+#include "okage/battle_roster_update.hpp"
 #include <bit>
 #include <cfenv>
 #include <filesystem>
@@ -1063,13 +1064,106 @@ void action205_owned(const std::filesystem::path& stage) {
     require(word(s.storage,0x21c)==99&&events.size()==7,"Restored roster callback runs state99 without new services");
     std::cout<<"Owned action205 state8/156c70 sequence passed\n";
 }
+void stan_preemptive_owned(const std::filesystem::path& stage) {
+    using Callback=okage::BattleActor::FirstCallback;
+    okage::BattleActionData data(read_file(stage/"NATIVE_UI/battle-actions.bin"));
+    okage::GameDataTables tables(read_file(stage/"CMNDATA/XDB/BKDATA.XDB"),read_file(stage/"CMNDATA/XDB/ITEM.XDB"));
+    okage::RuwResource ruw(read_file(stage/"NATIVE_UI/BTL.RUW"));
+    okage::BattleHud hud;
+    const auto& waza=tables.action(0xcf);
+    require(waza.name=="Raging Devil"&&waza.words[10]==2&&waza.words[11]==0,"Owned waza0xcf is type2 with delay0");
+    SequenceFixture f;auto& s=f.stan();
+    for(unsigned i=0;i<14;++i)put(f.actors[i].actor.storage,0x46,i<3?11:i==3?20:i==5||i==6?0:1,2);
+    std::vector<okage::BattleActor*> party;
+    for(unsigned i=0;i<3;++i) {
+        auto& a=f.actors[i].actor;a.stat_bindings[2]=std::span(f.actors[i].record).subspan(0x4a,2);
+        put(a.storage,0x21c,1);
+        party.push_back(&a);
+    }
+    //status_block: ten 0xff target bytes and zero count/action/group/target.
+    std::fill_n(s.storage.begin()+0x132,10,0xff);
+    for(unsigned at:{0x140u,0x142u,0x144u,0x146u})put(s.storage,at,0,2);
+    put(s.storage,0x21c,1);number(s.storage,0x194,3);number(s.storage,0x19c,7);number(s.storage,0x1a0,9);
+    put(s.storage,0x304,4);
+    okage::BattleEntryContext entry;entry.reset(1,0,0,0x1234); //native_runtime phase13 order.
+    const auto entry_before=entry.bytes();
+    std::array<std::uint8_t,0x1000> variables{};
+    unsigned draws=0,sounds=0;
+    okage::BattleRosterUpdateContext c{f.root,entry,variables,f.entities,0,0x40,[&](auto){++sounds;},
+        [&]{++draws;return 0x1234u;},&tables,&data,nullptr};
+    okage::battle_party_roster_update(party,s,c);
+    require(entry.parameters().argument1==0,"152dc0 clears the entry parameter halfword");
+    for(unsigned i=0;i<entry_before.size();++i)
+        require(entry.bytes()[i]==((i==0x30||i==0x31)?0:entry_before[i]),"Only halfword+30 is consumed");
+    require(half(s.storage,0x142)==0xcf&&half(s.storage,0x144)==10&&half(s.storage,0x146)==0,"Waza0xcf, group10, target0");
+    require(s.action_record_id==0xcf&&s.action_motion->identity==320&&s.action_secondary->identity==361&&
+            half(s.storage,0x1fc)==0xcf&&half(s.storage,0x218)==0xcf&&half(s.storage,0x21a)==7,
+            "1580d0 resolves owned motion320 and mode0 secondary361 type7");
+    require(half(s.storage,0x140)==2&&s.storage[0x132]==6&&s.storage[0x133]==8&&s.storage[0x134]==0xff,
+            "Targets are the live enemy range after the second registration");
+    const auto owner=f.root.entity(3);
+    require(half(owner,0x60)==3&&half(owner,0x62)==0xffff&&half(owner,0x64)==2&&word(owner,0x68)==0&&half(owner,0x16c)==2,
+            "Two 158548 calls: two owner registrations and self links, flag0");
+    require(f.root.action_links[3][0]==3&&f.root.action_links[3][1]==3&&!f.root.action_links[3][2],"Owner self links");
+    require(f.root.action_links[6][0]==3&&f.root.action_links[6][1]==3&&half(f.root.entity(6),0x16c)==2,
+            "Stale group0 pass and group10 pass both link enemy6");
+    require(f.root.action_links[8][0]==3&&!f.root.action_links[8][1]&&half(f.root.entity(8),0x16c)==1,
+            "Group1 enemy8 is linked only by the group10 pass");
+    for(unsigned i:{0u,1u,2u,4u,5u,7u,9u,13u})require(!f.root.action_links[i][0],"No other entity is linked");
+    require(word(s.storage,0x1a0)==0&&word(s.storage,0x21c)==3&&word(s.storage,0x19c)==0&&number(s.storage,0x194)==3,
+            "Returned 0*5 delay, state3, wait timer0; charge timer preserved");
+    require(draws==0&&sounds==0,"Pre-emptive setup consumes no RNG and no ready sound");
+    okage::battle_party_roster_update(party,s,c);
+    require(word(s.storage,0x21c)==8&&word(s.storage,0x194)==0&&word(s.storage,0x304)==5,
+            "1588b0 readiness1 selects state8 (only 0xce selects9) and counts the action");
+    okage::battle_party_roster_update(party,s,c);
+    require(word(s.storage,0x21c)==8&&s.first_callback==Callback::Roster,"Roster state8 waits for the actor callback");
+    number(s.storage,0x2c,.5f);
+    okage::battle_party_first_update(s,f.root,f.entities);
+    require(s.first_callback==Callback::ActionSequence&&s.saved_first_callback==Callback::Roster&&word(s.storage,0x30)==3,
+            "154b38 state8 installs 156c70 with the sign-extended owner in TASK+30");
+    std::vector<std::string> events;
+    okage::BattleStrikeServices services;
+    services.damage_event=[&](int command,int owner,int target){events.push_back("damage "+std::to_string(command)+" "+std::to_string(owner)+" "+std::to_string(target));};
+    services.sound=[&](int id){events.push_back("sound "+std::to_string(id));};
+    services.positioned_effect=[&](int id,const okage::Float4&,bool){events.push_back("effect "+std::to_string(id));return 70u+unsigned(events.size());};
+    services.action_name=[&](std::int16_t action){events.push_back("hud "+std::to_string(action));hud.show_action_name(ruw,tables,action);};
+    services.camera_sequence=[&](int row){events.push_back("camera "+std::to_string(row));};
+    const auto queue=word(f.root.bytes,0x81a4);
+    std::vector<unsigned> substeps;std::vector<float> clocks;
+    for(unsigned tick=0;tick<64&&s.first_callback==Callback::ActionSequence;++tick) {
+        okage::battle_actor_first_update(s,f.root,f.entities,services);
+        substeps.push_back(word(s.storage,0x24));clocks.push_back(number(s.storage,0x1f8));
+        if(tick==0)require(s.model->motion()==7&&number(s.storage,0x12c)==160,"Substep0 selects secondary361 type7 for 160");
+    }
+    require(substeps==std::vector<unsigned>{1,2,2,3,0}&&clocks==std::vector<float>{0,.5f,1,1.5f,1.5f},
+            "156c70 substeps and toward-zero clock at dt0.5");
+    require(events==std::vector<std::string>{"hud 207","damage 16 3 6","damage 16 3 8","sound 62","effect 14","effect 14","camera 1"},
+            "HUD, per-live-target damage, sound, type2 effects, then camera row1");
+    require(s.first_callback==Callback::Roster&&word(s.storage,0x24)==0&&word(s.storage,0x34)==0,"156c70 restores the roster callback");
+    require(word(s.storage,0x21c)==99&&half(s.storage,0x140)==0&&half(s.storage,0x142)==0&&half(s.storage,0x144)==0&&
+            half(s.storage,0x146)==0&&s.storage[0x132]==0xff&&s.storage[0x13b]==0xff,"1544b0 clears the action and targets");
+    require(word(f.root.bytes,0x81a4)==queue+1,"1517e0 pushed one command");
+    const auto& text=*ruw.widget(5,0x2e).runtime->text;
+    require(std::string(text.data())=="\\f[2]\\s[0.95,1.0]Raging Devil"&&ruw.widget(5,0x2e).runtime->words[6]==std::uint32_t(320-5*12),
+            "168380 shows the owned Waza name");
+    okage::battle_party_roster_update(party,s,c);
+    require(word(s.storage,0x21c)==1&&word(s.storage,0x194)==0&&word(s.storage,0x19c)==0&&
+            half(f.root.entity(3),0x60)==0xffff&&half(f.root.entity(3),0x62)==0xffff&&word(f.root.entity(3),0x68)==0,
+            "152dc0 state99: state1, 158868 invalidation, both timers cleared");
+    const auto settled=s.storage;
+    okage::battle_party_roster_update(party,s,c);
+    require(s.storage==settled&&entry.parameters().argument1==0&&draws==0&&sounds==0,
+            "Cleared parameter returns Stan to the ordinary HERO-trigger scan, which waits");
+    std::cout<<"Owned Stan pre-emptive 0xcf sequence passed\n";
+}
 }
 int main(int argc,char** argv){try {
     first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ranged_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
     state8_install_guards();action_sequence_paths();
     if(argc==2) {
         const std::filesystem::path stage=argv[1];
-        if(std::filesystem::exists(stage/"NATIVE_UI/battle-actions.bin"))action205_owned(stage);
+        if(std::filesystem::exists(stage/"NATIVE_UI/battle-actions.bin")){action205_owned(stage);stan_preemptive_owned(stage);}
         else std::cout<<"Owned action205 section skipped: stage lacks NATIVE_UI/battle-actions.bin\n";
     } else require(argc==1,"Expected optional owned stage directory");
     std::cout<<"Battle actor startup callback tests passed\n";return 0;

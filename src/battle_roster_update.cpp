@@ -158,6 +158,33 @@ bool any_target(BattleActor& a,BattleRosterUpdateContext& c,bool status_gate) {
     }
     return any;
 }
+void retarget(BattleActor& a,BattleRosterUpdateContext& c) {
+    const auto selector=signed_word(a.storage,0x1d4);
+    if(selector!=0&&selector!=1&&selector!=3)return;
+    const auto live=[&](unsigned i){return (word(c.root.entity(i),0x1fc)&0x80000000u)==0;};
+    unsigned chosen=3;
+    if(selector==0||selector==1) {
+        for(unsigned i=4;i<14;++i)if(live(i))chosen=i; //movz: last live enemy.
+    } else {
+        for(unsigned i=0;i<3;++i) {
+            const auto* owner=i<c.entities.size()?c.entities[i].actor:nullptr;
+            if(owner&&status(*owner)!=6)chosen=i;
+        }
+    }
+    if(selector==1) {
+        if(chosen==3)return;
+        //BODY is never null here, so the 1c7910(237170) log branch is unreachable.
+        check(chosen<c.entities.size()&&c.entities[chosen].actor,
+              "Battle party group retarget entity has no typed actor owner");
+        put(a.storage,0x144,std::uint16_t(half(c.entities[chosen].actor->storage,0x46)),2);
+        put(a.storage,0x146,0xffff,2);
+        battle_register_target_group(a,c.root,c.entities,0);
+    } else {
+        a.storage[0x132]=std::uint8_t(chosen);put(a.storage,0x140,1,2);
+        battle_register_action(c.root,entity_id(a,c),chosen,0);
+    }
+    put(a.storage,0x21c,3);put(a.storage,0x220,0,2);
+}
 void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
     const unsigned id=entity_id(a,c);
     if(signed_word(c.root.entity(id),0x1fc)<0) {
@@ -190,15 +217,11 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
             }
             if(action==208)missing("Battle party153388 combo setup is unrecovered");
             check(c.tables&&c.action_data,"Battle1580d0 owned action data missing");
-            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data);
+            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data,c.entities);
             put(a.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
             put(a.storage,0x21c,3);put(a.storage,0x220,0,2);put(a.storage,0x19c,0);return;
         }
-        if(half(a.storage,0x220)==4) {
-            const auto selector=signed_word(a.storage,0x1d4);
-            if(selector==0||selector==1||selector==3)
-                missing("Battle party retargeting158548/158490 is unrecovered");
-        }
+        if(half(a.storage,0x220)==4)retarget(a,c);
         return;
     case 3:case 4:
         if(!elapsed(a,0x19c,0x1a0))return;
@@ -233,7 +256,7 @@ void party_actor(BattleActor& a,BattleRosterUpdateContext& c) {
 }
 void action_duration(BattleActor& actor,BattleRosterUpdateContext& c) {
     check(c.tables&&c.action_data,"Battle roster1580d0 owned action data missing");
-    const auto duration=battle_setup_action(actor,c.root,*c.tables,*c.action_data);
+    const auto duration=battle_setup_action(actor,c.root,*c.tables,*c.action_data,c.entities);
     //152ff8..153004: completion writes happen only after real1580d0 returns.
     put(actor.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
     put(actor.storage,0x21c,3);put(actor.storage,0x19c,0);
@@ -247,7 +270,9 @@ void stan_actor(BattleActor& stan,BattleActor* hero,BattleRosterUpdateContext& c
     case 1:case 2:
         if(std::bit_cast<std::int16_t>(c.entry.parameters().argument1)==1) {
             c.entry.clear_argument1();
-            missing("Battle Stan158548 request target construction is unrecovered");
+            battle_register_target_group(stan,c.root,c.entities,0);
+            put(stan.storage,0x146,0,2);put(stan.storage,0x142,0xcf,2);put(stan.storage,0x144,10,2);
+            action_duration(stan,c);return;
         }
         check(hero!=nullptr,"Battle Stan HERO owner missing");
         if(word(c.variables,0x574)==0) {
@@ -354,7 +379,7 @@ void enemy_actor(BattleActor& a,BattleRosterUpdateContext& c,std::span<BattleAct
         battle_decode_enemy_command(a,c.root,c.entities,*c.tables,*c.enemy_commands,c.random);
         check(c.action_data,"Battle enemy1580d0 owned action data missing");
         {
-            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data);
+            const auto duration=battle_setup_action(a,c.root,*c.tables,*c.action_data,c.entities);
             put(a.storage,0x1a0,std::bit_cast<std::uint32_t>(duration));
             put(a.storage,0x21c,3);put(a.storage,0x19c,0);return;
         }

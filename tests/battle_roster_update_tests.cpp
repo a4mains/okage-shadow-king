@@ -5,11 +5,12 @@
 #include <cfenv>
 #include <iostream>
 #include <limits>
+#include <source_location>
 #include <stdexcept>
 
 namespace {
-void require(bool value,const char* message,unsigned at=__builtin_LINE()) {
-    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at));
+void require(bool value,const char* message,const std::source_location at=std::source_location::current()) {
+    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at.line()));
 }
 template<class F> void rejects(F action,const char* expected) {
     try {action();}catch(const std::runtime_error& e){require(std::string(e.what()).find(expected)!=std::string::npos,"Wrong guard");return;}
@@ -23,6 +24,7 @@ unsigned word(okage::Bytes b,unsigned at) {
 }
 unsigned half(okage::Bytes b,unsigned at){return b[at]|(unsigned(b[at+1])<<8);}
 void number(std::span<std::uint8_t> b,unsigned at,float value){put(b,at,std::bit_cast<std::uint32_t>(value));}
+float number(okage::Bytes b,unsigned at){return std::bit_cast<float>(word(b,at));}
 std::vector<std::uint8_t> stan_descriptors() {
     std::vector<std::uint8_t> b(51480);const std::string magic="OKBACT1";std::copy(magic.begin(),magic.end(),b.begin());
     unsigned at=8;for(unsigned v:{1u,256u,256u,98u,159u,15u,136u,51344u}){put(b,at,v);at+=4;}
@@ -136,8 +138,22 @@ void status_motion_and_failure_order() {
 }
 void stan_context_and_enemy_guards() {
     Fixture f;f.entry.reset(1,0xaabb,0xccdd,0xeeff);const auto before=f.entry.bytes();
-    rejects([&]{f.update();},"158548");
+    put(f.actors[1].storage,0x46,7,2);put(f.root.entity(2),0x1fc,0x80000000);std::fill_n(f.actors[3].storage.begin()+0x132,10,0xff);
+    rejects([&]{f.update();},"1580d0");
     for(unsigned i=0;i<before.size();++i)require(f.entry.bytes()[i]==((i==0x30||i==0x31)?0:before[i]),"Stan consumes persistent+30 only");
+    {
+        const auto& s=f.actors[3].storage;
+        require(half(s,0x142)==0xcf&&half(s,0x144)==10&&half(s,0x146)==0&&word(s,0x21c)==1,
+                "Pre-emptive selector stores follow 158548 and precede the guarded 1580d0");
+        require(half(s,0x140)==3&&s[0x132]==0&&s[0x133]==3&&s[0x134]==4&&s[0x135]==0xff,
+                "Stale group0 registers live entities0..13 whose actor TASK+46 matches, in order");
+        require(f.root.action_links[3][0]==3&&f.root.action_links[0][0]==3&&f.root.action_links[3][1]==3&&
+                f.root.action_links[4][0]==3&&!f.root.action_links[1][0]&&!f.root.action_links[2][0]&&f.draws==0,
+                "Self link precedes target links; dead and group-mismatched entities are skipped");
+    }
+    Fixture missing_hero;missing_hero.entry.reset(1,0,0,0);
+    rejects([&]{okage::battle_party_roster_update({},missing_hero.actors[3],missing_hero.context);},"1580d0");
+    require(missing_hero.entry.parameters().argument1==0,"Pre-emptive branch does not require the HERO owner");
     Fixture half_value;half_value.entry.reset(0xffff,7,8,9);half_value.update();require(half_value.entry.parameters().argument1==0xffff,"Request compares signed halfword to exactly1");
     Fixture counter;put(counter.actors[0].storage,0x3bc,1,2);put(counter.actors[0].stat_bindings[0],0,100);put(counter.actors[0].storage,0x164,399,2);
     counter.update();require(half(counter.actors[0].storage,0x3bc)==0&&counter.sounds.empty(),"HERO trigger consumed before ratio<4 return");
@@ -193,12 +209,14 @@ void stan_setup_and_readiness() {
     okage::GameDataTables multi(stan_xdb(true,7),stan_xdb(false));Fixture partial;bind(partial);partial.context.tables=&multi;
     put(partial.variables,0x574,1);put(partial.actors[0].storage,0x340,205);auto& a=partial.actors[3];
     number(a.storage,0x1a0,99);number(a.storage,0x19c,23);
-    rejects([&]{partial.update();},"158548");
-    require(word(partial.actors[0].storage,0x340)==0&&a.action_record_id==205&&a.action_motion&&half(a.storage,0x1fc)==205,
-            "Setup failure retains trigger consumption and preceding action/waza/motion writes");
-    require(word(a.storage,0x21c)==1&&word(a.storage,0x1a0)==std::bit_cast<unsigned>(99.f)&&word(a.storage,0x19c)==std::bit_cast<unsigned>(23.f)&&partial.draws==0,
-            "Failed1580d0 does not fabricate return duration or caller completion stores");
-}
+    put(partial.root.entity(1),0x1fc,0x80000000);partial.update();
+    require(word(partial.actors[0].storage,0x340)==0&&a.action_record_id==205&&a.action_secondary&&half(a.storage,0x1fc)==205,
+            "Queued trigger reaches full setup");
+    require(half(a.storage,0x144)==12&&half(a.storage,0x146)==0xffff&&half(a.storage,0x140)==4&&
+            a.storage[0x132]==0&&a.storage[0x133]==2&&a.storage[0x134]==3&&a.storage[0x135]==4,
+            "Group12 includes Stan himself and skips flagged entities");
+    require(word(a.storage,0x21c)==3&&word(a.storage,0x1a0)==std::bit_cast<unsigned>(40.f)&&word(a.storage,0x19c)==0&&partial.draws==0,
+            "Completed1580d0 stores its duration, state3 and wait0");}
 void cleanup_and_source_defaults() {
     Fixture f;put(f.root.entity(0),0x1fc,0x80000000);put(f.root.entity(0),0x60,7,2);
     put(f.root.entity(0),0x62,9,2);put(f.root.entity(0),0x68,0x12345678);
@@ -235,6 +253,44 @@ void target_gates() {
     sentinel.update();require(word(sentinel.actors[0].storage,0x21c)==3,"Target3 has its distinct source return before readiness helper");
     sentinel.actors[0].storage[0x132]=4;sentinel.update();
     require(word(sentinel.actors[0].storage,0x21c)==3,"Absent source graph head waits without inventing a registration");
+}
+//152630 state2/selection4: automatic retargeting through158490/158548.
+void party_retargeting() {
+    const auto prepare=[](Fixture& f,std::int32_t selector) -> okage::BattleActor& {
+        auto& a=f.actors[0];put(a.storage,0x21c,2);put(a.storage,0x220,4,2);put(a.storage,0x1d4,std::uint32_t(selector));
+        std::fill_n(a.storage.begin()+0x132,10,0xee);put(a.storage,0x140,7,2);put(a.storage,0x144,0x99,2);
+        number(a.storage,0x19c,5);number(a.storage,0x1a0,6);number(a.storage,0x194,1);return a;
+    };
+    {   Fixture f;auto& a=prepare(f,0);f.update();
+        require(word(a.storage,0x21c)==3&&half(a.storage,0x220)==0&&half(a.storage,0x140)==1&&a.storage[0x132]==4&&a.storage[0x133]==0xee,
+                "Selector0 picks the last live enemy as a single target");
+        require(half(f.root.entity(0),0x60)==0&&half(f.root.entity(0),0x62)==4&&word(f.root.entity(0),0x68)==0&&
+                f.root.action_links[4][0]==0&&f.root.action_links[0][0]==0,"158490(owner,target,0) registration");
+        require(half(a.storage,0x144)==0x99&&number(a.storage,0x19c)==5&&number(a.storage,0x1a0)==6&&f.draws==0&&f.sounds.empty(),
+                "Retarget keeps group and timers and consumes no RNG");
+    }
+    {   Fixture f;auto& a=prepare(f,0);put(f.root.entity(4),0x1fc,0x80000000);f.update();
+        require(word(a.storage,0x21c)==3&&a.storage[0x132]==3&&half(f.root.entity(0),0x62)==3&&f.root.action_links[3][0]==0,
+                "No live enemy falls back to the delay-slot target3");
+    }
+    {   Fixture f;auto& a=prepare(f,3);f.records[2][0]=6;put(f.root.entity(1),0x1fc,0x80000000);f.update();
+        require(word(a.storage,0x21c)==3&&a.storage[0x132]==1&&half(f.root.entity(0),0x62)==1&&f.root.action_links[1][0]==0,
+                "Selector3 picks the last party owner whose primary status is not6, ignoring root flags");
+    }
+    {   Fixture f;auto& a=prepare(f,1);put(f.actors[4].storage,0x46,5,2);put(f.actors[1].storage,0x46,5,2);f.update();
+        require(word(a.storage,0x21c)==3&&half(a.storage,0x220)==0&&half(a.storage,0x144)==5&&half(a.storage,0x146)==0xffff,
+                "Selector1 copies the last live enemy's TASK+46 group and clears the direct target");
+        require(half(a.storage,0x140)==2&&a.storage[0x132]==1&&a.storage[0x133]==4&&a.storage[0x134]==0xee,
+                "158548 actor-filtered group in entity order");
+        require(half(f.root.entity(0),0x60)==0&&half(f.root.entity(0),0x62)==0xffff&&f.root.action_links[0][0]==0&&
+                f.root.action_links[1][0]==0&&f.root.action_links[4][0]==0&&number(a.storage,0x1a0)==6,"Group registration without 1580d0");
+    }
+    {   Fixture f;auto& a=prepare(f,1);put(f.root.entity(4),0x1fc,0x80000000);const auto before=a.storage;f.update();
+        require(a.storage==before&&half(f.root.entity(0),0x60)==0xffff,"Selector1 without a live enemy stays in state2/selection4");
+    }
+    {   Fixture f;auto& a=prepare(f,2);const auto before=a.storage;f.update();
+        require(a.storage==before,"Selector2 has no retarget branch");
+    }
 }
 void enemy_action_readiness() {
     Fixture f;auto& actor=f.actors[4];put(actor.storage,0x21c,3);
@@ -433,7 +489,7 @@ void invalid_owners() {
 }
 }
 int main() {
-    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();stan_setup_and_readiness();cleanup_and_source_defaults();target_gates();enemy_action_readiness();enemy_grouping();enemy_grouping_graph_and_failure();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
+    try {waiting_and_ready();ordered_selection();status_motion_and_failure_order();stan_context_and_enemy_guards();stan_setup_and_readiness();cleanup_and_source_defaults();target_gates();party_retargeting();enemy_action_readiness();enemy_grouping();enemy_grouping_graph_and_failure();post_action_timer_and_flags();post_action_secondary();post_action_primary_queue();post_action_failure_order();invalid_owners();
         std::cout<<"battle roster update tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }
