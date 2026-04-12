@@ -1320,9 +1320,9 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
         if ((!second_return && (owner.stage() < ResourceStage::TitleActive || owner.stage() == ResourceStage::Unmodeled)) ||
             owner.memory_coverage() != MemoryContentCoverage::DrawTargetsInvalidated)
             throw std::logic_error("title checkpoint report outside the modeled title/Restore stages");
-        if (owner.rng_log_dropped())
+        if (owner.rng_log_dropped() && schema != CheckpointSchema::FieldWorld)
             throw std::runtime_error("title checkpoint: session RNG log truncated after its limit");
-        if (owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state)
+        if (!owner.rng_log_dropped() && (owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state))
             throw std::runtime_error("title checkpoint: Session RNG drew after 0x100618; draws are not logged");
         o << "{\n \"coverage\":{\"lifecycle\":\"" << label << "\",\"checkpoint\":\"" << checkpoint
           << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"stage "

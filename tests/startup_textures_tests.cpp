@@ -1,6 +1,10 @@
 #include "okage/startup_textures.hpp"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
+#include <unistd.h>
 #include <stdexcept>
 #include <string>
 
@@ -515,6 +519,23 @@ int main() {
                     "log limit keeps the modeled stage");
             require(o.rng_log().size() == StartupRandomStream::log_limit && o.rng_log_dropped() == 1 &&
                     o.rng_draws() == logged_draws + 1 && logged_draws > draws, "dropped draw counted, not logged");
+            // Checkpoint reports: field-world records the truncation, title schemas reject it.
+            o.begin_logo_construction();
+            o.append_image(effect_xim({19, 256, 64, 32}, 50));
+            o.retire_image_list();
+            o.begin_title_construction();
+            o.finish_title_construction();
+            o.begin_title_updates();
+            const auto dir = std::filesystem::temp_directory_path() / ("okage-rng-limit-" + std::to_string(::getpid()));
+            write_title_checkpoint_report(o, dir / "field", "field", r.state, CheckpointSchema::FieldWorld);
+            std::ifstream state(dir / "field" / "state.json");
+            const std::string text((std::istreambuf_iterator<char>(state)), {});
+            require(text.find("\"rng_log_dropped\":1,") != std::string::npos, "field-world report records the drop count");
+            bool threw = false;
+            try { write_title_checkpoint_report(o, dir / "title", "title", r.state, CheckpointSchema::Retire); }
+            catch (const std::runtime_error&) { threw = true; }
+            require(threw, "title schema rejects a truncated RNG log");
+            std::filesystem::remove_all(dir);
         });
         scenario([&] {
             StartupTextureOwner o;
