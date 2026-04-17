@@ -56,6 +56,21 @@ int main(int argc,char** argv) {
                 const auto selected=camera.sequence_by_index(indices[i]);
                 require(selected[0]&&selected[0]->projection_value==victory_projection[i]);
             }
+            if(okage::Bytes(bytes).size()>=12&&bytes[8]==4) {
+                //151e68 rows, read from the pinned ELF table 0x235ea0 (row
+                //0x37: one preset 0x22c090, 160 frames, focal 595, linear
+                //position/target; Stan actions 0xcd/0xcf anchor it).
+                const auto stan=camera.sequence_by_index(0x37);
+                require(stan[0]&&!stan[1]&&!stan[2]&&stan[0]->position_mode==1&&stan[0]->target_mode==1&&
+                        stan[0]->position_duration==160&&stan[0]->projection_value==595&&
+                        stan[0]->position_start==okage::Float4({-5.24f,-6,-13.35f,0})&&
+                        stan[0]->position_end==okage::Float4({-39.6f,-22,-24.08f,0})&&
+                        stan[0]->target_start==okage::Float4({37.5f,-18,0,0})&&
+                        stan[0]->target_end==okage::Float4({37.5f,-16,0,0}));
+                for(unsigned row:{0x05u,0x07u,0x08u,0x09u,0x0au,0x0bu,0x0cu,0x32u,0x35u,0x38u,0x3bu,0x3eu,0x41u,0x44u,0x131u})
+                    require(bool(camera.sequence_by_index(row)[0]));
+                std::cout<<"Owned v4 camera artifact includes the151e68 rows\n";
+            }
             return 0;
         }
         require(argc==1);
@@ -167,6 +182,28 @@ int main(int argc,char** argv) {
         put(invalid_v3,indexed_start,0);
         rejects([&]{okage::BattleCameraData x(invalid_v3);});
         rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras_v3).first(cameras_v3.size()-1));});
+        constexpr std::array<unsigned,16> command_rows{0x05,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x32,0x35,
+                                                         0x37,0x38,0x3b,0x3e,0x41,0x44,0x131};
+        std::vector<std::uint8_t> cameras_v4(cameras_v3);
+        cameras_v4.resize(cameras_v3.size()+command_rows.size()*v3_row);
+        put(cameras_v4,8,4);
+        for(unsigned i=0;i<command_rows.size();++i) {
+            const auto slot=v3_header+(23*5+indexed.size()+i)*v3_row;
+            put(cameras_v4,slot,1);put(cameras_v4,slot+4+0x70,0x44000000u+i);
+        }
+        okage::BattleCameraData camera_data_v4(cameras_v4);
+        for(unsigned i=0;i<indexed.size();++i)
+            require(std::bit_cast<std::uint32_t>(camera_data_v4.sequence_by_index(indexed[i])[0]->projection_value)==indexed_focal[i]);
+        for(unsigned i=0;i<command_rows.size();++i) {
+            const auto sequence=camera_data_v4.sequence_by_index(command_rows[i]);
+            require(sequence[0]&&!sequence[1]&&std::bit_cast<std::uint32_t>(sequence[0]->projection_value)==0x44000000u+i);
+            rejects([&]{camera_data_v3.sequence_by_index(command_rows[i]);});
+        }
+        rejects([&]{camera_data_v4.sequence_by_index(0x36);});
+        rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras_v4).first(cameras_v4.size()-v3_row));});
+        auto v3_sized_v4=cameras_v3;put(v3_sized_v4,8,4);
+        rejects([&]{okage::BattleCameraData x(v3_sized_v4);});
+        auto v5=cameras_v4;put(v5,8,5);rejects([&]{okage::BattleCameraData x(v5);});
         rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
         rejects([&]{camera_data.sequence(1);});
         auto invalid=cameras;put(invalid,selected,2);rejects([&]{okage::BattleCameraData x(invalid);});

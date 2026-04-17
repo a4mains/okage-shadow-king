@@ -39,7 +39,7 @@ Float4 increment(const Float4& from,const Float4& to,float duration,float timest
 }
 BattleCameraPreset read_battle_camera_preset(Bytes b) {
     if(b.size()!=0x90)throw std::runtime_error("Battle camera preset extent");
-    auto f=[&](unsigned at){return __builtin_bit_cast(float, (word(b,at)));};
+    auto f=[&](unsigned at){return std::bit_cast<float>(word(b,at));};
     auto v=[&](unsigned at){return Float4{f(at),f(at+4),f(at+8),f(at+12)};};
     BattleCameraPreset p{word(b,0),word(b,0x30),f(4),f(0x34),v(0x10),v(0x20),v(0x40),v(0x50),f(0x64),f(0x70)};
     validate(p);return p;
@@ -55,7 +55,27 @@ void BattleCameraMotion::restart_sequence(const BattleCameraSequence& sequence) 
     if(!sequence[0])throw std::runtime_error("Battle camera restart requires first preset");
     for(const auto& p:sequence)if(p)validate(*p);
     Rounding rounding;
-    sequence_=sequence;sequence_phase_=0;select(*sequence_[0]);
+    sequence_=sequence;sequence_phase_=0;anchor_=-1;resolve_anchor_={};select(*sequence_[0]);
+}
+void BattleCameraMotion::restart_sequence(const BattleCameraSequence& sequence,int anchor,BattleCameraAnchor resolve_anchor) {
+    if(!sequence[0])throw std::runtime_error("Battle camera restart requires first preset");
+    for(const auto& p:sequence)if(p)validate(*p);
+    if(anchor<0)throw std::runtime_error("Battle anchored camera requires a nonnegative entity anchor");
+    if(!resolve_anchor)throw std::runtime_error("Battle anchored camera has no channel1 owner");
+    Rounding rounding;
+    //Resolve before any store so a rejected anchor leaves the live owner intact.
+    const auto values=resolve(anchor,resolve_anchor);
+    sequence_=sequence;sequence_phase_=0;anchor_=anchor;resolve_anchor_=std::move(resolve_anchor);
+    apply(*sequence_[0],values);
+}
+std::optional<BattleCameraMotion::AnchorValues> BattleCameraMotion::resolve(int anchor,const BattleCameraAnchor& owner) const {
+    if(anchor==-1)return std::nullopt;
+    if(anchor<0||!owner)throw std::runtime_error("Battle anchored camera owner/anchor ownership");
+    //Target handler first, then position: each performs its own1b43c0 read.
+    AnchorValues values{owner(anchor),owner(anchor)};
+    for(const auto& v:{values.target,values.position})for(float f:v)
+        if(!std::isfinite(f)||std::fabs(f)>1e6f)throw std::runtime_error("Battle anchored camera channel bounds");
+    return values;
 }
 void BattleCameraMotion::select_command_camera(unsigned selected_entity,const Float4& live_position) {
     if(selected_entity>=3)throw std::runtime_error("Battle command camera requires selected party entity0..2");
@@ -70,24 +90,35 @@ void BattleCameraMotion::select_command_camera(unsigned selected_entity,const Fl
     auto endpoint=start;
     endpoint[0]=endpoint[0]+60.f;endpoint[1]=endpoint[1]-36.f;
     if(selected_entity==0)endpoint[2]=endpoint[2]-20.f;
-    endpoint[3]=__builtin_bit_cast(float, (0x3d4ccccdu));
+    endpoint[3]=std::bit_cast<float>(0x3d4ccccdu);
     flags_&=~0x40000000u;
     target_.mode=0;target_.remaining=90.f;
     target_.point={0,-8,0,0};target_.endpoint={0,0,0,0};
     flags_&=~0x80000000u;
     position_.mode=6;position_.remaining=90.f;
     position_.point=start;position_.endpoint=endpoint;position_phase_=0;
+    anchor_=-1;
     projection_duration_=0;projection_value_=1024.f;projection_dirty_=0;
     aim();
 }
 void BattleCameraMotion::select(const BattleCameraPreset& p) {
+    //14f0d8 passes the persisted camera+e8 anchor to every later slot.
+    apply(p,resolve(anchor_,resolve_anchor_));
+}
+void BattleCameraMotion::apply(const BattleCameraPreset& p,const std::optional<AnchorValues>& anchor) {
+    //1e2428: four-lane VU vadd.xyzw of the anchor into point and endpoint.
+    const auto add=[](Float4& value,const Float4& offset){for(unsigned j=0;j<4;++j)value[j]=value[j]+offset[j];};
     flags_&=~0x40000000u;
     target_.mode=p.target_mode;target_.remaining=p.target_duration;
     target_.point=p.target_start;target_.endpoint=p.target_end;
+    if(anchor){add(target_.point,anchor->target);add(target_.endpoint,anchor->target);}
+    //14ff28 computes its increment after anchoring (1e23c0 on the sum).
     if(p.target_mode==1)target_.auxiliary=increment(target_.point,target_.endpoint,target_.remaining,timestep_);
     flags_&=~0x80000000u;
     position_.mode=p.position_mode;position_.remaining=p.position_duration;
     position_.point=p.position_start;position_.endpoint=p.position_end;
+    if(anchor){add(position_.point,anchor->position);add(position_.endpoint,anchor->position);}
+    if(p.position_mode==1&&anchor)position_.endpoint[3]=0;
     if(p.position_mode==1)position_phase_=0;
     projection_dirty_=1;projection_duration_=p.projection_duration;projection_value_=p.projection_value;
     aim();
@@ -166,7 +197,7 @@ std::optional<float> BattleCameraMotion::take_projection_request() {
 }
 std::array<std::uint32_t,56> BattleCameraMotion::observation() const {
     std::array<std::uint32_t,56> out{};
-    auto bits=[](float f){return __builtin_bit_cast(std::uint32_t, (f));};
+    auto bits=[](float f){return std::bit_cast<std::uint32_t>(f);};
     auto lane=[&](unsigned at,const Lane& p) {
         out[at]=p.mode;out[at+1]=bits(p.remaining);
         unsigned off=at+4;
@@ -174,7 +205,7 @@ std::array<std::uint32_t,56> BattleCameraMotion::observation() const {
     };
     lane(0,position_);lane(24,target_);
     out[48]=bits(projection_duration_);out[49]=bits(projection_value_);out[51]=projection_dirty_;
-    out[52]=flags_;out[53]=position_phase_;out[54]=0xffffffffu;out[55]=sequence_phase_;
+    out[52]=flags_;out[53]=position_phase_;out[54]=std::bit_cast<std::uint32_t>(anchor_);out[55]=sequence_phase_;
     return out;
 }
 }

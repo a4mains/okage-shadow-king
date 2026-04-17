@@ -36,7 +36,7 @@ public:
 private:
     using Preset=std::optional<std::array<std::uint8_t,0x90>>;
     std::array<std::array<std::array<Preset,3>,5>,23> stages_;
-    std::array<std::array<Preset,3>,5> indexed_rows_;
+    std::array<std::array<Preset,3>,21> indexed_rows_;
     unsigned rows_per_stage_=0;
     unsigned indexed_row_count_=0;
 };

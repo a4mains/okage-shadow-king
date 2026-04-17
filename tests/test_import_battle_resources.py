@@ -104,7 +104,7 @@ class BattleResourceImporterTests(unittest.TestCase):
         digest = bytes(range(32))
         data = m.extract_camera_tables(image, digest)
         self.assertEqual(m.CAMERA_HEADER.unpack_from(data),
-                         (b'OKBTCAM1', 3, 23, digest))
+                         (b'OKBTCAM1', 4, 23, digest))
         row_bytes = 3 * m.CAMERA_SLOT_SIZE
         stage17 = m.CAMERA_HEADER.size + 16 * 5 * row_bytes
         self.assertEqual(data[stage17:stage17 + m.CAMERA_SLOT_SIZE], struct.pack('<I', 1) + payloads[0])
@@ -118,6 +118,13 @@ class BattleResourceImporterTests(unittest.TestCase):
                              struct.pack('<I', 1) + payloads[offset])
             self.assertEqual(data[start + m.CAMERA_SLOT_SIZE:
                                   start + 3 * m.CAMERA_SLOT_SIZE], bytes(2 * m.CAMERA_SLOT_SIZE))
+        # The five source victory-selector indices, then the 0x151e68
+        # command-action indices, are appended in explicit order rather than
+        # being mistaken for stage-relative row offsets.
+        self.assertEqual(m.CAMERA_INDEXED_ROWS[:5], (0x28, 0x2b, 0x2c, 0x2d, 0x2e))
+        self.assertEqual(m.CAMERA_INDEXED_ROWS[5:],
+                         (0x05, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x32, 0x35,
+                          0x37, 0x38, 0x3b, 0x3e, 0x41, 0x44, 0x131))
         indexed_payloads = []
         for ordinal, index in enumerate(m.CAMERA_INDEXED_ROWS):
             payload = bytes((i * (ordinal + 11) + 3) & 0xff for i in range(0x90))
@@ -134,7 +141,7 @@ class BattleResourceImporterTests(unittest.TestCase):
                              struct.pack('<I', 1) + payload)
             self.assertEqual(data[start + m.CAMERA_SLOT_SIZE:start + row_bytes],
                              bytes(2 * m.CAMERA_SLOT_SIZE))
-        self.assertEqual(len(data), m.CAMERA_HEADER.size + (23 * 5 + 5) * row_bytes)
+        self.assertEqual(len(data), m.CAMERA_HEADER.size + (23 * 5 + 21) * row_bytes)
 
     def test_camera_rejects_bad_digest_alignment_and_unmapped_payload(self):
         image = SyntheticImage()

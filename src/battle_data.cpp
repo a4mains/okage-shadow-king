@@ -7,7 +7,10 @@
 namespace okage {
 namespace {
 constexpr std::size_t header_size=56, directory_size=256*8, stage_size=23*64;
-constexpr std::array<unsigned,5> indexed_camera_rows{0x28,0x2b,0x2c,0x2d,0x2e};
+//v3: the14a780 victory selector rows. v4 appends, in this order, every row
+//selected by151e68 through1510a0/151100 (and its0x131 completion row).
+constexpr std::array<unsigned,21> indexed_camera_rows{0x28,0x2b,0x2c,0x2d,0x2e,
+    0x05,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x32,0x35,0x37,0x38,0x3b,0x3e,0x41,0x44,0x131};
 constexpr std::array<std::uint8_t,32> source_hash{
     0x2a,0x90,0xb6,0xaf,0x1b,0x5e,0x0a,0xb5,0x77,0xe8,0x99,0x11,0x3d,0x7d,0x35,0xd9,
     0x76,0x69,0xa5,0xc1,0x3a,0xee,0x2a,0xe8,0x48,0x31,0x2b,0xd0,0x46,0x69,0xaa,0xa5};
@@ -76,8 +79,8 @@ BattleCameraData::BattleCameraData(Bytes b) {
        u32(b,12)!=23||!std::equal(source_hash.begin(),source_hash.end(),b.begin()+16))
         throw std::runtime_error("Invalid battle camera data artifact");
     const auto version=u32(b,8);
-    rows_per_stage_=version==1?2:version==2||version==3?5:0;
-    indexed_row_count_=version==3?indexed_camera_rows.size():0;
+    rows_per_stage_=version==1?2:version>=2&&version<=4?5:0;
+    indexed_row_count_=version==3?5:version==4?unsigned(indexed_camera_rows.size()):0;
     if(rows_per_stage_==0||b.size()!=header+(23*rows_per_stage_+indexed_row_count_)*3*slot_size)
         throw std::runtime_error("Invalid battle camera data artifact");
     std::size_t at=header;

@@ -17,10 +17,12 @@ struct BattleCameraPreset {
 // reached fixed/linear unanchored paths remain explicit guards.
 BattleCameraPreset read_battle_camera_preset(Bytes data);
 using BattleCameraSequence=std::array<std::optional<BattleCameraPreset>,3>;
+using BattleCameraAnchor=std::function<Float4(int entity)>;
 class BattleCameraMotion {
 public:
     BattleCameraMotion(const BattleCameraSequence&,float timestep);
     void restart_sequence(const BattleCameraSequence&);
+    void restart_sequence(const BattleCameraSequence&,int anchor,BattleCameraAnchor resolve);
     void select_command_camera(unsigned selected_entity,const Float4& live_position);
     void tick();
     void tick(Animation& channels,const std::function<void(float)>& projection);
@@ -46,7 +48,12 @@ private:
     Lane position_,target_;
     float projection_duration_=0,projection_value_=0;
     unsigned projection_dirty_=0,flags_=0,position_phase_=0,sequence_phase_=0;
+    int anchor_=-1; //camera BODY+e8 (14fc50 argument5)
+    BattleCameraAnchor resolve_anchor_;
+    struct AnchorValues {Float4 target{},position{};};
+    std::optional<AnchorValues> resolve(int anchor,const BattleCameraAnchor&) const;
     void select(const BattleCameraPreset&);
+    void apply(const BattleCameraPreset&,const std::optional<AnchorValues>&);
     void aim();
     void advance(Animation* channels,const std::function<void(float)>* projection);
 };
