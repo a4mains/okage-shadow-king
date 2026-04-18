@@ -344,20 +344,26 @@ const BattleActionDescriptor& strike_descriptor(const BattleActor& actor) {
     check(bool(actor.action_motion),"Battle strike has no motion descriptor");
     return *actor.action_motion;
 }
-bool schedule_ready(const BattleActor& actor,unsigned counter,unsigned limit,unsigned time) {
+const BattleActionDescriptor& secondary_descriptor(const BattleActor& actor) {
+    check(bool(actor.action_secondary),"Battle secondary schedule has no157ed0 descriptor owner");
+    return *actor.action_secondary;
+}
+bool schedule_ready(const BattleActor& actor,unsigned counter,unsigned limit,unsigned time,unsigned clock=0x1f8) {
     const auto index=std::bit_cast<std::int32_t>(word(actor.storage,counter));
     if(index>=int(limit))return false;
-    if(!(scalar(actor.storage,time)<=scalar(actor.storage,0x1f8)))return false;
+    if(!(scalar(actor.storage,time)<=scalar(actor.storage,clock)))return false;
     check(index>=0,"Battle strike negative schedule index is unsupported");
     return true;
 }
-void advance_schedule(BattleActor& actor,unsigned counter,unsigned limit,unsigned time,unsigned base,unsigned stride) {
+void advance_schedule(BattleActor& actor,const BattleActionDescriptor& descriptor,unsigned counter,unsigned limit,
+                      unsigned time,unsigned base,unsigned stride) {
     const auto next=word(actor.storage,counter)+1;
     put(actor.storage,counter,next);
     const auto index=std::bit_cast<std::int32_t>(next);
     if(index<int(limit)) {
         check(index>=0,"Battle strike wrapped negative schedule index");
-        const auto value=strike_descriptor(actor).half(base+unsigned(index)*stride);
+        //CVT.S.W of the signed half (exact), stored before the C.LT.S zero test.
+        const auto value=descriptor.half(base+unsigned(index)*stride);
         scalar(actor.storage,time,float(value));
         if(value<0)put(actor.storage,counter,limit);
     }
@@ -464,21 +470,22 @@ void strike_damage(BattleActor& actor,const BattleState& root,std::span<const Ba
         check(index>=0&&index<4,"Battle strike damage schedule index");
         services.damage_event(descriptor.half(0xa+unsigned(index)*4),half(actor.storage,0x130),target);
     }
-    advance_schedule(actor,0x1e4,4,0x1e0,8,4);
+    advance_schedule(actor,strike_descriptor(actor),0x1e4,4,0x1e0,8,4);
 }
 void strike_sound(BattleActor& actor,const BattleStrikeServices& services) {
     if(!schedule_ready(actor,0x1ec,8,0x1e8))return;
     check(bool(services.sound),"Battle strike sound12df80 service missing");
     services.sound(strike_descriptor(actor).half(0x18+word(actor.storage,0x1ec)*4));
-    advance_schedule(actor,0x1ec,8,0x1e8,0x1a,4);
+    advance_schedule(actor,strike_descriptor(actor),0x1ec,8,0x1e8,0x1a,4);
 }
-void strike_effect(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
-                   const BattleStrikeServices& services) {
-    if(!schedule_ready(actor,0x1f4,4,0x1f0))return;
+void scheduled_effect(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                      const BattleStrikeServices& services,const BattleActionDescriptor& descriptor,
+                      unsigned counter,unsigned time,unsigned clock) {
+    if(!schedule_ready(actor,counter,4,time,clock))return;
     const auto entry=[&]() {
-        const auto index=std::bit_cast<std::int32_t>(word(actor.storage,0x1f4));
+        const auto index=std::bit_cast<std::int32_t>(word(actor.storage,counter));
         check(index>=0&&index<4,"Battle strike effect schedule index");
-        return Bytes(strike_descriptor(actor).bytes).subspan(0x38+unsigned(index)*20,20);
+        return Bytes(descriptor.bytes).subspan(0x38+unsigned(index)*20,20);
     };
     const auto create=[&](int target,bool absolute) {
         const auto data=entry();
@@ -518,7 +525,11 @@ void strike_effect(BattleActor& actor,const BattleState& root,std::span<const Ba
     }
     default:break;
     }
-    advance_schedule(actor,0x1f4,4,0x1f0,0x3a,20);
+    advance_schedule(actor,descriptor,counter,4,time,0x3a,20);
+}
+void strike_effect(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                   const BattleStrikeServices& services) {
+    scheduled_effect(actor,root,entities,services,strike_descriptor(actor),0x1f4,0x1f0,0x1f8);
 }
 bool strike_update(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
                    const BattleStrikeServices& services) {
@@ -976,6 +987,41 @@ void battle_actor_reset_after_victory(BattleActor& actor) {
     if(status(actor,1)==6)return;
     actor.stat_bindings[1][0]=1;
     put(actor.stat_bindings[2],0,0,2);
+}
+bool battle_secondary_clock(BattleActor& actor,const BattleStrikeServices& services) {
+    TowardZero rounding;
+    const float clock=single(scalar(actor.storage,0x214),scalar(actor.storage,0x2c),Operation::Add);
+    scalar(actor.storage,0x214,clock);
+    if(!(scalar(secondary_descriptor(actor).bytes,0)<clock))return false;
+    const auto voice=word(actor.storage,0x308); //BODY+2c8, 157448's 0x1f voice
+    if(voice!=0xffffffffu) {
+        check(bool(services.sound_stop),"Battle secondary voice stop12de90 service missing");
+        services.sound_stop(voice);
+    }
+    //BODY+304 (TASK304): the 0x1c effect handle survives; others get -1.
+    put(actor.storage,0x304,half(actor.storage,0x218)==0x1c?word(actor.storage,0x30c):0xffffffffu);
+    return true;
+}
+void battle_secondary_sound(BattleActor& actor,const BattleStrikeServices& services) {
+    //157448: eight entries at secondary+18 (id) / +1a (next time), index
+    //TASK208, time TASK204, clock TASK214. Id0x1f keeps its12df80 voice.
+    if(!schedule_ready(actor,0x208,8,0x204,0x214))return;
+    const auto& descriptor=secondary_descriptor(actor);
+    const auto id=descriptor.half(0x18+word(actor.storage,0x208)*4);
+    if(id==0x1f) {
+        check(bool(services.sound_handle),"Battle secondary voice12df80(0x1f) handle service missing");
+        put(actor.storage,0x308,services.sound_handle(0x1f));
+    } else {
+        check(bool(services.sound),"Battle secondary sound12df80 service missing");
+        services.sound(id);
+    }
+    advance_schedule(actor,descriptor,0x208,8,0x204,0x1a,4);
+}
+void battle_secondary_effect(BattleActor& actor,const BattleState& root,std::span<const BattleEntityBinding> entities,
+                             const BattleStrikeServices& services) {
+    TowardZero rounding; //1554b8's EE ADD.S position offsets.
+    if(!schedule_ready(actor,0x210,4,0x20c,0x214))return;
+    scheduled_effect(actor,root,entities,services,secondary_descriptor(actor),0x210,0x20c,0x214);
 }
 void battle_actor_motion_update(BattleActor& actor,std::span<const BattleEntityBinding> entities,const BattleState* root,
                                 const BattleDiagnosticLog& log) {

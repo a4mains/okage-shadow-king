@@ -1,9 +1,12 @@
 #include "okage/battle_actor.hpp"
 #include "okage/battle_action_setup.hpp"
 #include "okage/battle_command_queue.hpp"
+#include "okage/battle_command_action.hpp"
+#include "okage/battle_camera.hpp"
 #include "okage/battle_hit.hpp"
 #include "okage/battle_hud.hpp"
 #include "okage/battle_roster_update.hpp"
+#include <algorithm>
 #include <bit>
 #include <cfenv>
 #include <filesystem>
@@ -1157,13 +1160,240 @@ void stan_preemptive_owned(const std::filesystem::path& stage) {
             "Cleared parameter returns Stan to the ordinary HERO-trigger scan, which waits");
     std::cout<<"Owned Stan pre-emptive 0xcf sequence passed\n";
 }
+//151e68 harness: services record every source boundary in call order.
+struct CommandActionRecorder {
+    std::vector<std::string> events;
+    okage::BattleCommandActionServices services;
+    std::uint32_t next_voice=0x51;
+    CommandActionRecorder() {
+        services.camera_index=[&](unsigned row){events.push_back("camera-index "+std::to_string(row));};
+        services.camera_anchored=[&](unsigned row,std::int32_t anchor){
+            events.push_back("camera-anchored "+std::to_string(row)+" "+std::to_string(anchor));};
+        services.camera_offset=[&](int offset){events.push_back("camera-offset "+std::to_string(offset));};
+        services.reset_type3=[&]{events.push_back("hud-reset");};
+        services.clear_roster_mask=[&](bool enemy){events.push_back(enemy?"unmask enemy":"unmask party");};
+        services.strike.sound=[&](int id){events.push_back("sound "+std::to_string(id));};
+        services.strike.sound_handle=[&](int id){events.push_back("voice "+std::to_string(id));return next_voice;};
+        services.strike.sound_stop=[&](std::uint32_t handle){events.push_back("voice-stop "+std::to_string(handle));};
+        services.strike.positioned_effect=[&](int id,const okage::Float4&,bool){
+            events.push_back("effect "+std::to_string(id));return 40u+unsigned(events.size());};
+        services.strike.effect_rotation=[&](unsigned handle,const okage::Float4& v){
+            events.push_back("rotate "+std::to_string(handle)+(v==okage::Float4({0,.5f,0,1})?" half-turn":" other"));};
+    }
+};
+//Install 151e68 the way 14a508 command1 does (native combat_parent).
+void enter_command_action(SequenceFixture& f,std::int32_t owner) {
+    put(f.root.bytes,0x81ac,std::uint32_t(owner));put(f.root.bytes,0x24,0);put(f.root.bytes,0x30,std::uint32_t(owner));
+}
+okage::BattleActionDescriptor& secondary(okage::BattleActor& a,float duration,std::int16_t action) {
+    auto& d=a.action_secondary.emplace();
+    for(unsigned i=0;i<8;++i){put(d.bytes,0x18+i*4,0xffff,2);put(d.bytes,0x1a+i*4,0xffff,2);}
+    for(unsigned i=0;i<4;++i){put(d.bytes,0x38+i*20,0xffff,2);put(d.bytes,0x3a+i*20,0xffff,2);put(d.bytes,0x3c+i*20,0xffffffffu);}
+    number(d.bytes,0,duration);put(a.storage,0x218,std::uint16_t(action),2);
+    for(unsigned at:{0x204u,0x20cu})number(a.storage,at,-1);
+    put(a.storage,0x208,8);put(a.storage,0x210,4);number(a.storage,0x214,0);
+    put(a.storage,0x308,0xffffffffu);put(a.storage,0x30c,0x77);put(a.storage,0x304,5);
+    return d;
+}
+void command_action_paths() {
+    using Result=okage::BattleCommandActionResult;
+    {
+        //root+81ac, 1510a0 rows have none; phase0 falls through to phase2.
+        const std::vector<std::pair<int,std::string>> table{
+            {0x14,"camera-anchored 50 3"},{0x15,"camera-anchored 50 3"},{0x16,"camera-index 53"},
+            {0x17,"camera-index 53"},{0x18,"camera-index 53"},{0x19,"camera-anchored 56 3"},
+            {0x1a,"camera-anchored 59 3"},{0x1b,"camera-anchored 65 3"},{0x1c,"camera-anchored 62 3"},
+            {0x1d,"camera-anchored 68 3"},{0xaa,"camera-anchored 7 3"},{0xcd,"camera-anchored 55 3"},
+            {0xcf,"camera-anchored 55 3"},{0xce,"camera-index 12"},{0x13,"camera-anchored 5 3"},
+            {0x1e,"camera-anchored 5 3"},{0xa9,"camera-anchored 5 3"},{0xcc,"camera-anchored 5 3"},
+            {0xd0,"camera-anchored 5 3"},{200,"camera-anchored 5 3"}};
+        for(const auto& [action,expected]:table) {
+            SequenceFixture f;CommandActionRecorder r;secondary(f.stan(),160,std::int16_t(action));
+            enter_command_action(f,3);
+            const auto before=f.stan().storage;
+            require(okage::battle_command_action_update(f.root,f.entities,r.services)==Result::Running,"First tick keeps 151e68");
+            require(r.events==std::vector<std::string>{expected},"Action selects the source camera row");
+            require(word(f.root.bytes,0x24)==2&&number(f.stan().storage,0x214)==1,"Phase0 and phase1 fall into phase2's clock");
+            for(unsigned i=0;i<before.size();++i)if(i<0x214||i>=0x218)require(f.stan().storage[i]==before[i],"Only the clock changes");
+        }
+    }
+    {
+        for(const auto& [radius,row]:std::vector<std::pair<float,unsigned>>{{10,9},{15,10},{60,11},{5,8},{-10,8}}) {
+            SequenceFixture f;CommandActionRecorder r;secondary(f.stan(),160,200);enter_command_action(f,3);
+            put(f.root.bytes,0x81ac,8);number(f.actors[8].actor.storage,0x4c,radius);
+            okage::battle_command_action_update(f.root,f.entities,r.services);
+            require(r.events==std::vector<std::string>{"camera-anchored "+std::to_string(row)+" 8"},"Radius C.EQ.S row");
+        }
+        SequenceFixture f;CommandActionRecorder r;secondary(f.stan(),160,200);enter_command_action(f,3);
+        put(f.root.bytes,0x81ac,9);f.entities[9].actor=nullptr;
+        rejects_with([&]{okage::battle_command_action_update(f.root,f.entities,r.services);},"absent selected actor");
+        put(f.root.bytes,0x81ac,0xffffffffu);
+        rejects_with([&]{okage::battle_command_action_update(f.root,f.entities,r.services);},"outside registered entities");
+        put(f.root.bytes,0x81ac,2);put(f.root.bytes,0x24,1);r.events.clear();
+        okage::battle_command_action_update(f.root,f.entities,r.services);
+        require(r.events==std::vector<std::string>{"camera-anchored 5 2"},"Party selection 0..3 uses row5 with its anchor");
+    }
+    {
+        SequenceFixture f;CommandActionRecorder r;enter_command_action(f,3);f.entities[3].actor=nullptr;
+        const auto before=f.root.bytes;
+        require(okage::battle_command_action_update(f.root,f.entities,r.services)==Result::Running&&r.events.empty()&&
+                word(f.root.bytes,0x24)==2,"Absent owner advances to phase2 without a camera");
+        okage::battle_command_action_update(f.root,f.entities,r.services);
+        require(word(f.root.bytes,0x24)==2&&r.events.empty(),"Phase2 returns without an owner");
+        for(unsigned i=0;i<before.size();++i)if(i<0x24||i>=0x28)require(f.root.bytes[i]==before[i],"Only the phase word changes");
+        for(std::uint32_t phase:{3u,7u,0xffffffffu}) {
+            SequenceFixture g;CommandActionRecorder q;secondary(g.stan(),1,0xcd);enter_command_action(g,3);put(g.root.bytes,0x24,phase);
+            const auto root=g.root.bytes;const auto storage=g.stan().storage;
+            require(okage::battle_command_action_update(g.root,g.entities,q.services)==Result::Running&&q.events.empty()&&
+                    g.root.bytes==root&&g.stan().storage==storage,"Other phases return without mutation");
+        }
+        SequenceFixture g;CommandActionRecorder q;enter_command_action(g,14);
+        rejects_with([&]{okage::battle_command_action_update(g.root,g.entities,q.services);},"outside registered entities");
+    }
+    {   //Action0x1c: 1510a0(0x131) closes; TASK304 keeps TASK30c; a kept 0x1f
+        //voice from 157448 is stopped by 1573b8 before any closing call.
+        SequenceFixture f;CommandActionRecorder r;auto& s=f.stan();
+        auto& d=secondary(s,2,0x1c);put(d.bytes,0x18,0x1f,2);put(d.bytes,0x1a,0,2);put(d.bytes,0x1e,0xffff,2);
+        put(d.bytes,0x38,33,2);put(d.bytes,0x3c,1);put(d.bytes,0x3a,1,2);
+        put(d.bytes,0x4c,70,2);put(d.bytes,0x4e,2,2);put(d.bytes,0x50,3);
+        number(s.storage,0x204,0);put(s.storage,0x208,0);number(s.storage,0x20c,1);put(s.storage,0x210,0);
+        enter_command_action(f,3);put(f.root.bytes,0x81a8,0);put(f.root.bytes,0x34,9);
+        okage::battle_command_action_update(f.root,f.entities,r.services);
+        require(r.events==std::vector<std::string>{"camera-anchored 62 3","voice 31","effect 33"},
+                "Tick1: camera, then 157448 voice (0<=1) and 157518 type1 owner effect");
+        require(word(s.storage,0x308)==0x51&&word(s.storage,0x208)==8&&word(s.storage,0x210)==1&&
+                number(s.storage,0x20c)==2&&word(s.storage,0x30c)==40+3,"Voice handle and effect handle stored; schedules advance");
+        okage::battle_command_action_update(f.root,f.entities,r.services);
+        require(word(f.root.bytes,0x24)==2&&r.events.size()==5&&r.events[3]=="effect 70"&&r.events[4].starts_with("rotate "),
+                "Tick2 (clock2, not <2): type3 owner effect then half-turn rotation");
+        require(okage::battle_command_action_update(f.root,f.entities,r.services)==Result::Restored,"Clock3 > 2 restores");
+        require(std::vector<std::string>(r.events.begin()+5,r.events.end())==std::vector<std::string>{
+                "voice-stop 81","camera-index 305","hud-reset","unmask party","unmask enemy"},
+                "1573b8 voice stop, 1510a0(0x131), 168458, both 115a70 in order");
+        require(word(s.storage,0x304)==word(s.storage,0x30c)&&word(f.root.bytes,0x24)==1&&word(f.root.bytes,0x34)==0&&
+                word(f.root.bytes,0x81a8)==1&&word(f.root.bytes,0x30)==3,"0x1c keeps its effect; phase1, +34=0, commands reopened");
+    }
+    {
+        SequenceFixture f;CommandActionRecorder r;secondary(f.stan(),160,0xcd);enter_command_action(f,3);
+        r.services.camera_anchored={};
+        rejects_with([&]{okage::battle_command_action_update(f.root,f.entities,r.services);},"camera151100");
+        require(word(f.root.bytes,0x24)==1,"Phase0's store precedes the phase1 camera");
+        SequenceFixture g;CommandActionRecorder q;secondary(g.stan(),0,0xcd);enter_command_action(g,3);
+        q.services.reset_type3={};
+        rejects_with([&]{okage::battle_command_action_update(g.root,g.entities,q.services);},"HUD168458");
+        SequenceFixture h;CommandActionRecorder t;auto& d=secondary(h.stan(),9,0xcd);enter_command_action(h,3);
+        put(d.bytes,0x18,0x1f,2);put(h.stan().storage,0x208,0);number(h.stan().storage,0x204,0);t.services.strike.sound_handle={};
+        rejects_with([&]{okage::battle_command_action_update(h.root,h.entities,t.services);},"12df80(0x1f)");
+        SequenceFixture k;CommandActionRecorder u;enter_command_action(k,3);put(k.root.bytes,0x24,2);
+        rejects_with([&]{okage::battle_command_action_update(k.root,k.entities,u.services);},"157ed0 descriptor");
+    }
+}
+void command_action_owned(const std::filesystem::path& stage) {
+    using Callback=okage::BattleActor::FirstCallback;
+    using Result=okage::BattleCommandActionResult;
+    okage::BattleActionData data(read_file(stage/"NATIVE_UI/battle-actions.bin"));
+    okage::GameDataTables tables(read_file(stage/"CMNDATA/XDB/BKDATA.XDB"),read_file(stage/"CMNDATA/XDB/ITEM.XDB"));
+    okage::RuwResource ruw(read_file(stage/"NATIVE_UI/BTL.RUW"));
+    okage::BattleHud hud;
+    SequenceFixture f;auto& s=f.stan();
+    std::array<std::uint8_t,2> counter{};s.stat_bindings[2]=counter;
+    put(s.storage,0x142,205,2);put(s.storage,0x144,10,2);put(s.storage,0x146,0,2);f.targets({});
+    (void)okage::battle_setup_action(s,f.root,tables,data);
+    require(s.action_secondary->identity==360&&number(s.storage,0x204)==100&&number(s.storage,0x20c)==110&&
+            word(s.storage,0x208)==0&&word(s.storage,0x210)==0&&number(s.storage,0x214)==0,
+            "1580d0 primes secondary360: sound@100, effect@110, clock0");
+    put(s.storage,0x21c,8);okage::battle_party_first_update(s,f.root,f.entities);
+    std::vector<std::string> events;
+    okage::BattleStrikeServices strike;
+    strike.damage_event=[&](int command,int owner,int target){events.push_back("damage "+std::to_string(command)+" "+std::to_string(owner)+" "+std::to_string(target));};
+    strike.sound=[&](int id){events.push_back("sound "+std::to_string(id));};
+    strike.positioned_effect=[&](int id,const okage::Float4& p,bool w){
+        events.push_back("effect "+std::to_string(id)+(w?"":" w?"));(void)p;return 70u+unsigned(events.size());};
+    strike.action_name=[&](std::int16_t action){events.push_back("hud "+std::to_string(action));hud.show_action_name(ruw,tables,action);};
+    strike.camera_sequence=[&](int row){events.push_back("camera-offset "+std::to_string(row));};
+    put(f.root.bytes,0x81a8,1);
+    okage::battle_actor_first_update(s,f.root,f.entities,strike);
+    require(word(s.storage,0x24)==1&&okage::battle_command_available(f.root)==0,"156c70 substep0 pushes command1");
+    //14a508: 151858 pops (owner3, command1) into root+81ac.
+    std::int32_t owner=-1;
+    require(okage::battle_command_pop(f.root,f.entities,owner)==1&&owner==3,"Combat parent pops Stan's command1");
+    enter_command_action(f,owner);
+    //Owned camera row 0x37 (ELF 0x22c090): one 160-frame linear preset,
+    //focal 595. 151100 anchors both lanes on Stan's live channel1.
+    okage::BattleCameraPreset row37;
+    row37.position_mode=1;row37.target_mode=1;row37.position_duration=160;row37.target_duration=160;
+    row37.position_start={-5.24f,-6,-13.35f,0};row37.position_end={-39.6f,-22,-24.08f,0};
+    row37.target_start={37.5f,-18,0,0};row37.target_end={37.5f,-16,0,0};
+    row37.projection_duration=160;row37.projection_value=595;
+    okage::BattleCameraSequence initial{};initial[0]=row37;initial[0]->position_mode=0;initial[0]->target_mode=0;
+    okage::BattleCameraMotion camera(initial,1);
+    s.model->animation().set_channel(1,{10,0,-20,1});
+    std::vector<unsigned> phases;
+    okage::BattleCommandActionServices services;
+    services.camera_anchored=[&](unsigned row,std::int32_t anchor){
+        events.push_back("camera-anchored "+std::to_string(row)+" "+std::to_string(anchor));
+        require(row==0x37,"Stan action205 selects owned row0x37");
+        okage::BattleCameraSequence sequence{};sequence[0]=row37;
+        camera.restart_sequence(sequence,anchor,[&](int entity){
+            require(entity==3,"Anchor resolves Stan's channel");return f.entities[3].actor->model->animation().value(1);});
+    };
+    services.camera_index=[&](unsigned row){events.push_back("camera-index "+std::to_string(row));};
+    services.camera_offset=[&](int offset){events.push_back("camera-offset "+std::to_string(offset));};
+    services.reset_type3=[&]{events.push_back("hud-reset");hud.reset_type3(ruw);};
+    std::uint32_t party_mask=0x10000000u,enemy_mask=0x10000000u;
+    services.clear_roster_mask=[&](bool enemy){(enemy?enemy_mask:party_mask)&=~0x10000000u;events.push_back(enemy?"unmask enemy":"unmask party");};
+    services.strike=strike;
+    events.clear();
+    Result result=Result::Running;
+    unsigned ticks=0;
+    for(;ticks<400&&result==Result::Running;++ticks) {
+        number(s.storage,0x2c,1);
+        result=okage::battle_command_action_update(f.root,f.entities,services);
+        phases.push_back(word(f.root.bytes,0x24));
+        if(ticks==0) {
+            const auto tz=[](float a,float b) { //EE/VU adds under toward-zero rounding.
+                std::fenv_t saved;std::fegetenv(&saved);std::fesetround(FE_TOWARDZERO);
+                volatile float x=a,y=b;const float sum=x+y;std::fesetenv(&saved);return sum;
+            };
+            const auto o=camera.observation();
+            require(o[0]==1&&o[24]==1&&o[53]==0&&o[54]==3&&o[55]==0,"Anchored row: linear lanes, phase reset, camera+e8 = 3");
+            require(camera.position()==okage::Float4({tz(-5.24f,10),-6,tz(-13.35f,-20),1})&&
+                    camera.target()==okage::Float4({47.5f,-18,-20,1}),"Both lanes add Stan's channel1 in all four lanes");
+            require(o[20]==std::bit_cast<std::uint32_t>(tz(-39.6f,10))&&o[21]==std::bit_cast<std::uint32_t>(-22.f)&&
+                    o[22]==std::bit_cast<std::uint32_t>(tz(-24.08f,-20))&&o[23]==0,"150468 zeroes the anchored endpoint W");
+            require(camera.take_projection_request()==std::optional<float>(595.f),"Row focal 595 is pending");
+        }
+        if(ticks<160)require(word(s.storage,0x214)==std::bit_cast<std::uint32_t>(float(ticks+1)),"Toward-zero clock per tick");
+    }
+    require(result==Result::Restored&&ticks==161&&number(s.storage,0x214)==161,"Clock161 > duration160 restores on tick161");
+    require(phases.front()==2&&std::all_of(phases.begin(),phases.end()-1,[](unsigned p){return p==2;})&&phases.back()==1,
+            "Phase sequence 0->1->2 on tick1, 2 while running, 1 on restore");
+    require(events==std::vector<std::string>{"camera-anchored 55 3","sound 42","sound 54","effect 12","effect 12",
+            "camera-offset 1","hud-reset","unmask party","unmask enemy"},
+            "Camera, secondary sound/effect schedules, then closing camera, HUD and masks in source order");
+    require(word(f.root.bytes,0x81a8)==1&&word(f.root.bytes,0x34)==0&&party_mask==0&&enemy_mask==0&&
+            word(s.storage,0x304)==0xffffffffu&&word(s.storage,0x308)==0xffffffffu&&word(s.storage,0x208)==8&&word(s.storage,0x210)==4,
+            "Commands reopened, masks cleared, TASK304=-1, no voice; both schedules terminated");
+    require(hud.type3_reset==0&&hud.type3_ready==1,"168458 resets the action-name banner flags");
+    for(const auto& w:ruw.widgets()[5])if(w.runtime&&w.words[8]==0)require((w.runtime->words[4]>>24)==0,"168458 hides class0");
+    require(s.first_callback==Callback::ActionSequence&&word(s.storage,0x24)==1&&word(s.storage,0x21c)==8,
+            "151e68 leaves Stan's 156c70 at substep1 (rosters were masked)");
+    //Restored combat parent: the unmasked 156c70 resumes and finishes.
+    events.clear();number(s.storage,0x2c,.5f);
+    for(unsigned i=0;i<8&&s.first_callback==Callback::ActionSequence;++i)okage::battle_actor_first_update(s,f.root,f.entities,strike);
+    require(events==std::vector<std::string>{"damage 16 3 6","damage 16 3 8","sound 54","effect 12","effect 12","camera-offset 1"},
+            "156c70 substeps 1..3 run after restoration");
+    require(s.first_callback==Callback::Roster&&word(s.storage,0x21c)==99,"Stan returns to state99");
+    owner=-1;require(okage::battle_command_pop(f.root,f.entities,owner)==-1&&owner==-1,"No further command is queued");
+    std::cout<<"Owned action205 command1 -> 151e68 sequence passed\n";
+}
 }
 int main(int argc,char** argv){try {
     first_callback();charge_publication();ready_actor_keeps_charge();action_wait_callbacks();attack_dispatch_and_approach();ballistic_attack();ranged_attack();ballistic_cartesian_equivalence();strike_schedules();channels_and_effect_guards();enemy_paths();floating_environment();victory_status_reset();victory_actor_states();queued_party_hit();party_death_lifecycle();queued_enemy_hit();
-    state8_install_guards();action_sequence_paths();
+    state8_install_guards();action_sequence_paths();command_action_paths();
     if(argc==2) {
         const std::filesystem::path stage=argv[1];
-        if(std::filesystem::exists(stage/"NATIVE_UI/battle-actions.bin")){action205_owned(stage);stan_preemptive_owned(stage);}
+        if(std::filesystem::exists(stage/"NATIVE_UI/battle-actions.bin")){action205_owned(stage);stan_preemptive_owned(stage);command_action_owned(stage);}
         else std::cout<<"Owned action205 section skipped: stage lacks NATIVE_UI/battle-actions.bin\n";
     } else require(argc==1,"Expected optional owned stage directory");
     std::cout<<"Battle actor startup callback tests passed\n";return 0;

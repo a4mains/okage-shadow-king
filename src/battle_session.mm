@@ -19,6 +19,7 @@
 #include "okage/battle_lifecycle.hpp"
 #include "okage/battle_enemy_commands.hpp"
 #include "okage/battle_command_queue.hpp"
+#include "okage/battle_command_action.hpp"
 #include "okage/battle_ui_diagnostic.hpp"
 #include "okage/ui_resource.hpp"
 #include "okage/ui_draw_diagnostic.hpp"
@@ -979,7 +980,51 @@ struct BattleSession::Impl {
                 } else if(phase==3)throw std::runtime_error("Battle command-menu1519f8 cancellation lifecycle is unrecovered");
                 //Other source phases return without mutation.
             } else if(parent_callback==ParentCallback::CommandAction) {
-                throw std::runtime_error("Battle command-action151e68 camera/action lifecycle is unrecovered");
+                if(!camera_data||!camera)throw std::runtime_error("Battle command-action151e68 camera ownership");
+                const auto anchor=[this](int entity)->Float4 {
+                    if(entity<0||std::size_t(entity)>=roster.entities().size())
+                        throw std::runtime_error("Battle anchored camera entity outside registered entities");
+                    const auto* actor=roster.entities()[unsigned(entity)].actor;
+                    if(!actor||!actor->model)
+                        throw std::runtime_error("Battle anchored camera absent-body channel1 fallback is unrecovered");
+                    source_camera_w_available&=!actor->cartesian_motion;
+                    return actor->model->animation().value(1);
+                };
+                BattleCommandActionServices services{
+                    [&](unsigned row){camera->restart_sequence(camera_data->sequence_by_index(row));
+                        events.push_back("parent.command-action.camera-index");},
+                    [&](unsigned row,std::int32_t entity){
+                        camera->restart_sequence(camera_data->sequence_by_index(row),entity,anchor);
+                        events.push_back("parent.command-action.camera-anchored");},
+                    [&](int offset){
+                        if(offset<0)throw std::runtime_error("Battle151170 camera sequence ownership");
+                        camera->restart_sequence(camera_data->sequence_at_offset(stage,unsigned(offset)));
+                        events.push_back("parent.command-action.camera-offset");},
+                    [&]{context.shared.hud.reset_type3(*ui_resources[0]);},
+                    [&](bool enemy){(enemy?enemy_mask:party_mask)&=~0x10000000u;},{}};
+                services.strike.sound=context.strike_sound;
+                services.strike.positioned_effect=[&](int id,const Float4& point,bool exact_w){
+                    return spawn_effect(id,point,context.random,exact_w);};
+                services.strike.effect_rotation=[&](unsigned handle,const Float4& value){ //101758
+                    if(handle>=effects.size())throw std::runtime_error("Battle effect rotation handle outside pool");
+                    if(effects[handle])effects[handle]->rotation=value;
+                };
+                //Native sound banks expose no per-voice handle for12df80's
+                //return value, so the 0x1f looping voice and its12de90 stop stay guarded.
+                services.strike.sound_handle=[](int)->std::uint32_t{
+                    throw std::runtime_error("Battle157448 voice0x1f12df80 handle ownership is unrecovered");};
+                services.strike.sound_stop=[](std::uint32_t){
+                    throw std::runtime_error("Battle1573b8 voice stop12de90 ownership is unrecovered");};
+                BattleCommandActionResult result;
+                try {result=battle_command_action_update(root,roster.entities(),services);}
+                catch(...) {phase=word(root.bytes,0x24);throw;}
+                phase=word(root.bytes,0x24);
+                if(result==BattleCommandActionResult::Restored) {
+                    if(!previous_parent_callback)throw std::runtime_error("Battle command action has no saved parent");
+                    parent_callback=*previous_parent_callback;
+                    events.push_back("parent.command-action.restore");
+                }
+                events.push_back("parent.command-action.return");
             } else if(phase==0) {
                 events.push_back("parent.activation.entry");activate(context,projection);
                 events.push_back("parent.activation.return");

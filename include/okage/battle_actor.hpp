@@ -57,6 +57,10 @@ struct BattleStrikeServices {
     std::function<void(int row_offset)> camera_sequence;
     //156c70 substep0: 168380(action) writes the Waza name into the type3 HUD.
     std::function<void(std::int16_t action)> action_name;
+    //157448 id0x1f: 12df80's returned voice handle is kept at TASK308, and
+    //1573b8 stops it with12de90 when the secondary duration expires.
+    std::function<std::uint32_t(int)> sound_handle;
+    std::function<void(std::uint32_t)> sound_stop;
 };
 using BattleDiagnosticLog=std::function<void(std::string_view)>;
 void battle_refresh_entities(BattleState&,std::span<const BattleEntityBinding>);
@@ -76,6 +80,12 @@ void battle_enemy_second_update(BattleActor&,const BattleState&); //15c138
 void battle_actor_first_update(BattleActor&,BattleState&,std::span<const BattleEntityBinding>,
                                const BattleStrikeServices& = {},const BattleHitServices* =nullptr,
                                const BattleDiagnosticLog& = {});
+bool battle_secondary_clock(BattleActor&,const BattleStrikeServices&);
+//157448: the secondary descriptor's sound schedule against TASK214.
+void battle_secondary_sound(BattleActor&,const BattleStrikeServices&);
+//157518: the secondary descriptor's effect schedule (155180's layout/types).
+void battle_secondary_effect(BattleActor&,const BattleState&,std::span<const BattleEntityBinding>,
+                             const BattleStrikeServices&);
 //14b498: keep primary6 unchanged; otherwise reset live primary, then counter.
 void battle_actor_reset_after_victory(BattleActor&);
 void battle_actor_motion_update(BattleActor&,std::span<const BattleEntityBinding> = {},
