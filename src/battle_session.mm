@@ -164,7 +164,7 @@ struct BattleSession::Impl {
     Construction construction=Construction::Preparing; //Main thread only.
     std::exception_ptr construction_failure;
     unsigned phase=0;
-    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory,Defeat};
+    enum class ParentCallback {Intro,Combat,CommandMenu,CommandAction,Victory,Defeat,PartyEscape,EnemyEscape};
     ParentCallback parent_callback=ParentCallback::Intro;
     std::optional<ParentCallback> previous_parent_callback;
     unsigned live_trace_rows=0,live_trace_calls=0,live_observation_rows=0;
@@ -704,7 +704,11 @@ struct BattleSession::Impl {
             put(root.bytes,0x30,command==0?0:std::bit_cast<std::uint32_t>(owner));
             events.push_back(command==0?"parent.command-menu.transition":"parent.command-action.transition");
         } else if(command==3||command==4) {
-            throw std::runtime_error("Battle parent special command3/4 transition and effect cleanup are unrecovered");
+            previous_parent_callback=parent_callback;
+            parent_callback=command==3?ParentCallback::PartyEscape:ParentCallback::EnemyEscape;
+            phase=0;
+            battle_parent_escape_transition(root,roster.entities(),command,party_mask,enemy_mask);
+            events.push_back(command==3?"parent.party-escape.transition":"parent.enemy-escape.transition");
         }
         events.push_back("parent.combat.return");
     }
@@ -794,6 +798,8 @@ struct BattleSession::Impl {
             case ParentCallback::CommandAction:return 0x151e68u;
             case ParentCallback::Victory:return 0x14a780u;
             case ParentCallback::Defeat:return 0x14a9c0u;
+            case ParentCallback::PartyEscape:return 0x14b1f0u;
+            case ParentCallback::EnemyEscape:return 0x14b348u;
             }
             throw std::runtime_error("Unknown native battle parent identity");
         };
@@ -909,6 +915,10 @@ struct BattleSession::Impl {
                 } catch(...) {phase=word(root.bytes,0x24);throw;}
                 phase=word(root.bytes,0x24);
                 events.push_back("parent.defeat.return");
+            } else if(parent_callback==ParentCallback::PartyEscape||parent_callback==ParentCallback::EnemyEscape) {
+                throw std::runtime_error(parent_callback==ParentCallback::PartyEscape?
+                    "Battle party-escape parent 14b1f0 (camera row 0x29, fade and field return) is unrecovered":
+                    "Battle enemy-escape parent 14b348 (camera row 0x2a, fade and 12d470) is unrecovered");
             } else if(parent_callback==ParentCallback::CommandMenu) {
                 if(phase==0) {
                     ui->open_layer(0);ui->fade_layer(1,-128);
@@ -1112,7 +1122,22 @@ struct BattleSession::Impl {
                         [&](BattleActor& target){
                             history(target,5,0);
                         },
-                        [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);}};
+                        [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);},
+                        [&]{ //14ad10: lh bank7(BattleEntryContext)+36.
+                            const auto& entry=context.entry.bytes();
+                            return std::bit_cast<std::int16_t>(std::uint16_t(entry[0x36]|(unsigned(entry[0x37])<<8)));
+                        },
+                        [&]{return battle_command_available(root);},
+                        [&](std::int32_t owner,std::int32_t command){battle_command_push(root,owner,command);},
+                        [&](std::int32_t amount){ //15abf8: bank2(1252a8(2)=base+510)+0c.
+                            if(context.variables.size()<0x520)throw std::runtime_error("Battle money owner bank2 is absent");
+                            const auto at=std::size_t(0x51c);
+                            auto value=std::uint32_t(context.variables[at])|(std::uint32_t(context.variables[at+1])<<8)|
+                                (std::uint32_t(context.variables[at+2])<<16)|(std::uint32_t(context.variables[at+3])<<24);
+                            value-=std::uint32_t(amount);
+                            if(std::bit_cast<std::int32_t>(value)<0)value=0;
+                            for(unsigned i=0;i<4;++i)context.variables[at+i]=std::uint8_t(value>>(8*i));
+                        }};
                     BattleStrikeServices strike{
                         context.strike_sound,
                         [&](int id,const Float4& point,bool exact_w){return spawn_effect(id,point,context.random,exact_w);},

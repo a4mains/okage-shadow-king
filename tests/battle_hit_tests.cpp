@@ -3,12 +3,15 @@
 #include <cfenv>
 #include <iostream>
 #include <limits>
+#include <utility>
+#include <vector>
+#include <source_location>
 #include <stdexcept>
 #include <string>
 
 namespace {
-void require(bool value,const char* message,unsigned at=__builtin_LINE()) {
-    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at));
+void require(bool value,const char* message,const std::source_location at=std::source_location::current()) {
+    if(!value)throw std::runtime_error(std::string(message)+" at line "+std::to_string(at.line()));
 }
 template<class F> void rejects(F action) {
     try{action();}catch(const std::runtime_error&){return;}
@@ -68,11 +71,77 @@ void miss_and_guards() {
         require(f.hit(0,std::int16_t(amount))==0,"Nonpositive result");
         require(f.calls==std::vector<std::string>{"attached36"}&&f.actor.storage==before,"Miss only creates effect36");
     }
-    for(int category:{-1,2,3,4,58,32767}) {
+    for(int category:{2,3,4,5,13,14,16,35,55,57,58}) {
         Fixture f;rejects([&]{f.hit(std::int16_t(category));});
-        require(f.calls.empty()&&word(f.hp)==100,"Unsupported category guards before effects");
+        require(f.calls.empty()&&word(f.hp)==100,"Unrecovered category guards before effects");
     }
-    Fixture f;f.primary[0]=6;rejects([&]{f.hit();});require(f.calls.empty(),"Primary6 branch guards first");
+    //159d00 jump-table defaults: no service, HP, motion or storage change.
+    for(int category:{-32768,-1,6,7,8,9,12,59,999,32767}) {
+        Fixture f;f.services={};const auto before=f.actor.storage;
+        require(f.hit(std::int16_t(category))==0&&f.actor.storage==before&&word(f.hp)==100&&f.primary[0]==1,
+                "Jump-table default category returns0 without effects");
+    }
+    for(int category:{0,1,10,11,0x38,-1,999}) {
+        Fixture f;f.primary[0]=6;f.services={};const auto before=f.actor.storage;
+        require(f.hit(std::int16_t(category))==0&&f.actor.storage==before&&word(f.hp)==100,
+                "Primary6 target ignores every non-revival category");
+    }
+    for(int category:{6,7}) {
+        Fixture f;f.primary[0]=6;rejects([&]{f.hit(std::int16_t(category));});
+        require(f.calls.empty()&&word(f.hp)==100,"Primary6 revival categories6/7 guard first");
+    }
+}
+struct Special : Fixture {
+    std::int16_t flag=0;std::uint32_t available=1;
+    std::vector<std::pair<std::int32_t,std::int32_t>> pushes;std::vector<std::int32_t> spent;
+    Special() {
+        services.entry_escape_flag=[&]{event("14ad10");return flag;};
+        services.command_available=[&]{event("151978");return available;};
+        services.command_push=[&](std::int32_t owner,std::int32_t command){event("1517e0");pushes.push_back({owner,command});};
+        services.spend_money=[&](std::int32_t value){event("15abf8");spent.push_back(value);};
+    }
+};
+void escape_categories() {
+    for(int amount:{0,1,-1,999}) {
+        Special f;const auto before=f.actor.storage;
+        require(f.hit(10,std::int16_t(amount))==0&&f.pushes==std::vector<std::pair<std::int32_t,std::int32_t>>{{0,3}},
+                "Category10 pushes (owner0, command3) regardless of amount");
+        require(f.calls==std::vector<std::string>{"14ad10","151978","1517e0"}&&f.actor.storage==before&&word(f.hp)==100,
+                "Category10 source order and no HP/motion effects");
+    }
+    const std::array<std::int32_t,5> money{0,100,1000,10000,100000};
+    for(int amount:{-1,0,1,2,3,4,5}) {
+        Special f;
+        require(f.hit(11,std::int16_t(amount))==0&&f.pushes==std::vector<std::pair<std::int32_t,std::int32_t>>{{3,4}},
+                "Category11 pushes (owner3, command4)");
+        if(amount>=1&&amount<=4) {
+            require(f.spent==std::vector<std::int32_t>{money[unsigned(amount)]}&&
+                    f.calls==std::vector<std::string>{"14ad10","151978","1517e0","15abf8"},"Amounts1..4 spend after the push");
+        } else require(f.spent.empty()&&f.calls.size()==3,"Other amounts take the second table's return0");
+    }
+    for(int category:{10,11}) {
+        Special blocked;blocked.flag=1;
+        require(blocked.hit(std::int16_t(category),2)==0&&blocked.calls==std::vector<std::string>{"14ad10"}&&blocked.pushes.empty(),
+                "Nonzero bank7+36 returns before the command gate");
+        Special negative;negative.flag=-1;
+        require(negative.hit(std::int16_t(category),2)==0&&negative.pushes.empty(),"14ad10 tests the halfword for zero only");
+        Special busy;busy.available=0;
+        require(busy.hit(std::int16_t(category),2)==0&&busy.calls==std::vector<std::string>{"14ad10","151978"}&&
+                busy.pushes.empty()&&busy.spent.empty(),"Closed command gate returns without push or spend");
+        Special missing;missing.services.command_push={};
+        rejects([&]{missing.hit(std::int16_t(category),2);});
+        require(missing.calls==std::vector<std::string>{"14ad10","151978"},"Missing push service fails after both gates");
+    }
+    Special no_money;no_money.services.spend_money={};rejects([&]{no_money.hit(11,3);});
+    require(no_money.pushes.size()==1,"Missing money service fails after the push");
+}
+void rage_category() {
+    for(auto [start,expected]:std::array<std::pair<std::uint16_t,std::uint16_t>,6>{{{0,1},{3,4},{5,6},{6,6},{0x7fff,0x8000},{0xffff,0}}}) {
+        Fixture f;f.services={};f.actor.storage[0x18c]=std::uint8_t(start);f.actor.storage[0x18d]=std::uint8_t(start>>8);
+        auto before=f.actor.storage;before[0x18c]=std::uint8_t(expected);before[0x18d]=std::uint8_t(expected>>8);
+        require(f.hit(0x38,1)==0&&f.actor.storage==before&&word(f.hp)==100&&f.primary[0]==1,
+                "0x38 increments TASK18c with a signed>6 clamp and no other effect");
+    }
 }
 void ordinary() {
     for(int category:{0,1})for(float size:{5.0f,10.0f,12.0f}) {
@@ -143,6 +212,6 @@ void live_services_and_rounding() {
 }
 }
 int main() {
-    try {miss_and_guards();ordinary();failure_order();live_services_and_rounding();std::cout<<"battle hit tests passed\n";}
+    try {miss_and_guards();escape_categories();rage_category();ordinary();failure_order();live_services_and_rounding();std::cout<<"battle hit tests passed\n";}
     catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

@@ -1,7 +1,9 @@
 #include "okage/battle_hit.hpp"
 #include <bit>
+#include <array>
 #include <cfenv>
 #include <stdexcept>
+#include <string>
 
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
@@ -59,8 +61,41 @@ void impact(BattleActor& actor,const BattleHitServices& services) {
 int battle_apply_hit(BattleActor& actor,std::int16_t category,std::int16_t amount,
                      const BattleHitServices& services) {
     check(!actor.stat_bindings[1].empty(),"Battle hit primary status binding missing");
-    check(actor.stat_bindings[1][0]!=6,"Unrecovered battle hit primary status6 branch");
-    check(category==0||category==1,"Unrecovered battle hit category");
+    if(actor.stat_bindings[1][0]==6) {
+        //159c20: a dead target handles only revival categories6/7.
+        if(category==6||category==7)
+            throw std::runtime_error("Unrecovered battle hit primary status6 revival category "+std::to_string(category));
+        return 0;
+    }
+    //159d00: SLTIU against the 0x3b-entry table at 0x2449c0; entries
+    //6..9 and12 and all larger/negative categories branch to the return0.
+    if(category<0||category>0x3a||(category>=6&&category<=9)||category==12)return 0;
+    if(category==10||category==11) {
+        check(bool(services.entry_escape_flag),"Battle hit 14ad10 escape flag service missing");
+        if(services.entry_escape_flag()!=0)return 0;
+        check(bool(services.command_available),"Battle hit 151978 command gate service missing");
+        if(services.command_available()==0)return 0;
+        check(bool(services.command_push),"Battle hit 1517e0 command push service missing");
+        if(category==10){services.command_push(0,3);return 0;}
+        services.command_push(3,4);
+        //159f50: second table 0x244ab0 (amounts1..4); others return0.
+        static constexpr std::array<std::int32_t,4> money{100,1000,10000,100000};
+        if(amount>=1&&amount<=4) {
+            check(bool(services.spend_money),"Battle hit 15abf8 money service missing");
+            services.spend_money(money[unsigned(amount-1)]);
+        }
+        return 0;
+    }
+    if(category==0x38) {
+        //15a774: BODY+14c (TASK18c) halfword increment, stored before the
+        //signed >6 test, then clamped to6.
+        const auto next=std::uint16_t(unsigned(actor.storage[0x18c])|(unsigned(actor.storage[0x18d])<<8))+1u;
+        actor.storage[0x18c]=std::uint8_t(next);actor.storage[0x18d]=std::uint8_t(next>>8);
+        if(std::bit_cast<std::int16_t>(std::uint16_t(next))>6){actor.storage[0x18c]=6;actor.storage[0x18d]=0;}
+        return 0;
+    }
+    if(category!=0&&category!=1)
+        throw std::runtime_error("Unrecovered battle hit category "+std::to_string(category));
     check(bool(services.attached_effect),"Battle hit attached effect1015e8 service missing");
     if(amount<=0) {
         services.attached_effect(36,actor);

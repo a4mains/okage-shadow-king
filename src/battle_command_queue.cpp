@@ -22,7 +22,7 @@ void put_word(std::span<std::uint8_t> bytes,std::size_t at,std::uint32_t value) 
     require(at<=bytes.size()&&bytes.size()-at>=4,"Battle command queue state bounds");
     for(unsigned i=0;i<4;++i)bytes[at+i]=std::uint8_t(value>>(8*i));
 }
-std::int32_t signed_word(std::uint32_t value) { return __builtin_bit_cast(std::int32_t, (value)); }
+std::int32_t signed_word(std::uint32_t value) { return std::bit_cast<std::int32_t>(value); }
 void validate_bindings(const BattleState& state,std::span<const BattleEntityBinding> bindings) {
     const auto count=word(state.bytes,entity_count_offset);
     require(count<=battle_entity_count,"Battle command queue entity count exceeds source capacity");
@@ -40,11 +40,11 @@ bool battle_actor_incapacitated(const BattleActor* actor) {
     const auto counter=actor->stat_bindings[2];
     require(status.size()>=1,"Battle command actor status binding is unavailable");
     require(counter.size()>=2,"Battle command actor counter binding is unavailable");
-    const auto signed_status=__builtin_bit_cast(std::int8_t, (status[0]));
+    const auto signed_status=std::bit_cast<std::int8_t>(status[0]);
     if(signed_status==4) {
         const auto raw=std::uint16_t(std::uint16_t(counter[0])|
                                      (std::uint16_t(counter[1])<<8));
-        const auto signed_counter=__builtin_bit_cast(std::int16_t, (raw));
+        const auto signed_counter=std::bit_cast<std::int16_t>(raw);
         return signed_counter>=2;
     }
     return signed_status==6;
@@ -106,5 +106,17 @@ std::int32_t battle_command_pop(BattleState& state,
         --index;put_word(state.bytes,queue_index,std::uint32_t(index));
         return command;
     }
+}
+void battle_parent_escape_transition(BattleState& state,std::span<const BattleEntityBinding> bindings,
+    std::int32_t command,std::uint32_t& party_mask,std::uint32_t& enemy_mask) {
+    require(command==3||command==4,"Battle parent escape transition command outside3/4");
+    require(bindings.size()>=3,"Battle parent escape transition lacks party slots0..2");
+    //14a674/14a6ec. The caller installs 14b1f0/14b348 and saves the parent.
+    put_word(state.bytes,0x24,0);put_word(state.bytes,0x30,0);
+    put_word(state.bytes,0x81b4,std::uint32_t(command));
+    (command==3?enemy_mask:party_mask)|=0x10000000u; //115a48(root+8070 | root+806c)
+    for(unsigned i=0;i<3;++i)if(auto* actor=bindings[i].actor)
+        battle_actor_reset_after_victory(*actor); //14b498(BODY+10c)
+    put_word(state.bytes,0x81b0,command==3?5u:6u);
 }
 }

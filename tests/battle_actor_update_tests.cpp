@@ -752,8 +752,13 @@ void party_death_lifecycle() {
     require(refreshes==count&&word(f.actor.storage,0x24)==2&&number(f.actor.storage,0x12c)==-1,"Empty dead queue performs only channel tail");
     auto e=f.root.entity(0);put(e,0x172,1,2);put(e,0x17c,0,2);put(e,0x17e,4,2);
     okage::BattleHitServices hits;
+    const auto dead_hp=word(f.record,8);
+    okage::battle_actor_first_update(f.actor,f.root,{},services,&hits);
+    require(half(e,0x172)==0&&half(e,0x17c)==0xffff&&half(e,0x17e)==0&&word(f.actor.storage,0x24)==2&&word(f.record,8)==dead_hp,
+            "Dead target pops an ordinary hit with no effect");
+    put(e,0x172,1,2);put(e,0x17c,6,2);put(e,0x17e,4,2);
     rejects([&]{okage::battle_actor_first_update(f.actor,f.root,{},services,&hits);});
-    require(half(e,0x172)==1&&half(e,0x17e)==4&&word(f.actor.storage,0x24)==2,"Unrecovered dead hit remains queued at shared primary6 guard");
+    require(half(e,0x172)==1&&half(e,0x17e)==4&&word(f.actor.storage,0x24)==2,"Unrecovered revival category6 remains queued at the primary6 guard");
     Fixture pop;prepare(pop);put(pop.actor.storage,0x24,2);pop.record[0]=1;
     auto oldqueue=pop.root.entity(0),newqueue=pop.root.entity(1);
     put(oldqueue,0x172,1,2);put(oldqueue,0x17c,0,2);put(oldqueue,0x17e,0,2);

@@ -42,9 +42,9 @@ void push_and_availability() {
         okage::battle_command_push(f.root,0,value);
         require(okage::battle_command_available(f.root)==0,"Push clears source availability word");
     }
-    require(__builtin_bit_cast(std::int32_t, (std::uint32_t(f.root.bytes[0x81a4])|
+    require(std::bit_cast<std::int32_t>(std::uint32_t(f.root.bytes[0x81a4])|
         (std::uint32_t(f.root.bytes[0x81a5])<<8)|(std::uint32_t(f.root.bytes[0x81a6])<<16)|
-        (std::uint32_t(f.root.bytes[0x81a7])<<24)))==31,"Push saturates stack index at31");
+        (std::uint32_t(f.root.bytes[0x81a7])<<24))==31,"Push saturates stack index at31");
     std::int32_t owner=-99;
     require(okage::battle_command_pop(f.root,f.bindings,owner)==40&&owner==0,
             "Saturated push overwrites slot31 and returns latest command");
@@ -164,12 +164,40 @@ void binding_validation() {
     rejects([&]{okage::battle_command_pop(short_stats.root,short_stats.bindings,owner);});
     require(short_stats.root.bytes[0x81a4]==1,"Malformed status binding rejects before queue mutation");
 }
+std::uint32_t word32(std::span<const std::uint8_t> b,std::size_t at) {
+    return std::uint32_t(b[at])|(std::uint32_t(b[at+1])<<8)|(std::uint32_t(b[at+2])<<16)|(std::uint32_t(b[at+3])<<24);
+}
+//14a508 commands3/4 (14a674/14a6ec) after 151858 pops a category10/11 push.
+void escape_transitions() {
+    for(std::int32_t command:{3,4}) {
+        Fixture f;f.bindings[1].actor=nullptr;
+        f.statuses={{{2},{5},{6}}};f.counters={{{7,0},{8,0},{9,0}}};
+        put32(f.root.bytes,0x24,2);put32(f.root.bytes,0x30,3);put32(f.root.bytes,0x81b0,2);put32(f.root.bytes,0x81b4,0);
+        std::uint32_t party=0x08000000u,enemy=0x08000000u;
+        auto before=f.root.bytes;
+        okage::battle_parent_escape_transition(f.root,f.bindings,command,party,enemy);
+        require(word32(f.root.bytes,0x24)==0&&word32(f.root.bytes,0x30)==0,"Phase and root+30 cleared");
+        require(word32(f.root.bytes,0x81b4)==std::uint32_t(command)&&word32(f.root.bytes,0x81b0)==(command==3?5u:6u),
+                "root+81b4=command, root+81b0=5/6");
+        require(command==3?(enemy==0x18000000u&&party==0x08000000u):(party==0x18000000u&&enemy==0x08000000u),
+                "Command3 masks only the enemy roster; command4 only the party roster");
+        require(f.statuses[0][0]==1&&f.counters[0][0]==0&&f.statuses[1][0]==5&&f.counters[1][0]==8&&
+                f.statuses[2][0]==6&&f.counters[2][0]==9,"14b498 resets represented living slots; null and status6 untouched");
+        for(std::size_t at:{std::size_t(0x24),std::size_t(0x30),std::size_t(0x81b0),std::size_t(0x81b4)})
+            for(std::size_t i=0;i<4;++i)before[at+i]=f.root.bytes[at+i];
+        require(before==f.root.bytes,"No other root bytes change");
+    }
+    Fixture f;std::uint32_t party=0,enemy=0;
+    rejects([&]{okage::battle_parent_escape_transition(f.root,f.bindings,2,party,enemy);});
+    rejects([&]{okage::battle_parent_escape_transition(f.root,std::span(f.bindings).first(2),3,party,enemy);});
+    require(party==0&&enemy==0&&word32(f.root.bytes,0x81b4)==0,"Invalid transition rejects before writes");
+}
 }
 int main() {
     try {
         push_and_availability();empty_and_negative_sentinel();null_and_invalid_owners();
         discarded_top_stops_before_base_slot();null_base_slot_underflow();
-        incapacitated_status_rules();binding_validation();
+        incapacitated_status_rules();binding_validation();escape_transitions();
         std::cout<<"Battle command queue source-contract tests passed\n";return 0;
     } catch(const std::exception& e) {std::cerr<<e.what()<<'\n';return 1;}
 }
