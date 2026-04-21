@@ -400,7 +400,9 @@ if(BUILD_TESTING)
     add_test(NAME battle-reward-tests COMMAND battle-reward-tests)
     add_executable(battle-damage-tests tests/battle_damage_tests.cpp)
     target_link_libraries(battle-damage-tests PRIVATE okage_assets)
-    add_test(NAME battle-damage-tests COMMAND battle-damage-tests)
+    # The owned Chapter 2 action/category section reads BKDATA/ITEM from the stage.
+    add_test(NAME battle-damage-tests COMMAND battle-damage-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
     add_executable(battle-entity-update-tests tests/battle_entity_update_tests.cpp)
     target_link_libraries(battle-entity-update-tests PRIVATE okage_assets)
     add_test(NAME battle-entity-update-tests COMMAND battle-entity-update-tests)
