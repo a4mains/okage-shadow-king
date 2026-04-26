@@ -5,16 +5,17 @@ The output directory contains battle-data.bin (OKBTDAT1), BTL.RUW,
 battle-ui.bin (OKBTUI1), battle-camera.bin (OKBTCAM1), and battle-hud.bin
 (OKBHUD2), plus battle-ui-commands.bin (OKBCMD1).
 See import_battle_ui.py for the pointer-free authored interface schema.
-Camera format v4 is little endian: header <8sII32s> = magic, version 4,
+Camera format v5 is little endian: header <8sII32s> = magic, version 5,
 stage count 23, source ELF SHA256 bytes. It retains the v2 rows (stages 1..23,
 initial index stage*8+0x5c and offsets 0 through 4), then the v3 exact global
 table indices 0x28, 0x2b, 0x2c, 0x2d, and 0x2e for the source victory-camera
 selector, then v4's 0x151e68 command-action indices 0x05, 0x07..0x0c, 0x32,
-0x35, 0x37, 0x38, 0x3b, 0x3e, 0x41, 0x44 and 0x131. Each row has three fixed-width slots: presence u32 (0 or 1), then
+0x35, 0x37, 0x38, 0x3b, 0x3e, 0x41, 0x44 and 0x131, then v5's escape-parent
+indices 0x29 (0x14b1f0 party escape) and 0x2a (0x14b348 enemy escape). Each row has three fixed-width slots: presence u32 (0 or 1), then
 0x90 preset bytes; absent slots contain 0x90 zero bytes. Table pointers are
 resolved during import and never appear in the artifact. One 0x90 preset
 contains the three 0x30 camera lanes consumed by 0x14efa0/0x14f0d8. The parser
-continues to accept legacy v1, v2 and v3 artifacts.
+continues to accept legacy v1, v2, v3 and v4 artifacts.
 
 All inputs are checked against the owned USA retail ELF/disc hashes and the
 loose BTL.RUW file hash. The output directory must not already exist.
@@ -37,17 +38,16 @@ from inspect_disc import Disc
 DISC_SHA256 = '08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a'
 BTL_RUW_SHA256 = '2bc4de13d79919a53e7962250ea40acca28bb0e027ee750f35a87b6903dc8800'
 CAMERA_MAGIC = b'OKBTCAM1'
-CAMERA_VERSION = 4
+CAMERA_VERSION = 5
 CAMERA_TABLE = 0x235ea0
 CAMERA_HEADER = struct.Struct('<8sII32s')
 CAMERA_SLOT_SIZE = 4 + 0x90
 CAMERA_SLOTS_PER_ROW = 3
 CAMERA_ROWS_PER_STAGE = 5
-# v3 victory selector rows (0x14a780), then v4's 0x151e68 command-action rows
-# selected through 0x1510a0/0x151100 (including its 0x131 completion row).
 CAMERA_INDEXED_ROWS = (0x28, 0x2b, 0x2c, 0x2d, 0x2e,
                        0x05, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x32, 0x35,
-                       0x37, 0x38, 0x3b, 0x3e, 0x41, 0x44, 0x131)
+                       0x37, 0x38, 0x3b, 0x3e, 0x41, 0x44, 0x131,
+                       0x29, 0x2a)
 RUW_PATH = 'CMNDATA/WIN/BTL.RUW'
 
 def sha256(data):

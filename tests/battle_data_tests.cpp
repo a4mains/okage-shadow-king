@@ -40,10 +40,13 @@ std::vector<std::uint8_t> fixture() {
 }
 int main(int argc,char** argv) {
     try {
-        if(argc==3&&std::string(argv[1])=="--camera-artifact") {
+        if((argc==3||argc==4)&&std::string(argv[1])=="--camera-artifact") {
             std::ifstream stream(argv[2],std::ios::binary);
             if(!stream)throw std::runtime_error("Cannot read camera artifact");
             std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)),{});
+            //Optional exact version: a stale artifact must not pass a newer check.
+            if(argc==4&&(bytes.size()<12||std::to_string(bytes[8])!=argv[3]))
+                throw std::runtime_error("Camera artifact version differs from the required version");
             const okage::BattleCameraData camera(bytes);
             constexpr std::array<float,5> expected{1059.f,1059.f,744.f,744.f,744.f};
             for(unsigned offset=0;offset<expected.size();++offset) {
@@ -56,7 +59,7 @@ int main(int argc,char** argv) {
                 const auto selected=camera.sequence_by_index(indices[i]);
                 require(selected[0]&&selected[0]->projection_value==victory_projection[i]);
             }
-            if(okage::Bytes(bytes).size()>=12&&bytes[8]==4) {
+            if(okage::Bytes(bytes).size()>=12&&bytes[8]>=4) {
                 //151e68 rows, read from the pinned ELF table 0x235ea0 (row
                 //0x37: one preset 0x22c090, 160 frames, focal 595, linear
                 //position/target; Stan actions 0xcd/0xcf anchor it).
@@ -70,6 +73,27 @@ int main(int argc,char** argv) {
                 for(unsigned row:{0x05u,0x07u,0x08u,0x09u,0x0au,0x0bu,0x0cu,0x32u,0x35u,0x38u,0x3bu,0x3eu,0x41u,0x44u,0x131u})
                     require(bool(camera.sequence_by_index(row)[0]));
                 std::cout<<"Owned v4 camera artifact includes the151e68 rows\n";
+            }
+            if(okage::Bytes(bytes).size()>=12&&bytes[8]==5) {
+                //14b1f0/14b348 phase0 1510a0 rows, read from the pinned ELF
+                //table0x235ea0: row0x29 -> preset0x22b670, row0x2a -> 0x22b700.
+                //Each has one preset, linear position/target, 300 timestep units.
+                const auto party=camera.sequence_by_index(0x29),enemy=camera.sequence_by_index(0x2a);
+                require(party[0]&&!party[1]&&!party[2]&&party[0]->position_mode==1&&party[0]->target_mode==1&&
+                        party[0]->position_duration==300&&party[0]->target_duration==300&&
+                        party[0]->projection_duration==300&&party[0]->projection_value==1024&&
+                        party[0]->position_start==okage::Float4({3.84f,-26,-66.67f,0})&&
+                        party[0]->position_end==okage::Float4({2.2f,-9,-58.54f,0})&&
+                        party[0]->target_start==okage::Float4({37.5f,0,0,0})&&
+                        party[0]->target_end==okage::Float4({37.5f,-4,-32.2f,0}));
+                require(enemy[0]&&!enemy[1]&&!enemy[2]&&enemy[0]->position_mode==1&&enemy[0]->target_mode==1&&
+                        enemy[0]->position_duration==300&&enemy[0]->target_duration==300&&
+                        enemy[0]->projection_duration==300&&enemy[0]->projection_value==744&&
+                        enemy[0]->position_start==okage::Float4({85.41f,-35,-47.92f,0})&&
+                        enemy[0]->position_end==okage::Float4({85.41f,-21,-47.92f,0})&&
+                        enemy[0]->target_start==okage::Float4({4.2f,-2,10,0})&&
+                        enemy[0]->target_end==okage::Float4({4.2f,-2,10,0}));
+                std::cout<<"Owned v5 camera artifact includes escape rows0x29/0x2a\n";
             }
             return 0;
         }
@@ -203,7 +227,29 @@ int main(int argc,char** argv) {
         rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras_v4).first(cameras_v4.size()-v3_row));});
         auto v3_sized_v4=cameras_v3;put(v3_sized_v4,8,4);
         rejects([&]{okage::BattleCameraData x(v3_sized_v4);});
-        auto v5=cameras_v4;put(v5,8,5);rejects([&]{okage::BattleCameraData x(v5);});
+        auto v4_sized_v5=cameras_v4;put(v4_sized_v5,8,5);rejects([&]{okage::BattleCameraData x(v4_sized_v5);});
+        // V5 retains the v4 rows and appends the escape-parent rows0x29/0x2a.
+        // V4 (and older) artifacts never expose them.
+        rejects([&]{camera_data_v4.sequence_by_index(0x29);});
+        rejects([&]{camera_data_v4.sequence_by_index(0x2a);});
+        std::vector<std::uint8_t> cameras_v5(cameras_v4);
+        cameras_v5.resize(cameras_v4.size()+2*v3_row);
+        put(cameras_v5,8,5);
+        for(unsigned i=0;i<2;++i) {
+            const auto slot=v3_header+(23*5+indexed.size()+command_rows.size()+i)*v3_row;
+            put(cameras_v5,slot,1);put(cameras_v5,slot+4+0x70,0x44100000u+i);
+        }
+        okage::BattleCameraData camera_data_v5(cameras_v5);
+        for(unsigned i=0;i<command_rows.size();++i)
+            require(std::bit_cast<std::uint32_t>(camera_data_v5.sequence_by_index(command_rows[i])[0]->projection_value)==0x44000000u+i);
+        for(unsigned i=0;i<2;++i) {
+            const auto sequence=camera_data_v5.sequence_by_index(0x29+i);
+            require(sequence[0]&&!sequence[1]&&!sequence[2]&&
+                    std::bit_cast<std::uint32_t>(sequence[0]->projection_value)==0x44100000u+i);
+        }
+        rejects([&]{camera_data_v5.sequence_by_index(0x2f);});
+        rejects([&]{okage::BattleCameraData x(okage::Bytes(cameras_v5).first(cameras_v5.size()-v3_row));});
+        auto v6=cameras_v5;put(v6,8,6);rejects([&]{okage::BattleCameraData x(v6);});
         rejects([&]{camera_data.sequence(0);});rejects([&]{camera_data.sequence(24);});
         rejects([&]{camera_data.sequence(1);});
         auto invalid=cameras;put(invalid,selected,2);rejects([&]{okage::BattleCameraData x(invalid);});
