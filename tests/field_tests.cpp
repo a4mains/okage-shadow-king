@@ -12,6 +12,24 @@ void require(bool value,const std::source_location& where=std::source_location::
 template<class F> void rejects(F f){try{f();}catch(const std::runtime_error&){return;}throw std::runtime_error("Expected field rejection");}
 int main(){try {
     {
+        using A=std::array<std::uint32_t,3>;
+        const auto escape=okage::plan_field_constructor({2,0xffffffffu,0},A{0,0,0},96);
+        require(escape.phase==7&&escape.clears_temporary_flags&&escape.scene==96&&escape.entrance==-1&&escape.saved_pose);
+        const auto results=okage::plan_field_constructor({2,0xffffffffu,0},A{13,0,0},96);
+        require(results.phase==0x12&&!results.clears_temporary_flags&&results.scene==96&&results.entrance==-1&&results.saved_pose);
+        const auto entry=okage::plan_field_constructor({2,72,3},A{0,0,0},std::nullopt);
+        require(entry.phase==7&&entry.clears_temporary_flags&&entry.scene==72&&entry.entrance==3&&!entry.saved_pose);
+        const auto restored=okage::plan_field_constructor({2,72,0},A{3,0,0},std::nullopt);
+        require(restored.phase==7&&restored.clears_temporary_flags&&restored.scene==72&&!restored.saved_pose);
+        const auto defeat=okage::plan_field_constructor({2,0xffffffffu,0},A{2,0,0},std::nullopt);
+        require(defeat.phase==0x14&&defeat.clears_temporary_flags&&!defeat.saved_pose); //outer-1 not interpreted
+        const auto chapter=okage::plan_field_constructor({2,0xffffffffu,0},A{14,2,0},std::nullopt);
+        require(chapter.phase==0x13&&chapter.clears_temporary_flags);
+        rejects([&]{okage::plan_field_constructor({2,0xffffffffu,0},A{0,0,0},std::nullopt);});
+        rejects([&]{okage::plan_field_constructor({2,0x80000000u,0},A{13,0,0},-1);});
+        rejects([&]{okage::plan_field_constructor({3,0,0},A{0,0,0},96);});
+    }
+    {
         okage::SceneClearColor clear;
         require(clear.rgb==std::array<std::uint8_t,3>{64,64,64});
         std::vector<std::uint8_t> stg(72);

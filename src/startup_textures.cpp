@@ -913,6 +913,9 @@ void StartupTextureOwner::enter_field_constructor(unsigned scene, unsigned entra
     if(command!=0 && command!=3 && command!=13)throw std::logic_error("field constructor command is unrecovered");
     if(command==13) {
         require_stage(ResourceStage::BattleWrappersFreed,"133830 command13 entry");
+    } else if (stage_ == ResourceStage::BattleWrappersFreed) {
+        if (command != 0 || entrance != 0xffffffffu)
+            throw std::logic_error("133830 after battle requires command13 or the party-escape command0 return");
     } else if (stage_ == ResourceStage::ChapterWrappersFreed) {
         if (scene != chapter_scene_ || entrance != 0) throw std::logic_error("field constructor destination differs from the chapter request");
     } else if (stage_ != ResourceStage::RestoreWrappersFreed && stage_ != ResourceStage::FieldWrappersFreed)

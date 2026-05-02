@@ -96,6 +96,7 @@ struct FieldReturnLoad {
     std::atomic<unsigned> counter{0};
     bool resumed=false,world_queued=false,world_prepared=false;
     bool ordinary=false;
+    bool saved_pose=false;
     unsigned entrance=0;
     std::optional<okage::ResultsUiData> definitions;
     std::optional<okage::ResultsTextData> text;
@@ -1454,7 +1455,17 @@ struct Session {
         std::cout<<"Native victory return queued scene="<<current_scene<<" frame="<<frame<<'\n';
     }
     void begin_ordinary_field(okage::GameModeSelection selection) {
-        if(selection[0]!=2||selection[1]>0x7fffffff||selection[2]>0x7fffffff||
+        const bool saved_pose=selection[0]==2&&selection[1]>0x7fffffff;
+        if(saved_pose) {
+            if(selection[1]!=0xffffffffu||pending_game_command!=std::array<std::uint32_t,3>{})
+                throw std::runtime_error("Ordinary field saved-scene fallback requires outer scene-1 and command0");
+            const auto plan=okage::plan_field_constructor(selection,pending_game_command,
+                battle_return?std::optional<std::int32_t>(battle_return->scene):std::nullopt);
+            if(plan.phase!=7||!plan.clears_temporary_flags||!plan.saved_pose)
+                throw std::logic_error("Party-escape field constructor plan disagrees with133830");
+            selection={2,unsigned(plan.scene),std::bit_cast<std::uint32_t>(plan.entrance)};
+        }
+        if(selection[0]!=2||selection[1]>0x7fffffff||(!saved_pose&&selection[2]>0x7fffffff)||
             (pending_game_command!=std::array<std::uint32_t,3>{}&&pending_game_command!=std::array<std::uint32_t,3>{3,0,0})||field_return||battle_input.empty())
             throw std::runtime_error("Ordinary field constructor requires explicit nonnegative destination and command0/3");
         std::fill(variables.begin()+0x10,variables.begin()+0x110,0);
@@ -1462,7 +1473,7 @@ struct Session {
         okage::initialize_scene_ui(ui_shared);exterior_camera.snap_target=true;
         current_scene=int(selection[1]);current_entrance=int(selection[2]);
         field_return=std::make_unique<FieldReturnLoad>(load_observation_trace!=nullptr);
-        auto* f=field_return.get();f->ordinary=true;f->phase=7;f->entrance=selection[2];
+        auto* f=field_return.get();f->ordinary=true;f->saved_pose=saved_pose;f->phase=7;f->entrance=selection[2];
         const auto input=battle_input,decoded=field_root.parent_path();
         const bool alternate=variables[12]!=0;
         f->prefix_modeled=title_modeled(okage::ResourceStage::FieldConstructorEntry);
@@ -1544,8 +1555,8 @@ struct Session {
         if(!f.world_queued) {
             f.ui_stage=1;
             f.definition=okage::read_field_definition(readData(field_root/"FLDSET.XDB"),current_scene);
-            if(f.ordinary&&f.entrance>0x7fffffff)throw std::runtime_error("Ordinary field entrance out of range");
-            f.definition=okage::begin_field_load(variables,std::move(f.definition),f.ordinary?int(f.entrance):-1);
+            if(f.ordinary&&!f.saved_pose&&f.entrance>0x7fffffff)throw std::runtime_error("Ordinary field entrance out of range");
+            f.definition=okage::begin_field_load(variables,std::move(f.definition),f.ordinary&&!f.saved_pose?int(f.entrance):-1);
             if(f.prefix_modeled) {
                 if(!fs::is_directory(field_root/"NAVI"))
                     throw std::runtime_error("Native data stage lacks the owned loose NAVI inventory");
@@ -1754,9 +1765,11 @@ struct Session {
                     if(transition_alpha)transition_target=0;
                     if(battle_capture_layer)battle_capture_target=0;
                 };
-                field->activate_entry(f.entrance,input,[this,&f] {
+                const auto after_activate=[this,&f] {
                     if(f.prefix_modeled) {startup_textures->activate_field();world_checkpoint("field-activation-return");}
-                });
+                };
+                if(f.saved_pose)field->activate_return(*battle_return,input,after_activate);
+                else field->activate_entry(f.entrance,input,after_activate);
                 battle_followers_saved=false;
                 write_load_observation("ordinary_field_activated");
                 field_return.reset();
@@ -2085,6 +2098,14 @@ struct Session {
                     } else startup_textures->mark_unmodeled("title successor differs from the requested mode");
                 }
                 if(selection[0]==2&&pending_game_command[0]==13) {begin_field_return();return;}
+                if(selection==okage::GameModeSelection{2,0xffffffffu,0}&&pending_game_command==std::array<std::uint32_t,3>{}) {
+                    if(!battle_return)throw std::runtime_error("Party-escape field return requires the retained battle-return snapshot");
+                    if(title_modeled(okage::ResourceStage::BattleWrappersFreed))
+                        startup_textures->enter_field_constructor(unsigned(battle_return->scene),0xffffffffu,0);
+                    begin_ordinary_field(selection);
+                    std::cout<<"Native party-escape field return queued scene="<<current_scene<<" frame="<<frame<<'\n';
+                    return;
+                }
                 if(selection[0]==2&&(pending_game_command[0]==0||pending_game_command[0]==3)&&
                    (title_modeled(okage::ResourceStage::ChapterWrappersFreed)||title_modeled(okage::ResourceStage::RestoreWrappersFreed)||
                     title_modeled(okage::ResourceStage::FieldWrappersFreed))) {

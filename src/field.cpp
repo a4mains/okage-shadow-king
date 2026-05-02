@@ -258,6 +258,25 @@ FieldDefinition prepare_field_definition(Bytes script,Bytes variables,FieldDefin
     std::erase_if(definition.npcs,[](const auto& npc){return !npc.flags;});
     return definition;
 }
+FieldConstructorPlan plan_field_constructor(const std::array<std::uint32_t,3>& selection,
+                                            const std::array<std::uint32_t,3>& command,
+                                            std::optional<std::int32_t> saved_scene) {
+    if(selection[0]!=2)throw std::runtime_error("Field constructor plan requires mode2");
+    FieldConstructorPlan plan;
+    plan.clears_temporary_flags=command[0]!=13; //1338a0: 125ad0 unless command13
+    if(command[0]==2){plan.phase=0x14;return plan;}
+    if(command[0]==14){plan.phase=0x13;return plan;}
+    plan.scene=std::bit_cast<std::int32_t>(selection[1]);
+    plan.entrance=std::bit_cast<std::int32_t>(selection[2]);
+    if(plan.scene<0) { //1339c4..1339e4
+        if(!saved_scene||*saved_scene<0)
+            throw std::runtime_error("Field constructor saved-scene fallback2d9bf0 has no recorded battle-entry scene");
+        plan.scene=*saved_scene;plan.entrance=-1;
+    }
+    plan.saved_pose=plan.entrance<0; //132720 reads parent+4c
+    plan.phase=command[0]==13?0x12:7;
+    return plan;
+}
 FieldDefinition begin_field_load(std::span<std::uint8_t> variables,FieldDefinition definition,std::int32_t entrance) {
     if(variables.size()<0x588||definition.scene<0||entrance< -1)
         throw std::runtime_error("Invalid field entry variables/scene/entrance");

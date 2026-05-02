@@ -30,6 +30,15 @@ struct FieldDefinition {
     std::vector<FieldNpcDefinition> npcs;
     std::vector<unsigned> followers;
 };
+struct FieldConstructorPlan {
+    std::uint32_t phase=7;
+    bool clears_temporary_flags=true;
+    std::int32_t scene=-1,entrance=-1;
+    bool saved_pose=false;
+};
+FieldConstructorPlan plan_field_constructor(const std::array<std::uint32_t,3>& selection,
+                                            const std::array<std::uint32_t,3>& command,
+                                            std::optional<std::int32_t> saved_scene);
 FieldDefinition read_field_definition(Bytes database,const std::string& room);
 FieldDefinition read_field_definition(Bytes database,int scene);
 // 0x131d28 defaults followed by synchronous entry zero. This is field setup,
