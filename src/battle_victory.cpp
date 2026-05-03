@@ -28,6 +28,13 @@ float decrement(BattleState& r) {
     require(supported(result),"Victory timer unsupported float result");
     put(r,0x81bc,std::bit_cast<unsigned>(result));return result;
 }
+void double_reward_if_selected(const BattleState& r,std::span<std::uint8_t> reward) {
+    if(word(r,0x8080)!=1)return;
+    require(reward.size()>=4,"Victory reward owner extent");
+    const auto doubled=(unsigned(reward[2])|(unsigned(reward[3])<<8))*2;
+    const auto capped=std::min(doubled,60000u);
+    reward[2]=std::uint8_t(capped);reward[3]=std::uint8_t(capped>>8);
+}
 }
 void battle_victory_update(BattleState& r,std::span<const BattleEntityBinding> entities,
                            SceneFade& fade,std::span<std::uint8_t> reward,
@@ -39,12 +46,7 @@ void battle_victory_update(BattleState& r,std::span<const BattleEntityBinding> e
     } else if(phase==2) {
         if(!(decrement(r)<0))return;
         fade.step=std::bit_cast<float>(0x3ca3d70au);fade.request(0); //149f98
-        if(word(r,0x8080)==1) { //14ace0/14ac78
-            require(reward.size()>=4,"Victory reward owner extent");
-            const auto doubled=(unsigned(reward[2])|(unsigned(reward[3])<<8))*2;
-            const auto capped=std::min(doubled,60000u);
-            reward[2]=std::uint8_t(capped);reward[3]=std::uint8_t(capped>>8);
-        }
+        double_reward_if_selected(r,reward); //14ace0/14ac78
         put(r,0x24,word(r,0x24)+1);return;
     } else if(phase==3) {
         if(fade.current==fade.target)put(r,0x1c,word(r,0x1c)|0x80000000u);
@@ -94,6 +96,42 @@ void battle_defeat_update(BattleState& r,SceneFade& fade,
     if(!(decrement(r)<0))return;
     fade.step=std::bit_cast<float>(0x3ba3d70au);
     fade.request(0.f);
+    put(r,0x24,word(r,0x24)+1);
+}
+void battle_escape_update(BattleState& r,std::int32_t command,SceneFade& fade,
+                          std::span<std::uint8_t> reward,const BattleEscapeServices& services) {
+    require(command==3||command==4,"Battle escape parent command outside3/4");
+    const bool party=command==3;
+    const auto phase=std::bit_cast<std::int32_t>(word(r,0x24));
+    if(phase==2) {
+        if(fade.current!=fade.target)return; //114d20 raw source equality
+        if(party) {
+            require(bool(services.game_command),"Party escape game-command owner1248d8 missing");
+            services.game_command({0,0,0});
+        } else {
+            //14b450: 12d470 stops the battle score. Command13 is untouched.
+            require(bool(services.stop_music),"Enemy escape music stop12d470 missing");
+            services.stop_music();
+        }
+        put(r,0x1c,word(r,0x1c)|0x80000000u); //scheduler deletion bit (root nonnull)
+        put(r,0x24,word(r,0x24)+1);
+        return;
+    }
+    if(phase==0) {
+        put(r,0x81bc,0x43700000); //240
+        require(bool(services.fade_ui),"Escape UI fade11fdf8 missing");
+        services.fade_ui(1,-128);
+        //149fc8 -> 151098(root+8068) is an empty function.
+        require(bool(services.camera),"Escape camera1510a0 missing");
+        services.camera(party?0x29u:0x2au);
+        put(r,0x24,word(r,0x24)+1);
+    } else if(phase!=1) {
+        return;
+    }
+    // Phase0 falls through into phase1's subtract/strict-negative test.
+    if(!(decrement(r)<0))return;
+    fade.step=std::bit_cast<float>(0x3ca3d70au);fade.request(0.f); //149f98(0,.02)
+    double_reward_if_selected(r,reward); //14ace0/14ac78
     put(r,0x24,word(r,0x24)+1);
 }
 }

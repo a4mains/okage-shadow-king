@@ -4,6 +4,8 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <string>
+#include <vector>
 using namespace okage;
 namespace {
 void check(bool b,const char* message){if(!b)throw std::runtime_error(message);}
@@ -122,4 +124,69 @@ void defeat_failures_and_rounding(){
  }
 }
 }
-int main(){try{countdown();cameras();failures();fractional();defeat_parent();defeat_failures_and_rounding();std::cout<<"Battle victory lifecycle tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+struct Escape {
+ BattleState root;SceneFade fade;std::array<std::uint8_t,8> reward{};std::vector<std::string> calls;
+ std::array<std::uint32_t,3> command{13,0,0};
+ BattleEscapeServices services{
+  [&](unsigned row){calls.push_back("camera"+std::to_string(row));},
+  [&](unsigned layer,int speed){
+   check(layer==1&&speed==-128,"Escape UI fade arguments");
+   check(word(root,0x24)==0&&word(root,0x81bc)==0x43700000,"Delay-slot timer240 precedes11fdf8");
+   calls.push_back("ui");},
+  [&](std::array<std::uint32_t,3> c){command=c;calls.push_back("command");},
+  [&]{calls.push_back("music");}};
+ Escape(){scalar(root,0x2c,1);put(root,0x1c,0x123);fade.current=fade.target=1;}
+ void tick(std::int32_t which){battle_escape_update(root,which,fade,reward,services);}
+};
+void escape_parents(){
+ for(std::int32_t which:{3,4}) {
+  const bool party=which==3;Escape f;
+  f.tick(which);
+  check(f.calls==std::vector<std::string>({"ui",party?"camera41":"camera42"})&&word(f.root,0x24)==1&&
+        scalar(f.root,0x81bc)==239,"Escape phase0: timer240, UI fade, row0x29/0x2a, then falls through countdown");
+  for(unsigned i=0;i<239;++i)f.tick(which);
+  check(word(f.root,0x24)==1&&scalar(f.root,0x81bc)==0&&f.fade.target==1,"Escape countdown equality waits");
+  f.reward[2]=0x34;f.reward[3]=0x12;f.tick(which);
+  check(word(f.root,0x24)==2&&scalar(f.root,0x81bc)==-1&&std::bit_cast<std::uint32_t>(f.fade.step)==0x3ca3d70a&&
+        f.fade.target==0&&f.reward[2]==0x34&&f.reward[3]==0x12,"Strict negative requests fade target0 step.02; flag0 keeps reward");
+  f.tick(which);
+  check(word(f.root,0x24)==2&&word(f.root,0x1c)==0x123&&f.calls.size()==2,"Phase2 waits for actual fade equality");
+  f.fade.current=0;f.tick(which);
+  check(word(f.root,0x24)==3&&word(f.root,0x1c)==0x80000123,"Deletion bit preserves scheduler bits; phase advances to3");
+  check(f.calls.back()==(party?"command":"music")&&f.calls.size()==3,"Party publishes1248d8; enemy stops music");
+  check(f.command==(party?std::array<std::uint32_t,3>{0,0,0}:std::array<std::uint32_t,3>{13,0,0}),
+        "Party command{0,0,0}; enemy escape leaves the field command13");
+  const auto final=f.root.bytes;f.tick(which);check(f.root.bytes==final&&f.calls.size()==3,"Phase3 source no-op");
+ }
+ for(unsigned flag:{1u,2u}) {
+  Escape f;put(f.root,0x24,1);put(f.root,0x8080,flag);scalar(f.root,0x81bc,0);f.reward[2]=0xff;f.reward[3]=0xff;f.tick(3);
+  check(flag==1?(f.reward[2]==0x60&&f.reward[3]==0xea):(f.reward[2]==0xff&&f.reward[3]==0xff),
+        "14ace0/14ac78 doubles the unsigned currency (cap60000) only for root+8080==1");
+ }
+ {Escape f;put(f.root,0x24,1);put(f.root,0x8080,1);scalar(f.root,0x81bc,0);
+  rejects([&]{battle_escape_update(f.root,4,f.fade,{},f.services);});
+  check(f.fade.target==0&&word(f.root,0x24)==1&&scalar(f.root,0x81bc)==-1,"Reward owner failure follows fade/timer, precedes phase");}
+ {Escape f;f.services.fade_ui={};rejects([&]{f.tick(3);});
+  check(word(f.root,0x24)==0&&word(f.root,0x81bc)==0x43700000&&f.calls.empty(),"Missing11fdf8 keeps delay-slot timer only");}
+ {Escape f;f.services.camera=[](unsigned){throw std::runtime_error("row");};rejects([&]{f.tick(4);});
+  check(word(f.root,0x24)==0&&f.calls==std::vector<std::string>{"ui"},"Camera failure follows the UI fade, precedes phase");}
+ {Escape f;put(f.root,0x24,2);f.services.game_command={};rejects([&]{f.tick(3);});
+  check(word(f.root,0x1c)==0x123&&word(f.root,0x24)==2,"Missing1248d8 owner leaves the root alive");}
+ {Escape f;put(f.root,0x24,2);f.services.stop_music={};rejects([&]{f.tick(4);});
+  check(word(f.root,0x1c)==0x123&&word(f.root,0x24)==2,"Missing12d470 owner leaves the root alive");
+  put(f.root,0x24,2);f.services.game_command={};f.services.stop_music=[&]{f.calls.push_back("music");};f.tick(4);
+  check(word(f.root,0x24)==3,"Enemy escape never needs the1248d8 owner");}
+ {Escape f;rejects([&]{f.tick(5);});rejects([&]{f.tick(0);});check(f.calls.empty()&&word(f.root,0x24)==0,"Commands outside3/4 reject first");}
+ for(unsigned state:{3u,4u,0xffffffffu}){Escape f;put(f.root,0x24,state);const auto before=f.root.bytes;f.tick(3);
+  check(f.root.bytes==before&&f.calls.empty(),"Unknown escape phase is a source no-op");}
+ {Escape f;put(f.root,0x24,1);scalar(f.root,0x81bc,2);scalar(f.root,0x2c,.1f);
+  std::fenv_t saved;std::fegetenv(&saved);std::fesetround(FE_UPWARD);std::feclearexcept(FE_ALL_EXCEPT);std::feraiseexcept(FE_INVALID);
+  f.tick(4);
+  check(std::fegetround()==FE_UPWARD&&std::fetestexcept(FE_ALL_EXCEPT)==FE_INVALID,"Escape timer restores caller floating environment");
+  std::fesetenv(&saved);check(word(f.root,0x81bc)==0x3ff33333,"Escape timer uses toward-zero subtraction");}
+ for(float bad:{std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity(),std::numeric_limits<float>::denorm_min()}) {
+  Escape f;put(f.root,0x24,1);scalar(f.root,0x81bc,bad);const auto before=f.root.bytes;
+  rejects([&]{f.tick(3);});check(f.root.bytes==before&&f.fade.target==1,"Unsupported escape timer fails before mutation");
+ }
+}
+int main(){try{countdown();cameras();failures();fractional();defeat_parent();defeat_failures_and_rounding();escape_parents();std::cout<<"Battle victory lifecycle tests passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

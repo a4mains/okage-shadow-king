@@ -15,6 +15,7 @@ void battle_command_push(BattleState&,std::int32_t owner_index,std::int32_t comm
 std::uint32_t battle_command_available(const BattleState&);
 std::int32_t battle_command_pop(BattleState&,std::span<const BattleEntityBinding>,
                                 std::int32_t& owner_out);
+bool battle_enemies_inactive(const BattleState&);
 void battle_parent_escape_transition(BattleState&,std::span<const BattleEntityBinding>,
     std::int32_t command,std::uint32_t& party_mask,std::uint32_t& enemy_mask);
 }

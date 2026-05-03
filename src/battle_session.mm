@@ -639,10 +639,7 @@ struct BattleSession::Impl {
             throw std::runtime_error("Battle end-check entity ownership mismatch");
         const auto state=word(root.bytes,0x81b8);
         if(state==0) {
-            bool enemies_inactive=true;
-            for(unsigned i=4;i<count;++i)
-                if(!(word(root.entity(i),0x1fc)&0x80000000u))enemies_inactive=false;
-            if(enemies_inactive) {
+            if(battle_enemies_inactive(root)) {
                 put(root.bytes,0x81b8,1);put(root.bytes,0x81b4,1);
                 return true;
             }
@@ -916,9 +913,25 @@ struct BattleSession::Impl {
                 phase=word(root.bytes,0x24);
                 events.push_back("parent.defeat.return");
             } else if(parent_callback==ParentCallback::PartyEscape||parent_callback==ParentCallback::EnemyEscape) {
-                throw std::runtime_error(parent_callback==ParentCallback::PartyEscape?
-                    "Battle party-escape parent 14b1f0 (camera row 0x29, fade and field return) is unrecovered":
-                    "Battle enemy-escape parent 14b348 (camera row 0x2a, fade and 12d470) is unrecovered");
+                //14b1f0 (command3) / 14b348 (command4). Camera rows 0x29/0x2a
+                //are imported by OKBTCAM1 v5; older artifacts reject the row.
+                const bool party_escape=parent_callback==ParentCallback::PartyEscape;
+                try {
+                    battle_escape_update(root,party_escape?3:4,context.fade,context.entry.reward_storage(),{
+                        [&](unsigned row){
+                            BattleCameraSequence sequence;
+                            try {sequence=camera_data->sequence_by_index(row);}
+                            catch(const std::exception& error) {
+                                throw std::runtime_error(std::string("Battle escape camera row ")+
+                                    (row==0x29?"0x29":"0x2a")+" requires the OKBTCAM1 v5 artifact: "+error.what());
+                            }
+                            camera->restart_sequence(sequence);
+                        },
+                        [&](unsigned layer,int speed){ui->fade_layer(layer,speed);},
+                        context.game_command,context.stop_music});
+                } catch(...) {phase=word(root.bytes,0x24);throw;}
+                phase=word(root.bytes,0x24);
+                events.push_back(party_escape?"parent.party-escape.return":"parent.enemy-escape.return");
             } else if(parent_callback==ParentCallback::CommandMenu) {
                 if(phase==0) {
                     ui->open_layer(0);ui->fade_layer(1,-128);

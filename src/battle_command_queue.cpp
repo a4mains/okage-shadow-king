@@ -107,6 +107,13 @@ std::int32_t battle_command_pop(BattleState& state,
         return command;
     }
 }
+bool battle_enemies_inactive(const BattleState& state) {
+    const auto count=word(state.bytes,entity_count_offset);
+    require(count<=battle_entity_count,"Battle command queue entity count exceeds source capacity");
+    for(std::uint32_t i=4;i<count;++i)
+        if(!(word(state.entity(i),0x1fc)&0x80000000u))return false;
+    return true;
+}
 void battle_parent_escape_transition(BattleState& state,std::span<const BattleEntityBinding> bindings,
     std::int32_t command,std::uint32_t& party_mask,std::uint32_t& enemy_mask) {
     require(command==3||command==4,"Battle parent escape transition command outside3/4");

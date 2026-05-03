@@ -4,6 +4,13 @@
 #include "okage/battle_entry.hpp"
 #include "okage/battle_hit.hpp"
 #include "okage/game_state.hpp"
+#include "okage/battle_camera.hpp"
+#include "okage/battle_data.hpp"
+#include "okage/battle_lifecycle.hpp"
+#include "okage/battle_victory.hpp"
+#include "okage/field.hpp"
+#include "okage/game_mode.hpp"
+#include <optional>
 #include <bit>
 #include <filesystem>
 #include <fstream>
@@ -405,6 +412,127 @@ void owned_actions(const std::filesystem::path& stage) {
     }
     std::cout<<"Owned Chapter2 damage categories passed\n";
 }
+struct EscapeRun {
+    OwnedBattle b;
+    okage::BattleCameraMotion camera;
+    const okage::BattleCameraData& data;
+    okage::SceneFade fade;
+    okage::BattleEntryContext entry{0,0,0,0};
+    okage::BattleRootLifetime life;
+    okage::GameModeParent outer{{3,8,17}};
+    std::array<std::uint32_t,3> command{13,0,0}; //field phase13 saved 1248d8(13,0,0)
+    std::uint32_t party_mask=0,enemy_mask=0;
+    std::vector<std::string> calls;
+    std::optional<okage::GameModeSelection> constructed;
+    unsigned frames=0;
+    EscapeRun(const okage::GameDataTables& tables,const okage::BattleCameraData& cameras):
+        b(tables,{8,8}),camera(cameras.sequence_by_index(0x28),1.f),data(cameras) {
+        put(b.root.bytes,0x2c,std::bit_cast<std::uint32_t>(1.f));put(b.root.bytes,0x81a8,1);
+        fade.current=fade.target=1;
+        //Kind0/1 registration (BattleRoster::register_entity) clears +1fc bit31.
+        for(unsigned i=0;i<b.bindings.size();++i)put(b.root.entity(i),0x1fc,word32(b.root.entity(i),0x1fc)&0x7fffffffu);
+    }
+    okage::BattleHitServices hits() {
+        okage::BattleHitServices h;
+        h.entry_escape_flag=[&]{const auto& e=entry.bytes();return std::int16_t(e[0x36]|(e[0x37]<<8));};
+        h.command_available=[&]{return okage::battle_command_available(b.root);};
+        h.command_push=[&](std::int32_t o,std::int32_t c){okage::battle_command_push(b.root,o,c);};
+        h.spend_money=[&](std::int32_t v){calls.push_back("money"+std::to_string(v));};
+        return h;
+    }
+    //14a508 after151290: 14b020's enemy test precedes the command pop.
+    std::int32_t combat_parent() {
+        require(!okage::battle_enemies_inactive(b.root),"An escaping enemy is still active, so 14b020 does not end the battle first");
+        std::int32_t owner=-1;
+        const auto popped=okage::battle_command_pop(b.root,b.bindings,owner);
+        if(popped==3||popped==4)okage::battle_parent_escape_transition(b.root,b.bindings,popped,party_mask,enemy_mask);
+        return popped;
+    }
+    //Scheduler order: global fade, outer mode parent, wrapper, then the root's parent callback.
+    void run_escape(std::int32_t which) {
+        const okage::BattleEscapeServices services{
+            [&](unsigned row){calls.push_back("camera"+std::to_string(row));camera.restart_sequence(data.sequence_by_index(row));},
+            [&](unsigned layer,int speed){require(layer==1&&speed==-128,"UI layer1 fade");calls.push_back("ui");},
+            [&](std::array<std::uint32_t,3> c){command=c;calls.push_back("command");},
+            [&]{calls.push_back("music");}};
+        const auto request=[&](okage::GameModeSelection s){calls.push_back("request");outer.request(s);};
+        while(!constructed) {
+            require(++frames<1000,"Escape retirement did not reach the mode2 constructor");
+            fade.tick();
+            outer.tick([&]{calls.push_back("resource.destroy");},[&]{calls.push_back("wrapper.free");},
+                       [&](okage::GameModeSelection s){constructed=s;});
+            if(constructed)break;
+            if(!life.linked())continue;
+            life.wrapper_update(b.root,request);
+            life.traverse_root(b.root,[&]{okage::battle_escape_update(b.root,which,fade,entry.reward_storage(),services);},
+                               [&]{calls.push_back("root.destroy");},[&]{calls.push_back("root.free");});
+        }
+    }
+};
+void owned_escape_parents(const std::filesystem::path& stage,const std::filesystem::path& camera_path) {
+    okage::GameDataTables tables(read_file(stage/"CMNDATA/XDB/BKDATA.XDB"),read_file(stage/"CMNDATA/XDB/ITEM.XDB"));
+    const okage::BattleCameraData cameras(read_file(camera_path));
+    const auto common=[](const std::vector<std::string>& calls,const char* row,const char* finish) {
+        return std::vector<std::string>{"ui",row,finish,"root.destroy","request","root.free","resource.destroy","wrapper.free"}==calls;
+    };
+    for(bool last:{false,true}) {
+        EscapeRun r(tables,cameras);
+        auto& cock=r.b.enemies[0]->actor;copy_waza(cock,tables,204);
+        if(last)put(r.b.root.entity(5),0x1fc,word32(r.b.root.entity(5),0x1fc)|0x80000000u); //15b9e0 lethal-hit store
+        put(r.entry.reward_storage(),0,7,2);put(r.entry.reward_storage(),2,30,2); //accumulated before the escape
+        put(r.b.root.bytes,0x8080,1);
+        r.b.queue(0,4,4,{});
+        const auto event=r.b.top(4);
+        require(event==std::array<int,4>{1,11,0,4},"Owned 204 queues category11 amount0");
+        require(okage::battle_apply_hit(cock,std::int16_t(event[1]),std::int16_t(event[2]),r.hits())==0,"Category11 hit");
+        require(!(word32(r.b.root.entity(4),0x1fc)&0x80000000u),"The escaping cock01 stays registered/active");
+        require(r.combat_parent()==4,"14a508 pops (3,4)");
+        require(r.party_mask==0x10000000u&&r.enemy_mask==0&&word32(r.b.root.bytes,0x81b0)==6&&word32(r.b.root.bytes,0x81b4)==4,
+                "14a6ec masks the party roster; root81b0=6, 81b4=4");
+        r.run_escape(4);
+        require(common(r.calls,"camera42","music"),"Enemy escape order: UI, row0x2a, fade, 12d470, retirement, {2,-1,0}");
+        require(r.camera.position()==okage::Float4({85.41f,-35,-47.92f,0})&&r.camera.target()==okage::Float4({4.2f,-2,10,0})&&
+                r.camera.take_projection_request()==744.f,"Owned row0x2a restarted the battle camera");
+        require(*r.constructed==okage::GameModeSelection{2,0xffffffffu,0}&&r.command==std::array<std::uint32_t,3>{13,0,0},
+                "Enemy escape retires to mode2 with the field's command13 intact");
+        require(half(r.entry.reward_storage(),0)==7&&half(r.entry.reward_storage(),2)==60,"Accumulated reward survives; root8080 doubled currency");
+        require(word32(r.b.root.bytes,0x24)==3&&(word32(r.b.root.bytes,0x1c)&0xc0000000u)==0x80000000u,"Parent phase3, root dead and unlinked");
+        const auto plan=okage::plan_field_constructor(*r.constructed,r.command,96);
+        require(plan.phase==0x12&&!plan.clears_temporary_flags&&plan.scene==96&&plan.entrance==-1&&plan.saved_pose,
+                "133830: command13 results phase0x12, temporary flags kept, saved scene/pose (rewards then saved field restore)");
+    }
+    {
+        EscapeRun r(tables,cameras);copy_waza(r.b.party[0],tables,3);
+        r.b.queue(0,0,0,{});r.b.queue(0,0,3,{});
+        require(okage::battle_apply_hit(r.b.party[0],10,0,r.hits())==0&&okage::battle_apply_hit(r.b.party[3],10,0,r.hits())==0,"Category10 hits");
+        require(r.combat_parent()==3&&r.enemy_mask==0x10000000u&&r.party_mask==0&&word32(r.b.root.bytes,0x81b0)==5,
+                "14a674 masks the enemy roster; root81b0=5");
+        put(r.entry.reward_storage(),2,30,2);
+        r.run_escape(3);
+        require(common(r.calls,"camera41","command"),"Party escape order: UI, row0x29, fade, 1248d8, retirement, {2,-1,0}");
+        require(r.camera.position()==okage::Float4({3.84f,-26,-66.67f,0})&&r.camera.take_projection_request()==1024.f,
+                "Owned row0x29 restarted the battle camera");
+        require(*r.constructed==okage::GameModeSelection{2,0xffffffffu,0}&&r.command==std::array<std::uint32_t,3>{0,0,0},
+                "Party escape replaces command13 with{0,0,0}");
+        require(half(r.entry.reward_storage(),2)==30,"Root8080==0 leaves reward currency");
+        const auto plan=okage::plan_field_constructor(*r.constructed,r.command,96);
+        require(plan.phase==7&&plan.clears_temporary_flags&&plan.scene==96&&plan.entrance==-1&&plan.saved_pose,
+                "133830: command0 clears bitbank0, ordinary phase7 (no results UI), saved scene and pose");
+    }
+    {
+        EscapeRun r(tables,cameras);auto& cock=r.b.enemies[0]->actor;copy_waza(cock,tables,204);
+        r.b.primaries[3][0]=6;const auto parent_state=word32(r.b.root.bytes,0x81b0);
+        require(okage::battle_apply_hit(cock,11,0,r.hits())==0&&r.combat_parent()==-1,"Discarded owner3 command");
+        require(r.party_mask==0&&r.enemy_mask==0&&word32(r.b.root.bytes,0x81b0)==parent_state&&
+                word32(r.b.root.bytes,0x81b4)==0&&okage::battle_command_available(r.b.root)==1,
+                "No escape transition; the command gate reopens and the combat parent stays installed");
+    }
+    {
+        rejects([&]{(void)okage::BattleCameraData(read_file(stage/"NATIVE_UI/battle-camera.bin")).sequence_by_index(0x29);},
+                "outside imported authored coverage");
+    }
+    std::cout<<"Owned Chapter2 escape parents passed\n";
+}
 }
 int main(int argc,char** argv) {
     try {
@@ -413,6 +541,8 @@ int main(int argc,char** argv) {
         queue_bounds_and_prefixes();service_order_and_partial_failure();classifier_and_source_effects();
         if(argc>1)owned_actions(argv[1]);
         else std::cout<<"Owned Chapter2 damage categories skipped: no stage argument\n";
+        if(argc>2)owned_escape_parents(argv[1],argv[2]);
+        else std::cout<<"Owned Chapter2 escape parents skipped: no OKBTCAM1 v5 argument\n";
         std::cout<<"Battle damage producer tests passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

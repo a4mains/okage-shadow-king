@@ -401,8 +401,14 @@ if(BUILD_TESTING)
     add_executable(battle-damage-tests tests/battle_damage_tests.cpp)
     target_link_libraries(battle-damage-tests PRIVATE okage_assets)
     # The owned Chapter 2 action/category section reads BKDATA/ITEM from the stage.
+    # The escape-parent section (14b1f0/14b348) needs camera rows 0x29/0x2a from
+    # an owned OKBTCAM1 v5 artifact (tools/import_battle_resources.py); a missing
+    # file fails the test rather than skipping it.
+    set(OKAGE_ESCAPE_CAMERA_ARTIFACT
+        "${CMAKE_SOURCE_DIR}/local/research/claude-escape-parents-v1/battle-camera-v5/battle-camera.bin"
+        CACHE FILEPATH "Owned OKBTCAM1 v5 battle-camera.bin for the escape-parent tests")
     add_test(NAME battle-damage-tests COMMAND battle-damage-tests
-        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15 ${OKAGE_ESCAPE_CAMERA_ARTIFACT})
     add_executable(battle-entity-update-tests tests/battle_entity_update_tests.cpp)
     target_link_libraries(battle-entity-update-tests PRIVATE okage_assets)
     add_test(NAME battle-entity-update-tests COMMAND battle-entity-update-tests)
@@ -496,6 +502,8 @@ if(BUILD_TESTING)
     add_executable(battle-data-tests tests/battle_data_tests.cpp)
     target_link_libraries(battle-data-tests PRIVATE okage_assets)
     add_test(NAME battle-data-tests COMMAND battle-data-tests)
+    add_test(NAME battle-data-camera-v5-tests COMMAND battle-data-tests
+        --camera-artifact ${OKAGE_ESCAPE_CAMERA_ARTIFACT} 5)
     add_executable(game-state-tests tests/game_state_tests.cpp)
     target_link_libraries(game-state-tests PRIVATE okage_assets)
     add_test(NAME game-state-tests COMMAND game-state-tests)
