@@ -844,6 +844,8 @@ struct BattleSession::Impl {
                     case BattleActor::FirstCallback::EnemyDeath:return 0x15bb90u;
                     case BattleActor::FirstCallback::PartyDeath:return 0x154120u;
                     case BattleActor::FirstCallback::ActionSequence:return 0x156c70u;
+                    case BattleActor::FirstCallback::SpecialApproach:return 0x157058u;
+                    case BattleActor::FirstCallback::SpecialBallistic:return 0x156f28u;
                     }
                     throw std::runtime_error("Unknown native battle actor callback");
                 };

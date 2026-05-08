@@ -17,8 +17,8 @@ struct SceneModelAsset;
 using BattleModelAssetProvider = std::function<std::shared_ptr<const SceneModelAsset>(
     const std::filesystem::path&, unsigned requested_flags)>;
 struct BattleActor {
-    //ActionSequence is 156c70, installed by 154b38 state8 (Stan action205).
-    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,RangedAttack,EnemyDeath,PartyDeath,ActionSequence};
+    enum class FirstCallback {Roster,ApproachAttack,BallisticAttack,RangedAttack,EnemyDeath,PartyDeath,ActionSequence,
+                              SpecialApproach,SpecialBallistic};
     FirstCallback first_callback=FirstCallback::Roster;
     std::optional<FirstCallback> saved_first_callback;
     std::array<std::uint8_t,0x3e0> storage{};

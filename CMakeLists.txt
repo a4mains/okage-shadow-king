@@ -365,6 +365,12 @@ if(BUILD_TESTING)
     # ignored stage provides the owned action, XDB and RUW inputs.
     add_test(NAME battle-actor-update-tests COMMAND battle-actor-update-tests
         ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
+    add_executable(battle-states-tests tests/battle_states_tests.cpp)
+    target_link_libraries(battle-states-tests PRIVATE okage_assets)
+    # 154b38 states7/9/10 and the 157058/156f28 callbacks. The owned section
+    # (rab01/Ari Defend, Stan 0xce, Ari waza35) reads XDB/actions/commands/RUW.
+    add_test(NAME battle-states-tests COMMAND battle-states-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
     add_executable(battle-roster-update-tests tests/battle_roster_update_tests.cpp)
     target_link_libraries(battle-roster-update-tests PRIVATE okage_assets)
     add_test(NAME battle-roster-update-tests COMMAND battle-roster-update-tests)
