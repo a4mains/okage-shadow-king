@@ -58,7 +58,7 @@
 #include <sstream>
 
 namespace fs=std::filesystem;
-static constexpr unsigned diagnosticFrameLimit=120000;
+static constexpr unsigned diagnosticFrameLimit=600000;
 static std::vector<std::uint8_t> readData(const fs::path& path) {
     const auto n=fs::file_size(path);if(n>128*1024*1024)throw std::runtime_error("Runtime input limit");
     std::vector<std::uint8_t> b(n);std::ifstream in(path,std::ios::binary);
