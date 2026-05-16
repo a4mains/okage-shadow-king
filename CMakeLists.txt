@@ -28,6 +28,7 @@ target_sources(okage_assets PRIVATE src/battle_enemy_commands.cpp src/battle_ene
 target_sources(okage_assets PRIVATE src/battle_damage.cpp)
 target_sources(okage_assets PRIVATE src/battle_hit.cpp src/battle_reward.cpp src/battle_victory.cpp src/battle_lifecycle.cpp)
 target_sources(okage_assets PRIVATE src/battle_ui.cpp)
+target_sources(okage_assets PRIVATE src/field_rear_banner.cpp)
 target_sources(okage_assets PRIVATE src/battle_hud.cpp src/battle_hud_targets.cpp src/battle_hud_history.cpp)
 target_sources(okage_assets PRIVATE src/battle_interface.cpp src/battle_interface_update.cpp src/battle_ui_pad.cpp src/battle_ui_roster.cpp)
 target_sources(okage_assets PRIVATE src/battle_interface_second.cpp src/battle_ui_command_data.cpp src/battle_ui_command_state.cpp src/battle_ui_diagnostic.cpp)
@@ -585,6 +586,12 @@ if(BUILD_TESTING)
     target_link_libraries(stan-roar-dialogue-tests PRIVATE okage_assets)
     add_test(NAME stan-roar-dialogue-tests COMMAND stan-roar-dialogue-tests
         ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
+    # Rear-contact banner child: owned FLD.RUW group16 and BKDATA sysmes 0x72;
+    # the owned section reports a skip when the stage is absent.
+    add_executable(rear-encounter-tests tests/rear_encounter_tests.cpp)
+    target_link_libraries(rear-encounter-tests PRIVATE okage_assets)
+    add_test(NAME rear-encounter-tests COMMAND rear-encounter-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v17)
     add_executable(font-tests tests/font_tests.cpp)
     target_link_libraries(font-tests PRIVATE okage_assets)
     add_test(NAME font-tests COMMAND font-tests)
