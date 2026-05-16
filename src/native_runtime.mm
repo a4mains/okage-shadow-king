@@ -22,6 +22,7 @@
 #include "okage/load_queue.hpp"
 #include "okage/field.hpp"
 #include "okage/field_navigation.hpp"
+#include "okage/field_rear_banner.hpp"
 #include "okage/sound_cue_table.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -741,6 +742,15 @@ struct Session {
     std::vector<okage::ImageQuad> field_image_commands;
     bool framebuffer_filters_enabled=true;
     bool encounter_world_hidden=false,encounter_world_hidden_frame=false;
+    std::optional<okage::FieldRearBanner> rear_banner;
+    unsigned rear_banner_marked_frame=0;
+    std::uint32_t rear_attack_ui_flag=0;
+    void traverse_rear_banner() {
+        if(rear_banner->marked()&&rear_banner_marked_frame<frame){rear_banner.reset();return;}
+        if(!field_ruw||!game_mode)throw std::runtime_error("Rear encounter child traversal requires field RUW and mode owner");
+        rear_banner->traverse(*field_ruw,ui_party,variables,game_mode->current()[0],
+            ui_shared.resource_accumulators[0],rear_attack_ui_flag);
+    }
     // 1b9958 draws with the view from the preceding 1b9760 evaluation.
     struct FieldCameraEvaluation {okage::Matrix4 view;okage::Float4 rotation,position;};
     std::optional<FieldCameraEvaluation> previous_field_camera,encounter_draw_camera;
@@ -1153,6 +1163,25 @@ struct Session {
             }
             case Step::Finished:
                 return !dialogue_active||closure.finished();
+            case Step::ConstructRear: {
+                if(dialogue_active&&!closure.finished())
+                    throw std::runtime_error("Rear encounter retirement of a live manager message child is unrecovered");
+                if(rear_banner)throw std::runtime_error("Rear encounter child already owns manager+50");
+                if(!field_ruw||!game_data||!game_mode)
+                    throw std::runtime_error("Rear encounter child requires field RUW, BKDATA sysmes and mode owner");
+                //11f5f8 -> 115b20 (flag 0), then 115b50(0x2284a0). No RNG. Its
+                //callbacks run later in this traversal (traverse_rear_banner).
+                rear_banner.emplace(*field_ruw,game_data->system_message(0x72),rear_attack_ui_flag);
+                std::cout<<"Native rear encounter child frame="<<frame<<'\n';
+                return true;
+            }
+            case Step::RetireRear:
+                //1340ac: +50 +1c |= 0x80000000; destruction follows next traversal.
+                if(!rear_banner||rear_banner->marked())
+                    throw std::runtime_error("Rear encounter phase10 has no live manager+50 child");
+                rear_banner->mark();rear_banner_marked_frame=frame;
+                std::cout<<"Native rear encounter child retired frame="<<frame<<'\n';
+                return true;
             case Step::Restore:
                 //100ac0(res,1): res+3c=1, 1cb4b8 from 1bb748/337b74, 18fa80.
                 if(!scene_clear.stage_rgb)throw std::runtime_error("Encounter restore needs the authored stage clear color");
@@ -1864,6 +1893,7 @@ struct Session {
         dialogue_active=false;opening.reset();choices={};narration={};controller={};clock={};
         text=okage::DialogueText({});text.fonts=fonts;
         opacity={};closure={};
+        rear_banner.reset();
         actor_bindings.clear();field.reset();map_objects.reset();actor_objects.clear();
         field_ruw.reset();field_ui_atlas.reset();
         next_instance=0;instance_limit=640; // Numeric alias table survives.
@@ -2545,6 +2575,8 @@ struct Session {
                 throw std::runtime_error("Native frame="+std::to_string(frame)+" field PC="+
                     std::to_string(field->pc())+": "+e.what());
             }
+            //The manager's +50 child follows the manager callback in the same traversal.
+            if(rear_banner&&!returned_this_tick)traverse_rear_banner();
             if(field)previous_field_camera=FieldCameraEvaluation{field->view(),field->rotation,field->position};
             if(const auto& encounter=field->encounter();encounter&&field->battle_request()&&
                field->battle_request()->phase==encounter->mode)
@@ -2863,6 +2895,10 @@ struct Session {
         if(choices.highlighted)snapshot.choice_cursor=choices.cursor;
         auto glyphs=narration.glyphs(fonts[2]);const auto choiceGlyphs=choices.glyphs(fonts[2]);
         glyphs.insert(glyphs.end(),choiceGlyphs.begin(),choiceGlyphs.end());
+        if(rear_banner&&field_ruw) {
+            const auto banner=rear_banner->glyphs(*field_ruw,fonts[2]);
+            glyphs.insert(glyphs.end(),banner.begin(),banner.end());
+        }
         snapshot.narration=okage::rasterize_text(fonts,glyphs,640,224);
         if(dialogue_active&&controller.window_type!=2) {
             snapshot.dialogue_alpha=std::clamp(opacity.value/128.f,0.f,1.f);

@@ -78,14 +78,14 @@ struct FieldBattleReturnSnapshot {
     std::int32_t battle_record_selection=-1;
 };
 struct FieldEventActor {FieldActor* actor=nullptr;std::vector<std::uint8_t> camera_motion;};
-// Session services for the 0x133a98 phase8/9 manager message child. The field
-// owns its manager writes; the Session owns the shared dialogue child, RNG,
-// draw environment and resource world/image state.
 enum class FieldEncounterChildStep {
     CheckLiveChild,
     Construct,        // after 0x1301a8: 125918(13,4,0), RNG, 11f570, 100ac0(res,0)
     Finished,         // phase9: child null or +1c negative
-    Restore           // phase9 completion: 100ac0(res,1)
+    Restore,          // phase9 completion: 100ac0(res,1)
+    ConstructRear,
+                      // 11f5f8(manager,0x2226f0) -> +50, 115b50(0x2284a0)
+    RetireRear        // phase10 with timer 0: +50 child +1c |= 0x80000000
 };
 struct FieldAudioRequest {
     unsigned operation=0;
@@ -154,6 +154,8 @@ public:
     // Valid only during that manager callback's traversal; Session drains them.
     const std::vector<ImageQuad>& encounter_overlay() const {return encounter_overlay_;}
     bool encounter_overlay_active() const {return !encounter_overlay_.empty();}
+    // Manager +108: phase11 rear contact sets 90; phase10 counts it down.
+    std::int32_t encounter_rear_timer() const {return encounter_rear_timer_;}
     std::function<std::int32_t(unsigned,unsigned)> resolve_encounter_formation;
     std::function<std::uint32_t()> random_value;
     // Optional read-only research observer, before/after a state-1 callback.
@@ -263,10 +265,15 @@ private:
     // 0x133a98 phase8/9: manager+110 overlay angle and the 0x1301a8 raw camera
     // restored by 0x130248 when the child completes.
     float encounter_angle_=0;
+    std::int32_t encounter_rear_timer_=0;
     Float4 encounter_saved_camera_{};
     std::vector<ImageQuad> encounter_overlay_;
     void encounter_phase8();
     void encounter_phase9();
+    void encounter_phase10();
+    void encounter_rear_child();
+    void hold_player_for_encounter();
+    bool manager_event_phase() const;
     void initialize_npcs();
     void initialize_one_npc(std::size_t index);
     void activate_pose(const Float4& player_position,const Float4& player_rotation,

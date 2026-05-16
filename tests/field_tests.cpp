@@ -549,7 +549,7 @@ int main(){try {
     put(stage,64,std::bit_cast<std::uint32_t>(10.f));put(stage,76,std::bit_cast<std::uint32_t>(1.f));
     for(unsigned i=0;i<3;++i)put(empty_map,i*4,1);put(empty_map,65,64);
     for(auto* data:{&idle,&startup}){put(*data,0,0x544d58);put(*data,4,24);put(*data,16,0xffffffff);}
-    for(unsigned scenario=0;scenario<5;++scenario) {
+    for(unsigned scenario=0;scenario<6;++scenario) {
         auto floor=std::vector<std::uint8_t>(164);
         auto half=[&](unsigned at,unsigned value){floor.at(at)=value;floor.at(at+1)=value>>8;};
         for(unsigned k=0;k<3;++k){put(floor,k*4,128);put(floor,12+k*4,7);put(floor,48+k*4,1);}
@@ -565,12 +565,16 @@ int main(){try {
         put(entered_stage,100,std::bit_cast<unsigned>(10.f));
         auto motions=idle;motions.resize(80);put(motions,4,48);
         okage::ModelFile hm,am,bm;hm.models.emplace_back();am.models.emplace_back();bm.models.emplace_back();
-        okage::ModelFile sm;sm.models.emplace_back();
+        okage::ModelFile sm,tm;sm.models.emplace_back();tm.models.emplace_back();
         okage::FieldActor hero(std::move(hm),motions,{}),first(std::move(am),motions,{}),second(std::move(bm),motions,{}),
-            stun(std::move(sm),motions,{});
+            stun(std::move(sm),motions,{}),talker(std::move(tm),motions,{});
         stun.visible=false;
-        const std::array<okage::ActorBinding,4> actors={{{-8,&first},{-9,&second},{-3,&stun,false},{-1,&hero}}};
-        okage::OpeningField scene(idle,[](int){},[](int){return true;},actors,false);
+        std::vector<okage::ActorBinding> actors={{-8,&first},{-9,&second}};
+        if(scenario==5)actors.push_back({-10,&talker});
+        actors.push_back({-3,&stun,false});actors.push_back({-1,&hero});
+        // Event1: WAIT 3, then END.
+        auto talk_script=idle;put(talk_script,40,(3u<<20)|2u);put(talk_script,44,0);
+        okage::OpeningField scene(scenario==5?talk_script:idle,[](int){},[](int){return true;},actors,false);
         std::array<std::uint8_t,0x1000> vars{};
         okage::set_event_variable(vars,4,4,scenario==2?20:1);
         scene.get_variable=[&](auto s){return okage::event_variable(vars,s);};
@@ -583,7 +587,12 @@ int main(){try {
         std::vector<unsigned> phases;
         std::vector<okage::FieldEncounterChildStep> child_steps;bool child_finished=false;
         scene.encounter_child_service=[&](okage::FieldEncounterChildStep step,okage::FieldBattleRequest& request){
-            require(scenario==2&&request.formation==42);
+            using Step=okage::FieldEncounterChildStep;
+            const bool rear_step=step==Step::ConstructRear||step==Step::RetireRear;
+            require(request.formation==42&&(rear_step?scenario==1||scenario==5:scenario==2));
+            //1340fc: after service11 (capture) and the phase increment.
+            if(step==Step::ConstructRear)require(request.phase==12&&phases==std::vector<unsigned>{11}&&request.rear_attack);
+            if(step==Step::RetireRear)require(request.phase==10&&scene.encounter_rear_timer()==0);
             if(step==okage::FieldEncounterChildStep::Construct) {
                 //Session order: 125918(13,4,0), then the message RNG draw.
                 okage::set_event_variable(vars,13,4,0);++draws;
@@ -595,15 +604,17 @@ int main(){try {
             require(request.formation==42&&request.return_token==0&&request.entry_parameter==(scenario==2?7u:0u));
             require(request.stage==-1);
             if(phase==13) {
-                require(request.rear_attack==(scenario==3));
+                require(request.rear_attack==(scenario==1||scenario==3||scenario==5));
                 request.stage=scene.default_battle_stage();
-                require(request.stage==(scenario==4?std::numeric_limits<std::int32_t>::min():2));
+                // Scenario5 stops walking before its contact: lane +244 stays 0.
+                require(request.stage==(scenario==4?std::numeric_limits<std::int32_t>::min():scenario==5?1:2));
             }
             phases.push_back(phase);
         };
         okage::FieldDefinition entry;entry.scene=1;entry.type=1;entry.party=7;
         entry.field_flags=scenario==4?0x7fffffffu:1u;
         entry.npcs={{-8,"enemy",5,0,0,{20,0,20,1},0,1},{-9,"enemy",5,0,0,{25,0,25,1},0,1}};
+        if(scenario==5)entry.npcs.push_back({-10,"npc",0,-1,0,{40,0,40,1},0,1});
         scene.prepare(entry,entered_stage,floor);scene.activate(0);
         rejects([&]{(void)scene.default_battle_stage();}); // No player callback yet.
         for(unsigned i=0;i<241;++i)scene.tick();
@@ -616,16 +627,63 @@ int main(){try {
             auto a=p,b=p;a[0]-=1;a[2]-=1;b[0]+=rear?1:-2;b[2]+=rear?1:-1;
             first.animation().set_channel(1,a);second.animation().set_channel(1,b);
         };
-        position_enemies(scenario==1);
-        const auto before=hero.animation().values()[1];const auto draws_before=draws;
-        scene.tick(walk);
-        require(scene.encounter()&&scene.battle_request()&&lookups==1&&draws==draws_before+1);
-        require(scene.encounter()->rear_attack==(scenario==1));
-        require(scene.battle_request()->rear_attack==(scenario==1));
-        require(scene.battle_request()->phase==(scenario==2?8u:11u)&&phases.empty());
-        require(hero.animation().values()[1]!=before); // Player still runs on contact.
-        if(scenario==1) {
-            rejects([&]{scene.tick(walk);});require(phases.empty());continue;
+        const auto offset=[](okage::Float4 at,float dx,float dz){at[0]+=dx;at[2]+=dz;return at;};
+        if(scenario==5) {
+            const auto p=hero.animation().values()[1];
+            first.animation().set_channel(1,offset(p,25,25));second.animation().set_channel(1,offset(p,-25,25));
+            talker.animation().set_channel(1,offset(p,3,0));
+            scene.tick({0,128,128,0x40});
+            require(scene.event_running()&&!scene.exploration_ready()&&scene.interaction_alias()==-10);
+            require(scene.interaction_event()==1&&!scene.encounter()&&!scene.battle_request());
+            // The start frame's own script pass already consumed one wait tick.
+            for(unsigned i=0;i<2;++i){scene.tick();require(scene.event_running()&&!scene.encounter());}
+            hero.animation().set_channel(0,{0,.125f,0,1});
+            const auto q=hero.animation().values()[1];
+            first.animation().set_channel(1,offset(q,25,25));second.animation().set_channel(1,offset(q,1,1));
+            scene.tick();
+            require(!scene.event_running()&&!scene.exploration_ready());
+            require(!scene.encounter()&&!scene.battle_request()&&lookups==0);
+            const auto r=hero.animation().values()[1];
+            first.animation().set_channel(1,offset(r,-1,-1));second.animation().set_channel(1,offset(r,25,-25));
+            scene.tick();
+            require(scene.exploration_ready()&&scene.encounter()&&scene.battle_request()&&lookups==1);
+            require(scene.encounter()->rear_attack&&scene.battle_request()->rear_attack);
+            require(scene.battle_request()->phase==11&&phases.empty());
+        } else {
+            position_enemies(scenario==1);
+            const auto before=hero.animation().values()[1];const auto draws_before=draws;
+            scene.tick(walk);
+            require(scene.encounter()&&scene.battle_request()&&lookups==1&&draws==draws_before+1);
+            require(scene.encounter()->rear_attack==(scenario==1));
+            require(scene.battle_request()->rear_attack==(scenario==1));
+            require(scene.battle_request()->phase==(scenario==2?8u:11u)&&phases.empty());
+            require(hero.animation().values()[1]!=before); // Player still runs on contact.
+        }
+        if(scenario==1||scenario==5) {
+            //1340e0: service11 capture, phase+1, then +fc builds the
+            //11f5f8(manager,0x2226f0) child, 115b50, phase10, +108=90 and
+            //134678/135420; 131828 completes the callback (service11).
+            using Step=okage::FieldEncounterChildStep;
+            scene.tick(walk);
+            require(phases==std::vector<unsigned>{11}&&child_steps==std::vector<Step>{Step::ConstructRear});
+            require(scene.battle_request()->phase==10&&scene.encounter_rear_timer()==90);
+            require(scene.battle_request()->rear_attack&&!scene.battle_request()->dispatched);
+            require(scene.player_movement().motion==1&&(scene.player_movement().mask&1));
+            //1340a0: each callback entering with a nonzero timer decrements it.
+            for(unsigned i=0;i<90;++i) {
+                scene.tick(walk);
+                require(scene.battle_request()->phase==10&&scene.encounter_rear_timer()==std::int32_t(89-i));
+                require(phases.size()==1&&child_steps.size()==1&&lookups==1);
+            }
+            // Entering with zero: mark the +50 child and select phase12.
+            scene.tick(walk);
+            require(scene.battle_request()->phase==12&&child_steps==std::vector<Step>({Step::ConstructRear,Step::RetireRear}));
+            require(phases.size()==1);
+            scene.tick(walk);require(phases==std::vector<unsigned>({11,12})&&scene.battle_request()->phase==13);
+            scene.tick(walk);require(phases==std::vector<unsigned>({11,12,13})&&scene.battle_request()->dispatched);
+            require(child_steps.size()==2&&lookups==1&&scene.battle_request()->rear_attack);
+            rejects([&]{scene.tick(walk);});
+            continue;
         }
         if(scenario==2) {
             using Step=okage::FieldEncounterChildStep;

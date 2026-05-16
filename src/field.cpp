@@ -366,8 +366,11 @@ void OpeningField::update_npcs() {
         if(!enemies_[index])continue;
         auto* object=actor(definition_->npcs[index].alias);auto* hero=actor(-1);
         const auto& channel=object->animation().values();const auto& player=hero->animation().values();
+        // 0x137218 reads manager+48. An event start writes 5 (0x130040) and
+        // only case5's 0x132ca8, on a later manager callback, writes 0: the
+        // NPC callbacks after the script pass that ends an event still see 5.
         const int manager_mode=battle_request_ ? (battle_request_->phase?int(battle_request_->phase):
-            (exploration_handoff_?0:5)) : (event_running()?5:(transition_?14:0));
+            (exploration_handoff_?0:5)) : (manager_event_phase()?5:(transition_?14:0));
         EnemyObservation observation{channel.at(1),channel.at(0),channel.at(3),player.at(1),player.at(0),rotation,
             get_variable(0x40006),player_.motion,manager_mode,get_variable(0x40004)};
         const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
@@ -400,6 +403,37 @@ void OpeningField::update_npcs() {
     if(encounter_)encounter_->rear_attack=rear_attack_;
     if(battle_request_)battle_request_->rear_attack=rear_attack_;
 }
+bool OpeningField::manager_event_phase() const {
+    if(event_running())return true;
+    const bool exterior=definition_&&definition_->type==0;
+    return (exploration_camera_||exterior)&&!exploration_handoff_;
+}
+void OpeningField::hold_player_for_encounter() {
+    //134678(ctx,1): HERO motion1, ctx+230=1, ctx+248=0. 135420(ctx,1): mask|=1.
+    auto* hero=actor(-1);
+    if(!hero)throw std::runtime_error("Natural encounter requires the live player");
+    hero->select_motion(1);player_.motion=1;player_.effect_counter=0;
+    player_.mask|=1;
+}
+void OpeningField::encounter_rear_child() {
+    //1340f4..134180, after phase11's capture and +48 increment: +fc nonzero.
+    if(!encounter_child_service)throw std::runtime_error("Rear encounter child requires Session UI services");
+    if(!definition_||!actor(-1))throw std::runtime_error("Rear encounter requires the live field");
+    // An unmarked live +50 child is marked without returning; then
+    // 11f5f8(manager,0x2226f0) -> +50 and 115b50(0x2284a0) (Session state).
+    encounter_child_service(FieldEncounterChildStep::ConstructRear,*battle_request_);
+    battle_request_->phase=10;encounter_rear_timer_=90; //+48=10, +108=0x5a
+    hold_player_for_encounter();
+}
+void OpeningField::encounter_phase10() {
+    //1340a0: a nonzero +108 is decremented and the callback returns.
+    if(encounter_rear_timer_<0)throw std::runtime_error("Rear encounter timer is negative");
+    if(encounter_rear_timer_){--encounter_rear_timer_;return;}
+    if(!encounter_child_service)throw std::runtime_error("Rear encounter phase10 requires Session UI services");
+    //1340ac: mark the +50 child (when present) and select phase12.
+    encounter_child_service(FieldEncounterChildStep::RetireRear,*battle_request_);
+    battle_request_->phase=12;
+}
 void OpeningField::encounter_phase8() {
     //133f60..134044. Callers reach this only from the manager callback.
     if(!encounter_child_service||!get_variable||!set_variable)
@@ -408,9 +442,7 @@ void OpeningField::encounter_phase8() {
     if(!encounter_child_service(FieldEncounterChildStep::CheckLiveChild,*battle_request_))return;
     encounter_saved_camera_=battle_return_snapshot().raw_camera_position; //1301a8
     encounter_child_service(FieldEncounterChildStep::Construct,*battle_request_);
-    //134678(ctx,1): HERO motion1, ctx+230=1, ctx+248=0. 135420(ctx,1): mask|=1.
-    auto* hero=actor(-1);hero->select_motion(1);player_.motion=1;player_.effect_counter=0;
-    player_.mask|=1;
+    hold_player_for_encounter();
     //130068(manager,1): phase4 (overwritten below), +f4=var(6,4), var(6,4)=1.
     saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
     for(std::size_t i=0;i<enemies_.size()&&i<definition_->npcs.size();++i) {
@@ -1240,17 +1272,20 @@ void OpeningField::tick(ExplorationInput input) {
             throw std::runtime_error("Battle transition requires recovered follower return state");
         if(battle_request_->phase==8)encounter_phase8();
         else if(battle_request_->phase==9)encounter_phase9();
+        else if(battle_request_->phase==10)encounter_phase10();
         else if(battle_request_->phase<11)
             throw std::runtime_error("Natural encounter manager phase is unrecovered (phase "+
                 std::to_string(battle_request_->phase)+")");
-        else if(battle_request_->phase==11&&rear_attack_)
-            throw std::runtime_error("Rear encounter child/window lifecycle is unrecovered");
         else {
         if(!battle_transition_service)
             throw std::runtime_error("Battle transition requires capture and mode services");
-        battle_transition_service(battle_request_->phase,*battle_request_);
-        if(battle_request_->phase==13)battle_request_->dispatched=true;
-        else ++battle_request_->phase;
+        const auto phase=battle_request_->phase;
+        battle_transition_service(phase,*battle_request_);
+        if(phase==13)battle_request_->dispatched=true;
+        else {
+            battle_request_->phase=phase+1;
+            if(phase==11&&rear_attack_)encounter_rear_child();
+        }
         }
     }
     if(transition_) {

@@ -76,9 +76,9 @@ struct Fixture {
     void party(const okage::BattleModelAssetProvider& provider={},const std::filesystem::path& path={}) {
         roster.construct_party(path.empty()?absent:path,variables,tables,entry,[&]{return random();},provider);
     }
-    void enemies(const okage::BattleModelAssetProvider& provider={},const std::filesystem::path& path={},unsigned count=2) {
+    void enemies(const okage::BattleModelAssetProvider& provider={},const std::filesystem::path& path={},unsigned count=2,int entry_half32=0) {
         const std::array<okage::BattleFormationEntry,2> formation={okage::BattleFormationEntry{3,1,0,-2,3},okage::BattleFormationEntry{3,1,0,2,-3}};
-        roster.construct_enemies(path.empty()?absent:path,17,std::span(formation).first(count),tables,0,[&]{return random();},provider);
+        roster.construct_enemies(path.empty()?absent:path,17,std::span(formation).first(count),tables,entry_half32,[&]{return random();},provider);
     }
 };
 struct Provider {
@@ -172,7 +172,29 @@ void legacy_equivalence_and_null_rejection() {
     require(calls==1&&rejected.draws==0&&!rejected.roster.actors()[0]->model,"Null owned provider must reject even with valid legacy files available");
 }
 }
+void rear_attack_entry() {
+    Fixture normal,rear;rear.entry.reset(0,1,0,0);
+    Provider pn{normal},pr{rear};
+    normal.party(pn.callback());rear.party(pr.callback());
+    require(normal.draws==3&&rear.draws==0,"Rear entry skips every party timer draw");
+    require(rear.events==std::vector<std::string>{"SHARED","SHARED","STAN"},"No party RNG between rear party resources");
+    for(unsigned i:{0u,1u,2u}) {
+        const auto& n=*normal.roster.actors()[i];const auto& r=*rear.roster.actors()[i];
+        if(!n.model)continue;
+        require(word(r.storage,0x194)==0&&word(n.storage,0x194)!=0,"Rear party timer starts empty");
+        require(word(r.storage,0x198)==word(n.storage,0x198),"Rear entry keeps timer duration");
+        require(r.constructor_random_draws.empty()&&n.constructor_random_draws.size()==1,"Per-actor draw record");
+    }
+    normal.enemies(pn.callback(),{},2,0);rear.enemies(pr.callback(),{},2,1);
+    require(normal.draws==9&&rear.draws==6,"Enemy draws unchanged by rear entry");
+    const auto& ne=normal.roster.actors();const auto& re=rear.roster.actors();
+    for(unsigned i=3;i<5;++i) {
+        require(word(re[i]->storage,0x194)==word(ne[i]->storage,0x194)&&word(re[i]->storage,0x194)!=0,"Enemy timer keeps its rand%50 start");
+        require(re[i]->constructor_random_draws.size()==3,"Enemy constructor still draws");
+    }
+    require(rear.entry.parameters().argument2==1&&normal.entry.parameters().argument2==0,"Entry +32 survives construction");
+}
 int main() {
-    try {ordered_owned_cache();shadow_metadata();failure_prefixes();legacy_equivalence_and_null_rejection();std::cout<<"battle actor owned asset tests passed\n";}
+    try {rear_attack_entry();ordered_owned_cache();shadow_metadata();failure_prefixes();legacy_equivalence_and_null_rejection();std::cout<<"battle actor owned asset tests passed\n";}
     catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
 }
