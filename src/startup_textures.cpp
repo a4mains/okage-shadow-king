@@ -391,6 +391,7 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
                 "startup: allocation/handle totals differ from the frozen contract");
         rng_draws_ = stream.draws();
         rng_log_ = stream.log();
+        if (!rng_log_.empty()) rng_last_state_ = rng_log_.back().state;
         sync();
         stream_ = nullptr;
         coverage_ = StartupCoverage::PreSchedulerOnly;
@@ -399,6 +400,7 @@ void StartupTextureOwner::run_startup(const StartupTextureInputs& in, GameRandom
         sync();
         rng_draws_ = stream.draws();
         rng_log_ = stream.log();
+        if (!rng_log_.empty()) rng_last_state_ = rng_log_.back().state;
         stream_ = nullptr;
         throw;
     }
@@ -641,6 +643,7 @@ void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t f
     if (rng_log_.size() >= StartupRandomStream::log_limit) {
         ++rng_log_dropped_;
         ++rng_draws_;
+        rng_last_state_ = state;
         return;
     }
     const bool restore = stage_ >= ResourceStage::RestoreActive && stage_ <= ResourceStage::RestoreWrappersFreed;
@@ -651,6 +654,7 @@ void StartupTextureOwner::note_session_draw(std::uint32_t state, std::uint32_t f
                        : site == 1 ? StartupRngPhase::NameUiGlyph
                        : site == 2 ? StartupRngPhase::NameUiIcon : StartupRngPhase::NameUiSelect;
     rng_log_.push_back({phase, state, state & 0x7fffffffu});
+    rng_last_state_ = state;
     session_draw_frames_.push_back(frame);
     ++rng_draws_;
 }
@@ -1325,7 +1329,8 @@ void write_report(const StartupTextureOwner& owner, const std::filesystem::path&
             throw std::logic_error("title checkpoint report outside the modeled title/Restore stages");
         if (owner.rng_log_dropped() && schema != CheckpointSchema::FieldWorld)
             throw std::runtime_error("title checkpoint: session RNG log truncated after its limit");
-        if (!owner.rng_log_dropped() && (owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state))
+        if (owner.rng_log_dropped() ? owner.rng_last_state() != session_rng_state
+                                    : owner.rng_log().empty() || owner.rng_log().back().state != session_rng_state)
             throw std::runtime_error("title checkpoint: Session RNG drew after 0x100618; draws are not logged");
         o << "{\n \"coverage\":{\"lifecycle\":\"" << label << "\",\"checkpoint\":\"" << checkpoint
           << "\",\"memory\":\"host-uploads-known-draw-writes-unknown\"},\n \"later_history\":\"stage "

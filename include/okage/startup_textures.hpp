@@ -361,6 +361,8 @@ public:
     std::uint64_t rng_draws() const noexcept { return rng_draws_; }
     // Session draws counted but not logged after the log limit.
     std::uint64_t rng_log_dropped() const noexcept { return rng_log_dropped_; }
+    // Generator state after the most recent observed session draw, logged or not.
+    std::uint32_t rng_last_state() const noexcept { return rng_last_state_; }
     static constexpr std::size_t lifecycle_limit = 1u << 20;
     const std::vector<std::string>& lifecycle() const noexcept { return lifecycle_; }
     std::uint64_t lifecycle_dropped() const noexcept { return lifecycle_dropped_; }
@@ -398,6 +400,7 @@ private:
     std::vector<StartupTimelineEvent> timeline_;
     std::uint64_t rng_draws_{};
     std::uint64_t rng_log_dropped_{};
+    std::uint32_t rng_last_state_{};
     std::vector<std::string> lifecycle_;
     std::uint64_t lifecycle_dropped_{};
     ResourceStage stage_{ResourceStage::PreScheduler};
