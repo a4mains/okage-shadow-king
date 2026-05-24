@@ -102,6 +102,7 @@ struct PlayerMovement {
     std::uint32_t contact_bubble=0,history_cursor=0;
     std::array<Float4,32> history{};
 };
+struct OpeningFieldTestAccess;
 class OpeningField {
 public:
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
@@ -137,7 +138,9 @@ public:
     std::int32_t default_battle_stage() const;
     void validate_retirement() const;
     RetiringSceneEffects retire_effects();
-    bool exploration_ready() const {return exploration_handoff_;}
+    // Manager +48 is 0 (case0 exploration): activation, or 132ca8 after case5.
+    bool exploration_ready() const {return manager_phase_==0;}
+    std::uint32_t manager_event_phase() const {return manager_phase_;}
     std::function<void()> dispatch_game_command;
     //133b3c only while command dispatch leaves phase0, before follow/actors.
     std::function<void(ExplorationInput)> phase0_image_commands;
@@ -206,6 +209,7 @@ public:
     // Session-owned; retained across field transitions and independent of Metal.
     FieldProjection* render_projection=nullptr;
 private:
+    friend struct OpeningFieldTestAccess;
     CollisionMask local_collision_mask_;
     std::vector<std::uint8_t> bytes_;
     Animation script_;
@@ -231,7 +235,7 @@ private:
     bool exterior_camera_enabled_=false;
     unsigned configured_camera_area_=0;
     void configure_exterior_camera(unsigned area);
-    bool exploration_handoff_=false;
+    std::uint32_t manager_phase_=5;
     std::optional<CollisionMap> collision_;
     std::vector<CollisionBody> bodies_;
     std::vector<unsigned> actor_collision_indices_;
@@ -273,7 +277,6 @@ private:
     void encounter_phase10();
     void encounter_rear_child();
     void hold_player_for_encounter();
-    bool manager_event_phase() const;
     void initialize_npcs();
     void initialize_one_npc(std::size_t index);
     void activate_pose(const Float4& player_position,const Float4& player_rotation,

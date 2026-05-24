@@ -370,7 +370,7 @@ void OpeningField::update_npcs() {
         // only case5's 0x132ca8, on a later manager callback, writes 0: the
         // NPC callbacks after the script pass that ends an event still see 5.
         const int manager_mode=battle_request_ ? (battle_request_->phase?int(battle_request_->phase):
-            (exploration_handoff_?0:5)) : (manager_event_phase()?5:(transition_?14:0));
+            int(manager_phase_)) : (manager_phase_==5?5:(transition_?14:int(manager_phase_)));
         EnemyObservation observation{channel.at(1),channel.at(0),channel.at(3),player.at(1),player.at(0),rotation,
             get_variable(0x40006),player_.motion,manager_mode,get_variable(0x40004)};
         const auto action=enemies_[index]->tick(observation,random_value,angles_,sine_);
@@ -402,11 +402,6 @@ void OpeningField::update_npcs() {
     }
     if(encounter_)encounter_->rear_attack=rear_attack_;
     if(battle_request_)battle_request_->rear_attack=rear_attack_;
-}
-bool OpeningField::manager_event_phase() const {
-    if(event_running())return true;
-    const bool exterior=definition_&&definition_->type==0;
-    return (exploration_camera_||exterior)&&!exploration_handoff_;
 }
 void OpeningField::hold_player_for_encounter() {
     //134678(ctx,1): HERO motion1, ctx+230=1, ctx+248=0. 135420(ctx,1): mask|=1.
@@ -503,11 +498,8 @@ void OpeningField::interact(ExplorationInput input) {
         saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
         script_.start(unsigned(interaction_event_));
         if(event_running()) {
-            // 0x1326e8 disables follow via0x135c78(-1) only when the
-            // newly started floor event remains active. Otherwise the next
-            // manager update would cancel its scripted camera interpolation.
             exterior_camera_enabled_=false;
-            exploration_handoff_=false;player_.mask|=1;clear_contact();
+            manager_phase_=5;player_.mask|=1;clear_contact();
         }
         else restore_event_gate();
         return;
@@ -538,7 +530,9 @@ void OpeningField::interact(ExplorationInput input) {
     }
     player_.mask|=1;clear_contact();
     saved_input_gate_=get_variable(0x40006);set_variable(6,4,1);input_gate_saved_=true;
-    exploration_handoff_=false;
+    //132c04: a negative talk ID calls 0x130040 (+48=5) before 0x1bb7e0,
+    //whether or not the started event remains running.
+    manager_phase_=5;
     // 0x132b00 disables the exploration camera via0x135c78(-1) before
     // starting a negative-ID event. Its scripted camera must remain in control.
     exterior_camera_enabled_=false;
@@ -740,7 +734,8 @@ void OpeningField::activate_pose(const Float4& player_position,const Float4& pla
     // its index without arming it, so spawning inside one does not retrigger it.
     if((std::uint32_t(player_.floor_contact)&0x83)==0x81)
         player_.trigger_index=std::uint32_t(player_.floor_contact)>>8;
-    player_.mask=0;player_.motion=1;exploration_handoff_=true;
+    //133a98 case7 writes +48=0 before 0x132720 activation.
+    player_.mask=0;player_.motion=1;manager_phase_=0;
     if(definition_->type==0) {
         camera_settings_=field_camera_settings(staged_stg_);
         script_.set_channel(0,exterior_camera->begin(desired));
@@ -766,7 +761,7 @@ void OpeningField::activate_pose(const Float4& player_position,const Float4& pla
         if(event_running()){
             exterior_camera_enabled_=false;
             if(exterior_camera)exterior_camera->manual_rotate=false;
-            exploration_handoff_=false;player_.mask|=1;
+            manager_phase_=5;player_.mask|=1; //132720: 1326e8 nonzero -> 0x130040.
         }
         else restore_event_gate();
     }
@@ -1299,9 +1294,9 @@ void OpeningField::tick(ExplorationInput input) {
             }
         } else transition_->ready=true;
     }
-    if(!was_transitioning&&exterior&&!exploration_handoff_&&exterior_camera_enabled_)update_exterior_camera();
+    if(!was_transitioning&&exterior&&manager_phase_==5&&exterior_camera_enabled_)update_exterior_camera();
     if(hat_requested_) {
-        if(exploration_handoff_||!create_hat_scene)
+        if(manager_phase_==0||!create_hat_scene)
             throw std::runtime_error("Hat scene requires its manager and owned resource loader");
         auto resources=create_hat_scene();
         if(!resources.actor)throw std::runtime_error("Hat scene loader returned no actor");
@@ -1315,28 +1310,13 @@ void OpeningField::tick(ExplorationInput input) {
             std::bit_cast<float>(0x401eb852u),std::bit_cast<float>(0x443d4000u),1});
         hat_actor_->visible=false;hat_requested_=false;
     }
-    if(!was_transitioning&&(exploration_camera_||exterior)&&!event_running()) {
-        if(exploration_handoff_) {
-            if(dispatch_game_command)dispatch_game_command(); // 133b04 -> 133450
-            if(rest_requested_) {
-                if(!recover_party)throw std::runtime_error("Rest completion needs field party service");
-                recover_party();rest_requested_=false;
-            }
-            if(save_requested_) {
-                save_requested_=false;save_menu_active_=true;
-                open_save_menu();
-            } else if(battle_request_) {
-                // 0x133450 consumes queued mode7 before camera/interactions.
-                battle_request_->phase=11;
-            } else {
-                if(phase0_image_commands)phase0_image_commands(input);
-                if(exterior&&exterior_camera_enabled_)update_exterior_camera();
-                if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
-                interact(input);
-                move=!event_running()&&!transition_;
-            }
-        } else {
-            exploration_handoff_=true;
+    const bool exploration_field=exploration_camera_||exterior;
+    if(!was_transitioning&&manager_phase_==5&&!event_running()) {
+        //133e18 case5: 0x1bb818 reports the ended script, then 0x132ca8 writes
+        //+48=0. This is the only 5->0 writer, for every field shape; NPC
+        //callbacks of the frame whose script pass ended the event saw 5.
+        manager_phase_=0;
+        if(exploration_field) {
             // 0x132ca8 resets contact state, clears movement bit 0 and invalidates
             // selected motion; 0x134c18 chooses it on the next player update.
             player_.floor_contact=0;player_.trigger_kind=player_.trigger_index=0;
@@ -1348,6 +1328,25 @@ void OpeningField::tick(ExplorationInput input) {
                 // only the direct-message mode-4 path requests NPC state 8.
                 restore_event_gate();
             }
+        }
+    } else if(!was_transitioning&&exploration_field&&manager_phase_==0&&!event_running()) {
+        if(dispatch_game_command)dispatch_game_command(); // 133b04 -> 133450
+        if(rest_requested_) {
+            if(!recover_party)throw std::runtime_error("Rest completion needs field party service");
+            recover_party();rest_requested_=false;
+        }
+        if(save_requested_) {
+            save_requested_=false;save_menu_active_=true;
+            open_save_menu();
+        } else if(battle_request_) {
+            // 0x133450 consumes queued mode7 before camera/interactions.
+            battle_request_->phase=11;
+        } else {
+            if(phase0_image_commands)phase0_image_commands(input);
+            if(exterior&&exterior_camera_enabled_)update_exterior_camera();
+            if(exterior&&player_.camera_area!=configured_camera_area_)configure_exterior_camera(player_.camera_area);
+            interact(input);
+            move=!event_running()&&!transition_;
         }
     }
     tick_callbacks(input,move&&!exterior,save_menu_active_,false);
