@@ -1349,6 +1349,7 @@ void OpeningField::tick(ExplorationInput input) {
             move=!event_running()&&!transition_;
         }
     }
+    if(manager_children)manager_children();
     tick_callbacks(input,move&&!exterior,save_menu_active_,false);
 }
 void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera,bool pause_actors,bool frozen_resource) {
@@ -1379,6 +1380,7 @@ void OpeningField::tick_callbacks(ExplorationInput input,bool interior_camera,bo
     // mode, including the handoff update and transition countdown.
     if(render_projection)render_projection->begin_field();
     advance_effects();
+    if(resource_ui_pass)resource_ui_pass(); //100f90: 1980f8, 198390, 1a8150.
     }
     if(pause_actors)return;
     update_npcs();

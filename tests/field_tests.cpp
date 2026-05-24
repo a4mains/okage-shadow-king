@@ -592,8 +592,10 @@ int main(){try {
         scene.sound_cue=[](auto,auto,auto,auto){return true;};
         std::vector<unsigned> phases;
         std::vector<okage::FieldEncounterChildStep> child_steps;bool child_finished=false;
+        std::vector<char> order;
         scene.encounter_child_service=[&](okage::FieldEncounterChildStep step,okage::FieldBattleRequest& request){
             using Step=okage::FieldEncounterChildStep;
+            if(step==Step::ConstructRear||step==Step::RetireRear)order.push_back(step==Step::ConstructRear?'C':'X');
             const bool rear_step=step==Step::ConstructRear||step==Step::RetireRear;
             require(request.formation==42&&(rear_step?scenario==1||scenario==5:scenario==2));
             //1340fc: after service11 (capture) and the phase increment.
@@ -675,19 +677,30 @@ int main(){try {
             //11f5f8(manager,0x2226f0) child, 115b50, phase10, +108=90 and
             //134678/135420; 131828 completes the callback (service11).
             using Step=okage::FieldEncounterChildStep;
-            scene.tick(walk);
+            scene.manager_children=[&]{order.push_back('M');};
+            scene.resource_ui_pass=[&]{order.push_back('R');};
+            const auto npc_random=scene.random_value;
+            scene.random_value=[&]{order.push_back('D');return npc_random();};
+            const auto traversal=[&](std::string_view head) {
+                const std::string_view seen(order.data(),order.size());
+                require(seen.substr(0,head.size())==head);
+                require(seen.find_first_not_of('D',head.size())==std::string_view::npos);
+                order.clear();
+            };
+            order.clear();
+            scene.tick(walk);traversal("CMR");
             require(phases==std::vector<unsigned>{11}&&child_steps==std::vector<Step>{Step::ConstructRear});
             require(scene.battle_request()->phase==10&&scene.encounter_rear_timer()==90);
             require(scene.battle_request()->rear_attack&&!scene.battle_request()->dispatched);
             require(scene.player_movement().motion==1&&(scene.player_movement().mask&1));
             //1340a0: each callback entering with a nonzero timer decrements it.
             for(unsigned i=0;i<90;++i) {
-                scene.tick(walk);
+                scene.tick(walk);traversal("MR");
                 require(scene.battle_request()->phase==10&&scene.encounter_rear_timer()==std::int32_t(89-i));
                 require(phases.size()==1&&child_steps.size()==1&&lookups==1);
             }
             // Entering with zero: mark the +50 child and select phase12.
-            scene.tick(walk);
+            scene.tick(walk);traversal("XMR");
             require(scene.battle_request()->phase==12&&child_steps==std::vector<Step>({Step::ConstructRear,Step::RetireRear}));
             require(phases.size()==1);
             scene.tick(walk);require(phases==std::vector<unsigned>({11,12})&&scene.battle_request()->phase==13);

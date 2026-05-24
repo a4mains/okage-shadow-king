@@ -152,6 +152,10 @@ public:
     void close_save_menu();
     std::int32_t persistent_map_index() const {return definition_?definition_->battle_record_selection:-1;}
     std::function<void(unsigned,FieldBattleRequest&)> battle_transition_service;
+    // Manager descendants (the +50 child): traversed right after the 0x133a98
+    // callback of an ordinary manager tick, before the global script pass.
+    std::function<void()> manager_children;
+    std::function<void()> resource_ui_pass;
     std::function<bool(FieldEncounterChildStep,FieldBattleRequest&)> encounter_child_service;
     // Phase9 0x132f00 queues70 image commands for the +104 mapinfo2 second cell.
     // Valid only during that manager callback's traversal; Session drains them.
