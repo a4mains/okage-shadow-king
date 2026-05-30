@@ -531,6 +531,12 @@ int main() {
             std::ifstream state(dir / "field" / "state.json");
             const std::string text((std::istreambuf_iterator<char>(state)), {});
             require(text.find("\"rng_log_dropped\":1,") != std::string::npos, "field-world report records the drop count");
+            require(o.rng_last_state() == r.state, "last observed state tracks dropped draws");
+            // A Session draw that bypassed the observation hook is still detected past the limit.
+            bool continuity = false;
+            try { write_title_checkpoint_report(o, dir / "bypass", "bypass", r.state + 1, CheckpointSchema::FieldWorld); }
+            catch (const std::runtime_error&) { continuity = true; }
+            require(continuity, "field-world report keeps the RNG continuity check past the log limit");
             bool threw = false;
             try { write_title_checkpoint_report(o, dir / "title", "title", r.state, CheckpointSchema::Retire); }
             catch (const std::runtime_error&) { threw = true; }
