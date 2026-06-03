@@ -178,6 +178,39 @@ int main(){try{
         for(int id:{0,-1,20,25})rejects([&]{event.load_secondary(id,event_loader);});
         require(event.current_id()==38&&resource_loads==3,"Invalid event load mutated playback");
     }
+    // 0x12da90 (battle 14a508 ratio switch): slot1's score or its 0x12d378
+    // companion restarts at full volume without assigning current ID/slot.
+    {
+        auto companion=score;companion[54]=companion[62]=64;
+        okage::MusicRouter battle;
+        battle.install(0,10,{score,bank(),bank(),{}});
+        battle.install(1,24,{score,bank(),bank(),companion});
+        battle.select(10);battle.volume.request(40,8);battle.render(frame);
+        battle.play_variant(true);
+        require(battle.variant_playing()&&battle.player()&&battle.current_id()==-1&&battle.active_slot()==-1&&
+                battle.volume.current==0x800000&&battle.volume.target==0x800000&&!battle.volume.stopped,
+                "Variant must stop the score and start the companion at full volume");
+        okage::DryMusicPlayer expect_companion(companion,bank(),bank());std::array<std::int16_t,1600> reference{};
+        expect_companion.render(reference);battle.render(frame);
+        require(frame==reference,"Variant companion did not use slot1 banks");
+        battle.play_variant(false);battle.render(frame);
+        okage::DryMusicPlayer expect_score(score,bank(),bank());expect_score.render(reference);
+        require(frame==reference&&battle.player()->driver_ticks()==1,"Variant 0 must restart slot1's score");
+        battle.select(10);
+        require(!battle.variant_playing()&&battle.current_id()==10&&battle.active_slot()==0,"Ordinary selection after variant");
+        battle.play_variant(true);
+        rejects([&]{battle.enter(0,26,[&](int){return okage::MusicResource{score,bank(),bank(),{}};});});
+        battle.stop();require(!battle.variant_playing(),"Stop clears variant ownership");
+        okage::MusicRouter plain;plain.install(0,10,{score,bank(),{},{}});plain.install(1,28,{score,bank(),bank(),{}});
+        plain.select(10);const auto* before=plain.player();
+        plain.play_variant(true);
+        require(plain.player()==before&&plain.current_id()==10&&!plain.variant_playing(),"Absent 0x2d9ac4 must return without stopping");
+        okage::MusicRouter empty;empty.install(0,10,{score,bank(),{},{}});empty.select(10);before=empty.player();
+        empty.play_variant(false);require(empty.player()==before&&empty.current_id()==10,"Absent slot1 must return without stopping");
+        okage::MusicRouter ambiguous;ambiguous.install(0,24,{score,bank(),bank(),companion});
+        ambiguous.install(1,28,{score,bank(),bank(),{}});
+        rejects([&]{ambiguous.play_variant(true);});
+    }
     {
         okage::MusicRouter mixed;
         mixed.install(0,10,{score,bank(),{}, {}});

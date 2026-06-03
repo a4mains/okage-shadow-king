@@ -172,12 +172,15 @@ void require_sequence_music(int id) {
 void MusicRouter::stop() {
     // 0x12d470 stops the ordinary score and cancels pending writes. Jingle
     // instances and the last forwarded hardware gains are independent.
-    player_.reset();current_=active_slot_=-1;
+    player_.reset();current_=active_slot_=-1;variant_=false;
     channels.cancel();
     volume.current=volume.target=0;volume.stopped=true;
 }
 void MusicRouter::unload(unsigned slot) {
     if(slot>=slots_.size())throw std::runtime_error("Music sequence slot bounds");
+    //0x12d038 stops only the 0x2d9abc slot; it would release the sequence (and,
+    //for slot1, the 0x2d9ac4 companion) under a live 0x12da90 handle.
+    if(variant_&&slot==1)throw std::runtime_error("Unloading slot1 under its 0x12da90 variant playback is unrecovered");
     if(active_slot_==int(slot))stop();
     slots_[slot].reset();ids_[slot]=-1;
 }
@@ -240,6 +243,25 @@ void MusicRouter::select(int id,bool fade) {
     }
     // 0x130a30 applies this request even when selection did not restart music.
     if(fade)volume.request(128,8);
+}
+void MusicRouter::play_variant(bool alternate) {
+    //0x12da90 returns without stopping when the requested IOP handle is -1:
+    //slot1's sequence 0x2d9a7c, or companion 0x2d9ac4 (released with slot1).
+    if(!slots_[1])return;
+    const auto& resource=*slots_[1];
+    //0x12d378 binds a companion to slot1's banks whichever slot 0x12d898
+    //loaded; native resources keep it with their own slot.
+    if(alternate&&slots_[0]&&!slots_[0]->alternate.empty())
+        throw std::runtime_error("Slot0 0x12d378 companion ownership for 0x12da90 is unrecovered");
+    if(alternate&&resource.alternate.empty())return;
+    if(player_)stop(); //0x12d470 only for a live 0x2d9ab8 handle.
+    //0x1708f8(sequence,128,128,0) uses slot1's 0x2d9a8c/0x2d9a9c banks for both.
+    player_=std::make_unique<DryMusicPlayer>(alternate?resource.alternate:resource.sequence,
+        resource.bank,resource.second,pool_);
+    //Current ID 0x2d9ab4 and slot 0x2d9abc keep their values; 0x170878 and the
+    //0x2d9ac8/0x2d9acc ramp words take full volume.
+    variant_=true;
+    driver_gain_=128;volume.current=volume.target=0x800000;volume.stopped=false;
 }
 void MusicRouter::render(std::span<std::int16_t> stereo) {
     if(stereo.size()%2)throw std::runtime_error("Stereo frame extent");

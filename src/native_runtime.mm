@@ -2540,7 +2540,10 @@ struct Session {
                  [this]{if(battle_capture_layer)battle_capture_target=0;},battle_entry,
                  [this](bool alternate){
                      if(!retain_field_music)return;
-                     throw std::runtime_error("Battle music12da90 enabled variant ownership is unrecovered: "+std::to_string(alternate));
+                     if(!music)throw std::runtime_error("Battle music12da90 requires the live music owner");
+                     music->play_variant(alternate);
+                     std::cout<<"Native battle music variant="<<alternate<<" slot1="<<music->loaded_id(1)
+                              <<" playing="<<bool(music->player())<<" frame="<<frame<<'\n';
                  },
                  [this](okage::BattleRosterSound cue){
                      auto found=sound_banks.find(0);

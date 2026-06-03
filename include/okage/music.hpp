@@ -86,11 +86,15 @@ public:
     // Completion scheduling belongs to the caller, not this resource operation.
     void load_secondary(int id,const Loader& load);
     void select(int id,bool fade=false);
+    // 0x12da90 after its 0x2d9a70 gate: restart slot1's score (IOP sequence 1)
+    // or the companion 0x12d378 bound to slot1's banks (sequence 3).
+    void play_variant(bool alternate);
     void stop();
     void render(std::span<std::int16_t> stereo);
     int loaded_id(unsigned slot) const{return ids_.at(slot);}
     int current_id() const{return current_;}
     int active_slot() const{return active_slot_;}
+    bool variant_playing() const{return variant_;}
     const DryMusicPlayer* player() const{return player_.get();}
     unsigned active_jingles() const{return jingles_.size();}
 private:
@@ -98,6 +102,7 @@ private:
     std::array<std::optional<MusicResource>,6> jingle_slots_;
     std::array<int,2> ids_={-1,-1};
     int current_=-1,active_slot_=-1;
+    bool variant_=false; // player_ was started by 0x12da90, outside 0x2d9ab4/0x2d9abc.
     std::unique_ptr<DryMusicPlayer> player_;
     std::shared_ptr<DryMusicPlayer::VoicePool> pool_=DryMusicPlayer::make_pool();
     std::vector<std::unique_ptr<DryMusicPlayer>> jingles_;
