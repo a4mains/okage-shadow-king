@@ -254,8 +254,25 @@ if(BUILD_TESTING)
         target_include_directories(lucan-owned-gs-tests PRIVATE src)
         target_compile_options(lucan-owned-gs-tests PRIVATE -fobjc-arc -Wall -Wextra)
         target_link_libraries(lucan-owned-gs-tests PRIVATE okage_assets "-framework Foundation" "-framework Metal")
-        add_test(NAME lucan-owned-gs-tests COMMAND lucan-owned-gs-tests)
-        set_tests_properties(lucan-owned-gs-tests PROPERTIES SKIP_RETURN_CODE 77)
+        #OKAGE_OWNED_STAGE (empty by default) names an owned game-data stage
+        #root. Unset: the owned regressions are registered without inputs and
+        #skip explicitly (exit 77). Set: they run against that stage with no
+        #SKIP_RETURN_CODE, so missing or bad owned inputs fail, never skip.
+        set(OKAGE_OWNED_STAGE "" CACHE PATH "Owned game-data stage root for owned CTest regressions (empty: they skip)")
+        if(OKAGE_OWNED_STAGE)
+            set(OKAGE_LUCAN_OWNED_OUTPUT "${CMAKE_BINARY_DIR}/owned-tests/lucan-owned-gs")
+            #The test requires a fresh report directory; this fixture setup
+            #removes only the previous run's build-tree report before each run.
+            add_test(NAME lucan-owned-gs-tests-fresh-output
+                COMMAND ${CMAKE_COMMAND} -E rm -rf "${OKAGE_LUCAN_OWNED_OUTPUT}")
+            set_tests_properties(lucan-owned-gs-tests-fresh-output PROPERTIES FIXTURES_SETUP lucan-owned-output)
+            add_test(NAME lucan-owned-gs-tests COMMAND lucan-owned-gs-tests
+                "${OKAGE_OWNED_STAGE}" "${OKAGE_OWNED_STAGE}/NATIVE_UI" "${OKAGE_LUCAN_OWNED_OUTPUT}")
+            set_tests_properties(lucan-owned-gs-tests PROPERTIES FIXTURES_REQUIRED lucan-owned-output)
+        else()
+            add_test(NAME lucan-owned-gs-tests COMMAND lucan-owned-gs-tests)
+            set_tests_properties(lucan-owned-gs-tests PROPERTIES SKIP_RETURN_CODE 77)
+        endif()
     endif()
     add_executable(gs-texture-address-corpus tools/gs_texture_address_corpus.cpp)
     target_link_libraries(gs-texture-address-corpus PRIVATE okage_gs_texture_address)
@@ -330,8 +347,17 @@ if(BUILD_TESTING)
         target_include_directories(restore-session-tests PRIVATE src)
         target_compile_options(restore-session-tests PRIVATE -fobjc-arc -Wall -Wextra)
         target_link_libraries(restore-session-tests PRIVATE okage_assets "-framework Foundation" "-framework Metal")
-        add_test(NAME restore-session-tests COMMAND restore-session-tests)
-        set_tests_properties(restore-session-tests PROPERTIES SKIP_RETURN_CODE 77)
+        if(OKAGE_OWNED_STAGE)
+            #COMMON_ROOT UI_ROOT FONT_DIRECTORY XDB_DIRECTORY, as the runtime
+            #resolves them: STAGE/CMNDATA (2D/MAIN.XPF/bm_if.xim), STAGE/NATIVE_UI
+            #(RESTORE.bin, results-text.bin, FLD.RUW), CMNDATA/FONT, CMNDATA/XDB.
+            add_test(NAME restore-session-tests COMMAND restore-session-tests
+                "${OKAGE_OWNED_STAGE}/CMNDATA" "${OKAGE_OWNED_STAGE}/NATIVE_UI"
+                "${OKAGE_OWNED_STAGE}/CMNDATA/FONT" "${OKAGE_OWNED_STAGE}/CMNDATA/XDB")
+        else()
+            add_test(NAME restore-session-tests COMMAND restore-session-tests)
+            set_tests_properties(restore-session-tests PROPERTIES SKIP_RETURN_CODE 77)
+        endif()
         add_executable(chapter-session-tests tests/chapter_session_tests.mm src/chapter_session.mm src/image_metal.mm)
         target_include_directories(chapter-session-tests PRIVATE src)
         target_compile_options(chapter-session-tests PRIVATE -fobjc-arc -Wall -Wextra)

@@ -23,12 +23,12 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STAGE = ROOT / "local/game-data-stage-v13"
+STAGE = ROOT / "local/game-data-stage-v14"
 ROUTES = ROOT / "tests/data/newgame-routes"
 TITLE_PAD = ROOT / "tests/data/retire-routes/newgame-scripted/title-pad.txt"
 ORIGINAL = ROOT / "local/research/newgame-original-v1/analysis"
 ORIGINAL_NO = ROOT / "local/research/newgame-no-original-v1"
-MANIFEST_SHA256 = "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6"
+MANIFEST_SHA256 = "ee6c2fca05c693ea5c7babaac2e01b9a6de9b0c353217e4cbea91f533c28931a"  # v14 .owned-game-data-manifest.json
 NATIVE = os.environ.get("OKAGE_NATIVE")
 sys.path.insert(0, str(ROOT / "tools"))
 
