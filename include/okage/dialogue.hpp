@@ -52,8 +52,7 @@ private:
     std::uint32_t published_rgba_=0;
     void publish();
 };
-// Three description widgets from 0x146ee8, using the USA sysmes[0x106]
-// font-2 style. Diagnostic rasterization omits GS filtering/subpixel coverage.
+std::string presentation_name(std::string_view source,std::string_view name);
 struct Narration {
     struct Line {std::string text,source;unsigned ticks=0,alpha=0;int width=0,x=0;};
     std::array<Line,3> lines;

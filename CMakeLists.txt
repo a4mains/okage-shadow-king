@@ -28,7 +28,7 @@ target_sources(okage_assets PRIVATE src/battle_enemy_commands.cpp src/battle_ene
 target_sources(okage_assets PRIVATE src/battle_damage.cpp)
 target_sources(okage_assets PRIVATE src/battle_hit.cpp src/battle_reward.cpp src/battle_victory.cpp src/battle_lifecycle.cpp)
 target_sources(okage_assets PRIVATE src/battle_ui.cpp)
-target_sources(okage_assets PRIVATE src/field_rear_banner.cpp)
+target_sources(okage_assets PRIVATE src/field_rear_banner.cpp src/field_message_windows.cpp)
 target_sources(okage_assets PRIVATE src/battle_hud.cpp src/battle_hud_targets.cpp src/battle_hud_history.cpp)
 target_sources(okage_assets PRIVATE src/battle_interface.cpp src/battle_interface_update.cpp src/battle_ui_pad.cpp src/battle_ui_roster.cpp)
 target_sources(okage_assets PRIVATE src/battle_interface_second.cpp src/battle_ui_command_data.cpp src/battle_ui_command_state.cpp src/battle_ui_diagnostic.cpp)
@@ -36,7 +36,7 @@ target_sources(okage_assets PRIVATE src/ui_window.cpp src/ui_window_binding.cpp 
 target_sources(okage_assets PRIVATE src/ui_window_sprite.cpp)
 target_sources(okage_assets PRIVATE src/ui_window_glyph.cpp)
 target_sources(okage_assets PRIVATE src/ui_text_number.cpp src/ui_window_packets.cpp src/ui_window_layout.cpp)
-target_sources(okage_assets PRIVATE src/ui_window_background.cpp)
+target_sources(okage_assets PRIVATE src/ui_window_background.cpp src/ui_window_mode1.cpp)
 target_sources(okage_assets PRIVATE src/ui_projection.cpp src/ui_matrix.cpp src/ui_draw.cpp src/ui_geometry.cpp)
 target_sources(okage_assets PRIVATE src/ui_draw_diagnostic.cpp src/ui_resource.cpp)
 target_sources(okage_assets PRIVATE src/battle_actor.cpp src/battle_actor_math.cpp src/battle_actor_update.cpp)
@@ -614,6 +614,10 @@ if(BUILD_TESTING)
         ${CMAKE_SOURCE_DIR}/local/game-data-stage-v15)
     # Rear-contact banner child: owned FLD.RUW group16 and BKDATA sysmes 0x72;
     # the owned section reports a skip when the stage is absent.
+    add_executable(field-message-windows-tests tests/field_message_windows_tests.cpp)
+    target_link_libraries(field-message-windows-tests PRIVATE okage_assets)
+    add_test(NAME field-message-windows-tests COMMAND field-message-windows-tests
+        ${CMAKE_SOURCE_DIR}/local/game-data-stage-v19)
     add_executable(rear-encounter-tests tests/rear_encounter_tests.cpp)
     target_link_libraries(rear-encounter-tests PRIVATE okage_assets)
     add_test(NAME rear-encounter-tests COMMAND rear-encounter-tests

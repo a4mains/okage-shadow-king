@@ -306,10 +306,11 @@ void DialogueText::seek(TextPosition p) {
         throw std::runtime_error("Invalid text position");
     fragment_=p.fragment;cursor_=p.cursor;loaded_=p.loaded;page.clear();glyphs.clear();
 }
-void DialogueText::frame(TextClock& clock,bool visible) {
+void DialogueText::frame(TextClock& clock,bool visible,const TextPlacementHooks* hooks) {
     tick_text_clock(state,clock);
     if(!(state.flags&0x8000) || !((clock.display_modes>>4)&3) || (state.flags&0x20) || !(state.flags&1))return;
     if(visible) {
+        if(hooks&&hooks->begin)hooks->begin();
         const auto phase=state.phase,period=state.period;
         auto remaining=std::bit_cast<std::int32_t>(period);
         if(remaining<0)++remaining;
@@ -325,7 +326,8 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                 const auto control=consume_text_control(text,cursor_,state);
                 if(control) {
                     if(text[old]=='\\') {
-                        if(text[old+1]=='l') {page.clear();glyphs.clear();clock.revealed=0;clock.scroll=0;clock.scroll_target=0;}
+                        if(text[old+1]=='l') {page.clear();glyphs.clear();clock.revealed=0;clock.scroll=0;clock.scroll_target=0;
+                            if(hooks&&hooks->page)hooks->page();}
                         if(text[old+1]=='n')page+='\n';
                     }
                     if(cursor_==text.size()) {++fragment_;cursor_=0;loaded_=false;}
@@ -336,6 +338,8 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                 const unsigned width=glyph>=0x80 ? 2 : 1;
                 if(width>text.size()-cursor_)throw std::runtime_error("Truncated text glyph");
                 if(width==2)glyph=(glyph<<8)|static_cast<unsigned char>(text[cursor_+1]);
+                if(fonts.empty()&&hooks&&hooks->glyph)
+                    throw std::runtime_error("Text placement hooks require bound fonts");
                 if(!fonts.empty()) {
                     if(width!=1 || (clock.glyph_flags&0x84) || clock.scroll!=0)
                         throw std::runtime_error("Unrecovered text layout mode");
@@ -357,6 +361,7 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                     if(px<INT32_MIN || px>INT32_MAX || py<INT32_MIN || py>INT32_MAX)
                         throw std::runtime_error("Text layout coordinate overflow");
                     glyphs.push_back({glyph,state.font,state.color,std::int32_t(px),std::int32_t(py),glyph_width,glyph_height});
+                    if(hooks&&hooks->glyph)hooks->glyph(glyph,x,y,glyph==32?glyph_width:(m[8]/16),glyph==32?std::int32_t(state.line_height):(m[9]>>2)/2);
                     state.x=std::bit_cast<std::uint32_t>(x)+1u+glyph_width;state.y=std::bit_cast<std::uint32_t>(y);
                 }
                 page.append(text,cursor_,width);cursor_+=width;
@@ -366,6 +371,7 @@ void DialogueText::frame(TextClock& clock,bool visible) {
                 break;
             }
         }
+        if(hooks&&hooks->tail)hooks->tail();
         state.phase=phase;state.period=period;state.flags|=0x80;
     }
     state.flags&=~1u;

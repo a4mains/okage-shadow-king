@@ -43,6 +43,7 @@ struct UiPlacementContext {
     std::function<std::uint32_t()> random; // Real1f14b0 contract: result<=7fffffff.
 };
 enum class UiStreamReference { MenuTransform1f9c00, MenuTransform1f9c2c,
+                               MenuTransform1f9c1c, // 0x1468c8 body-window period word -2
                                RuwMetrics200b78, RuwClip200b88 };
 struct UiWidgetReference {
     std::shared_ptr<RuwResource> resource;
@@ -114,6 +115,11 @@ public:
     void bind_ruw(std::shared_ptr<RuwResource>,std::span<const std::size_t> groups);
     void layout_mode2(UiLayoutContext);
     void layout_constructor_stream(UiLayoutContext);
+    void begin_mode1_pass();
+    void place_mode1_glyph(std::int32_t code,std::int32_t x,std::int32_t y,std::int32_t width,
+                           std::int32_t height,std::span<const Font>,const UiPlacementContext&);
+    void clear_mode1_page();
+    void finish_mode1_pass(const UiPlacementContext&);
     bool prepare_mode2(UiLayoutContext);
 
     bool place_sprite(unsigned group,unsigned slot,const UiLayoutSprite&);

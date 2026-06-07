@@ -77,10 +77,13 @@ void UiWindow::layout_constructor_stream(UiLayoutContext context) {
           std::get_if<UiStreamReference>(&metrics->argument)&&
           std::get<UiStreamReference>(metrics->argument)==UiStreamReference::MenuTransform1f9c00,
           "UI mode0 constructor metrics binding");
-    check(period&&period->opcode==6&&
-          std::get_if<UiStreamReference>(&period->argument)&&
-          std::get<UiStreamReference>(period->argument)==UiStreamReference::MenuTransform1f9c2c,
+    check(period&&period->opcode==6&&std::get_if<UiStreamReference>(&period->argument)&&
+          (std::get<UiStreamReference>(period->argument)==UiStreamReference::MenuTransform1f9c2c||
+           std::get<UiStreamReference>(period->argument)==UiStreamReference::MenuTransform1f9c1c),
           "UI mode0 constructor period binding");
+    //Authored raw words: 1f9c2c=0xfffffc18 (147e80/115ad8/...), 1f9c1c=-2 (1468c8).
+    const std::uint32_t period_word=std::get<UiStreamReference>(period->argument)==
+        UiStreamReference::MenuTransform1f9c1c?0xfffffffeu:0xfffffc18u;
     check(bool(context.random)&&context.sine.size()>=360,"UI mode0 placement owners missing");
 
     auto& shared=context.shared;
@@ -110,7 +113,7 @@ void UiWindow::layout_constructor_stream(UiLayoutContext context) {
 
     put(0x218,12);put(0x21c,24);set_flag(0); //14 writes even when already flagged.
     put(0x269c,word(0x269c)+2);
-    if(!has_flag(1)) {put(0xcd4,0xfffffc18u);set_flag(1);}
+    if(!has_flag(1)) {put(0xcd4,period_word);set_flag(1);}
     put(0x269c,word(0x269c)+2);
 
     put(0x1900,word(0x1900)|0x22u);put(0xcb0,24);

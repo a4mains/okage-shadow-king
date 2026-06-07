@@ -31,6 +31,7 @@ std::array<std::uint32_t,4> scan(const UiWindowStream& stream) {
             if(const auto* ref=std::get_if<UiStreamReference>(&command->argument))
                 check(*ref==UiStreamReference::MenuTransform1f9c00||
                       *ref==UiStreamReference::MenuTransform1f9c2c||
+                      *ref==UiStreamReference::MenuTransform1f9c1c||
                       *ref==UiStreamReference::RuwMetrics200b78||
                       *ref==UiStreamReference::RuwClip200b88,"Unsupported UI stream reference");
             if(const auto* ref=std::get_if<UiWidgetReference>(&command->argument))

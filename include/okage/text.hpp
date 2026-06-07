@@ -2,6 +2,7 @@
 #include "okage/font.hpp"
 #include "okage/assets.hpp"
 #include <array>
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -64,6 +65,10 @@ struct TextGlyph {
 };
 
 enum class TextStep { glyph, pause, end };
+struct TextPlacementHooks {
+    std::function<void(std::uint32_t code,std::int32_t x,std::int32_t y,std::int32_t width,std::int32_t height)> glyph;
+    std::function<void()> begin,page,tail;
+};
 class DialogueText {
     std::vector<std::string> fragments_;
     const MessageBank* bank_=nullptr;
@@ -90,7 +95,7 @@ public:
     void resume(); // Original 0x1985c0; caller owns input/readiness/timing policy.
     TextPosition position() const {return {fragment_,cursor_,loaded_};}
     void seek(TextPosition position);
-    void frame(TextClock& clock, bool visible=true);
+    void frame(TextClock& clock, bool visible=true, const TextPlacementHooks* hooks=nullptr);
     // Normal dialogue confirmation from the case-5 path in 0x148dc8. Choice,
     // window-command and controller-poll policy remain the caller's responsibility.
     void confirm(std::int32_t normal_period);

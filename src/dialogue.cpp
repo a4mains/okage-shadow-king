@@ -319,7 +319,6 @@ bool DialogueOpening::update(DialogueText& text,TextClock& clock,DialogueControl
     default:throw std::runtime_error("Unrecovered field dialogue opening stage");
     }
 }
-namespace {
 std::string presentation_name(std::string_view source,std::string_view name) {
     // USA sysmes[0xd5]. The original 0x147ad0/0x147418 loops compare
     // the copied destination, not the advancing source. Preserve that
@@ -344,6 +343,7 @@ std::string presentation_name(std::string_view source,std::string_view name) {
     }
     scratch.resize(output);return scratch;
 }
+namespace {
 int narration_advance(unsigned char c,const Font& font){
     const auto* glyph=font.find(c);
     if(c<32 || c>=127 || c=='\\' || !glyph)throw std::runtime_error("Unrecovered narration character");

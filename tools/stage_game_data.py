@@ -30,6 +30,8 @@ SOURCE_LAYOUT = (
     ("local/restore-data-v1", "NATIVE_UI", "owned_restore_ui"),
     # tools/import_rear_banner.py writes rear-banner.bin (row 0x2226f0) and its manifest.
     ("local/rear-banner-v1", "NATIVE_UI", "owned_rear_banner_ui"),
+    # tools/import_message_windows.py writes message-windows.bin (rows 0x2293e0/0x229450).
+    ("local/message-windows-v1", "NATIVE_UI", "owned_message_windows_ui"),
     ("local/startup-input-v1/NATIVE_STARTUP", "NATIVE_STARTUP", "owned_startup_inputs"),
 )
 

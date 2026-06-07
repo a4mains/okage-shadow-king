@@ -23,6 +23,7 @@
 #include "okage/field.hpp"
 #include "okage/field_navigation.hpp"
 #include "okage/field_rear_banner.hpp"
+#include "okage/field_message_windows.hpp"
 #include "okage/sound_cue_table.hpp"
 #include "okage/music.hpp"
 #include "okage/audio_output.hpp"
@@ -749,6 +750,17 @@ struct Session {
     std::shared_ptr<okage::UiWindowStream> rear_banner_stream=
         std::make_shared<okage::UiWindowStream>(okage::UiWindowStream{1,{}});
     std::optional<okage::FieldRearBannerData> rear_banner_data;
+    // Ordinary field message node 11f570(manager,0x2293e0,0,id) at manager+50:
+    // decoration/body UI windows, their callbacks' persistent BSS globals and
+    // the owned formats 146ee8 uses for HUD widgets 9/10.
+    std::optional<okage::FieldMessageWindowData> message_window_data;
+    okage::FieldMessageGlobals message_globals;
+    std::optional<okage::FieldMessageWindows> message_windows;
+    std::optional<okage::ResultsTextData> message_money_text;
+    std::optional<okage::BattleHudData> message_hud_numbers;
+    bool message_controllers_due=false;
+    bool message_windows_unmodeled_reported=false;
+    okage::DialogueButtons frame_input{};
     // Manager descendant traversal, right after the 0x133a98 callback.
     void traverse_rear_banner() {
         if(rear_banner->marked()&&rear_banner_marked_frame<frame){rear_banner.reset();return;}
@@ -756,6 +768,28 @@ struct Session {
         rear_banner->traverse(ui_party,variables,game_mode->current()[0],rear_attack_ui_flag);
     }
     void field_resource_ui_pass() {
+        if(message_windows) {
+            if(rear_banner)throw std::runtime_error("Field resource UI pass with both the rear banner and a message node is unrecovered");
+            for(unsigned i=0;i<ui_shared.registry.size();++i)
+                if(ui_shared.registry[i]&&i!=message_windows->decoration_slot()&&i!=message_windows->body_slot())
+                    throw std::runtime_error("Field resource UI pass with a window besides the message node is unrecovered");
+            const bool live=dialogue_active&&!closure.finished();
+            //1980f8 order: decoration (A) and body (B) opacity tweens.
+            if(live){closure.decoration.tick();opacity.tick();}
+            okage::UiPacketBuildContext packets{ui_fonts,ui_shared.resource.draw_state().background_alpha_top,
+                                                ui_shared.resource.draw_state().background_alpha_bottom};
+            const okage::FieldMessageWindows::Pass pass{ui_shared.resource.layout_shared(),ui_fonts,battle_capture_sine,
+                [this]{return random.next();},ui_shared.resource_accumulators,packets};
+            message_windows->resource_pass(pass,closure.decoration,[&](const okage::TextPlacementHooks* hooks) {
+                if(!live)return;
+                if(!hooks) {
+                    if(!opening||controller.stage!=0)throw std::runtime_error("Message constructor pass outside the opening bootstrap");
+                    opening->bootstrap(text,clock);
+                } else text.frame(clock,opacity.visible(),hooks);
+            });
+            message_pass=message_windows->last_pass();message_pass_frame=frame;
+            return;
+        }
         if(!rear_banner)return;
         const auto slot=rear_banner->window_slot();
         for(unsigned i=0;i<ui_shared.registry.size();++i)
@@ -848,6 +882,21 @@ struct Session {
     unsigned battle_ordinal=0;
     std::string battle_report_base;
     std::ostream* battle_live_trace=nullptr;
+    std::ostream* rng_sites_trace=nullptr;
+    std::array<unsigned,4> rng_site_counts{};
+    unsigned message_pass_frame=0;
+    okage::FieldMessageWindows::PassDraws message_pass{};
+    void emit_rng_sites() {
+        if(!rng_sites_trace||!frame)return;
+        *rng_sites_trace<<"{\"frame\":"<<frame<<",\"other\":"<<rng_site_counts[0]<<",\"glyph\":"<<rng_site_counts[1]
+            <<",\"icon\":"<<rng_site_counts[2]<<",\"select\":"<<rng_site_counts[3];
+        if(message_pass_frame==frame)
+            *rng_sites_trace<<",\"message\":{\"id\":"<<message_id<<",\"a_draws\":"<<message_pass.a_draws<<",\"a_laid_out\":"
+                <<message_pass.a_laid_out<<",\"b_draws\":"<<message_pass.b_draws<<",\"b_glyphs\":"<<message_pass.b_glyphs
+                <<",\"b_constructor\":"<<message_pass.b_constructor<<",\"b_pass\":"<<message_pass.b_pass<<",\"stage\":"<<controller.stage<<"}";
+        *rng_sites_trace<<"}\n";
+        rng_site_counts={};
+    }
     std::ostream* load_observation_trace=nullptr;
     okage::InputJournal* input_journal=nullptr;
     bool load_observation_written=false;
@@ -968,6 +1017,82 @@ struct Session {
             };
             if(clear_wait)wait.countdown=wait.observed=wait.accumulated=0;
             dialogue_active=true;
+            message_windows.reset();
+            message_controllers_due=false;
+            if(!legacy_diagnostic&&battle_input.empty()) {
+                if(!message_windows_unmodeled_reported)
+                    std::cout<<"Native diagnostic scene: field message windows and their layout RNG are unmodeled (no owned NATIVE_UI)\n";
+                message_windows_unmodeled_reported=true;
+            } else if(!legacy_diagnostic) {
+                // 11f570 -> 11f668 -> 11f7a0 for rows 0x2293e0 then 0x229450.
+                if(!message_window_data) {
+                    const auto path=battle_input/"message-windows.bin";
+                    if(battle_input.empty()||!fs::exists(path))
+                        throw std::runtime_error("Field message windows (rows 0x2293e0/0x229450) require NATIVE_UI/message-windows.bin "
+                            "(tools/import_message_windows.py, then restage)");
+                    message_window_data.emplace(readData(path));
+                }
+                if(!field_ruw||!field_ui_atlas)throw std::runtime_error("Field message windows require the field RUW and bm_if owners");
+                using Construction=okage::FieldMessageWindows::Construction;
+                message_windows.emplace(ui_shared,*message_window_data,field_ruw,field_ui_atlas,
+                    clear_wait?Construction::ScriptPass:Construction::ManagerPhase8,id,message_globals);
+                message_controllers_due=!clear_wait;
+            }
+    }
+    void dialogue_controllers(okage::DialogueButtons input) {
+        if(message_windows&&dialogue_active&&closure.finished()){message_windows.reset();}
+        const unsigned stage_before=controller.stage;
+        const bool live=dialogue_active&&!closure.finished();
+        if(message_windows&&live)message_windows->controllers(stage_before,controller.window_type);
+        const bool opening_tick=dialogue_active&&opening&&controller.stage<6&&
+            opening->update(text,clock,controller,opacity,closure);
+        if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
+        else if(dialogue_active && !opening_tick && controller.stage==5) {
+            okage::DialogueInputEffects effects;
+            try {effects=controller.update(text,input);}
+            catch(const std::exception& e) {
+                throw std::runtime_error("Dialogue ID="+std::to_string(message_id)+" native frame="+
+                    std::to_string(frame)+" command="+text.state.window+": "+e.what());
+            }
+            if(effects.accepted_choice>=0)choices.accepted=effects.accepted_choice;
+            if(effects.reset_text_clock){clock.revealed=0;clock.scroll=0;clock.scroll_target=0;clock.scroll_step=clock.scroll_base_step;}
+            if(effects.scene_fade)scene_fade.request(*effects.scene_fade);
+            if(effects.close)opacity.set(128,-4);
+            if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
+        }
+        if(closure.finished() && !close_frame)close_frame=frame;
+        choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed,player_name);
+        if(dialogue_active && !closure.finished())question.update(text,messages,controller,choices);
+        choice_trace.insert(choice_trace.end(),{frame,unsigned(message_id),unsigned(text.position().fragment),unsigned(text.position().cursor),
+            unsigned(text.choice_cursor),unsigned(text.choice_result),controller.choice_active?1u:0u,controller.choice_armed?1u:0u,
+            input.held,input.pressed,input.repeat,choices.alpha});
+        narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2],player_name);
+        if(message_windows&&live)message_window_updaters();
+    }
+    void message_window_updaters() {
+        if(!game_data)throw std::runtime_error("Field message updaters require BKDATA sysmes");
+        if(!message_money_text)message_money_text.emplace(readData(battle_input/"results-text.bin"));
+        if(!message_hud_numbers)message_hud_numbers.emplace(readData(battle_input/"battle-hud.bin"));
+        okage::FieldMessageBodyState s;
+        s.speaker=text.state.speaker;s.replacement=&text.state.replacement_bytes;s.description=text.state.description;
+        s.player_name=player_name;
+        const auto delay=std::bit_cast<std::int32_t>(text.state.delay);
+        s.status=delay>0?3u:(delay<0||(text.state.flags&0x910))?2u:1u; //0x1a5790
+        s.choice_cursor=text.choice_cursor;s.layer_ready=(controller.layer_flags&0x10)!=0;
+        s.window_type=controller.window_type;s.choice_accepted=choices.accepted;
+        s.choice_armed=controller.choice_armed;
+        s.question_flash=controller.question_flash;s.question_flash_row=controller.question_flash_row;
+        s.question=&question;
+        const auto block2=[this](std::size_t at){ //1252a8(2) = variables+0x510
+            if(at+4>variables.size())throw std::runtime_error("Variable block2 bounds");
+            std::uint32_t value=0;for(unsigned i=0;i<4;++i)value|=std::uint32_t(variables[at+i])<<(8*i);
+            return std::bit_cast<std::int32_t>(value);};
+        s.level=block2(0x590);s.money=block2(0x51c);
+        okage::FieldMessageServices services{
+            [this](unsigned id){return std::string(game_data->system_message(id));},
+            [this](std::int32_t value){return message_hud_numbers->number2(value);},
+            [this](std::int32_t value){return message_money_text->money_summary(value);}};
+        message_windows->updaters(s,message_globals,services);
     }
     void bind_field_services() {
         field->render_projection=&projection;
@@ -1157,7 +1282,10 @@ struct Session {
                 ", stage "+std::to_string(request.stage)+")");
         };
         //The manager's +50 child follows the manager callback in the same traversal.
-        field->manager_children=[this]{if(rear_banner)traverse_rear_banner();};
+        field->manager_children=[this]{
+            if(rear_banner)traverse_rear_banner();
+            if(message_controllers_due){message_controllers_due=false;dialogue_controllers(frame_input);}
+        };
         field->resource_ui_pass=[this]{field_resource_ui_pass();};
         field->encounter_child_service=[this](okage::FieldEncounterChildStep step,okage::FieldBattleRequest&)->bool {
             using Step=okage::FieldEncounterChildStep;
@@ -1235,6 +1363,7 @@ struct Session {
         random.observe=[](void* self,std::uint32_t state){
             auto& s=*static_cast<decltype(this)>(self);
             if(s.startup_textures)s.startup_textures->note_session_draw(state,s.frame,unsigned(okage::current_rng_site));
+            ++s.rng_site_counts.at(unsigned(okage::current_rng_site));
         };
         random.observe_context=this;
         effects_loaded=true;
@@ -1341,7 +1470,7 @@ struct Session {
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map;stg.replace_extension(".stg");const auto stage=readData(stg);projection.load_stage(stage);
         scene_clear.rgb={0,0,0};scene_clear.load_stage(stage);renderer->set_clear_rgb(scene_clear.rgb);
-        dialogue_active=false;
+        dialogue_active=false;message_windows.reset();
         create_field(readData(event),true);
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
             auto room=map.parent_path().stem().string();
@@ -1397,7 +1526,7 @@ struct Session {
             auto replacement=okage::read_pme(readData(message_directory/(bank_name+".PME")));
             if(!replacement.bind("############",player_name))throw std::runtime_error("Player-name tag missing from destination message bank");
             if(dialogue_active&&!closure.finished())throw std::runtime_error("Destination replaces an unfinished dialogue bank");
-            dialogue_active=false;text=okage::DialogueText({});text.fonts=fonts;
+            dialogue_active=false;message_windows.reset();text=okage::DialogueText({});text.fonts=fonts;
             opening.reset();choices={};narration={};controller={};clock={};
             messages=std::move(replacement);message_bank=bank_name;
             std::cout<<"Native message bank: "<<message_bank<<"; "<<messages.strings.size()<<" strings; "<<messages.nodes.size()<<" nodes\n";
@@ -1439,7 +1568,7 @@ struct Session {
         renderer->bind_effect_submissions(&field->effect_submissions());
         renderer->set_effect_light_tint(okage::field_effect_tint(stage));
         scene_map=map;
-        dialogue_active=false;choices={};narration={};
+        dialogue_active=false;message_windows.reset();choices={};narration={};
         // 0x132720 requests exactly1.0 through0x114cc0 before startup dispatch.
         // This is distinct from event4f's rounded percent multiplication.
         scene_fade.request(1.f);
@@ -1916,7 +2045,7 @@ struct Session {
             world_checkpoint("field-manager-retirement");
             owned_actor_assets.clear();
         }
-        dialogue_active=false;opening.reset();choices={};narration={};controller={};clock={};
+        dialogue_active=false;message_windows.reset();opening.reset();choices={};narration={};controller={};clock={};
         text=okage::DialogueText({});text.fonts=fonts;
         opacity={};closure={};
         rear_banner.reset();
@@ -1979,6 +2108,8 @@ struct Session {
     }
     bool tick(okage::DialogueButtons input,bool block=true) {
         if(prepared_tick)throw std::runtime_error("Scheduler advanced before prepared tick submission");
+        frame_input=input;
+        emit_rng_sites();
         if(field)finish_battle_frame();
         close_loader_window();
         if(pending_battle) {
@@ -2685,34 +2816,12 @@ struct Session {
         }
         if(!game_mode && !release_frame && okage::poll_dialogue_wait(wait,2,{true,0,layers,std::int32_t(text.state.progress)})==0)release_frame=frame;
         if(!game_mode||field) {
-        if(dialogue_active && !closure.finished()) {
+        if(!message_windows && dialogue_active && !closure.finished()) {
             opacity.tick();closure.decoration.tick();
             if(opening&&controller.stage==0)opening->bootstrap(text,clock);
             else text.frame(clock,opacity.visible());
         }
-        const bool opening_tick=dialogue_active&&opening&&controller.stage<6&&
-            opening->update(text,clock,controller,opacity,closure);
-        if(dialogue_active && !closure.finished() && controller.stage>=6)closure.update(controller.stage);
-        else if(dialogue_active && !opening_tick && controller.stage==5) {
-            okage::DialogueInputEffects effects;
-            try {effects=controller.update(text,input);}
-            catch(const std::exception& e) {
-                throw std::runtime_error("Dialogue ID="+std::to_string(message_id)+" native frame="+
-                    std::to_string(frame)+" command="+text.state.window+": "+e.what());
-            }
-            if(effects.accepted_choice>=0)choices.accepted=effects.accepted_choice;
-            if(effects.reset_text_clock){clock.revealed=0;clock.scroll=0;clock.scroll_target=0;clock.scroll_step=clock.scroll_base_step;}
-            if(effects.scene_fade)scene_fade.request(*effects.scene_fade);
-            if(effects.close)opacity.set(128,-4);
-            if(effects.cue>=0 || effects.stop_voice || effects.stop_effect)++service_request_count;
-        }
-        if(closure.finished() && !close_frame)close_frame=frame;
-        choices.update(dialogue_active && !closure.finished() ? text.state.replacement : "",text.choice_cursor,controller.choice_armed,player_name);
-        if(dialogue_active && !closure.finished())question.update(text,messages,controller,choices);
-        choice_trace.insert(choice_trace.end(),{frame,unsigned(message_id),unsigned(text.position().fragment),unsigned(text.position().cursor),
-            unsigned(text.choice_cursor),unsigned(text.choice_result),controller.choice_active?1u:0u,controller.choice_armed?1u:0u,
-            input.held,input.pressed,input.repeat,choices.alpha});
-        narration.update(dialogue_active && !closure.finished() ? text.state.description : "",fonts[2],player_name);
+        dialogue_controllers(input);
         dialogue_trace.insert(dialogue_trace.end(),{frame,std::uint32_t(message_id),text.state.flags,text.state.phase,
             text.state.period,text.state.delay,text.state.progress,controller.advance_count,controller.layer_advance,
             controller.layer_flags,controller.stage,std::bit_cast<std::uint32_t>(opacity.delta)});
@@ -3775,7 +3884,8 @@ int main(int argc,const char** argv) {
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript,nameScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
-        fs::path uiUpdateReport,battleLivePath,loadObservationPath;
+        fs::path uiUpdateReport,battleLivePath,loadObservationPath,rngSitesPath;
+        std::ofstream rngSitesTrace;
         bool deferredBattleReadback=false;
         std::optional<bool> cooperativeReplay;
         std::optional<unsigned> replayDisplayFrom;
@@ -3887,6 +3997,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--effect-data")effectData=argv[i];
             else if(arg=="--effect-textures")effectTextures=argv[i];
             else if(arg=="--battle-input")battleInput=argv[i];
+            else if(arg=="--rng-sites") {
+                if(!rngSitesPath.empty()||!argv[i][0])throw std::runtime_error("RNG-sites diagnostic requires one nonempty fresh path");
+                rngSitesPath=argv[i];
+            }
             else if(arg=="--battle-live") {
                 if(!battleLivePath.empty()||!argv[i][0])throw std::runtime_error("Battle-live requires one nonempty fresh path");
                 battleLivePath=argv[i];
@@ -3959,6 +4073,14 @@ int main(int argc,const char** argv) {
             loadObservationTrace.open(loadObservationPath);
             loadObservationTrace<<"{\"schema\":\"okage-native-loader-observation-v1\",\"capacity_per_battle\":8192,\"capacity_per_field_return\":65536,\"scope\":\"opt-in native host events; may perturb scheduling; worker events have no guessed simulation tick; no original timing equivalence\"}\n";
             if(!loadObservationTrace)throw std::runtime_error("Cannot create native loader observation");
+        }
+        if(!rngSitesPath.empty()) {
+            if(fs::exists(rngSitesPath)||fs::is_symlink(rngSitesPath)||
+                (!output.empty()&&okage::native_capture_family_contains(output,rngSitesPath)))
+                throw std::runtime_error("RNG-sites diagnostic refuses an existing or aliased output");
+            rngSitesTrace.open(rngSitesPath);
+            rngSitesTrace<<"{\"schema\":\"okage-native-rng-sites-v1\",\"frame_convention\":\"native tick N: draws after its ++frame until the next tick\",\"sites\":[\"other\",\"glyph 19c74c\",\"icon 19cad4\",\"select 19cc78\"]}\n";
+            if(!rngSitesTrace)throw std::runtime_error("Cannot create RNG-sites diagnostic");
         }
         if(!battleLivePath.empty()) {
             if(!frames||battleInput.empty())throw std::runtime_error("Native battle-live requires bounded --frames and owned --battle-input");
@@ -4056,6 +4178,7 @@ int main(int argc,const char** argv) {
             session.battle_input=battleInput;
             session.battle_ui_update_report=uiUpdateReport;
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
+            session.rng_sites_trace=rngSitesPath.empty()?nullptr:&rngSitesTrace;
             session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_report_base=output.string();

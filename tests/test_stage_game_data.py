@@ -45,6 +45,7 @@ class StageGameDataTests(unittest.TestCase):
         native_ui = self.put("local/battle-input-v6", "NAME_ENTRY.bin", b"ui")
         restore_ui = self.put("local/restore-data-v1", "RESTORE.bin", b"restore")
         rear_banner = self.put("local/rear-banner-v1", "rear-banner.bin", b"banner")
+        message_windows = self.put("local/message-windows-v1", "message-windows.bin", b"windows")
         destination = Path(self.temp.name) / "run" / "game-data"
 
         result = stage_game_data(self.repo, destination)
@@ -59,6 +60,7 @@ class StageGameDataTests(unittest.TestCase):
             "NATIVE_UI/NAME_ENTRY.bin": native_ui,
             "NATIVE_UI/RESTORE.bin": restore_ui,
             "NATIVE_UI/rear-banner.bin": rear_banner,
+            "NATIVE_UI/message-windows.bin": message_windows,
         }
         expected.update({f"CMNDATA/2D/{name}": source
                          for name, source in self.chapter_inputs.items()})
