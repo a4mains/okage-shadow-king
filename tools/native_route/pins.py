@@ -20,6 +20,10 @@ PACKAGE = 'native_route'
 TOOLS_REL = 'tools/' + PACKAGE
 TAPES = ('historical-requests.txt', 'extension-requests.txt')
 PRELUDE_INPUTS = ('inputs/buttons.txt', 'inputs/directions.txt')
+DEV_DIR = 'dev'
+DEV_PRELUDE_TAPES = ('full-prelude-buttons.txt', 'full-prelude-directions.txt')
+DEV_REQUEST_TAPES = ('prefix-historical-requests.txt', 'prefix-extension-requests.txt')
+DEV_TAPES = DEV_PRELUDE_TAPES + DEV_REQUEST_TAPES
 LAUNCH_OUTPUTS = ('inputs.jsonl', 'reads.jsonl', 'control', 'report', 'stdout.log', 'process.json',
                   'forwarded-requests.jsonl', 'driver-state.json', 'result.json', 'battle-live.jsonl')
 PACKAGE_SUFFIXES = ('.py', '.md')
@@ -196,6 +200,13 @@ def verify_run(run, phase, entrypoint=None):
     for required in TAPES + PRELUDE_INPUTS + ('okage-native',):
         if required not in artifacts:
             problems.append('manifest does not pin ' + required)
+    dev = m.get('dev_tapes') or []
+    if dev:
+        if list(dev) != list(DEV_TAPES):
+            problems.append(f'dev_tapes {dev} != {list(DEV_TAPES)}')
+        for name in DEV_TAPES:
+            if DEV_DIR + '/' + name not in artifacts:
+                problems.append('manifest does not pin ' + DEV_DIR + '/' + name)
     try:
         lines = (run / TAPES[0]).read_text().splitlines()
         if m.get('historical_prefix_count') != len(lines):

@@ -16,6 +16,7 @@ CODES = {
     'route-prefix': 20,
     'route-walk': 21,
     'route-rosalyn': 22,
+    'route-dev-prefix': 23,
     'encounter': 30,
     'battle': 40,
     'navigate': 45,

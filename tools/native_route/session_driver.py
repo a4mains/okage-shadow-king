@@ -38,11 +38,13 @@ def native_command(run, manifest):
            '--capture', r + '/replay.png', '--capture-frames', prelude,
            '--input-journal', r + '/inputs.jsonl', '--input-log', r + '/reads.jsonl',
            '--battle-live', r + '/battle-live.jsonl', '--headless-control', r + '/control']
+    if manifest.get('rng_sites'):
+        cmd[cmd.index('--headless-control'):cmd.index('--headless-control')] = ['--rng-sites', r + '/rng-sites.jsonl']
     if manifest['newgame_report']:
         cmd[cmd.index('--battle-live'):cmd.index('--battle-live')] = ['--newgame-report', r + '/report']
     return cmd
 
-def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=False,
+def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=False, rng_sites=False,
             min_free_gib=200, source_repo=None, label=None):
     run = Path(run).resolve()
     if run.exists() or run.is_symlink():
@@ -60,6 +62,16 @@ def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=F
         raise pins.PinError([f'binary {binary} is not an executable file'])
     tapes = {name: pins.read_tape(src / name) for name in pins.TAPES}
     prelude = {name: pins.read_prelude_tape(src / name) for name in pins.PRELUDE_INPUTS}
+    present = [n for n in pins.DEV_TAPES if (src / n).exists() or (src / n).is_symlink()]
+    if present and len(present) != len(pins.DEV_TAPES):
+        raise pins.PinError([f'dev tapes must be all present or all absent; found {present}'])
+    for name in present:
+        if (src / name).is_symlink() or not (src / name).is_file():
+            raise pins.PinError([f'dev tape {src / name} is not a regular file'])
+    for name in pins.DEV_PRELUDE_TAPES if present else ():
+        pins.read_prelude_tape(src / name)
+    for name in pins.DEV_REQUEST_TAPES if present else ():
+        pins.read_tape(src / name)
     save_src = Path(saves).resolve()
     save_files = sorted(save_src.iterdir())
     for p in save_files:
@@ -78,6 +90,11 @@ def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=F
     for name in pins.TAPES + pins.PRELUDE_INPUTS:
         shutil.copyfile(src / name, run / name)
         artifacts[name] = pins.sha256(run / name)
+    if present:
+        (run / pins.DEV_DIR).mkdir()
+        for name in present:
+            shutil.copyfile(src / name, run / pins.DEV_DIR / name)
+            artifacts[pins.DEV_DIR + '/' + name] = pins.sha256(run / pins.DEV_DIR / name)
     shutil.copy2(binary, run / 'okage-native')
     artifacts['okage-native'] = pins.sha256(run / 'okage-native')
     for name in tool_names:
@@ -105,9 +122,10 @@ def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=F
          'extension_count': len(tapes[pins.TAPES[1]]),
          'prepared_requests': len(requests),
          'prepared_endpoint': prelude_ticks + pins.step_ticks(requests),
+         'dev_tapes': present,
          'prelude_tape_entries': {k: len(v) for k, v in prelude.items()},
          'game_data_stage': stage_ident, 'python': pins.python_identity(),
-         'newgame_report': bool(newgame_report), 'min_free_gib': min_free_gib,
+         'newgame_report': bool(newgame_report), 'rng_sites': bool(rng_sites), 'min_free_gib': min_free_gib,
          'policy': 'prepared requests unchanged; later lines only via commands.in, journaled; '
                    'only pad steps and read-only observations; no state/seed/timing/outcome injection'}
     m['native_command'] = native_command(run, m)

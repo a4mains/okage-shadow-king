@@ -35,6 +35,9 @@ python3 $WORK/tools/native_route/cli.py candidates --parent $R --prefix strict-x
 
 
 
+
+
+
 ## Results and exit codes
 
 | code | stage | meaning |
@@ -45,6 +48,7 @@ python3 $WORK/tools/native_route/cli.py candidates --parent $R --prefix strict-x
 | 20 | route-prefix | prelude or prepared requests unfinished, or not on the road |
 | 21 | route-walk | no Rosalyn event |
 | 22 | route-rosalyn | the segment did not leave message 20107 with no event |
+| 23 | route-dev-prefix | dev prefix: prelude unfinished, status frame not 808, or not on the road after the retained requests |
 | 30 | encounter | no natural contact (budget, field gone, no native contact line) |
 | 40 | battle | never constructed, budget exhausted, no native victory, or no field/saved-field return |
 | 45 | navigate | the field never settled |

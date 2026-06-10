@@ -86,12 +86,22 @@ def rosalyn(c, run, manifest):
 
 STOPS = ('prefix', 'walk', 'rosalyn', 'contact')
 
-def main(c, run, manifest, stop='contact', record=None):
-    """Run stages up to `stop`. `record(name, evidence)` receives each verified stage."""
+PREFIX_MODES = ('historical', 'dev')
+
+def main(c, run, manifest, stop='contact', record=None, prefix_mode='historical'):
+    """Run stages up to `stop`. `record(name, evidence)` receives each verified stage.
+    prefix_mode 'dev' re-times the retained tape at the actual bedroom activation
+    (dev_route.py): a documented deviation, never the unchanged historical prefix."""
     record = record or (lambda name, ev: None)
     if stop not in STOPS:
         raise ValueError('stop must be one of ' + ', '.join(STOPS))
-    record('route-prefix', run_stage('route-prefix', prefix, c, run, manifest))
+    if prefix_mode not in PREFIX_MODES:
+        raise ValueError('prefix_mode must be one of ' + ', '.join(PREFIX_MODES))
+    if prefix_mode == 'dev':
+        from . import dev_route
+        record(dev_route.STAGE, run_stage(dev_route.STAGE, dev_route.prefix, c, run, manifest))
+    else:
+        record('route-prefix', run_stage('route-prefix', prefix, c, run, manifest))
     if stop == 'prefix':
         return
     record('route-walk', run_stage('route-walk', walk, c))

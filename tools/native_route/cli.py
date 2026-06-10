@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """native_route: the single entrypoint for prepared native headless runs.
 
-Run-scoped commands (launch, verify, send, strict-full, route, battle, home,
+Run-scoped commands (launch, verify, send, strict-full, route, dev-route, battle, home,
 home-inside, restore-route, restore-check) must be executed from the run's own
 pinned copy, RUN/tools/native_route/cli.py. Before importing any sibling module
 this file (stdlib only) re-executes itself with `python3 -I -B`, checks that it
@@ -25,7 +25,7 @@ HERE = Path(__file__).resolve().parent
 PACKAGE = 'native_route'
 REFUSED = 10
 USAGE = 64
-RUN_SCOPED = ('launch', 'verify', 'send', 'strict-full', 'route', 'battle', 'home', 'home-inside',
+RUN_SCOPED = ('launch', 'verify', 'send', 'strict-full', 'route', 'dev-route', 'battle', 'home', 'home-inside',
               'restore-route', 'restore-check')
 
 class Parser(argparse.ArgumentParser):
@@ -88,7 +88,7 @@ def import_package():
     import importlib
     for name in ('outcome', 'savefmt', 'pins', 'pilot', 'battle', 'encounter', 'navigate', 'route', 'home',
                  'home_inside', 'strict_full', 'restore_route', 'restore_check', 'session_driver',
-                 'candidates', 'compare'):
+                 'candidates', 'compare', 'dev_route'):
         importlib.import_module(PACKAGE + '.' + name)
     for name, mod in list(sys.modules.items()):
         if name == PACKAGE or name.startswith(PACKAGE + '.'):
@@ -111,6 +111,8 @@ def build_parser():
         p.add_argument('--prelude-ticks', type=int, required=True, help='--frames for the bounded prelude')
         p.add_argument('--newgame-report', action='store_true',
                        help='enable --newgame-report (40-66 GB per run); off by default')
+        p.add_argument('--rng-sites', action='store_true',
+                       help='pass --rng-sites RUN/rng-sites.jsonl (per-frame RNG draws by placement site; needs a binary with that option)')
         p.add_argument('--min-free-gib', type=int, default=200)
         p.add_argument('--source-repo', help='checkout that built the binary (read-only git HEAD and diff recorded)')
 
@@ -134,9 +136,15 @@ def build_parser():
             p.add_argument('commands', nargs='+')
         if name == 'route':
             p.add_argument('--stop', choices=('prefix', 'walk', 'rosalyn', 'contact'), required=True)
+        if name == 'dev-route':
+            p.add_argument('--stop', choices=('prefix', 'walk', 'rosalyn', 'contact'), default='contact')
         if name in ('strict-full', 'home-inside'):
             p.add_argument('--target-save', required=True, help='save file the default slot writes, e.g. bkmo2.dat')
             p.add_argument('--tag', default='strict')
+        if name == 'strict-full':
+            p.add_argument('--prefix-mode', choices=('dev', 'historical'), default='historical',
+                           help='historical: unchanged prepared prefix (default); dev: re-time the retained tape '
+                                'at the actual bedroom activation (documented deviation, needs pinned dev tapes)')
         if name == 'home':
             p.add_argument('--from-gate', action='store_true')
         if name in ('restore-route', 'restore-check'):
@@ -148,7 +156,7 @@ def build_parser():
 
 def prepare_kwargs(a):
     return dict(binary=a.binary, stage=a.stage, prepared=a.prepared, saves=a.saves, prelude_ticks=a.prelude_ticks,
-                newgame_report=a.newgame_report, min_free_gib=a.min_free_gib, source_repo=a.source_repo)
+                newgame_report=a.newgame_report, rng_sites=a.rng_sites, min_free_gib=a.min_free_gib, source_repo=a.source_repo)
 
 def main(argv=None):
     reexec_isolated()
@@ -191,10 +199,14 @@ def main(argv=None):
         for line in c.send(*a.commands):
             print(line)
         return 0
+    if a.cmd == 'dev-route' or (a.cmd == 'strict-full' and a.prefix_mode == 'dev'):
+        problems = nr.dev_route.pinned_problems(run, m)
+        if problems:
+            refuse(problems, run)
     if a.cmd == 'strict-full':
         if (run / nr.strict_full.RESULT).exists():
             refuse([f'{nr.strict_full.RESULT} already exists; one strict route per run'], run)
-        return nr.strict_full.run_route(c, run, m, a.target_save, a.tag)
+        return nr.strict_full.run_route(c, run, m, a.target_save, a.tag, prefix_mode=a.prefix_mode)
     return run_single(nr, c, run, m, a)
 
 def run_single(nr, c, run, m, a):
@@ -208,12 +220,15 @@ def run_single(nr, c, run, m, a):
     def record(name, evidence):
         stages.append({'stage': name, 'status': 'PASS', 'evidence': evidence})
 
-    stage = {'route': 'route-prefix', 'battle': 'battle', 'home': 'home', 'home-inside': 'home-inside',
+    stage = {'route': 'route-prefix', 'dev-route': 'route-dev-prefix', 'battle': 'battle', 'home': 'home',
+             'home-inside': 'home-inside',
              'restore-route': 'restore-route', 'restore-check': 'restore-check'}[a.cmd]
     failure = None
     try:
         if a.cmd == 'route':
             nr.route.main(c, run, m, a.stop, record)
+        elif a.cmd == 'dev-route':
+            nr.route.main(c, run, m, a.stop, record, prefix_mode='dev')
         elif a.cmd == 'battle':
             ev = outcome.run_stage('battle', nr.battle.fight_if_needed, c, run)
             outcome.need(ev is not None, 'battle', 'no battle was active')
@@ -229,7 +244,8 @@ def run_single(nr, c, run, m, a):
                               a.expect_save_sha256, record)
     except outcome.StageFailure as e:
         failure = e
-    code = outcome.write_result(result, a.cmd, stages, failure, {'manifest_sha256': m['_sha256'], 'stage': stage})
+    code = outcome.write_result(result, a.cmd, stages, failure, {'manifest_sha256': m['_sha256'], 'stage': stage,
+                                                                  **({'prefix_mode': 'dev'} if a.cmd == 'dev-route' else {})})
     print(a.cmd, 'exit', code, failure.record() if failure else 'PASS', flush=True)
     return code
 
