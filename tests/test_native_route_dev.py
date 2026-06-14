@@ -234,3 +234,20 @@ class StrictFullPrefixModeTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class DevRosalynSegmentTests(unittest.TestCase):
+    def test_dev_mode_reads_the_pinned_dev_request_tape(self):
+        StageFailure = outcome.StageFailure
+        with tempfile.TemporaryDirectory() as d:
+            run = Path(d)
+            (run / pins.DEV_DIR).mkdir()
+            tape = ['step 4 0040'] * 300
+            (run / pins.DEV_DIR / pins.DEV_REQUEST_TAPES[0]).write_text('\n'.join(tape) + '\n')
+            (run / pins.TAPES[0]).write_text('')
+            name = pins.DEV_DIR + '/' + pins.DEV_REQUEST_TAPES[0]
+            manifest = {'artifacts': {name: 'x'}, 'historical_prefix_count': 0}
+            self.assertEqual(len(route.rosalyn_segment(run, manifest, 'dev')), 195)
+            with self.assertRaises(StageFailure):  # the empty RUN/historical-requests.txt
+                route.rosalyn_segment(run, manifest, 'historical')
+            with self.assertRaises(StageFailure):  # dev tape not pinned
+                route.rosalyn_segment(run, {'artifacts': {}, 'historical_prefix_count': 0}, 'dev')

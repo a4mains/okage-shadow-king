@@ -35,10 +35,17 @@ def wait_for(c, pattern, timeout=3600, poll=5.0):
         time.sleep(poll)
     return False
 
-def rosalyn_segment(run, manifest):
-    lines = (Path(run) / pins.TAPES[0]).read_text().splitlines()
+def rosalyn_segment(run, manifest, prefix_mode='historical'):
+    if prefix_mode == 'dev':
+        name = pins.DEV_DIR + '/' + pins.DEV_REQUEST_TAPES[0]
+        need(name in manifest.get('artifacts', {}), 'route-rosalyn', 'dev Rosalyn tape is not pinned')
+        lines = (Path(run) / name).read_text().splitlines()
+        count = len(lines)
+    else:
+        lines = (Path(run) / pins.TAPES[0]).read_text().splitlines()
+        count = manifest['historical_prefix_count']
     lo, hi = ROSALYN_SEGMENT
-    need(manifest['historical_prefix_count'] >= hi and len(lines) >= hi, 'route-rosalyn',
+    need(count >= hi and len(lines) >= hi, 'route-rosalyn',
          'pinned historical tape shorter than the Rosalyn segment', length=len(lines))
     seg = [l for l in lines[lo:hi] if l.startswith('step ') or l == 'status']
     need(len(seg) > 0, 'route-rosalyn', 'empty Rosalyn segment')
@@ -74,8 +81,8 @@ def walk(c):
     need(s is not None and s['event_running'] and s['scene'] == 1, 'route-walk', 'no Rosalyn event', status=s)
     return {'rosalyn_event': s}
 
-def rosalyn(c, run, manifest):
-    seg = rosalyn_segment(run, manifest)
+def rosalyn(c, run, manifest, prefix_mode='historical'):
+    seg = rosalyn_segment(run, manifest, prefix_mode)
     for line in seg:
         c.send(line)
     s = c.status()
@@ -107,7 +114,7 @@ def main(c, run, manifest, stop='contact', record=None, prefix_mode='historical'
     record('route-walk', run_stage('route-walk', walk, c))
     if stop == 'walk':
         return
-    record('route-rosalyn', run_stage('route-rosalyn', rosalyn, c, run, manifest))
+    record('route-rosalyn', run_stage('route-rosalyn', rosalyn, c, run, manifest, prefix_mode))
     if stop == 'rosalyn':
         return
     record('encounter', run_stage('encounter', encounter.main, c, run))
