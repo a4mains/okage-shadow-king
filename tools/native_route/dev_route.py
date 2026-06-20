@@ -21,6 +21,7 @@ from .outcome import need
 
 STAGE = 'route-dev-prefix'
 PRELUDE = 808
+ACTIVATION_WAIT_BUDGET = 6000
 ACTIVATION_SCENE = 74
 ROAD_SCENE = 1
 TAPE_ALIGN = 2591
@@ -98,9 +99,13 @@ def prefix(c, run, manifest, timeout=3600):
     def active():
         return c.status()['scene'] == ACTIVATION_SCENE
     reached = replay(c, mask_at, frames, PRELUDE, TAPE_ALIGN, until=active)
+    waited = 0
     while not active():
+        need(waited < ACTIVATION_WAIT_BUDGET, STAGE, 'bedroom never activated within the wait budget',
+             waited=waited)
         c.step(1, 0)
         reached += 1
+        waited += 1
     activation = c.status()['frame']
     c.note('bedroom activation', activation, 'tape frame reached', reached)
     replay(c, mask_at, frames, TAPE_ALIGN, TAPE_END)

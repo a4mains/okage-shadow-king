@@ -23,9 +23,13 @@ from pathlib import Path
 
 GLYPH, ICON, SELECT = 0x19c754, 0x19cadc, 0x19cc80
 
-def original_frames(paths):
-    frames, offset = [], 0
-    for path in paths:
+def original_frames(paths, segment_vblanks=None):
+    if len(paths) > 1 and not segment_vblanks:
+        raise ValueError('several original segments need --segment-vblanks (their run lengths)')
+    if segment_vblanks and len(segment_vblanks) != len(paths):
+        raise ValueError('--segment-vblanks needs one length per original segment')
+    frames = []
+    for index, path in enumerate(paths):
         rows = [json.loads(line) for line in Path(path).read_text().splitlines()]
         if not rows or rows[0].get('schema') != 'okage-shared-rng-entry':
             raise ValueError(f'{path}: not an oracle shared-RNG trace')
@@ -46,9 +50,12 @@ def original_frames(paths):
             else:
                 entry['other'] += 1
         count = max(by) + 1 if by else 0
+        if segment_vblanks:
+            if count > segment_vblanks[index]:
+                raise ValueError(f'{path}: frames beyond the declared {segment_vblanks[index]} vblanks')
+            count = segment_vblanks[index]  # keep trailing draw-free frames
         for frame in range(count):
             frames.append(by.get(frame, {'objects': [], 'icon': 0, 'select': 0, 'other': 0}))
-        offset += count
     return frames
 
 def native_frames(path):
@@ -64,10 +71,13 @@ def native_frames(path):
     return out
 
 def original_anchor(frames):
-    for i, f in enumerate(frames):
-        if f['icon'] == 32 and f['select'] == 32 and not f['objects']:
-            return i
-    raise ValueError('original trace has no two-window constructor pass')
+    found = [i for i, f in enumerate(frames) if f['icon'] == 32 and f['select'] == 32 and not f['objects']]
+    if not found:
+        raise ValueError('original trace has no two-window constructor pass')
+    if len(found) > 1:
+        # The original trace carries no message id; never guess which message.
+        raise ValueError(f'several original constructor passes {found[:8]}; pass --original-anchor')
+    return found[0]
 
 def native_anchor(frames, message_id):
     for frame in sorted(frames):
@@ -89,8 +99,8 @@ def classify_native(row):
     return {'glyph_a': row['glyph'] - glyph_b, 'glyph_b': glyph_b, 'icon': row['icon'], 'select': row['select']}
 
 def compare(original_paths, native_path, length, message_id=None, oanchor=None, nanchor=None,
-            decoration=None, body=None):
-    ofr = original_frames(original_paths)
+            decoration=None, body=None, segment_vblanks=None):
+    ofr = original_frames(original_paths, segment_vblanks)
     nfr = native_frames(native_path)
     oa = original_anchor(ofr) if oanchor is None else oanchor
     na = native_anchor(nfr, message_id) if nanchor is None else nanchor
@@ -107,7 +117,8 @@ def compare(original_paths, native_path, length, message_id=None, oanchor=None, 
     result = {'original_anchor': oa, 'native_anchor': na, 'decoration_object': decoration,
               'body_object': body, 'requested_frames': length, 'compared': 0,
               'first_divergence': None, 'missing': None,
-              'scope': 'placement RNG draw counts per window and site; not image/audio equivalence'}
+              'scope': 'placement RNG draw counts per window and site only: other RNG clients, call order '
+                       'against them and RNG state are not compared; not image/audio equivalence'}
     for rel in range(length):
         if oa + rel >= len(ofr) or (na + rel) not in nfr:
             result['missing'] = {'relative_frame': rel, 'original_available': oa + rel < len(ofr),
@@ -131,9 +142,11 @@ def main(argv=None):
     p.add_argument('--message-id', type=int)
     p.add_argument('--original-anchor', type=int)
     p.add_argument('--native-anchor', type=int)
+    p.add_argument('--segment-vblanks', nargs='+', type=int, help='vblank count of each original segment')
     a = p.parse_args(argv)
     try:
-        r = compare(a.original, a.native, a.frames, a.message_id, a.original_anchor, a.native_anchor)
+        r = compare(a.original, a.native, a.frames, a.message_id, a.original_anchor, a.native_anchor,
+                    segment_vblanks=a.segment_vblanks)
     except (OSError, ValueError, KeyError) as e:
         print(json.dumps({'verdict': 'MALFORMED', 'error': str(e)}))
         return 2

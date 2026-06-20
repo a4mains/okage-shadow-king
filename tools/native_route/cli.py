@@ -151,7 +151,8 @@ def build_parser():
             p.add_argument('--slot-rights', type=int, required=True)
         if name == 'restore-check':
             p.add_argument('--slot-file', required=True)
-            p.add_argument('--expect-save-sha256')
+            p.add_argument('--expect-save-sha256', required=True,
+                           help='sha256 of the new Save from the strict run (route-result.json); no default')
     return ap
 
 def prepare_kwargs(a):

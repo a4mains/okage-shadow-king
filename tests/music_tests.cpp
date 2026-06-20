@@ -183,7 +183,10 @@ int main(){try{
     {
         auto companion=score;companion[54]=companion[62]=64;
         okage::MusicRouter battle;
-        battle.install(0,10,{score,bank(),bank(),{}});
+        //Slot0 differs in score and banks, so slot0 resources cannot pass the checks below.
+        auto field_score=score;field_score[54]=field_score[62]=72;
+        auto silent=bank();std::fill(silent.velocities[0].begin(),silent.velocities[0].end(),0);
+        battle.install(0,10,{field_score,silent,silent,{}});
         battle.install(1,24,{score,bank(),bank(),companion});
         battle.select(10);battle.volume.request(40,8);battle.render(frame);
         battle.play_variant(true);

@@ -433,3 +433,14 @@ class RouteTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class RestoreCheckCliTests(unittest.TestCase):
+    def test_restore_check_requires_the_new_save_hash(self):
+        # Review finding 4: without the expected hash any pinned save could pass.
+        from native_route import cli
+        parser = cli.build_parser()
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2'])
+        a = parser.parse_args(['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
+                               '--expect-save-sha256', 'ab' * 32])
+        self.assertEqual(a.expect_save_sha256, 'ab' * 32)

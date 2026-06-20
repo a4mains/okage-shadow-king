@@ -760,6 +760,7 @@ struct Session {
     std::optional<okage::BattleHudData> message_hud_numbers;
     bool message_controllers_due=false;
     bool message_windows_unmodeled_reported=false;
+    bool manager_message_live=false;
     okage::DialogueButtons frame_input{};
     // Manager descendant traversal, right after the 0x133a98 callback.
     void traverse_rear_banner() {
@@ -886,6 +887,7 @@ struct Session {
     std::array<unsigned,4> rng_site_counts{};
     unsigned message_pass_frame=0;
     okage::FieldMessageWindows::PassDraws message_pass{};
+    ~Session(){try{emit_rng_sites();}catch(...){}} //flush the last frame's draws
     void emit_rng_sites() {
         if(!rng_sites_trace||!frame)return;
         *rng_sites_trace<<"{\"frame\":"<<frame<<",\"other\":"<<rng_site_counts[0]<<",\"glyph\":"<<rng_site_counts[1]
@@ -989,7 +991,7 @@ struct Session {
     // opcode10 wait state); phase8 leaves that state untouched.
     void start_field_message(int id,bool clear_wait) {
             if(dialogue_active && !closure.finished())throw std::runtime_error("Field replaces an unfinished message");
-            const bool legacy_diagnostic=id==10026||id==10030||(id>=10100&&id<=10107);
+            const bool legacy_diagnostic=battle_input.empty()&&(id==10026||id==10030||(id>=10100&&id<=10107));
             // Normal bank0/opcode4c uses configuration0x2293e0 for every message
             // ID. Its logical construction is independent of PME content;
             // unsupported text/window commands still fail in their handlers.
@@ -1040,6 +1042,7 @@ struct Session {
             }
     }
     void dialogue_controllers(okage::DialogueButtons input) {
+        manager_message_live=dialogue_active&&!closure.finished();
         if(message_windows&&dialogue_active&&closure.finished()){message_windows.reset();}
         const unsigned stage_before=controller.stage;
         const bool live=dialogue_active&&!closure.finished();
@@ -1291,7 +1294,7 @@ struct Session {
             using Step=okage::FieldEncounterChildStep;
             switch(step) {
             case Step::CheckLiveChild:
-                if(dialogue_active&&!closure.finished())
+                if(manager_message_live)
                     throw std::runtime_error("Natural encounter phase8 retirement of a live manager message child is unrecovered");
                 return true;
             case Step::Construct: {
@@ -1307,9 +1310,10 @@ struct Session {
                 return true;
             }
             case Step::Finished:
-                return !dialogue_active||closure.finished();
+                //134050: +1c of the child, as the previous traversal left it.
+                return !manager_message_live;
             case Step::ConstructRear: {
-                if(dialogue_active&&!closure.finished())
+                if(manager_message_live)
                     throw std::runtime_error("Rear encounter retirement of a live manager message child is unrecovered");
                 if(rear_banner)throw std::runtime_error("Rear encounter child already owns manager+50");
                 if(!field_ruw||!field_ui_atlas||!game_data||!game_mode)
@@ -1470,7 +1474,7 @@ struct Session {
         renderer=std::make_unique<okage::SceneRenderer>(map,scene_actors,map_objects.get());
         auto stg=map;stg.replace_extension(".stg");const auto stage=readData(stg);projection.load_stage(stage);
         scene_clear.rgb={0,0,0};scene_clear.load_stage(stage);renderer->set_clear_rgb(scene_clear.rgb);
-        dialogue_active=false;message_windows.reset();
+        dialogue_active=false;message_windows.reset();manager_message_live=false;
         create_field(readData(event),true);
         if(std::any_of(actor_bindings.begin(),actor_bindings.end(),[](const auto& a){return a.alias==-1;})) {
             auto room=map.parent_path().stem().string();
@@ -1526,7 +1530,7 @@ struct Session {
             auto replacement=okage::read_pme(readData(message_directory/(bank_name+".PME")));
             if(!replacement.bind("############",player_name))throw std::runtime_error("Player-name tag missing from destination message bank");
             if(dialogue_active&&!closure.finished())throw std::runtime_error("Destination replaces an unfinished dialogue bank");
-            dialogue_active=false;message_windows.reset();text=okage::DialogueText({});text.fonts=fonts;
+            dialogue_active=false;message_windows.reset();manager_message_live=false;text=okage::DialogueText({});text.fonts=fonts;
             opening.reset();choices={};narration={};controller={};clock={};
             messages=std::move(replacement);message_bank=bank_name;
             std::cout<<"Native message bank: "<<message_bank<<"; "<<messages.strings.size()<<" strings; "<<messages.nodes.size()<<" nodes\n";
@@ -1568,7 +1572,7 @@ struct Session {
         renderer->bind_effect_submissions(&field->effect_submissions());
         renderer->set_effect_light_tint(okage::field_effect_tint(stage));
         scene_map=map;
-        dialogue_active=false;message_windows.reset();choices={};narration={};
+        dialogue_active=false;message_windows.reset();manager_message_live=false;choices={};narration={};
         // 0x132720 requests exactly1.0 through0x114cc0 before startup dispatch.
         // This is distinct from event4f's rounded percent multiplication.
         scene_fade.request(1.f);
@@ -2045,7 +2049,7 @@ struct Session {
             world_checkpoint("field-manager-retirement");
             owned_actor_assets.clear();
         }
-        dialogue_active=false;message_windows.reset();opening.reset();choices={};narration={};controller={};clock={};
+        dialogue_active=false;message_windows.reset();manager_message_live=false;opening.reset();choices={};narration={};controller={};clock={};
         text=okage::DialogueText({});text.fonts=fonts;
         opacity={};closure={};
         rear_banner.reset();

@@ -114,6 +114,16 @@ class ComparatorTest(unittest.TestCase):
         self.assertEqual(tail['extra_frames'], [14, 15])
         self.assertEqual(r['inputs']['comparison']['frames_missing_in_b']['examples'], [[14, 15]])
 
+    def test_both_runs_dying_at_the_same_frame_is_not_accounted(self):
+        def cut(items):
+            del items[find(items, kind='tick_attempt', frame=14):]
+        self.edit(self.a, 'inputs.jsonl', cut)
+        self.edit(self.b, 'inputs.jsonl', cut)
+        code, r = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertNotEqual(r['verdict'], 'IDENTICAL_AND_FULLY_ACCOUNTED')
+        self.assertIn('a.inputs.uncaptured_tail', r['failures'])
+
     def test_truncated_tail_explicit_interval_is_unaccounted(self):
         def cut(items):
             del items[find(items, kind='tick_attempt', frame=14):]

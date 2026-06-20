@@ -63,12 +63,10 @@ void owned(const fs::path& stage) {
     random.observe_context=&sites;
     const auto sine=okage::make_sine_table();
     okage::FieldMessageGlobals globals;
-    //State left by earlier messages in the same field (original RAM): a
-    //speaker was shown, and 146ee8 had faded choice rows 18..20 to alpha 0
-    //(they load at their authored 0x80 and lose 32 per traversal).
+    //0x2dbb60 history (original RAM): an earlier message had a speaker.
     globals.last_speaker="Linda";
-    for(int id=18;id<=20;++id)ruw->set_rgba(0,id,{okage::RuwResource::preserve_component,
-        okage::RuwResource::preserve_component,okage::RuwResource::preserve_component,0});
+    //Freshly loaded FLD.RUW shows choice rows 18..20 (authored alpha 0x80).
+    require((ruw->widget(0,18).words[4]&1)==1,"fresh FLD.RUW choice rows visible before any message");
     const auto seed=random.state;
     okage::FieldMessageWindows windows(ui,data,ruw,std::make_shared<int>(0),
         okage::FieldMessageWindows::Construction::ScriptPass,99099,globals);
@@ -78,6 +76,9 @@ void owned(const fs::path& stage) {
     require(windows.decoration().word(0x3c00)==16&&windows.body().word(0x3c00)==12,"row capacities");
     require(globals.decoration_stream->entries.size()==2&&globals.body_stream->entries.size()==2,"constructor streams");
     require(ui.atlas_texture==99099,"11f570 *0x24f734 = id");
+    for(int id=18;id<=20;++id)
+        require((ruw->widget(0,id).runtime->words[4]>>24)==0&&(ruw->widget(0,id).words[4]&1)==0,
+                "0x1468c8 hides choice rows 0x12..0x14 at construction");
 
     okage::UiPacketBuildContext packets{fonts,0,0};
     const okage::FieldMessageWindows::Pass p{ui.resource.layout_shared(),fonts,sine,

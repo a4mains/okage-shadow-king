@@ -364,6 +364,8 @@ def compare(a, b, intervals=None):
         iv = intervals.get(side + '_inputs') or full_range(records)
         if iv is None:
             raise Malformed(f'{side}: no input records')
+        if not intervals.get(side + '_inputs') and req.last_requested is not None:
+            iv = (iv[0], max(iv[1], req.last_requested))
         sel_inputs[side], out_inputs[side] = account_inputs(records, iv, req)
         sv = intervals.get(side + '_status') or full_range(rows)
         if sv is None:

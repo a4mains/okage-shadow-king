@@ -51,7 +51,7 @@ int main() {
             "First\\v\r\n", "\\c[100]\\e\\c[0]\\lSecond\\v\\c[100]\\e\\c[0]"});
         std::array<std::uint32_t,2> layers{0x40,0x40};
         okage::DialogueWaitState wait{5,1};
-        auto poll=[&]{return okage::poll_dialogue_wait(wait,2,{true,0,layers,__builtin_bit_cast(std::int32_t, (text.state.progress))});};
+        auto poll=[&]{return okage::poll_dialogue_wait(wait,2,{true,0,layers,std::bit_cast<std::int32_t>(text.state.progress)});};
         auto page=[&]{for(unsigned i=0;i<1000;++i){auto s=text.step();if(s!=okage::TextStep::glyph)return s;}throw std::runtime_error("Text loop");};
         require(page()==okage::TextStep::pause && text.state.speaker=="Voice" && text.page.empty());
         text.resume();require(page()==okage::TextStep::pause && text.page=="First");
@@ -86,6 +86,24 @@ int main() {
         okage::tick_text_clock(quick.state,clock);require(std::fegetround()==rounding);
         clock.scroll=std::numeric_limits<float>::infinity();
         rejects([&]{okage::tick_text_clock(quick.state,clock);});require(std::fegetround()==rounding);
+        {
+            okage::Font f;f.first=32;f.last=126;f.glyphs.resize(95);
+            for(auto& g:f.glyphs){g.metrics[8]=160;g.metrics[9]=192;}
+            const std::vector<okage::Font> fonts(3,f);
+            okage::DialogueText t({"Ab c"});t.fonts=fonts;
+            t.state.flags=0x8041;t.state.font=2;t.state.period=1;
+            okage::TextClock clock;clock.glyph_flags=0x10;
+            unsigned begins=0,tails=0;std::vector<std::uint32_t> codes;
+            okage::TextPlacementHooks h;
+            h.begin=[&]{++begins;};h.tail=[&]{++tails;};
+            h.glyph=[&](std::uint32_t code,std::int32_t,std::int32_t,std::int32_t,std::int32_t){codes.push_back(code);};
+            for(int i=0;i<24;++i)t.frame(clock,true,&h);
+            require(codes==std::vector<std::uint32_t>({'A','b',' ','c'}));
+            require(tails>=3&&begins==tails+1); //the final zero-stream pass has no tail
+            okage::DialogueText bare({"x"});
+            rejects([&]{okage::TextClock c2;bare.state.flags=0x8041;bare.state.period=1;
+                        for(int i=0;i<4;++i)bare.frame(c2,true,&h);});
+        }
         std::cout<<"Text import, bounds, control and event integration tests passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

@@ -107,10 +107,10 @@ FieldMessageWindows::FieldMessageWindows(BattleUiShared& ui,const FieldMessageWi
             globals.decoration_stage_memo=-1;globals.choice_row=-1;
             globals.speaker_ticks=0;globals.body_settle=0;globals.cursor_counter=0;
         } else {
-            //1468c8: 0x1f9ca0=0x2dbc40, [14,1f9c00,6,1f9c1c], 1fcb74=0, 1fcb70=-1.
             stream->entries={UiStreamCommand{14,UiStreamReference::MenuTransform1f9c00},
                              UiStreamCommand{6,UiStreamReference::MenuTransform1f9c1c}};
             globals.choice_row=-1;
+            for(int id=0x12;id<=0x14;++id)ruw_->set_rgba(0,id,{0x80,0x80,0x80,0});
         }
         ui_.current_stream=stream->binding_id;ui_.stream_cursor=4;
     };

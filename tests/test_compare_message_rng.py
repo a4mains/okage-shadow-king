@@ -90,6 +90,22 @@ class CompareMessageRngTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.run_compare(original_rows(PATTERN[1:]), native_rows(PATTERN))
 
+    def test_ambiguous_original_anchor_and_undeclared_segments_are_rejected(self):
+        twice = original_rows(PATTERN) + original_rows(PATTERN, lead=0)[1:]
+        for i, row in enumerate(twice[1:]):
+            row['sequence'] = i
+        later = len(PATTERN) + 2
+        for row in twice[len(original_rows(PATTERN)):]:
+            row['frame'] += later
+        with self.assertRaises(ValueError):
+            self.run_compare(twice, native_rows(PATTERN))
+        o = self.write('o1.jsonl', original_rows(PATTERN))
+        with self.assertRaises(ValueError):
+            c.compare([o, o], self.write('n.jsonl', native_rows(PATTERN)), 3, 99099)
+        r = c.compare([o, o], self.write('n2.jsonl', native_rows(PATTERN)), 5, 99099,
+                      oanchor=2, segment_vblanks=[len(PATTERN) + 4, len(PATTERN) + 2])
+        self.assertEqual(r['verdict'], 'IDENTICAL')
+
     def test_noncontiguous_native_frames_are_rejected(self):
         rows = native_rows(PATTERN)
         rows[3]['frame'] += 1
