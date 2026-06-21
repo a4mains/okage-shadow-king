@@ -1,3 +1,7 @@
+## CURRENT: six-package texture-to-Chapter-2 assignment demonstrated (review-ready)
+
+the ledger key `claude_completion_v1` in
+
 ## Previous implementation checkpoint: New Game, name entry and Chapter 1
 
 * **Fixes first.** Name entry no longer steps the image counter (`0x337500` advances only through
