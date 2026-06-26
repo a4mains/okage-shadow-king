@@ -302,5 +302,16 @@ int main() {try {
     fade.script_request(50,1);require(fade.color==0xffffff&&fade.target>.49f&&fade.target<=.5f);
     fade.script_request(0,-1);require(fade.color==0xffffff);
     rejects([&]{fade.script_request(101,0);});require(fade.color==0xffffff&&fade.target==0);
+    {
+        // node+0xed8 = -1 before any WINTYPE (11f570): stage 5 runs, and the
+        // ed8==0 checks (text-blip/close cue 12, handler7 cue 11) stay false.
+        okage::DialogueText t({""});okage::DialogueController control;
+        require(control.window_type==0); // default-constructed controller
+        control.window_type=-1;control.layer_flags=0x50;
+        t.state.flags=0x8002; // end of text, no delay or pause
+        const auto closed=control.update(t,{});
+        require(closed.close && closed.cue==-1 && control.stage==6 && control.window_type==-1);
+        okage::DialogueController bad;bad.window_type=-2;rejects([&]{bad.update(t,{});});
+    }
     std::cout<<"Dialogue input, pause/print/end transitions and opacity passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

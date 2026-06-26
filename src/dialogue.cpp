@@ -123,7 +123,9 @@ DialogueInputEffects DialogueController::update(DialogueText& text,DialogueButto
             resume();
         }
     }
-    if(window_type<0 || window_type>2)throw std::runtime_error("Dialogue window type not implemented");
+    //node+0xed8 starts at -1 (0x11f570) until a WINTYPE command; 0x148dc8 and
+    //0x148958 only compare it with 0 and 2, so -1 is an ordinary state.
+    if(window_type<-1 || window_type>2)throw std::runtime_error("Dialogue window type not implemented");
     const auto delay=std::bit_cast<std::int32_t>(text.state.delay);
     // Original status getter: positive delay=3, negative delay/pause=2, else 1.
     const unsigned status=delay>0 ? 3 : (delay<0 || (text.state.flags&0x910)) ? 2 : 1;
