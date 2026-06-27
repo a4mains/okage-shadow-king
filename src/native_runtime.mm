@@ -2134,11 +2134,8 @@ struct Session {
             if(!battle_capture_alpha) {battle_capture_layer.reset();battle_capture_draw.reset();}
             else battle_capture_layer->rgba=0x00808080u|(battle_capture_alpha<<24);
         }
-        // 0x114ac0 advances the captured-frame overlay by four alpha units.
-        if(transition_alpha!=transition_target) {
+        if(transition_alpha!=transition_target)
             transition_alpha=transition_alpha>transition_target?transition_alpha-4:transition_alpha+4;
-            if(!transition_alpha){transition_image.reset();transition_live_image.reset();}
-        }
         scene_fade.tick();
         //0x100618: the first scheduler traversal starts the per-frame clear/draw kicks
         //into the colour buffers and depth Z24 lanes (the title rendering contract).
