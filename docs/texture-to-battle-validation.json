@@ -863,8 +863,8 @@
     },
     "src/dialogue.cpp": {
       "path": "src/dialogue.cpp",
-      "bytes": 30346,
-      "sha256": "7c426754fb94ac39e5390dd5d7e5a860ba21b6d800e15b5c0857d81a7926d5cd"
+      "bytes": 30499,
+      "sha256": "6fb8d334669d24efdae11d9331e6f4671b60cfec6447ea4ba7d8aaf4544f5834"
     },
     "src/display_link.hpp": {
       "path": "src/display_link.hpp",
@@ -1078,8 +1078,8 @@
     },
     "src/native_runtime.mm": {
       "path": "src/native_runtime.mm",
-      "bytes": 305183,
-      "sha256": "a976c098cdb731f7ed812fff5731f7204b73698ae2cbed49422666f4d2a30c2e"
+      "bytes": 305003,
+      "sha256": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a"
     },
     "src/navigation_mask.cpp": {
       "path": "src/navigation_mask.cpp",
@@ -1950,8 +1950,8 @@
       },
       "src/native_runtime.mm": {
         "path": "src/native_runtime.mm",
-        "bytes": 305183,
-        "sha256": "a976c098cdb731f7ed812fff5731f7204b73698ae2cbed49422666f4d2a30c2e"
+        "bytes": 305003,
+        "sha256": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a"
       },
       "src/startup_textures.cpp": {
         "path": "src/startup_textures.cpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-06-21T15:00:00Z",
+  "overnight_cutoff": "2026-06-28T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3243,6 +3243,185 @@
       "rear banner drawn as text-only overlay",
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
-    ]
+    ],
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-06-28.txt); superseded by claude_review_v2. Recorded as submitted."
+  },
+  "claude_review_v2": {
+    "schema": "okage.texture-to-battle.claude-review-v2",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-06-28.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-06-28.txt",
+    "branch": "work/texture-to-battle-v1",
+    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-up b1b3e31",
+    "commits": {
+      "a71c75f": "music 0x12da90 variant",
+      "4df558e": "newgame stage v14 + owned CTest registrations",
+      "96b9aa7": "native_route harness",
+      "6882c0e": "field message windows and RNG",
+      "9b9bacc": "dev-route mode, optional --rng-sites",
+      "f8cd645": "message RNG comparator",
+      "2b7c699": "dev Rosalyn tape",
+      "d94b751": "preserve submitted docs",
+      "a1f90b3": "independent-review fixes",
+      "a5ea4dd": "window type -1 at stage 5",
+      "62a468a": "keep transition capture after fade",
+      "b1b3e31": "restore-check --until-roar; compare main guard; slot hash recorded (tools only)"
+    },
+    "binaries_sha256": {
+      "release": "b7f59d77a3f1d134a177810773b23ac0d1c59114ecc444b793e57a8590e1bfc5",
+      "debug": "0a63dd2e20504f7c61d93e841a96725c1b0add04b479d2f584ddda6cb8a25c5b",
+      "asan_ubsan": "0f664840df7e4ba9afa1705e227d51c6761984807cfedfa68cbba9c1a643bc65",
+      "frozen_route_copy": "local/research/texture-to-battle-v1/claude-review-v2/bin/okage-native-release-62a468a"
+    },
+    "build_trees": {
+      "release": "build/claude-review-release",
+      "debug": "build/claude-review-debug",
+      "asan_ubsan": "build/claude-review-sanitize (CXX/OBJCXX -fsanitize=address,undefined -fno-omit-frame-pointer; linker -fsanitize=address,undefined)",
+      "configure": "-DCMAKE_OSX_ARCHITECTURES=arm64 -DOKAGE_ESCAPE_CAMERA_ARTIFACT=ROOT/local/battle-camera-v5/battle-camera.bin -DOKAGE_OWNED_STAGE=ROOT/local/game-data-stage-v19"
+    },
+    "stage": {
+      "path": "ROOT/local/game-data-stage-v19",
+      "manifest_sha256": "181c0d0b5100b9ff87c721c8a17b60ac09b26cd195d75d5569eb464038c55e0e",
+      "base": "stage v18 b66f63ce41e57adaa66c6bcdae021740eac932b88d197a2e144e9d50a421effb, entries unchanged",
+      "added": {
+        "NATIVE_UI/message-windows.bin": "dcf948b6674b2ccf5ca94a51eea8dfa27ad359c4398828b474edab2411de8e8e (tools/import_message_windows.py, source literals 9290a28f...)"
+      },
+      "maker": "local/research/texture-to-battle-v1/claude-review-v2/make_stage_v19.py"
+    },
+    "strict_route": {
+      "run": "local/research/texture-to-battle-v1/claude-final-hist-v4a",
+      "candidates_record": "local/research/texture-to-battle-v1/claude-final-hist-v4-candidates.json",
+      "manifest_sha256": "4de29d84 (RUN/manifest.json)",
+      "result": "PASS: route-prefix, route-walk, route-rosalyn, encounter, battle, home, home-inside, save",
+      "prefix_comparison": {
+        "vs_claude-strict-v21c": "IDENTICAL_AND_FULLY_ACCOUNTED (114,424 input records + 115 requested status rows, 1..56846)",
+        "vs_claude-strict-v19a": "IDENTICAL_AND_FULLY_ACCOUNTED (114,424 input records + 115 requested status rows, 1..56846)",
+        "reports": "local/research/texture-to-battle-v1/claude-review-v2/compare/",
+        "coverage": "114,424 input-journal records and the 115 requested status rows in frames 1..56846, all accounted; not every frame's state and not media"
+      },
+      "battles": [
+        {
+          "formation": 10,
+          "contact": 69117,
+          "victory_return": 73247
+        },
+        {
+          "formation": 9,
+          "contact": 74818,
+          "victory_return": 76666
+        },
+        {
+          "formation": 2,
+          "contact": 77843,
+          "victory_return": 79133
+        },
+        {
+          "formation": 4,
+          "contact": 80433,
+          "victory_return": 82852
+        }
+      ],
+      "save": {
+        "file": "bkmo2.dat",
+        "before": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+        "after": "f94fa5a20ffcb7f60acd0320b38054c814870a3eec024dfbad10cf7906ab3a9a",
+        "constructed": 84010,
+        "retired": 84413
+      },
+      "hashes": {
+        "route-result.json": "6179bd6716d769e86c7b98b3851cae8202099c2dd3a2afe0acc46a71c7677076",
+        "inputs.jsonl": "70bd4fb5b8f393ca1ee030af7a0afba435efddcedbed6593cfeedb8421c114f9",
+        "forwarded-requests.jsonl": "d42c1d629ce7c87e0a762d9171a71d3f8e11d826b2f59e9aeb7543fe7973995c",
+        "rng-sites.jsonl": "e5d2bf1d0067127d2d88aa2524a42e87dd16734bc9e7359b50ca48dc4217ccb9"
+      },
+      "message_window_frames": 25343,
+      "exit": "native exit 0 after quit (result.json)",
+      "operator": "Haiku (claude-haiku-4-5)"
+    },
+    "restore": {
+      "run": "local/research/texture-to-battle-v1/claude-final-restore-v4a",
+      "manifest_sha256": "533a8c0d (RUN/manifest.json)",
+      "result": "PASS",
+      "restore_check_sha256": "aae2d031bf206d8d6f3b86cd13c33a685bc50b065ccc7aebdc5660df4064de8f",
+      "payload": "3448 bytes equal except 0x520 playtime (115 vs 118)",
+      "transitions": "74 -> 73 (1645) -> 70 (1750) -> 1 (2029)",
+      "encounter": "formation 9 contact 4969, victory return 6844",
+      "operator": "Haiku (claude-haiku-4-5)"
+    },
+    "commands": {
+      "strict_candidates": "python3 WORK/tools/native_route/cli.py candidates --parent R --prefix claude-final-hist-v4 --max 2 --target-save bkmo2.dat --binary R/claude-review-v2/bin/okage-native-release-62a468a --stage WORK/local/game-data-stage-v19 --prepared R/navigation-pulse-historical-release-v1 --saves R/navigation-pulse-historical-release-v1/saves --prelude-ticks 21644 --rng-sites --source-repo WORK",
+      "restore_launch": "python3 WORK/tools/native_route/cli.py launch-new --run R/claude-final-restore-v4a --binary <same> --stage <same> --prepared R/claude-dev-prepared-v1 --saves R/claude-final-hist-v4a/saves --prelude-ticks 808 --rng-sites --source-repo WORK",
+      "restore_check": "python3 R/claude-final-restore-v4a/tools/native_route/cli.py restore-check R/claude-final-restore-v4a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a20ffcb7f60acd0320b38054c814870a3eec024dfbad10cf7906ab3a9a",
+      "compare": "python3 WORK/tools/native_route/cli.py compare R/claude-final-hist-v4a R/claude-strict-v21c --a-inputs 1:56846 --b-inputs 1:56846 --a-status 1:56846 --b-status 1:56846",
+      "final_tests": "local/research/texture-to-battle-v1/claude-review-v2/final-tests-62a468a/run.sh"
+    },
+    "rejected_or_failed_candidates": {
+      "prelude_diverged_2394": [
+        "claude-msgwin-prefix-v1a",
+        "claude-msgwin-full-v2a..h (dev1 484c9570)",
+        "claude-final-hist-v1a..d (6882c0e e0ee15c8)",
+        "claude-final-hist-v2a..d (a1f90b3 43118954)"
+      ],
+      "runtime_failures_fixed": {
+        "claude-msgwin-full dev1": "(none reached a message; dev2 parser literal-offset bug found by owned test first)",
+        "claude-final-dev-v1a": "harness: empty dev Rosalyn tape (2b7c699)",
+        "claude-final-dev-v1b": "window_type -1 at roar stage 5 (a5ea4dd)",
+        "claude-final-hist-v3a": "transition capture freed (62a468a)"
+      },
+      "diagnostics": [
+        "claude-diag-prelude-oldbin-v1 (option error), -v2a..c and claude-diag-prelude-oldtools-v1: sealed pre-review binary 61062544 also diverges at 2394",
+        "claude-msgwin-dbg-dev2a (dev route debug through a formation-11 victory)",
+        "smoke-msg-v1"
+      ],
+      "host_note": "claude-final-hist-v4a converged while the final ASan/UBSan CTest suite was running on the host (slower first load: bedroom activation 2657). The selection rule was not changed."
+    },
+    "original_observations": {
+      "oracle": "Play research oracle b23638e133f0ba6e783b616fae6cc1376ba756774eb1fe815ddc09700523b8ac (newer than the 5d3cdc43 used for the retained gate references; pinned copy in claude-review-v2/message-rng-original-v1)",
+      "gate_message_99099": "local/research/texture-to-battle-v1/claude-review-v2/message-rng-original-v1",
+      "six_more_messages": "local/research/texture-to-battle-v1/claude-review-v2/message-rng-original-v2 (Haiku operator)",
+      "limit": "observer breakpoints shift vblank alignment by one; comparisons anchor on construction"
+    },
+    "tests": {
+      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log)",
+      "ctest_release": "134/134 passed",
+      "ctest_debug": "134/134 passed",
+      "ctest_asan_ubsan": "134/134 passed (3071.8 s)",
+      "logs": "local/research/texture-to-battle-v1/claude-review-v2/final-tests-62a468a/",
+      "ctest_skips": "none: no CTest skipped or not run in Release/Debug/ASan+UBSan",
+      "python_skips": {
+        "comparator binary not built (OKAGE_TRANSFER_COMPARE)": 65,
+        "native handle transfer tool missing in build/": 14,
+        "OKAGE_NATIVE or staged root absent": 13,
+        "lifecycle evidence or trace binary missing": 2,
+        "OKAGE_NATIVE, replay input or staged root absent": 1,
+        "note": "environment-gated tests whose native paths are covered by the CTest suites"
+      }
+    },
+    "independent_review": {
+      "review_1": "a71c75f..f8cd645: 1 blocker + majors, all fixed in a1f90b3",
+      "review_2": "read-only review of a1f90b3, a5ea4dd, 62a468a and the final route evidence; rebuilt git archive 62a468a to b7f59d77 exactly; no new code blocker; review-1 findings 1-4 and 6 fixed (5, 7, 8 partly); final-run binary/tool/stage/prefix-input pins consistent; both prefix comparisons reproduced; minors fixed in b1b3e31 (compare.py main guard, restore-check records the slot hash); native_runtime.mm:1340 battle-capture guard kept (throw-only; reads live dialogue state, cannot silently change state); evidence majors: music variant had no live run (since addressed by claude-final-restore-roar-v1a), roar phase-8 not live-exercised after a5ea4dd, no Session-level message-window test, prefix status equality is 115 requested rows (none inside the prelude)"
+    },
+    "audit": {
+      "process_56987": "absent at review start; nothing killed",
+      "restore_v20a_provenance": "manifest source ce53729 but binary 27416eb1 = 5642f06 build; ce53729 not exercised",
+      "v21c": "stop at 79402 battle music 12da90 variant guard; fixed a71c75f"
+    },
+    "limits": [
+      "host-load-dependent candidate selection",
+      "message windows drawn by the diagnostic text overlay",
+      "phase-8 roar timing is static recovery; roar path not live-exercised after a5ea4dd (see roar_coverage_restore)",
+      "music variant exercised live only in claude-final-restore-roar-v1a (strict route gate stayed closed)",
+      "no Session-level (whole native process) message-window unit test; owned test drives FieldMessageWindows directly",
+      "prefix status equality covers the 115 requested status rows, not every frame",
+      "post-prefix evidence native-to-native; no image/audio equivalence"
+    ],
+    "roar_coverage_restore": {
+      "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v1a",
+      "binary": "b7f59d77 (62a468a); tools b1b3e31",
+      "command": "python3 R/claude-final-restore-roar-v1a/tools/native_route/cli.py restore-check R/claude-final-restore-roar-v1a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a2... --until-roar 8",
+      "result": "FAIL stage battle code 40: slot, restore-route, payload, transitions, encounter PASS; 7 natural battles won (formations 7,2,5,3,8,4,5, all phase 11); party defeated in the 8th (formation 4, contact 26473, defeat return 27707) - ordinary game over with the Attack-only controller, no native error",
+      "roar": "not reached: no contact at a step count divisible by 20",
+      "music_variant_live": "Native battle music variant=1 slot1=26 playing=1 at frames 21425, 23900, 26786",
+      "process": "quit cleanly by Opus after the operator returned",
+      "operator": "Haiku (claude-haiku-4-5)"
+    }
   }
 }

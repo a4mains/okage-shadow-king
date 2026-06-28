@@ -1,4 +1,21 @@
-## CURRENT: six-package texture-to-Chapter-2 assignment demonstrated (review-ready)
+## CURRENT: texture-to-Chapter-2 completion review v2
+
+pushed). Start with the
+
+the results are:
+- The unchanged historical prefix's inputs and the 115 requested status rows are
+- Four natural Chapter 2 battles are won.
+- A new bedroom Save is written (`f94fa5a2…`). Another process restores it cold
+  and play continues.
+- A second Restore process ran the music variant live (`variant=1`, three
+
+Open limits:
+- Candidate selection remains host-load dependent (17 rejected candidates are
+  retained).
+- The phase-8 roar has not yet run live on a fixed binary.
+- No Session-level message-window test exists.
+
+## Submitted: six-package assignment "demonstrated" (not accepted)
 
 the ledger key `claude_completion_v1` in
 
