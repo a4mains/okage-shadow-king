@@ -410,3 +410,6 @@ def main(argv=None):
     print('SCOPE:', SCOPE, file=sys.stderr)
     print('VERDICT:', report['verdict'], file=sys.stderr)
     return 0 if not report['failures'] else 1
+
+if __name__ == '__main__':
+    sys.exit(main())

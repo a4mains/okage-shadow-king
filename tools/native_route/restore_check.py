@@ -42,9 +42,11 @@ def check_slot(run, manifest, slot_file, expect_sha=None):
              pinned=pinned['sha256'], expected=expect_sha)
     return data
 
-def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None):
+def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None, until_roar=0):
     record = record or (lambda name, ev: None)
     data = check_slot(run, manifest, slot_file, expect_sha)
+    record('slot', {'slot_file': slot_file, 'expected_save_sha256': expect_sha,
+                    'pinned_sha256': (manifest.get('initial_saves') or {}).get(slot_file, {}).get('sha256')})
     start = c.log_offset()
     record('restore-route', restore_route.main(c, run, manifest, slot_rights))
     v = (Path(run) / 'control' / 'restored-field.png.variables.bin').read_bytes()
@@ -112,4 +114,32 @@ def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None)
     need(in_field_control(after, 1), 'restore-check', 'no field control after the encounter', status=after)
     need(c.alive(), 'restore-check', 'native process not alive at the end of the check')
     record('encounter', {'after_encounter': after, 'encounters': encounters})
+    if until_roar:
+        record('roar-encounters', roar_encounters(c, run, until_roar))
     c.send('quit')
+
+ROAR = 'Native natural encounter message id='
+
+def roar_encounters(c, run, max_victories):
+    """Keep the same ordinary patrol (and the battle/roar handling navigate
+    already does) until a natural encounter that opened Stan's phase-8 roar
+    message is fought to victory, at most `max_victories` further victories.
+    Every contact, roar and victory line is recorded; nothing is selected."""
+    start = c.log_offset()
+    for leg in range(40 * max_victories):
+        navigate.navigate(c, run, (120, 735) if leg % 2 == 0 else (170, 713), tol=4, budget=500)
+        lines = c.log_since(start).splitlines()
+        victories = [i for i, l in enumerate(lines) if l.startswith(battle.VICTORY)]
+        roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
+        if any(v > r for r in roars for v in victories) or len(victories) >= max_victories:
+            break
+    lines = c.log_since(start).splitlines()
+    events = [l for l in lines if l.startswith(battle.CONTACT) or l.startswith(ROAR) or l.startswith(battle.VICTORY)
+              or 'music variant' in l]
+    roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
+    victories = [i for i, l in enumerate(lines) if l.startswith(battle.VICTORY)]
+    need(roars and any(v > roars[0] for v in victories), 'roar-encounters',
+         'no phase-8 roar encounter fought to victory within the budget', events=events)
+    after = c.status()
+    need(in_field_control(after, 1), 'roar-encounters', 'no field control after the roar battle', status=after)
+    return {'events': events, 'after': after}

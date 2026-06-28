@@ -25,6 +25,7 @@ CODES = {
     'save': 70,
     'restore-route': 80,
     'restore-check': 90,
+    'roar-encounters': 95,
     'usage': 64,
     'internal': 99,
 }

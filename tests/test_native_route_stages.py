@@ -444,3 +444,21 @@ class RestoreCheckCliTests(unittest.TestCase):
         a = parser.parse_args(['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
                                '--expect-save-sha256', 'ab' * 32])
         self.assertEqual(a.expect_save_sha256, 'ab' * 32)
+
+class RoarEncountersTests(unittest.TestCase):
+    def test_roar_phase_requires_a_won_roar_battle(self):
+        # Never passes on ordinary victories alone; needs a roar line before a victory.
+        from native_route import restore_check
+        logs = {'text': ''}
+        class C:
+            def log_offset(self): return 0
+            def log_since(self, start): return logs['text']
+            def status(self): return field_status(scene=1)
+        with mock.patch.object(restore_check.navigate, 'navigate', return_value=None):
+            logs['text'] = 'Native natural encounter frame=1 row=1\nNative victory return queued scene=1 frame=9\n'
+            with self.assertRaises(outcome.StageFailure):
+                restore_check.roar_encounters(C(), '/tmp/x', 1)
+            logs['text'] += ('Native natural encounter message id=100004 frame=20\n'
+                             'Native natural encounter frame=21 row=1\nNative victory return queued scene=1 frame=40\n')
+            r = restore_check.roar_encounters(C(), '/tmp/x', 3)
+            self.assertTrue(any('message id=100004' in e for e in r['events']))
