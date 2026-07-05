@@ -12,7 +12,10 @@ the results are:
 Open limits:
 - Candidate selection remains host-load dependent (17 rejected candidates are
   retained).
-- The phase-8 roar has not yet run live on a fixed binary.
+- The phase-8 roar has not run live on a fixed binary: none of 17 natural
+  contacts on it qualified.
+- A supplemental dev-route rerun (`claude-final-dev-v2b`) passed through a new
+  Save.
 - No Session-level message-window test exists.
 
 ## Submitted: six-package assignment "demonstrated" (not accepted)

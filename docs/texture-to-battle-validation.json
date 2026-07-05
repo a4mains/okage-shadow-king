@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-06-28T15:00:00Z",
+  "overnight_cutoff": "2026-07-04T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,13 +3244,13 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-06-28.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-04.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-06-28.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-06-28.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-04.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-04.txt",
     "branch": "work/texture-to-battle-v1",
-    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-up b1b3e31",
+    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557",
     "commits": {
       "a71c75f": "music 0x12da90 variant",
       "4df558e": "newgame stage v14 + owned CTest registrations",
@@ -3263,7 +3263,8 @@
       "a1f90b3": "independent-review fixes",
       "a5ea4dd": "window type -1 at stage 5",
       "62a468a": "keep transition capture after fade",
-      "b1b3e31": "restore-check --until-roar; compare main guard; slot hash recorded (tools only)"
+      "b1b3e31": "restore-check --until-roar; compare main guard; slot hash recorded (tools only)",
+      "249c557": "native_route encounter: field freed after a logged contact hands over to the battle stage (claude-final-dev-v2a false-fail)"
     },
     "binaries_sha256": {
       "release": "b7f59d77a3f1d134a177810773b23ac0d1c59114ecc444b793e57a8590e1bfc5",
@@ -3407,7 +3408,7 @@
     "limits": [
       "host-load-dependent candidate selection",
       "message windows drawn by the diagnostic text overlay",
-      "phase-8 roar timing is static recovery; roar path not live-exercised after a5ea4dd (see roar_coverage_restore)",
+      "phase-8 roar timing is static recovery; roar path not live-exercised on a fixed binary (see roar_coverage_summary)",
       "music variant exercised live only in claude-final-restore-roar-v1a (strict route gate stayed closed)",
       "no Session-level (whole native process) message-window unit test; owned test drives FieldMessageWindows directly",
       "prefix status equality covers the 115 requested status rows, not every frame",
@@ -3422,6 +3423,21 @@
       "music_variant_live": "Native battle music variant=1 slot1=26 playing=1 at frames 21425, 23900, 26786",
       "process": "quit cleanly by Opus after the operator returned",
       "operator": "Haiku (claude-haiku-4-5)"
-    }
+    },
+    "dev_route_coverage": {
+      "note": "dev prefix (tape re-timed at bedroom activation) is a documented deviation; supplemental coverage, not the acceptance route",
+      "claude-final-dev-v2a": "tools b1b3e31: FAIL encounter 30 at 67760, harness false-fail (field freed 4 frames after contact 67756 while game mode 2); native log clean; fixed 249c557 with red/green tests",
+      "claude-final-dev-v2b": {
+        "tools": "249c557",
+        "binary": "b7f59d77",
+        "result": "PASS all 8 stages (route-dev-prefix, route-walk, route-rosalyn, encounter, battle, home, home-inside, save)",
+        "battles": "formation 4 (contact 68022, victory 70436), 4 (72100, 74482), 6 (75673, 76982), all phase 11",
+        "save": "bkmo2.dat dda3ee0c -> 29b6629d (constructed 79365, retired 79768)",
+        "message_window_rows": 25498,
+        "process": "quit cleanly"
+      },
+      "operator": "Haiku (claude-haiku-4-5)"
+    },
+    "roar_coverage_summary": "No natural contact on the final binary opened a phase-8 roar: 17 natural contacts in total, all phase 11 (4 hist-v4a, 1 restore-v4a, 8 restore-roar-v1a, 1 dev-v2a, 3 dev-v2b; contacts at step counts not divisible by 20). Steering movement to a step count would fit inputs, so it was not done. The roar path rests on static recovery, the window-type -1 unit test and the pre-fix claude-final-dev-v1b observation."
   }
 }
