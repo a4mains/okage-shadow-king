@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-07-04T15:00:00Z",
+  "overnight_cutoff": "2026-07-05T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,11 +3244,11 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-04.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-05.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-04.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-04.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-05.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-05.txt",
     "branch": "work/texture-to-battle-v1",
     "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557",
     "commits": {
@@ -3381,7 +3381,7 @@
       "limit": "observer breakpoints shift vblank alignment by one; comparisons anchor on construction"
     },
     "tests": {
-      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log)",
+      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log); 249c557 (final tools): 1395 run, 95 skipped, OK (python-full-249c557.log)",
       "ctest_release": "134/134 passed",
       "ctest_debug": "134/134 passed",
       "ctest_asan_ubsan": "134/134 passed (3071.8 s)",
