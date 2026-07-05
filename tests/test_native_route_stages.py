@@ -146,6 +146,22 @@ class EncounterTest(unittest.TestCase):
                     log_at={25: 'Native natural encounter frame=125 row=1 column=3 formation=3 phase=11 rear=0'})
         self.assertIn('formation=3', encounter.main(c, '.')['contact_line'])
 
+    def test_field_freed_after_contact_before_mode_change_passes(self):
+        c = FakeCtl(observe_fn=lambda t: observe(t, 2, field=t < 30),
+                    status_fn=lambda t: field_status(t) if t < 30 else field_status(t, scene=None, hero=None),
+                    log_at={25: 'Native natural encounter frame=125 row=1 column=3 formation=4 phase=11 rear=0'})
+        ev = encounter.main(c, '.')
+        self.assertIn('formation=4', ev['contact_line'])
+        self.assertEqual(ev['observe_frame'], 30)
+
+    def test_field_freed_with_contact_before_patrol_fails(self):
+        c = FakeCtl(observe_fn=lambda t: observe(t, 2, field=False),
+                    status_fn=lambda t: field_status(t, scene=None, hero=None))
+        c.log = 'Native natural encounter frame=1 row=1 column=3 formation=4 phase=11 rear=0\n'
+        with self.assertRaises(outcome.StageFailure) as e:
+            encounter.main(c, '.')
+        self.assertIn('field gone', e.exception.reason)
+
 class SaveTest(unittest.TestCase):
     TARGET = 'bkmo2.dat'
     LOG = 'Native field Save constructed frame=93068\nHeadless ready\nNative field Save retired frame=93471\n'

@@ -24,6 +24,9 @@ def main(c, run, a=(-160, 200), b=(-160, 150), budget=6000):
             break
         kumo = [x for x in o['actors'] if 'kumo' in x['model'] and x['visible']]
         s = c.status()
+        if s['scene'] is None and any(l.startswith(CONTACT) for l in c.log_since(start).splitlines()):
+            c.note('field freed after contact', o['game_mode'], 'frame', o['observe_frame'])
+            break
         need(s['scene'] is not None and s['hero_position'] is not None, 'encounter',
              'field gone without a battle', status=s, observe_mode=o['game_mode'])
         hx, hz = s['hero_position'][0], s['hero_position'][2]
