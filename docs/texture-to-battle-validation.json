@@ -3419,7 +3419,7 @@
       "binary": "b7f59d77 (62a468a); tools b1b3e31",
       "command": "python3 R/claude-final-restore-roar-v1a/tools/native_route/cli.py restore-check R/claude-final-restore-roar-v1a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a2... --until-roar 8",
       "result": "FAIL stage battle code 40: slot, restore-route, payload, transitions, encounter PASS; 7 natural battles won (formations 7,2,5,3,8,4,5, all phase 11); party defeated in the 8th (formation 4, contact 26473, defeat return 27707) - ordinary game over with the Attack-only controller, no native error",
-      "roar": "not reached: no contact at a step count divisible by 20",
+      "roar": "not reached: no contact at a playtime second divisible by 20 (0x40004 = variables+0x520, seconds)",
       "music_variant_live": "Native battle music variant=1 slot1=26 playing=1 at frames 21425, 23900, 26786",
       "process": "quit cleanly by Opus after the operator returned",
       "operator": "Haiku (claude-haiku-4-5)"
@@ -3438,6 +3438,6 @@
       },
       "operator": "Haiku (claude-haiku-4-5)"
     },
-    "roar_coverage_summary": "No natural contact on the final binary opened a phase-8 roar: 17 natural contacts in total, all phase 11 (4 hist-v4a, 1 restore-v4a, 8 restore-roar-v1a, 1 dev-v2a, 3 dev-v2b; contacts at step counts not divisible by 20). Steering movement to a step count would fit inputs, so it was not done. The roar path rests on static recovery, the window-type -1 unit test and the pre-fix claude-final-dev-v1b observation."
+    "roar_coverage_summary": "No natural contact on the final binary opened a phase-8 roar: 17 natural contacts in total, all phase 11 (4 hist-v4a, 1 restore-v4a, 8 restore-roar-v1a, 1 dev-v2a, 3 dev-v2b; contacts at playtime seconds not divisible by 20). Steering contact timing to playtime would fit inputs, so it was not done. The roar path rests on static recovery, the window-type -1 unit test and the pre-fix claude-final-dev-v1b observation."
   }
 }

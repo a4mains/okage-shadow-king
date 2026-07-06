@@ -71,6 +71,41 @@ def climb(c, run, tag):
     need(s['scene'] == BEDROOM_SCENE and s['event_running'], 'home-inside', 'bedroom startup menu not running', status=s)
     return {'bedroom_menu': s}
 
+REST_RECOVERED = 'Native field Rest recovered party frame='
+
+def rest(c, tag, settle_ticks=1500):
+    """Bedroom startup menu (message 10110) running: the same ordinary inputs as
+    the Save stage up to the cursor, whose first Down arms it on Rest (choice 0
+    of Rest / Change party / Save), then Confirm. The authored Rest event runs
+    (opcode 0x62 request 10, the native Rest route). Pass requires the cursor on
+    Rest, a native party-recovery line after the Confirm and bedroom field
+    control afterwards. Nothing is injected; HP comes only from the event."""
+    c.step(150, 0)
+    c.step(1, CONFIRM)
+    c.step(60, 0)
+    c.step(1, CONFIRM)
+    c.step(45, 0)
+    c.step(1, DOWN)
+    c.step(20, 0)
+    s = c.status()
+    c.note('menu choice', s['choice'])
+    c.send(f'view {tag}-menu-rest')
+    need(s['choice'] == 0, 'rest', 'menu cursor not on Rest', status=s)
+    start = c.log_offset()
+    c.step(1, CONFIRM)
+    for _ in range(settle_ticks // 10):
+        if in_field_control(c.status(), BEDROOM_SCENE):
+            break
+        c.step(10, 0)
+    s = c.status()
+    if not in_field_control(s, BEDROOM_SCENE):
+        s = c.advance(lambda s: in_field_control(s, BEDROOM_SCENE), confirm_gap=60, max_ticks=3000)
+    recovered = [l for l in c.log_since(start).splitlines() if l.startswith(REST_RECOVERED)]
+    c.send(f'view {tag}-after-rest')
+    need(recovered, 'rest', 'no native party recovery after choosing Rest', status=s)
+    need(in_field_control(s, BEDROOM_SCENE), 'rest', 'not back in bedroom field control after Rest', status=s)
+    return {'recovered': recovered, 'after': s}
+
 def saves_snapshot(run):
     d = Path(run) / 'saves'
     return {p.name: pins.sha256(p) for p in sorted(d.iterdir()) if p.is_file()} if d.is_dir() else {}

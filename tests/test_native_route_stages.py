@@ -478,3 +478,79 @@ class RoarEncountersTests(unittest.TestCase):
                              'Native natural encounter frame=21 row=1\nNative victory return queued scene=1 frame=40\n')
             r = restore_check.roar_encounters(C(), '/tmp/x', 3)
             self.assertTrue(any('message id=100004' in e for e in r['events']))
+
+class RestTests(unittest.TestCase):
+    """Ordinary bedroom Rest (heal between roar-coverage patrols)."""
+    REST = 'Native field Rest recovered party frame=300'
+
+    def ctl(self, choice=0, log_at=None, back=True):
+        # Menu event in the bedroom until tick 400, then field control (or never).
+        def status(t):
+            if t < 400 or not back:
+                return field_status(t, scene=74, event=True, choice=choice)
+            return field_status(t, scene=74)
+        c = FakeCtl(status_fn=status, log_at=log_at)
+        c.advance = lambda until, **k: c.status()
+        return c
+
+    def test_cursor_not_on_rest_fails(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            home_inside.rest(self.ctl(choice=2, log_at={300: self.REST}), 't')
+        self.assertEqual((e.exception.stage, e.exception.code), ('rest', 75))
+        self.assertIn('not on Rest', e.exception.reason)
+
+    def test_no_recovery_line_fails(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            home_inside.rest(self.ctl(), 't')
+        self.assertIn('no native party recovery', e.exception.reason)
+
+    def test_recovery_before_the_confirm_does_not_count(self):
+        with self.assertRaises(outcome.StageFailure):
+            home_inside.rest(self.ctl(log_at={100: self.REST}), 't')
+
+    def test_no_field_control_after_rest_fails(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            home_inside.rest(self.ctl(log_at={300: self.REST}, back=False), 't')
+        self.assertIn('field control', e.exception.reason)
+
+    def test_rest_passes(self):
+        c = self.ctl(log_at={300: self.REST})
+        ev = home_inside.rest(c, 't')
+        self.assertEqual(ev['recovered'], [self.REST])
+        self.assertEqual(ev['after']['scene'], 74)
+        self.assertIn('step 1 0040', c.sent)
+
+class RoarRestCycleTests(unittest.TestCase):
+    def run_loop(self, script, rest_every, max_victories=20):
+        """script: log text appended per patrol leg."""
+        from native_route import restore_check
+        logs = {'text': '', 'leg': 0}
+        class C:
+            def log_offset(self): return 0
+            def log_since(self, start): return logs['text']
+            def status(self): return field_status(scene=1)
+        def leg(*a, **k):
+            if logs['leg'] < len(script):
+                logs['text'] += script[logs['leg']]
+            logs['leg'] += 1
+        cycles = []
+        with mock.patch.object(restore_check.navigate, 'navigate', side_effect=leg), \
+                mock.patch.object(restore_check, 'rest_cycle', side_effect=lambda c, run, n: cycles.append(n) or {'n': n}):
+            try:
+                return restore_check.roar_encounters(C(), '/tmp/x', max_victories, rest_every), cycles
+            except outcome.StageFailure as e:
+                return e, cycles
+
+    WIN = 'Native natural encounter frame=1 row=1\nNative victory return queued scene=1 frame=9\n'
+    ROAR = 'Native natural encounter message id=100004 frame=20\n'
+
+    def test_rests_after_every_n_victories_until_a_won_roar(self):
+        r, cycles = self.run_loop([self.WIN, self.WIN, self.WIN, self.WIN, self.WIN, self.ROAR + self.WIN], 2)
+        self.assertNotIsInstance(r, outcome.StageFailure)
+        self.assertEqual(cycles, [0, 1])
+        self.assertEqual(len(r['rests']), 2)
+
+    def test_no_rest_without_option_and_victories_alone_never_pass(self):
+        r, cycles = self.run_loop([self.WIN] * 5, 0, max_victories=5)
+        self.assertIsInstance(r, outcome.StageFailure)
+        self.assertEqual((r.stage, cycles), ('roar-encounters', []))

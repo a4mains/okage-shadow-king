@@ -155,6 +155,8 @@ def build_parser():
                            help='sha256 of the new Save from the strict run (route-result.json); no default')
             p.add_argument('--until-roar', type=int, default=0,
                            help='after the check, keep fighting ordinary encounters until a phase-8 roar battle is won (at most N victories)')
+            p.add_argument('--rest-every', type=int, default=0,
+                           help='with --until-roar: after every N victories walk home and Rest in the bedroom (ordinary heal)')
     return ap
 
 def prepare_kwargs(a):
@@ -244,7 +246,7 @@ def run_single(nr, c, run, m, a):
             record('restore-route', outcome.run_stage('restore-route', nr.restore_route.main, c, run, m, a.slot_rights))
         elif a.cmd == 'restore-check':
             outcome.run_stage('restore-check', nr.restore_check.main, c, run, m, a.slot_file, a.slot_rights,
-                              a.expect_save_sha256, record, a.until_roar)
+                              a.expect_save_sha256, record, a.until_roar, a.rest_every)
     except outcome.StageFailure as e:
         failure = e
     code = outcome.write_result(result, a.cmd, stages, failure, {'manifest_sha256': m['_sha256'], 'stage': stage,

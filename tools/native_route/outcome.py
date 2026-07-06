@@ -23,6 +23,7 @@ CODES = {
     'home': 50,
     'home-inside': 60,
     'save': 70,
+    'rest': 75,
     'restore-route': 80,
     'restore-check': 90,
     'roar-encounters': 95,

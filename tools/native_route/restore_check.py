@@ -17,7 +17,7 @@ written with status PASS/FAIL and the exit code is nonzero on any failure:
 import math
 from pathlib import Path
 
-from . import battle, navigate, pins, restore_route, savefmt
+from . import battle, home, home_inside, navigate, pins, restore_route, savefmt
 from .outcome import need
 from .pilot import CONFIRM, RIGHT, hero_moved, in_field_control
 
@@ -42,7 +42,53 @@ def check_slot(run, manifest, slot_file, expect_sha=None):
              pinned=pinned['sha256'], expected=expect_sha)
     return data
 
-def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None, until_roar=0):
+def leave_house(c, run, stage='restore-check'):
+    """Bedroom field control -> landing (73) -> hall (70) -> outside (1), ordinary input."""
+    c.walk_to(4.38, -11.85, tol=0.6)
+    for _ in range(6):
+        if c.status()['scene'] == 73:
+            break
+        c.step(1, CONFIRM)
+        c.step(40, 0)
+    for _ in range(200):
+        if c.status()['scene'] == 73:
+            break
+        c.step(10, 0)
+    landing = c.status()
+    need(in_field_control(landing, 73), stage, 'landing (scene 73) not reached', status=landing)
+    navigate.navigate(c, run, (18.2, -0.7), tol=1.5, budget=800, step=6, scene=73)
+    c.walk_to(20.3, -1.3, tol=0.8, max_ticks=60)
+    c.interact((20.3, -1.3), (26, -6), tol=0.8, advance=False)
+    for _ in range(60):
+        if c.status()['scene'] == 70:
+            break
+        c.step(10, 0)
+    hall = c.status()
+    need(in_field_control(hall, 70), stage, 'hall (scene 70) not reached', status=hall)
+    for t in ((10, 19), (0, 16), (0, 4), (0, -6), (-0.3, -24)):
+        navigate.navigate(c, run, t, tol=2.0, budget=500, step=6, scene=70)
+    c.interact((-0.3, -26.5), (-0.3, -35), tol=1.0, advance=False)
+    for _ in range(80):
+        if c.status()['scene'] == 1:
+            break
+        c.step(10, 0)
+    c.step(30, 0)
+    s = c.status()
+    if s['event_running']:
+        c.advance(lambda s: not s['event_running'], confirm_gap=60, max_ticks=6000)
+    outside = c.status()
+    need(in_field_control(outside, 1), stage, 'outside (scene 1) not reached', status=outside)
+    return landing, hall, outside
+
+def to_patrol(c, run):
+    """Outside the house door -> through the yard gate to the patrol start."""
+    navigate.navigate(c, run, (192, 711), tol=3, budget=2000)
+    s = navigate.navigate(c, run, (176, 712), tol=3, budget=600)
+    if s['hero_position'] is None or math.hypot(s['hero_position'][0] - 176, s['hero_position'][2] - 712) > 5:
+        c.interact((190, 711), (170, 711), tol=1.5)
+        navigate.navigate(c, run, (176, 712), tol=3, budget=600)
+
+def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None, until_roar=0, rest_every=0):
     record = record or (lambda name, ev: None)
     data = check_slot(run, manifest, slot_file, expect_sha)
     record('slot', {'slot_file': slot_file, 'expected_save_sha256': expect_sha,
@@ -60,46 +106,9 @@ def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None,
     c.step(1, 0)
     moved = c.status()
     need(hero_moved(restored, moved), 'restore-check', 'ordinary Right step did not move the restored hero')
-    c.walk_to(4.38, -11.85, tol=0.6)
-    for _ in range(6):
-        if c.status()['scene'] == 73:
-            break
-        c.step(1, CONFIRM)
-        c.step(40, 0)
-    for _ in range(200):
-        if c.status()['scene'] == 73:
-            break
-        c.step(10, 0)
-    landing = c.status()
-    need(in_field_control(landing, 73), 'restore-check', 'landing (scene 73) not reached', status=landing)
-    navigate.navigate(c, run, (18.2, -0.7), tol=1.5, budget=800, step=6, scene=73)
-    c.walk_to(20.3, -1.3, tol=0.8, max_ticks=60)
-    c.interact((20.3, -1.3), (26, -6), tol=0.8, advance=False)
-    for _ in range(60):
-        if c.status()['scene'] == 70:
-            break
-        c.step(10, 0)
-    hall = c.status()
-    need(in_field_control(hall, 70), 'restore-check', 'hall (scene 70) not reached', status=hall)
-    for t in ((10, 19), (0, 16), (0, 4), (0, -6), (-0.3, -24)):
-        navigate.navigate(c, run, t, tol=2.0, budget=500, step=6, scene=70)
-    c.interact((-0.3, -26.5), (-0.3, -35), tol=1.0, advance=False)
-    for _ in range(80):
-        if c.status()['scene'] == 1:
-            break
-        c.step(10, 0)
-    c.step(30, 0)
-    s = c.status()
-    if s['event_running']:
-        c.advance(lambda s: not s['event_running'], confirm_gap=60, max_ticks=6000)
-    outside = c.status()
-    need(in_field_control(outside, 1), 'restore-check', 'outside (scene 1) not reached', status=outside)
+    landing, hall, outside = leave_house(c, run)
     record('transitions', {'moved': moved['hero_position'], 'landing': landing, 'hall': hall, 'outside': outside})
-    navigate.navigate(c, run, (192, 711), tol=3, budget=2000)
-    s = navigate.navigate(c, run, (176, 712), tol=3, budget=600)
-    if s['hero_position'] is None or math.hypot(s['hero_position'][0] - 176, s['hero_position'][2] - 712) > 5:
-        c.interact((190, 711), (170, 711), tol=1.5)
-        navigate.navigate(c, run, (176, 712), tol=3, budget=600)
+    to_patrol(c, run)
     for leg in range(16):
         navigate.navigate(c, run, (120, 735) if leg % 2 == 0 else (170, 713), tol=4, budget=500)
         if battle.VICTORY in c.log_since(start):
@@ -115,17 +124,36 @@ def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None,
     need(c.alive(), 'restore-check', 'native process not alive at the end of the check')
     record('encounter', {'after_encounter': after, 'encounters': encounters})
     if until_roar:
-        record('roar-encounters', roar_encounters(c, run, until_roar))
+        record('roar-encounters', roar_encounters(c, run, until_roar, rest_every))
     c.send('quit')
 
 ROAR = 'Native natural encounter message id='
 
-def roar_encounters(c, run, max_victories):
+def rest_cycle(c, run, n):
+    """Ordinary walk home from the patrol, climb to the bedroom, choose Rest,
+    then leave the house and return to the patrol start (all ordinary input;
+    each step has its own verified postcondition)."""
+    tag = f'rest{n}'
+    ev = {'house': home.main(c, run, from_gate=True)['house']}
+    ev['bedroom_menu'] = home_inside.climb(c, run, tag)['bedroom_menu']
+    ev['rest'] = home_inside.rest(c, tag)
+    landing, hall, outside = leave_house(c, run, stage='rest')
+    ev['outside'] = outside
+    to_patrol(c, run)
+    return ev
+
+def roar_encounters(c, run, max_victories, rest_every=0):
     """Keep the same ordinary patrol (and the battle/roar handling navigate
     already does) until a natural encounter that opened Stan's phase-8 roar
     message is fought to victory, at most `max_victories` further victories.
-    Every contact, roar and victory line is recorded; nothing is selected."""
+    With `rest_every` N, after every N victories without a won roar the party
+    walks home and Rests in the bedroom (the ordinary heal; no state edit), then
+    resumes the same patrol. Every contact, roar, victory and Rest is recorded;
+    nothing is selected. The roar itself depends on playtime at contact
+    (0x40004 = variables+0x520, seconds; src/enemy.cpp), which is never steered."""
     start = c.log_offset()
+    rests = []
+    rested_at = 0
     for leg in range(40 * max_victories):
         navigate.navigate(c, run, (120, 735) if leg % 2 == 0 else (170, 713), tol=4, budget=500)
         lines = c.log_since(start).splitlines()
@@ -133,13 +161,16 @@ def roar_encounters(c, run, max_victories):
         roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
         if any(v > r for r in roars for v in victories) or len(victories) >= max_victories:
             break
+        if rest_every and len(victories) - rested_at >= rest_every:
+            rests.append(rest_cycle(c, run, len(rests)))
+            rested_at = len([l for l in c.log_since(start).splitlines() if l.startswith(battle.VICTORY)])
     lines = c.log_since(start).splitlines()
     events = [l for l in lines if l.startswith(battle.CONTACT) or l.startswith(ROAR) or l.startswith(battle.VICTORY)
-              or 'music variant' in l]
+              or 'music variant' in l or l.startswith(home_inside.REST_RECOVERED)]
     roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
     victories = [i for i, l in enumerate(lines) if l.startswith(battle.VICTORY)]
     need(roars and any(v > roars[0] for v in victories), 'roar-encounters',
-         'no phase-8 roar encounter fought to victory within the budget', events=events)
+         'no phase-8 roar encounter fought to victory within the budget', events=events, rests=len(rests))
     after = c.status()
     need(in_field_control(after, 1), 'roar-encounters', 'no field control after the roar battle', status=after)
-    return {'events': events, 'after': after}
+    return {'events': events, 'rests': rests, 'after': after}
