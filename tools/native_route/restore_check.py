@@ -146,14 +146,16 @@ def roar_encounters(c, run, max_victories, rest_every=0):
     """Keep the same ordinary patrol (and the battle/roar handling navigate
     already does) until a natural encounter that opened Stan's phase-8 roar
     message is fought to victory, at most `max_victories` further victories.
-    With `rest_every` N, after every N victories without a won roar the party
-    walks home and Rests in the bedroom (the ordinary heal; no state edit), then
-    resumes the same patrol. Every contact, roar, victory and Rest is recorded;
+    With `rest_every` N the party first walks home and Rests in the bedroom (the
+    ordinary heal; no state edit), and again after every N victories without a
+    won roar, then resumes the same patrol. Every contact, roar, victory and Rest is recorded;
     nothing is selected. The roar itself depends on playtime at contact
     (0x40004 = variables+0x520, seconds; src/enemy.cpp), which is never steered."""
     start = c.log_offset()
     rests = []
     rested_at = 0
+    if rest_every:
+        rests.append(rest_cycle(c, run, 0))
     for leg in range(40 * max_victories):
         navigate.navigate(c, run, (120, 735) if leg % 2 == 0 else (170, 713), tol=4, budget=500)
         lines = c.log_since(start).splitlines()

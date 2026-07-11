@@ -547,8 +547,8 @@ class RoarRestCycleTests(unittest.TestCase):
     def test_rests_after_every_n_victories_until_a_won_roar(self):
         r, cycles = self.run_loop([self.WIN, self.WIN, self.WIN, self.WIN, self.WIN, self.ROAR + self.WIN], 2)
         self.assertNotIsInstance(r, outcome.StageFailure)
-        self.assertEqual(cycles, [0, 1])
-        self.assertEqual(len(r['rests']), 2)
+        self.assertEqual(cycles, [0, 1, 2])  # the first Rest precedes the patrol
+        self.assertEqual(len(r['rests']), 3)
 
     def test_no_rest_without_option_and_victories_alone_never_pass(self):
         r, cycles = self.run_loop([self.WIN] * 5, 0, max_victories=5)
