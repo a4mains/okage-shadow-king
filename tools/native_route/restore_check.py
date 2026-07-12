@@ -42,8 +42,8 @@ def check_slot(run, manifest, slot_file, expect_sha=None):
              pinned=pinned['sha256'], expected=expect_sha)
     return data
 
-def leave_house(c, run, stage='restore-check'):
-    """Bedroom field control -> landing (73) -> hall (70) -> outside (1), ordinary input."""
+def to_landing(c):
+    """Bedroom field control -> through the bedroom door to the landing (73)."""
     c.walk_to(4.38, -11.85, tol=0.6)
     for _ in range(6):
         if c.status()['scene'] == 73:
@@ -54,7 +54,11 @@ def leave_house(c, run, stage='restore-check'):
         if c.status()['scene'] == 73:
             break
         c.step(10, 0)
-    landing = c.status()
+    return c.status()
+
+def leave_house(c, run, stage='restore-check'):
+    """Bedroom field control -> landing (73) -> hall (70) -> outside (1), ordinary input."""
+    landing = to_landing(c)
     need(in_field_control(landing, 73), stage, 'landing (scene 73) not reached', status=landing)
     navigate.navigate(c, run, (18.2, -0.7), tol=1.5, budget=800, step=6, scene=73)
     c.walk_to(20.3, -1.3, tol=0.8, max_ticks=60)
@@ -106,6 +110,13 @@ def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None,
     c.step(1, 0)
     moved = c.status()
     need(hero_moved(restored, moved), 'restore-check', 'ordinary Right step did not move the restored hero')
+    first_rest = None
+    if until_roar and rest_every:
+        landing = to_landing(c)
+        need(in_field_control(landing, 73), 'rest', 'landing (scene 73) not reached', status=landing)
+        first_rest = {'bedroom_menu': home_inside.enter_bedroom(c, run)['bedroom_menu'],
+                      'rest': home_inside.rest(c, 'rest0')}
+        record('rest', first_rest)
     landing, hall, outside = leave_house(c, run)
     record('transitions', {'moved': moved['hero_position'], 'landing': landing, 'hall': hall, 'outside': outside})
     to_patrol(c, run)
@@ -146,16 +157,15 @@ def roar_encounters(c, run, max_victories, rest_every=0):
     """Keep the same ordinary patrol (and the battle/roar handling navigate
     already does) until a natural encounter that opened Stan's phase-8 roar
     message is fought to victory, at most `max_victories` further victories.
-    With `rest_every` N the party first walks home and Rests in the bedroom (the
-    ordinary heal; no state edit), and again after every N victories without a
-    won roar, then resumes the same patrol. Every contact, roar, victory and Rest is recorded;
+    With `rest_every` N (main() has already Rested once in the restored
+    bedroom) the party walks home and Rests in the bedroom (the ordinary heal; no
+    state edit) after every N victories without a won roar, then resumes the
+    same patrol. Every contact, roar, victory and Rest is recorded;
     nothing is selected. The roar itself depends on playtime at contact
     (0x40004 = variables+0x520, seconds; src/enemy.cpp), which is never steered."""
     start = c.log_offset()
     rests = []
     rested_at = 0
-    if rest_every:
-        rests.append(rest_cycle(c, run, 0))
     for leg in range(40 * max_victories):
         navigate.navigate(c, run, (120, 735) if leg % 2 == 0 else (170, 713), tol=4, budget=500)
         lines = c.log_since(start).splitlines()
@@ -164,7 +174,7 @@ def roar_encounters(c, run, max_victories, rest_every=0):
         if any(v > r for r in roars for v in victories) or len(victories) >= max_victories:
             break
         if rest_every and len(victories) - rested_at >= rest_every:
-            rests.append(rest_cycle(c, run, len(rests)))
+            rests.append(rest_cycle(c, run, len(rests) + 1))
             rested_at = len([l for l in c.log_since(start).splitlines() if l.startswith(battle.VICTORY)])
     lines = c.log_since(start).splitlines()
     events = [l for l in lines if l.startswith(battle.CONTACT) or l.startswith(ROAR) or l.startswith(battle.VICTORY)

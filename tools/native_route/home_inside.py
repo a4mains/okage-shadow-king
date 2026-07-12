@@ -60,6 +60,10 @@ def climb(c, run, tag):
     s = wait_scene(c, LANDING_SCENE)
     c.note('landing', s)
     need(s['scene'] == LANDING_SCENE, 'home-inside', 'landing (scene 73) not reached', status=s)
+    return enter_bedroom(c, run)
+
+def enter_bedroom(c, run):
+    """Landing (scene 73) -> bedroom with the startup menu (message 10110) running."""
     navigate.navigate(c, run, (-12, 4.7), tol=1.5, budget=800, step=6, scene=LANDING_SCENE)
     c.interact((-12, 4.7), (-12, 12), tol=1.0, advance=False)
     for _ in range(60):
