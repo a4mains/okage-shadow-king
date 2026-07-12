@@ -97,6 +97,21 @@ class BattleTest(unittest.TestCase):
             battle.main(c, self.run)
         self.assertIn('without a native victory', e.exception.reason)
 
+    def test_victory_line_after_the_battle_is_freed_passes(self):
+        # claude-final-restore-roar-v2b: battle freed at 12217, line follows.
+        c = FakeCtl(observe_fn=lambda t: observe(t, 3, True, False) if t < 40 else observe(t, 3, False, False),
+                    log_at={45: 'Native victory return queued scene=1 frame=145'})
+        self.assertIn('victory return queued', battle.main(c, self.run)['victory_line'])
+
+    def test_defeat_after_the_battle_is_freed_fails_without_waiting(self):
+        c = FakeCtl(observe_fn=lambda t: observe(t, 3, True, False) if t < 40 else observe(t, 3, False, False),
+                    log_at={42: 'Native defeat return requested mode=8 arg=4 frame=142',
+                            100: 'Native victory return queued scene=1 frame=200'})
+        with self.assertRaises(outcome.StageFailure) as e:
+            battle.main(c, self.run)
+        self.assertIn('without a native victory', e.exception.reason)
+        self.assertLess(c.ticks, 100)
+
     def test_victory_passes(self):
         c = FakeCtl(observe_fn=lambda t: observe(t, 3, True, False) if t < 40 else observe(t, 2, False, True),
                     log_at={30: 'Native victory return queued scene=1 frame=130'})

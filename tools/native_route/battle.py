@@ -18,6 +18,8 @@ from .pilot import CONFIRM, UP
 VICTORY = 'Native victory return queued'
 FIELD_RESTORED = 'Native saved field restored scene='
 CONTACT = 'Native natural encounter frame='
+DEFEAT = 'Native defeat return'
+VICTORY_SETTLE_FRAMES = 120
 
 def last_ui(run):
     path = Path(run) / 'battle-live.jsonl'
@@ -98,6 +100,12 @@ def main(c, run, budget=6000, construct_polls=100):
             c.step(8, 0)
             used += 8
     text = c.log_since(start)
+    for _ in range(VICTORY_SETTLE_FRAMES):
+        if VICTORY in text or DEFEAT in text:
+            break
+        c.step(1, 0)
+        used += 1
+        text = c.log_since(start)
     need(VICTORY in text, 'battle', 'battle ended without a native victory return',
          end_observe=o, log_tail=text.splitlines()[-5:])
     return {'end_observe_frame': o['observe_frame'], 'ticks': used, 'confirm_presses': presses,
