@@ -456,11 +456,24 @@ class RouteTest(unittest.TestCase):
     def test_home_not_reaching_house_fails(self):
         c = FakeCtl()
         c.interact = lambda *a, **k: field_status()
+        c.walk_to = lambda *a, **k: field_status()
         with mock.patch.object(home.battle, 'fight_if_needed', return_value=None), \
                 mock.patch.object(home.navigate, 'navigate', side_effect=lambda c, *a, **k: field_status()):
             with self.assertRaises(outcome.StageFailure) as e:
                 home.main(c, '.', from_gate=True)
         self.assertEqual(e.exception.code, 50)
+
+    def test_home_from_gate_walks_the_yard_waypoints(self):
+        c = FakeCtl()
+        walked = []
+        c.walk_to = lambda x, z, **k: walked.append((x, z))
+        c.interact = lambda *a, **k: field_status()
+        c.status = lambda: field_status(hero=walked[-1][:1] + (0.0,) + walked[-1][1:] if walked else (181.9, 0, 710.0))
+        with mock.patch.object(home.battle, 'fight_if_needed', return_value=None), \
+                mock.patch.object(home.navigate, 'navigate', side_effect=lambda c, *a, **k: field_status()):
+            with self.assertRaises(outcome.StageFailure):
+                home.main(c, '.', from_gate=True)
+        self.assertEqual(walked[:len(home.YARD)], home.YARD)
 
 if __name__ == '__main__':
     unittest.main()

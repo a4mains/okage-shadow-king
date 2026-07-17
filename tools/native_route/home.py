@@ -17,6 +17,8 @@ WAYPOINTS = [(-158, 241), (-163, 252), (-161, 317), (-142, 318), (-155, 353), (-
              (96.8, 749.2), (103.3, 743.3), (107.9, 737.1), (115.6, 734.4), (122.2, 728.6), (135.4, 723.8),
              (148.7, 719.6), (164, 713), (176, 712)]
 NAV_TARGETS = [(178, 711), (283, 690)]
+YARD = [(197.6, 712.8), (212.9, 704.3), (227.3, 697.0), (238.8, 701.0), (249.1, 709.1), (263.1, 699.4),
+        (274.1, 688.6)]
 HOUSE_SCENE = 70
 
 def walk_points(c, run, points, scene, max_events=50):
@@ -49,6 +51,7 @@ def main(c, run, from_gate=False):
     c.note('navigate gate approach ->', s)
     s = c.interact((181, 711), (195, 711))
     c.note('gate ->', s)
+    walk_points(c, run, YARD, 1)
     s = navigate.navigate(c, run, (277, 687), tol=3, budget=1500)
     c.note('navigate door ->', s)
     for _ in range(3):
