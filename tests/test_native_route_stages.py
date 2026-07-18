@@ -582,3 +582,24 @@ class RoarRestCycleTests(unittest.TestCase):
         r, cycles = self.run_loop([self.WIN] * 5, 0, max_victories=5)
         self.assertIsInstance(r, outcome.StageFailure)
         self.assertEqual((r.stage, cycles), ('roar-encounters', []))
+
+class NavigateRoarTests(unittest.TestCase):
+    def test_settle_handles_an_active_roar_while_the_hero_is_locked(self):
+        from native_route import navigate
+        c = FakeCtl()
+        state = {'roar': True}
+        c.roar_active = lambda: state['roar']
+        fought = []
+        def fight(c, run):
+            fought.append(1)
+            state['roar'] = False
+        with mock.patch.object(navigate.battle, 'fight_if_needed', side_effect=fight):
+            self.assertIsNone(navigate.settle(c, '.', 1))
+        self.assertEqual(fought, [1])
+
+    def test_settle_without_roar_returns_at_once(self):
+        from native_route import navigate
+        c = FakeCtl()
+        with mock.patch.object(navigate.battle, 'fight_if_needed') as fight:
+            self.assertIsNone(navigate.settle(c, '.', 1))
+        fight.assert_not_called()

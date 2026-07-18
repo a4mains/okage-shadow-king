@@ -14,11 +14,14 @@ from .pilot import DIRS
 def settle(c, run, scene, max_polls=2000):
     """Scene None: a battle (fight it) or a transition (return the new status)."""
     for _ in range(max_polls):
+        if c.roar_active():
+            battle.fight_if_needed(c, run)
+            continue
         s = c.status()
         if s['scene'] == scene and s['hero_position'] is not None:
             return None
         o = c.observe()
-        if o['battle'] or c.roar_active():
+        if o['battle']:
             battle.fight_if_needed(c, run)
             continue
         if s['scene'] is not None and s['scene'] != scene:
