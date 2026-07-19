@@ -603,3 +603,59 @@ class NavigateRoarTests(unittest.TestCase):
         with mock.patch.object(navigate.battle, 'fight_if_needed') as fight:
             self.assertIsNone(navigate.settle(c, '.', 1))
         fight.assert_not_called()
+
+class RoarWheelTests(unittest.TestCase):
+    """pilot.Ctl.roar against a model of the recovered Stan roar dialogue model: text
+    pages advance on Confirm; a QC wheel needs Up/Down to arm (no cursor move),
+    then Confirm takes the cursor row and disarms; Down while armed moves it."""
+
+    class Model:
+        def __init__(self, pages):
+            self.pages = pages  # 'text' or 'qc' per text_progress step
+            self.progress, self.armed, self.cursor, self.rows, self.frame = 0, False, 0, [], 0
+            self.notes = []
+
+        def roar_active(self):
+            return self.progress < len(self.pages)
+
+        def observe(self):
+            return {'battle': False, 'field': True, 'message': 100011, 'text_progress': self.progress,
+                    'choice': self.cursor, 'observe_frame': self.frame}
+
+        def note(self, *a):
+            self.notes.append(a)
+
+        def step(self, n, mask=0):
+            from native_route.pilot import CONFIRM, DOWN
+            self.frame += n
+            if not self.roar_active():
+                return
+            page = self.pages[self.progress]
+            if mask & DOWN and page == 'qc':
+                if self.armed:
+                    self.cursor = (self.cursor + 1) % 3
+                self.armed = True
+            elif mask & CONFIRM:
+                if page == 'text':
+                    self.progress += 1
+                elif self.armed:
+                    self.rows.append(self.cursor)
+                    self.armed, self.cursor = False, 0
+                    self.progress += 1
+
+    PAGES = ['text', 'qc', 'qc', 'qc', 'text', 'text']
+
+    def test_roar_arms_each_wheel_and_takes_the_default_rows(self):
+        from native_route import pilot
+        m = self.Model(self.PAGES)
+        pilot.Ctl.roar(m)
+        self.assertFalse(m.roar_active())
+        self.assertEqual(m.rows, [0, 0, 0])
+
+    def test_confirm_alone_never_passes_a_wheel(self):
+        # The pre-fix behaviour (claude-final-restore-roar-v2d 65502..81195).
+        from native_route.pilot import CONFIRM
+        m = self.Model(self.PAGES)
+        for _ in range(50):
+            m.step(4, CONFIRM)
+        self.assertEqual(m.progress, 1)

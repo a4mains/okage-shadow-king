@@ -198,14 +198,31 @@ class Ctl:
         m = text.rfind('Native natural encounter message id=')
         return m >= 0 and text.rfind('Native battle', m) < 0 and text.rfind('Native natural encounter frame=', m) < 0
 
-    def roar(self, gap=40, max_ticks=20000):
-        """Ordinary Confirm at a fixed cadence through Stan's roar message. The
-        wheels keep their default rows; no answer is read or chosen."""
+    def roar(self, gap=40, max_ticks=20000, rearm_after=8):
+        """Ordinary input through Stan's roar message. Each QC word wheel ignores
+        Confirm until Up/Down arms it, and the arming press does not move the
+        cursor (the recovered Stan roar dialogue model; claude-final-restore-roar-v2d
+        stalled at text_progress 2 on Confirm alone). Confirm; when the text did
+        not advance, one Down arms the wheel and the next Confirm takes its
+        default row. No answer is read or chosen."""
         used = 0
+        last = None
+        armed = False
+        stalled = 0
         while self.roar_active() and used < max_ticks:
             o = self.observe()
             if o['battle'] or not o['field']:
                 break
+            key = (o['message'], o['text_progress'])
+            if key != last:
+                last, armed, stalled = key, False, 0
+            else:
+                stalled += 1
+                if not armed or stalled >= rearm_after:
+                    self.step(1, DOWN)
+                    self.step(10, 0)
+                    used += 11
+                    armed, stalled = True, 0
             self.step(4, CONFIRM)
             self.step(gap, 0)
             used += 4 + gap
