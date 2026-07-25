@@ -2,8 +2,10 @@
 No formation, RNG or outcome is chosen; contact and formation come from the game.
 
 Success requires the native log to report `Native natural encounter frame=`
-after the patrol began and observe to show the battle/mode change. Budget
-exhaustion or a field that disappears without a contact is a failure.
+after the patrol began, and then either the battle/mode change or a field freed
+after that contact (the battle stage then requires mode 3). Budget exhaustion,
+or a field that disappears without a contact since the patrol began, is a
+failure.
 """
 import math
 

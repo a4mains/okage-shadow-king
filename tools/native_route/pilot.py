@@ -11,6 +11,8 @@ import os
 import time
 from pathlib import Path
 
+from .outcome import need
+
 UP, RIGHT, DOWN, LEFT, CONFIRM, CANCEL, START = 0x1000, 0x2000, 0x4000, 0x8000, 0x0040, 0x0020, 0x0800
 DIRS = [(0, UP), (-90, RIGHT), (180, DOWN), (90, LEFT), (-45, UP | RIGHT), (45, UP | LEFT),
         (-135, DOWN | RIGHT), (135, DOWN | LEFT)]
@@ -204,7 +206,8 @@ class Ctl:
         cursor (the recovered Stan roar dialogue model; claude-final-restore-roar-v2d
         stalled at text_progress 2 on Confirm alone). Confirm; when the text did
         not advance, one Down arms the wheel and the next Confirm takes its
-        default row. No answer is read or chosen."""
+        default row. A Down that moves the cursor fails the stage, so no
+        answer is ever chosen."""
         used = 0
         last = None
         armed = False
@@ -223,6 +226,10 @@ class Ctl:
                     self.step(10, 0)
                     used += 11
                     armed, stalled = True, 0
+                    after = self.observe()
+                    need(after['choice'] == o['choice'], 'roar-encounters',
+                         'a Down moved the roar wheel cursor', before=o['choice'], after=after['choice'],
+                         frame=after['observe_frame'])
             self.step(4, CONFIRM)
             self.step(gap, 0)
             used += 4 + gap

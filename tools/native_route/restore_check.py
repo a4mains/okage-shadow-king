@@ -153,6 +153,19 @@ def rest_cycle(c, run, n):
     to_patrol(c, run)
     return ev
 
+def won_roar(lines):
+    """True when a roar message line is followed by a victory with no other
+    contact in between (the victory belongs to the roar battle)."""
+    for i, l in enumerate(lines):
+        if not l.startswith(ROAR):
+            continue
+        for later in lines[i + 1:]:
+            if later.startswith(battle.VICTORY):
+                return True
+            if later.startswith(battle.CONTACT) and 'phase=8' not in later:
+                break
+    return False
+
 def roar_encounters(c, run, max_victories, rest_every=0):
     """Keep the same ordinary patrol (and the battle/roar handling navigate
     already does) until a natural encounter that opened Stan's phase-8 roar
@@ -171,7 +184,7 @@ def roar_encounters(c, run, max_victories, rest_every=0):
         lines = c.log_since(start).splitlines()
         victories = [i for i, l in enumerate(lines) if l.startswith(battle.VICTORY)]
         roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
-        if any(v > r for r in roars for v in victories) or len(victories) >= max_victories:
+        if won_roar(lines) or len(victories) >= max_victories:
             break
         if rest_every and len(victories) - rested_at >= rest_every:
             rests.append(rest_cycle(c, run, len(rests) + 1))
@@ -181,7 +194,7 @@ def roar_encounters(c, run, max_victories, rest_every=0):
               or 'music variant' in l or l.startswith(home_inside.REST_RECOVERED)]
     roars = [i for i, l in enumerate(lines) if l.startswith(ROAR)]
     victories = [i for i, l in enumerate(lines) if l.startswith(battle.VICTORY)]
-    need(roars and any(v > roars[0] for v in victories), 'roar-encounters',
+    need(won_roar(lines), 'roar-encounters',
          'no phase-8 roar encounter fought to victory within the budget', events=events, rests=len(rests))
     after = c.status()
     need(in_field_control(after, 1), 'roar-encounters', 'no field control after the roar battle', status=after)

@@ -475,9 +475,6 @@ class RouteTest(unittest.TestCase):
                 home.main(c, '.', from_gate=True)
         self.assertEqual(walked[:len(home.YARD)], home.YARD)
 
-if __name__ == '__main__':
-    unittest.main()
-
 class RestoreCheckCliTests(unittest.TestCase):
     def test_restore_check_requires_the_new_save_hash(self):
         # Review finding 4: without the expected hash any pinned save could pass.
@@ -488,6 +485,16 @@ class RestoreCheckCliTests(unittest.TestCase):
         a = parser.parse_args(['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
                                '--expect-save-sha256', 'ab' * 32])
         self.assertEqual(a.expect_save_sha256, 'ab' * 32)
+
+class RestEveryCliTests(unittest.TestCase):
+    def test_rest_every_requires_until_roar(self):
+        from native_route import cli
+        base = ['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
+                '--expect-save-sha256', 'ab' * 32, '--rest-every', '2']
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as e:
+            cli.parse(base)
+        self.assertEqual(e.exception.code, cli.USAGE)
+        self.assertEqual(cli.parse(base + ['--until-roar', '5']).rest_every, 2)
 
 class RoarEncountersTests(unittest.TestCase):
     def test_roar_phase_requires_a_won_roar_battle(self):
@@ -502,8 +509,17 @@ class RoarEncountersTests(unittest.TestCase):
             logs['text'] = 'Native natural encounter frame=1 row=1\nNative victory return queued scene=1 frame=9\n'
             with self.assertRaises(outcome.StageFailure):
                 restore_check.roar_encounters(C(), '/tmp/x', 1)
-            logs['text'] += ('Native natural encounter message id=100004 frame=20\n'
-                             'Native natural encounter frame=21 row=1\nNative victory return queued scene=1 frame=40\n')
+            # A roar won only by a later, different battle does not count.
+            logs['text'] += ('Native natural encounter frame=19 row=1 column=1 formation=3 phase=8 rear=0\n'
+                             'Native natural encounter message id=100004 frame=20\n'
+                             'Native natural encounter frame=31 row=1 column=2 formation=4 phase=11 rear=0\n'
+                             'Native victory return queued scene=1 frame=40\n')
+            with self.assertRaises(outcome.StageFailure):
+                restore_check.roar_encounters(C(), '/tmp/x', 2)
+            # Real order: phase-8 contact, roar message, the roar battle's victory.
+            logs['text'] += ('Native natural encounter frame=59 row=1 column=1 formation=3 phase=8 rear=0\n'
+                             'Native natural encounter message id=100004 frame=60\n'
+                             'Native victory return queued scene=1 frame=80\n')
             r = restore_check.roar_encounters(C(), '/tmp/x', 3)
             self.assertTrue(any('message id=100004' in e for e in r['events']))
 
@@ -570,13 +586,19 @@ class RoarRestCycleTests(unittest.TestCase):
                 return e, cycles
 
     WIN = 'Native natural encounter frame=1 row=1\nNative victory return queued scene=1 frame=9\n'
-    ROAR = 'Native natural encounter message id=100004 frame=20\n'
+    ROAR = ('Native natural encounter frame=19 row=1 column=1 formation=3 phase=8 rear=0\n'
+            'Native natural encounter message id=100004 frame=20\n')
+    ROAR_WIN = ROAR + 'Native victory return queued scene=1 frame=40\n'
 
     def test_rests_after_every_n_victories_until_a_won_roar(self):
-        r, cycles = self.run_loop([self.WIN, self.WIN, self.WIN, self.WIN, self.WIN, self.ROAR + self.WIN], 2)
+        r, cycles = self.run_loop([self.WIN, self.WIN, self.WIN, self.WIN, self.WIN, self.ROAR_WIN], 2)
         self.assertNotIsInstance(r, outcome.StageFailure)
         self.assertEqual(cycles, [1, 2])
         self.assertEqual(len(r['rests']), 2)
+
+    def test_roar_followed_by_another_battle_is_not_a_won_roar(self):
+        r, _ = self.run_loop([self.ROAR, self.WIN, self.WIN], 0, max_victories=2)
+        self.assertIsInstance(r, outcome.StageFailure)
 
     def test_no_rest_without_option_and_victories_alone_never_pass(self):
         r, cycles = self.run_loop([self.WIN] * 5, 0, max_victories=5)
@@ -652,10 +674,30 @@ class RoarWheelTests(unittest.TestCase):
         self.assertFalse(m.roar_active())
         self.assertEqual(m.rows, [0, 0, 0])
 
+    def test_a_down_that_moves_the_cursor_fails(self):
+        # A wheel that keeps rejecting Confirm (flag 0x10 clear) makes the
+        # handler re-arm; Down on an armed wheel moves the cursor -> failure.
+        from native_route import pilot
+        m = self.Model(['qc'])
+        real = m.step
+        def step(n, mask=0):
+            from native_route.pilot import CONFIRM
+            if mask & CONFIRM:
+                m.frame += n
+                return
+            real(n, mask)
+        m.step = step
+        with self.assertRaises(outcome.StageFailure) as e:
+            pilot.Ctl.roar(m)
+        self.assertIn('moved the roar wheel cursor', e.exception.reason)
+
     def test_confirm_alone_never_passes_a_wheel(self):
-        # The pre-fix behaviour (claude-final-restore-roar-v2d 65502..81195).
+        # The pre-fix pilot.roar (claude-final-restore-roar-v2d 72880..81152, Confirm only).
         from native_route.pilot import CONFIRM
         m = self.Model(self.PAGES)
         for _ in range(50):
             m.step(4, CONFIRM)
         self.assertEqual(m.progress, 1)
+
+if __name__ == '__main__':
+    unittest.main()

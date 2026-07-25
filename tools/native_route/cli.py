@@ -163,12 +163,19 @@ def prepare_kwargs(a):
     return dict(binary=a.binary, stage=a.stage, prepared=a.prepared, saves=a.saves, prelude_ticks=a.prelude_ticks,
                 newgame_report=a.newgame_report, rng_sites=a.rng_sites, min_free_gib=a.min_free_gib, source_repo=a.source_repo)
 
+def parse(argv):
+    ap = build_parser()
+    a = ap.parse_args(argv)
+    if getattr(a, 'rest_every', 0) and not a.until_roar:
+        ap.error('--rest-every requires --until-roar')
+    return a
+
 def main(argv=None):
     reexec_isolated()
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv and argv[0] == 'compare':
         return import_package().compare.main(argv[1:])
-    a = build_parser().parse_args(argv)
+    a = parse(argv)
     if a.cmd in RUN_SCOPED:
         preverify_tools(a.run)
     nr = import_package()
