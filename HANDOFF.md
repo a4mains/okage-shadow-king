@@ -8,14 +8,14 @@ the results are:
 - A new bedroom Save is written (`f94fa5a2…`). Another process restores it cold
   and play continues.
 - A second Restore process ran the music variant live (`variant=1`, three
+- `claude-final-restore-roar-v3a` passed under one harness command: Restore,
+- A supplemental dev-route rerun (`claude-final-dev-v2b`) passed through a new
+  Save.
 
 Open limits:
 - Candidate selection remains host-load dependent (17 rejected candidates are
   retained).
-- The phase-8 roar has not run live on a fixed binary: none of 17 natural
-  contacts on it qualified.
-- A supplemental dev-route rerun (`claude-final-dev-v2b`) passed through a new
-  Save.
+- The phase-8 roar timing is static recovery, with no original observation.
 - No Session-level message-window test exists.
 
 ## Submitted: six-package assignment "demonstrated" (not accepted)

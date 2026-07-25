@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-07-05T15:00:00Z",
+  "overnight_cutoff": "2026-07-25T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,13 +3244,13 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-05.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-25.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-05.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-05.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-25.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-25.txt",
     "branch": "work/texture-to-battle-v1",
-    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557",
+    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2",
     "commits": {
       "a71c75f": "music 0x12da90 variant",
       "4df558e": "newgame stage v14 + owned CTest registrations",
@@ -3264,7 +3264,15 @@
       "a5ea4dd": "window type -1 at stage 5",
       "62a468a": "keep transition capture after fade",
       "b1b3e31": "restore-check --until-roar; compare main guard; slot hash recorded (tools only)",
-      "249c557": "native_route encounter: field freed after a logged contact hands over to the battle stage (claude-final-dev-v2a false-fail)"
+      "249c557": "native_route encounter: field freed after a logged contact hands over to the battle stage (claude-final-dev-v2a false-fail)",
+      "fde197d": "restore-check --rest-every: ordinary bedroom Rest between roar patrols (stage rest, code 75); docs: roar condition is playtime",
+      "98461e4": "Rest before the roar patrol",
+      "201316e": "battle: bounded wait for the victory line after the battle is freed (v2b race)",
+      "a7ab562": "first Rest in the restored bedroom",
+      "7d00e8c": "home: yard waypoints from gate to door (v2c dead end)",
+      "b9ff32d": "navigate.settle handles an active roar first (v2d)",
+      "56b7c60": "pilot.roar arms each QC word wheel with one Down before Confirm (v2d)",
+      "5f1dfd2": "review-3 fixes: roar cursor guard, roar victory must follow the roar, --rest-every requires --until-roar"
     },
     "binaries_sha256": {
       "release": "b7f59d77a3f1d134a177810773b23ac0d1c59114ecc444b793e57a8590e1bfc5",
@@ -3352,7 +3360,9 @@
       "restore_launch": "python3 WORK/tools/native_route/cli.py launch-new --run R/claude-final-restore-v4a --binary <same> --stage <same> --prepared R/claude-dev-prepared-v1 --saves R/claude-final-hist-v4a/saves --prelude-ticks 808 --rng-sites --source-repo WORK",
       "restore_check": "python3 R/claude-final-restore-v4a/tools/native_route/cli.py restore-check R/claude-final-restore-v4a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a20ffcb7f60acd0320b38054c814870a3eec024dfbad10cf7906ab3a9a",
       "compare": "python3 WORK/tools/native_route/cli.py compare R/claude-final-hist-v4a R/claude-strict-v21c --a-inputs 1:56846 --b-inputs 1:56846 --a-status 1:56846 --b-status 1:56846",
-      "final_tests": "local/research/texture-to-battle-v1/claude-review-v2/final-tests-62a468a/run.sh"
+      "final_tests": "local/research/texture-to-battle-v1/claude-review-v2/final-tests-62a468a/run.sh",
+      "strict_candidates_note": "the accepted hist-v4a/restore-v4a used tools pinned at 62a468a (RUN/tools); HEAD tools differ (home.py yard waypoints etc.), so reproduce with the run's pinned copy: python3 R/claude-final-hist-v4a/tools/native_route/cli.py ...",
+      "roar_clean": "python3 R/claude-final-restore-roar-v3a/tools/native_route/cli.py restore-check R/claude-final-restore-roar-v3a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a2... --until-roar 40 --rest-every 2"
     },
     "rejected_or_failed_candidates": {
       "prelude_diverged_2394": [
@@ -3381,7 +3391,7 @@
       "limit": "observer breakpoints shift vblank alignment by one; comparisons anchor on construction"
     },
     "tests": {
-      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log); 249c557 (final tools): 1395 run, 95 skipped, OK (python-full-249c557.log)",
+      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log); 249c557 (final tools): 1395 run, 95 skipped, OK (python-full-249c557.log); 5f1dfd2 (final tools): 1412 run, 95 skipped (same five environment reasons), OK (python-full-5f1dfd2.log)",
       "ctest_release": "134/134 passed",
       "ctest_debug": "134/134 passed",
       "ctest_asan_ubsan": "134/134 passed (3071.8 s)",
@@ -3394,11 +3404,13 @@
         "lifecycle evidence or trace binary missing": 2,
         "OKAGE_NATIVE, replay input or staged root absent": 1,
         "note": "environment-gated tests whose native paths are covered by the CTest suites"
-      }
+      },
+      "ctest_note": "CTest results at 62a468a stand for the final HEAD: git diff 62a468a..5f1dfd2 -- src include CMakeLists.txt is empty"
     },
     "independent_review": {
       "review_1": "a71c75f..f8cd645: 1 blocker + majors, all fixed in a1f90b3",
-      "review_2": "read-only review of a1f90b3, a5ea4dd, 62a468a and the final route evidence; rebuilt git archive 62a468a to b7f59d77 exactly; no new code blocker; review-1 findings 1-4 and 6 fixed (5, 7, 8 partly); final-run binary/tool/stage/prefix-input pins consistent; both prefix comparisons reproduced; minors fixed in b1b3e31 (compare.py main guard, restore-check records the slot hash); native_runtime.mm:1340 battle-capture guard kept (throw-only; reads live dialogue state, cannot silently change state); evidence majors: music variant had no live run (since addressed by claude-final-restore-roar-v1a), roar phase-8 not live-exercised after a5ea4dd, no Session-level message-window test, prefix status equality is 115 requested rows (none inside the prelude)"
+      "review_2": "read-only review of a1f90b3, a5ea4dd, 62a468a and the final route evidence; rebuilt git archive 62a468a to b7f59d77 exactly; no new code blocker; review-1 findings 1-4 and 6 fixed (5, 7, 8 partly); final-run binary/tool/stage/prefix-input pins consistent; both prefix comparisons reproduced; minors fixed in b1b3e31 (compare.py main guard, restore-check records the slot hash); native_runtime.mm:1340 battle-capture guard kept (throw-only; reads live dialogue state, cannot silently change state); evidence majors: music variant had no live run (since addressed by claude-final-restore-roar-v1a), roar phase-8 not live-exercised after a5ea4dd (since addressed by claude-final-restore-roar-v3a and -v2d), no Session-level message-window test, prefix status equality is 115 requested rows (none inside the prelude)",
+      "review_3": "read-only review of 62a468a..56b7c60, all final runs and docs: no blocker; no false-pass path in tool changes (they remove false-fails only); pinned tool copies, run binaries and roar-coverage hashes verified; -v3a clean phase-8 evidence, -v2d acceptable supplement with disclosures; fixed in 5f1dfd2 (cursor guard, roar-victory rule, --rest-every usage, docstring/guard/comment); docs reconciled (v2d count/disclosures, Down counts, Restore scope, music variant in v2b, pinned candidates command); open: no Session-level phase-8/manager_message_live test, in_field_control cannot detect a modal message"
     },
     "audit": {
       "process_56987": "absent at review start; nothing killed",
@@ -3408,11 +3420,14 @@
     "limits": [
       "host-load-dependent candidate selection",
       "message windows drawn by the diagnostic text overlay",
-      "phase-8 roar timing is static recovery; roar path not live-exercised on a fixed binary (see roar_coverage_summary)",
       "music variant exercised live only in claude-final-restore-roar-v1a (strict route gate stayed closed)",
       "no Session-level (whole native process) message-window unit test; owned test drives FieldMessageWindows directly",
       "prefix status equality covers the 115 requested status rows, not every frame",
-      "post-prefix evidence native-to-native; no image/audio equivalence"
+      "post-prefix evidence native-to-native; no image/audio equivalence",
+      "phase-8 roar timing is static recovery: live native runs (roar-v3a, -v2d) show it is consistent, but no original roar observation exists",
+      "restore-check does not compare restored pose or resource bindings (restore places the hero at the scene entrance; bindings exercised but not compared)",
+      "roar answer-comparison branch not recorded",
+      "in_field_control cannot detect a modal message (harness)"
     ],
     "roar_coverage_restore": {
       "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v1a",
@@ -3420,7 +3435,7 @@
       "command": "python3 R/claude-final-restore-roar-v1a/tools/native_route/cli.py restore-check R/claude-final-restore-roar-v1a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a2... --until-roar 8",
       "result": "FAIL stage battle code 40: slot, restore-route, payload, transitions, encounter PASS; 7 natural battles won (formations 7,2,5,3,8,4,5, all phase 11); party defeated in the 8th (formation 4, contact 26473, defeat return 27707) - ordinary game over with the Attack-only controller, no native error",
       "roar": "not reached: no contact at a playtime second divisible by 20 (0x40004 = variables+0x520, seconds)",
-      "music_variant_live": "Native battle music variant=1 slot1=26 playing=1 at frames 21425, 23900, 26786",
+      "music_variant_live": "Native battle music variant=1 slot1=26 playing=1 at frames 21425, 23900, 26786; also in claude-final-restore-roar-v2b at 8560 and 10750",
       "process": "quit cleanly by Opus after the operator returned",
       "operator": "Haiku (claude-haiku-4-5)"
     },
@@ -3438,6 +3453,37 @@
       },
       "operator": "Haiku (claude-haiku-4-5)"
     },
-    "roar_coverage_summary": "No natural contact on the final binary opened a phase-8 roar: 17 natural contacts in total, all phase 11 (4 hist-v4a, 1 restore-v4a, 8 restore-roar-v1a, 1 dev-v2a, 3 dev-v2b; contacts at playtime seconds not divisible by 20). Steering contact timing to playtime would fit inputs, so it was not done. The roar path rests on static recovery, the window-type -1 unit test and the pre-fix claude-final-dev-v1b observation."
+    "roar_live": {
+      "condition": "field_mode 8 iff var 0x40004 (variables+0x520, playtime seconds) % 20 == 0 at contact (src/enemy.cpp:67); never steered",
+      "clean_run": {
+        "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v3a",
+        "binary": "b7f59d77",
+        "tools": "56b7c60",
+        "command": "python3 R/claude-final-restore-roar-v3a/tools/native_route/cli.py restore-check R/claude-final-restore-roar-v3a --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 f94fa5a2... --until-roar 40 --rest-every 2",
+        "result": "PASS exit 0: slot, restore-route, payload, rest, transitions, encounter, roar-encounters",
+        "rest": "native recovery 2086, 2272",
+        "encounters": "check encounter 5861 won 7162; formation 7 contact 8578 won 10414",
+        "roar": "phase-8 contact 11461 formation 3, message 100004 at 11462, roar handled after 924 ticks: 8 Downs for 3 wheels (extras on stalled text pages, no effect), cursor 0 at every observe (default rows), victory 13648, results 13652, field restored 13865",
+        "message_windows": "100004 accounted on 880 frames; construction frame 11462 b_constructor 0, a_draws 32 (18 glyphs + 7 sentinels), b_draws 32; stage 5 thereafter",
+        "guards": "none",
+        "inputs": "pad ticks only",
+        "operator": "Haiku (claude-haiku-4-5)",
+        "later_guards": "5f1dfd2 guards (cursor unchanged after Down; victory belongs to the roar) hold on this run's logs"
+      },
+      "first_roar": {
+        "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v2d",
+        "tools": "7d00e8c",
+        "result": "12 natural wins + 6 Rests; phase-8 contact 65501 formation 9, message 100011. Driver patrolled into the open message ~7,400 frames (65502..72879, ~600 direction presses, no Confirm) until Opus stopped it; pinned battle command pressed Confirm only 72880..81152 and was stopped; Opus finished the wheels with journaled send step (6 Downs, 18 Confirms, cursor 0) and ran pinned cli.py battle: victory 83767, field restored 83984. restore-check.json not written. Opus gameplay exception. Stall-length RNG state is ordinary input but not representative play.",
+        "message_windows": "100011 accounted on 16417 frames, construction frame 65502 b_constructor 0",
+        "errata": "roar-coverage-errata.txt (12 wins not 13; driver/battle-command details)"
+      },
+      "attempts": {
+        "claude-final-restore-roar-v1a": "8 contacts phase 11, game over in 8th battle; music variant live",
+        "claude-final-restore-roar-v2a": "game over in 2nd battle before any Rest (Ari 14 HP); fixed 98461e4/a7ab562",
+        "claude-final-restore-roar-v2b": "victory-line race after a won battle; fixed 201316e",
+        "claude-final-restore-roar-v2c": "12 wins, 5 live Rests, then yard dead end on the way home; fixed 7d00e8c"
+      },
+      "not_recorded": "answer-comparison branch (Stan pre-emptive) not logged in either run"
+    }
   }
 }
