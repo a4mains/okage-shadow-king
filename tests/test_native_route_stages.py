@@ -496,6 +496,12 @@ class RestEveryCliTests(unittest.TestCase):
         self.assertEqual(e.exception.code, cli.USAGE)
         self.assertEqual(cli.parse(base + ['--until-roar', '5']).rest_every, 2)
 
+    def test_rest_first_needs_no_roar_phase(self):
+        from native_route import cli
+        a = cli.parse(['restore-check', '/tmp/run', '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
+                       '--expect-save-sha256', 'ab' * 32, '--rest-first'])
+        self.assertEqual((a.rest_first, a.until_roar, a.rest_every), (True, 0, 0))
+
 class RoarEncountersTests(unittest.TestCase):
     def test_roar_phase_requires_a_won_roar_battle(self):
         # Never passes on ordinary victories alone; needs a roar line before a victory.

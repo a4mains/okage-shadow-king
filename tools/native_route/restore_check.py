@@ -92,7 +92,8 @@ def to_patrol(c, run):
         c.interact((190, 711), (170, 711), tol=1.5)
         navigate.navigate(c, run, (176, 712), tol=3, budget=600)
 
-def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None, until_roar=0, rest_every=0):
+def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None, until_roar=0, rest_every=0,
+         rest_first=False):
     record = record or (lambda name, ev: None)
     data = check_slot(run, manifest, slot_file, expect_sha)
     record('slot', {'slot_file': slot_file, 'expected_save_sha256': expect_sha,
@@ -111,7 +112,7 @@ def main(c, run, manifest, slot_file, slot_rights, expect_sha=None, record=None,
     moved = c.status()
     need(hero_moved(restored, moved), 'restore-check', 'ordinary Right step did not move the restored hero')
     first_rest = None
-    if until_roar and rest_every:
+    if rest_first or (until_roar and rest_every):
         landing = to_landing(c)
         need(in_field_control(landing, 73), 'rest', 'landing (scene 73) not reached', status=landing)
         first_rest = {'bedroom_menu': home_inside.enter_bedroom(c, run)['bedroom_menu'],
