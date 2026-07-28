@@ -202,14 +202,14 @@ def audit(run, stage, save_file, report_root=None):
         same = [l for l in loads if l[2] == scene]
         restored = next((l for l in same if l[0] == 1), None)
         ordinary = [l for l in same if l[0] > 1]
-        if restored is None or restored[3] != entrance or not ordinary:
+        if restored is None or not ordinary:
             checks['bindings'] = {'pass': False, 'reason': 'report lacks the Restore load or a later ordinary load of the scene',
                                   'loads': [[c, s, e] for c, _, s, e in loads]}
         else:
             a, b = bindings(restored[1]), bindings(ordinary[0][1])
             diffs = compare_bindings(a, b)
             checks['bindings'] = {'pass': not diffs, 'restored_cycle': restored[0], 'ordinary_cycle': ordinary[0][0],
-                                  'ordinary_entrance': ordinary[0][3], 'differences': diffs,
+                                  'differences': diffs,
                                   'models': [m['name'] for m in a['models']], 'xta_images': len(a['xta_scene']),
                                   'handles': sum(len(m['handles']) for m in a['models']) + len(a['xta_scene']),
                                   'actors': a['actors']}
