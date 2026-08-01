@@ -1,6 +1,6 @@
 {
   "scope": "Headless original disc boot and VM-state resume; HLE OS, null GS, no controller or audio output. Not a rendered scene or native game.",
-  "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
+  "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
   "disc_sha256": "08623a1400e2610aecd0247ae7440c97501495c6f819f675494e44de20b62d2a",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "current_oracle_sha256": "e2bb55fbefe2c447ee2eebd2e39f5dde0802ac04dabce094205febbaf5a7f76e",

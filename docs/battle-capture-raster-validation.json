@@ -2,7 +2,7 @@
   "version": 1,
   "implementation_commit": "eca8cbd",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "reference_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
+  "reference_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
   "scope": "Synthetic unchanged original EE/GIF construction, pinned host GS raster, and reached native phase11/12. No hardware GS equivalence, battle manager, combat or whole-game claim.",
   "exact_reference_raster": false,
   "shared_reference_corrections_enabled": false,
@@ -17,14 +17,14 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "bytes": 41580,
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+      "bytes": 49350,
+      "sha256": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
       "git_revision": "eca8cbd"
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 275496,
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "bytes": 305003,
+      "sha256": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a",
       "git_revision": "eca8cbd"
     },
     {
@@ -72,7 +72,7 @@
     {
       "path": "tools/play-oracle/main.cpp",
       "bytes": 347121,
-      "sha256": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+      "sha256": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
       "git_revision": "eca8cbd"
     },
     {

@@ -179,7 +179,7 @@
     "exact": true
   },
   "dsp": {
-    "revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
+    "revision": "779d5c4339cd83004bc561cdb28bd5bf75b0f371",
     "source_hashes": {
       "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
       "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

@@ -12,7 +12,7 @@
   },
   "source_revision": "79a33a02a06fd82a013202e5fb404f74e11157f0",
   "source_sha256": {
-    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+    "CMakeLists.txt": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
     "include/okage/texture_address_batch.hpp": "dd2d66169447986e75ecbd321f6980114d783202b334b317dd1a4732780e6e6c",
     "include/okage/gs_texture_address.hpp": "4246c104ab5aace59a16fb9f82ba928257d354a893c30489147b830beb2a28fd",
     "src/gs_texture_address.cpp": "86dcfd43b05d56945b54faf7e36972dda1053f8f5c50ceb0905a60a4ffcd761c",
@@ -30,8 +30,8 @@
     "cpu_cores": 16,
     "gpu_cores": 40,
     "ram_bytes": 137438953472,
-    "os": "macOS26.0 build25A354",
-    "sdk": "26.0",
+    "os": "macOS26.6 build25G77",
+    "sdk": "26.6",
     "compiler": "Apple clang17.0.0 clang-1700.3.19.1",
     "cpu_baseline_threads": 1,
     "metal_threadgroup": 256,
@@ -131,7 +131,7 @@
     "reference": "local/research/material-texture-ownership-v1/address-corpus-v1/play-addresses-v1.bin",
     "reference_sha256": "6c6c7e468d988ca9d5abb27897d965eb49761d1edcd5a8de2ec8585b2e2c124e",
     "comparison_manifest_sha256": "29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061",
-    "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
+    "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
     "scope": "synthetic pinned-indexor reference; historical reference log empty; validation/source/binary bindings retained"
   },
   "correctness": {

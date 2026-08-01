@@ -7,6 +7,12 @@ the results are:
 - Four natural Chapter 2 battles are won.
 - A new bedroom Save is written (`f94fa5a2…`). Another process restores it cold
   and play continues.
+- The Restore audit (`claude-final-restore-audit-v1a`) checks three things:
+  - the saved field is the one loaded;
+  - the restored pose equals the scene's STG entrance record;
+  - the Restore load binds the same content as an ordinary reload of HOME2B in
+
+  Party HP carries into battle.
 - A second Restore process ran the music variant live (`variant=1`, three
 - `claude-final-restore-roar-v3a` passed under one harness command: Restore,
 - A supplemental dev-route rerun (`claude-final-dev-v2b`) passed through a new
@@ -16,6 +22,9 @@ Open limits:
 - Candidate selection remains host-load dependent (17 rejected candidates are
   retained).
 - The phase-8 roar timing is static recovery, with no original observation.
+  is covered by tests only.
+- Restore pose and bindings are verified natively, not against an original
+  Restore observation.
 - No Session-level message-window test exists.
 
 ## Submitted: six-package assignment "demonstrated" (not accepted)

@@ -40,7 +40,7 @@
     ],
     "cases_per_build": 356160,
     "different_bytes": 0,
-    "reference": "Play8de4a71f5215ef38e357ac77a07948eb3424448f CGsPixelFormats indexor",
+    "reference": "Playeb63062bd2b9693fcafdc9f52150e1a98b934201 CGsPixelFormats indexor",
     "physical_hardware_proof": false
   },
   "lucan": {
@@ -113,16 +113,16 @@
     "sha256": "b566c3498f061c8e568aa82f55fc38e2f6fc4fae2c0e2dad4bd51f4e7673ebd7"
   },
   "hashes": {
-    "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
-    "include/okage/texture_memory.hpp": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935",
-    "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
-    "tests/texture_memory_tests.cpp": "4f51ff681cd07ace2d27a9727d0c5ef8a6a1deb2b58b21409ba85f1e4de84de0",
+    "CMakeLists.txt": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
+    "include/okage/texture_memory.hpp": "7e00e740ef22c9f70b5f487442b752cac3abbc76c5a9eea18d1f4b23158e1723",
+    "src/texture_memory.cpp": "8fd6fc2dc056c9f9ebc7b7280e2f37d53d83aa8625b883191aff6d1bfb1ccc68",
+    "tests/texture_memory_tests.cpp": "67bdc866fa5ee9f4cc32ca8b1b4d834f6b5e764665530fc893b50f45a14363b7",
     "tools/texture_memory_corpus.cpp": "f8b8c9a4f1d835cd8a6999037a3a8e7c0545a822129b06f3b020ff17657b8ca4",
     "include/okage/gs_texture_address.hpp": "4246c104ab5aace59a16fb9f82ba928257d354a893c30489147b830beb2a28fd",
     "src/gs_texture_address.cpp": "86dcfd43b05d56945b54faf7e36972dda1053f8f5c50ceb0905a60a4ffcd761c",
     "tests/gs_texture_address_tests.cpp": "1bbfe10d2ffc7c9b04000a4b446f04cf4b253bb983312f857c18d1e5ec2ba121",
     "tools/gs_texture_address_corpus.cpp": "906ea2e9f8a463f67a195a16af57b58fb389a08ad21e766dac52fb34a1e2efc1",
-    "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+    "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "local/research/material-texture-ownership-v1/python-tests-final-v1.log": "9ce34c40c876ec3ffef3e18b6df14f2f7c065043f6be0a2930ede04b758e3106",
     "local/research/material-texture-ownership-v1/native-release-tests-final-v1.log": "f0de443ca997b8fb745cc8ce77dd835fa38010055053382fe32fa9b7faa87c33",

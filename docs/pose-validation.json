@@ -1,6 +1,6 @@
 {
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "play_commit": "8de4a71f5215ef38e357ac77a07948eb3424448f",
+  "play_commit": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
   "oracle_binary_sha256": "1ac7334fd2bffb32311b587f4da34d4bfd64cb8bbaf809765e2fafd0240fad35",
   "native_binary_sha256": "cc709a26ddca248b10b23a00eeae50f13c4dd2d5f3604af80ae0a9bf7f92142d",
   "retail_manifest_sha256": "4e555bddb2ed349198c934aa7223d50398d6ff0730475935c11eb6fd7d72d1f8",

@@ -1619,7 +1619,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "e059ccca6ff349948a159127618b4846b265cb8bc2e43d1dd2662d1a27ee8bab",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
+      "dsp_revision": "779d5c4339cd83004bc561cdb28bd5bf75b0f371",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1657,7 +1657,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "58f1f1796846e77997444365ff17adc074eb1a9bb4c9d16ab76bb8a1b7fdfba1",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
+      "dsp_revision": "779d5c4339cd83004bc561cdb28bd5bf75b0f371",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",
@@ -1695,7 +1695,7 @@
       "scope": "Audit original EE finite-stream preparation and native dry voice output.\n\nThe original producer runs with synchronous SIF copies into fixture IOP memory.\nThis validates flags, alignment, EOF commands and linear playback bytes, not DMA\nlatency, live ring refill scheduling, shared voices, reverb or physical output.",
       "native_sha256": "25f51fffe69a97656c442b308a950f1c2dee74a28da442efe1310857a6139292",
       "oracle_sha256": "f242a7fdbe510a6893e9fea31458d971326cb4b919d288cc9c4f681be0d83cf3",
-      "dsp_revision": "5b85d6a7585deff715aacd2c0e579a40642cfc25",
+      "dsp_revision": "779d5c4339cd83004bc561cdb28bd5bf75b0f371",
       "dsp_source_hashes": {
         "Mixer.cpp": "94a43b48c65cd724661ffa29668428d00041bc7e55fd81934315a9dd82220791",
         "ADSR.cpp": "faea787bf4f132aeb111ac646b0ae4da898e160b602c3e3ae0e9f779d1b86ef9",

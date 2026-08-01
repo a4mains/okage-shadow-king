@@ -90,7 +90,7 @@
   ],
   "run": "build/startup-oracle/okage-oracle/okage-pose-oracle texture-transfer local/extracted/SCUS_971.29 run1/input.bin run1/transfer.json (executed twice, serially; outputs byte-identical)"
  },
- "play_revision": "8de4a71f5215ef38e357ac77a07948eb3424448f",
+ "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
  "reference_nature": "Play research backend executing the unchanged retail routines; not physical PS2 proof",
  "results": {
   "cases_by_psm": {
@@ -131,15 +131,15 @@
  "schema": "okage-startup-format-validation-v1",
  "scope": "Startup format-transfer part only: PSM20/36/44 host-to-local transfers and nibble-level definedness/ownership. Not startup sequence recovery, not Session integration, not fonts/effects, not full Startup.",
  "sources_sha256": {
-  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
-  "include/okage/texture_memory.hpp": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935",
-  "include/okage/texture_transfer.hpp": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6",
-  "src/texture_memory.cpp": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a",
-  "src/texture_transfer.cpp": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1",
+  "CMakeLists.txt": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
+  "include/okage/texture_memory.hpp": "7e00e740ef22c9f70b5f487442b752cac3abbc76c5a9eea18d1f4b23158e1723",
+  "include/okage/texture_transfer.hpp": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f",
+  "src/texture_memory.cpp": "8fd6fc2dc056c9f9ebc7b7280e2f37d53d83aa8625b883191aff6d1bfb1ccc68",
+  "src/texture_transfer.cpp": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646",
   "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
   "tests/texture_format_tests.cpp": "e2e48ecc18b063b7fa1c919764efcba9abeb6aa7d47fdd6a1d095c922ce44674",
-  "tests/texture_transfer_tests.cpp": "96d25999afabb37abd0908783b14559c4e587a6fbb09d13b58aaccbb51a92706",
-  "tools/play-oracle/main.cpp": "d00a1dc7c71c4ec0914c549564da041687fd2ce4bd07d0a906dc7c813e071811",
+  "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
+  "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
   "tools/texture_transfer_cases_v2.py": "a467ee3893d0b2297a02ec190703874f3bae3f4913901a8b8a07cc39bd08464c",
   "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
   "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",

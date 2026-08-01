@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-07-25T15:00:00Z",
+  "overnight_cutoff": "2026-08-01T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,13 +3244,13 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-25.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-01.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-07-25.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-07-25.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-01.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-01.txt",
     "branch": "work/texture-to-battle-v1",
-    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2",
+    "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2, 89dfab3, 87bac3c",
     "commits": {
       "a71c75f": "music 0x12da90 variant",
       "4df558e": "newgame stage v14 + owned CTest registrations",
@@ -3272,7 +3272,9 @@
       "7d00e8c": "home: yard waypoints from gate to door (v2c dead end)",
       "b9ff32d": "navigate.settle handles an active roar first (v2d)",
       "56b7c60": "pilot.roar arms each QC word wheel with one Down before Confirm (v2d)",
-      "5f1dfd2": "review-3 fixes: roar cursor guard, roar victory must follow the roar, --rest-every requires --until-roar"
+      "5f1dfd2": "review-3 fixes: roar cursor guard, roar victory must follow the roar, --rest-every requires --until-roar",
+      "89dfab3": "restore_audit.py (field, pose vs STG, content-identified resource bindings) + restore-check --rest-first",
+      "87bac3c": "restore_audit: Restore load identified by field cycle (field.json entrance is the constructor a3)"
     },
     "binaries_sha256": {
       "release": "b7f59d77a3f1d134a177810773b23ac0d1c59114ecc444b793e57a8590e1bfc5",
@@ -3391,7 +3393,7 @@
       "limit": "observer breakpoints shift vblank alignment by one; comparisons anchor on construction"
     },
     "tests": {
-      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log); 249c557 (final tools): 1395 run, 95 skipped, OK (python-full-249c557.log); 5f1dfd2 (final tools): 1412 run, 95 skipped (same five environment reasons), OK (python-full-5f1dfd2.log)",
+      "python_full": "62a468a: 1392 run, 95 skipped, OK; b1b3e31 (tools-only): 1393 run, 95 skipped, OK (python-verbose-skips.log); 249c557 (final tools): 1395 run, 95 skipped, OK (python-full-249c557.log); 5f1dfd2 (final tools): 1412 run, 95 skipped (same five environment reasons), OK (python-full-5f1dfd2.log); 87bac3c (final tools): 1421 run, 95 skipped, OK (python-full-87bac3c.log)",
       "ctest_release": "134/134 passed",
       "ctest_debug": "134/134 passed",
       "ctest_asan_ubsan": "134/134 passed (3071.8 s)",
@@ -3405,7 +3407,7 @@
         "OKAGE_NATIVE, replay input or staged root absent": 1,
         "note": "environment-gated tests whose native paths are covered by the CTest suites"
       },
-      "ctest_note": "CTest results at 62a468a stand for the final HEAD: git diff 62a468a..5f1dfd2 -- src include CMakeLists.txt is empty"
+      "ctest_note": "CTest results at 62a468a stand for the final HEAD: git diff 62a468a..87bac3c -- src include CMakeLists.txt is empty"
     },
     "independent_review": {
       "review_1": "a71c75f..f8cd645: 1 blocker + majors, all fixed in a1f90b3",
@@ -3425,9 +3427,10 @@
       "prefix status equality covers the 115 requested status rows, not every frame",
       "post-prefix evidence native-to-native; no image/audio equivalence",
       "phase-8 roar timing is static recovery: live native runs (roar-v3a, -v2d) show it is consistent, but no original roar observation exists",
-      "restore-check does not compare restored pose or resource bindings (restore places the hero at the scene entrance; bindings exercised but not compared)",
-      "roar answer-comparison branch not recorded",
-      "in_field_control cannot detect a modal message (harness)"
+      "in_field_control cannot detect a modal message (harness)",
+      "Restore pose/resource bindings verified natively (STG record; content-identical to an ordinary reload), not against an original Restore observation",
+      "roar answer branch 1 (Stan pre-emptive) not exercised live; unit/owned tests only",
+      "--newgame-report battle-stage diagnostic covers only a zero selection cache (cold New Game first battle)"
     ],
     "roar_coverage_restore": {
       "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v1a",
@@ -3483,7 +3486,21 @@
         "claude-final-restore-roar-v2b": "victory-line race after a won battle; fixed 201316e",
         "claude-final-restore-roar-v2c": "12 wins, 5 live Rests, then yard dead end on the way home; fixed 7d00e8c"
       },
-      "not_recorded": "answer-comparison branch (Stan pre-emptive) not logged in either run"
+      "answer_branch": "both roars took ANSWERCMP branch 0 (default rows did not match): var(13,4) at variables+0x544 = 0 and every battle construction entry_hex +0x30 (from var 0x4000d) = 0, so no Stan pre-emptive attack; branch 1 / pre-emptive covered by stan-roar-dialogue-tests (correct answers) and owned battle-actor-update-tests, not live"
+    },
+    "restore_audit": {
+      "run": "local/research/texture-to-battle-v1/claude-final-restore-audit-v1a",
+      "binary": "b7f59d77",
+      "tools": "89dfab3 (pinned run copy); audit tool 87bac3c",
+      "launch": "cli.py launch-new ... --newgame-report; restore-check --rest-first",
+      "audit_command": "python3 WORK/tools/native_route/restore_audit.py R/claude-final-restore-audit-v1a --stage WORK/local/game-data-stage-v19 --save R/claude-final-restore-audit-v1a/saves/bkmo2.dat --report R/claude-final-restore-audit-v1a/report --json R/claude-final-restore-audit-v1a/restore-audit.json",
+      "result_sha256": "95146681cef31950a60ec38134f79443f99fb1e20d173c2dd8a1368eaeed0e1c",
+      "field": "payload 0x510/0x514 = 74/1 = loader queued and activated",
+      "pose": "hero (0.0403,-0.001,2.2011) rot (0,0.9299,0) = HOME2B a.stg entrance 1 (FLDSET.XDB scene74 -> room/house/home2b); dev-v2b (different save) identical",
+      "bindings": "Restore load (field cycle 1) vs ordinary reload (cycle 3): 7 models, 74 handles, 20 XTA images content-identical (record names + every upload SHA-256 of image/palette allocations), model groups and actors (hero, stun) equal; repeated ordinary loads in claude-strict-v17b identical (sanity); negative controls in tests/test_native_route_restore_audit.py",
+      "party_in_battle": "Ari HP 14 at hist-v4a last battle end (82848) = 14 at restore-v4a first battle (4979)",
+      "run_status": "restore-check FAIL code 90 at its first battle: report-mode battle-stage UI diagnostic requires a zero incoming selection cache (src/battle_session.mm:606; recovered for the cold New Game first battle only); ordinary Restore runs (restore-v4a, roar-v3a) fight these battles; field reports complete; slot/restore-route/payload/rest/transitions PASS",
+      "operator": "Haiku (claude-haiku-4-5); audit by Opus"
     }
   }
 }

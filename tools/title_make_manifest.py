@@ -10,7 +10,7 @@ import os
 import re
 import sys
 
-PLAY_REVISION = '8de4a71f5215ef38e357ac77a07948eb3424448f'
+PLAY_REVISION = 'eb63062bd2b9693fcafdc9f52150e1a98b934201'
 
 def fsha(path):
     h = hashlib.sha256()
