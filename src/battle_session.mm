@@ -150,6 +150,7 @@ struct BattleSession::Impl {
     std::shared_ptr<const std::vector<Font>> font_owner;
     std::array<id<MTLTexture>,3> font_textures{};
     bool reported_active_resource=false;
+    bool stage_diagnostics_omitted=false;
     bool saved_model_range=true;
     std::uint32_t stage_mask=0x18000000,camera_mask=0x18000000;
     std::uint32_t party_mask=0x18000000,enemy_mask=0x18000000;
@@ -1333,16 +1334,29 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     const auto& screen=projection.frame().ordinary;
     const auto prepared=active?impl_->renderer->prepare(view,field_clip_projection(screen),nullptr,rotation,
         screen.clip_far,p,&projection.frame(),1,false):impl_->renderer->prepare_empty(projection.frame());
+    if(!stage_report.empty()&&!impl_->stage_committed&&!impl_->stage_diagnostics_omitted) {
+        const int selected=std::bit_cast<std::int32_t>(word(impl_->root.bytes,0x81ac));
+        const auto counts=context.party.counts();
+        bool zero=!selected&&std::all_of(counts.begin(),counts.end(),[](auto n){return n==0;});
+        for(const auto& row:context.party.rows())zero=zero&&std::all_of(row.begin(),row.end(),[](auto n){return n==0;});
+        if(!zero) {
+            impl_->stage_diagnostics_omitted=true;
+            std::cout<<"Native battle stage diagnostics omitted frame="<<frame
+                     <<": incoming selection cache is not the first-battle zero cache\n";
+        }
+    }
+    const fs::path no_report;
+    const fs::path& diagnostics=impl_->stage_diagnostics_omitted?no_report:stage_report;
     if(!impl_->stage_committed) {
-        try {impl_->commit_stage(projection,clear,frame,stage_report);}
+        try {impl_->commit_stage(projection,clear,frame,diagnostics);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
     if(!impl_->ui&&!impl_->root_retired) {
-        try {impl_->construct_ui(context,frame,stage_report);}
+        try {impl_->construct_ui(context,frame,diagnostics);}
         catch(...) {impl_->construction_failure=std::current_exception();throw;}
     }
-    if(active&&!impl_->reported_active_resource&&impl_->ui_draw&&!stage_report.empty()) {
-        auto path=stage_report;path.replace_extension(".first-active.draw.json");
+    if(active&&!impl_->reported_active_resource&&impl_->ui_draw&&!diagnostics.empty()) {
+        auto path=diagnostics;path.replace_extension(".first-active.draw.json");
         if(fs::exists(path)||fs::is_symlink(path))throw std::runtime_error("Refusing existing actual battle draw report");
         std::ofstream out(path);
         write_ui_draw_diagnostic(out,*impl_->ui_draw,frame,104376,127,"actual-session-first-resource-after-callbacks");
@@ -1353,7 +1367,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     const auto frame_window_owner=impl_->window_owner;
     const auto frame_atlas=impl_->atlas;
     impl_->root_lifetime.traverse_root(impl_->root,
-        [&]{impl_->scheduled_callbacks(context,projection,frame,active?fs::path{}:stage_report);},
+        [&]{impl_->scheduled_callbacks(context,projection,frame,active?fs::path{}:diagnostics);},
         [&]{impl_->retire_root();std::cout<<"Native battle root destroyed frame="<<frame<<'\n';},
         [&]{
             if(!impl_->root_retired)throw std::runtime_error("Battle root freed before destruction");
@@ -1364,8 +1378,8 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         if(slot!=6&&filter&&(*filter)[0])throw std::runtime_error("Unrecovered battle framebuffer filter slot");
     }
     fs::path image_report;
-    if(!stage_report.empty()&&(!active||!impl_->reported_active_resource)) {
-        image_report=stage_report;
+    if(!diagnostics.empty()&&(!active||!impl_->reported_active_resource)) {
+        image_report=diagnostics;
         image_report.replace_extension(active?".first-active.render.rgba":".render.rgba");
     }
     Impl::FrameDraft draft;
