@@ -783,8 +783,8 @@
     },
     "src/battle_session.mm": {
       "path": "src/battle_session.mm",
-      "bytes": 107535,
-      "sha256": "07b97bab3bb7ae3a719cf1b821d0bf05bdc81ab44c17fa9c664723ef70458048"
+      "bytes": 108392,
+      "sha256": "27b93dda51202f9e74f303b7a96ac7bc7e40e8d9c3689ae7f39999b2069e163c"
     },
     "src/battle_state.cpp": {
       "path": "src/battle_state.cpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-08-01T15:00:00Z",
+  "overnight_cutoff": "2026-08-02T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,11 +3244,11 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-01.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-02.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-01.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-01.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-02.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-02.txt",
     "branch": "work/texture-to-battle-v1",
     "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2, 89dfab3, 87bac3c",
     "commits": {
@@ -3430,7 +3430,8 @@
       "in_field_control cannot detect a modal message (harness)",
       "Restore pose/resource bindings verified natively (STG record; content-identical to an ordinary reload), not against an original Restore observation",
       "roar answer branch 1 (Stan pre-emptive) not exercised live; unit/owned tests only",
-      "--newgame-report battle-stage diagnostic covers only a zero selection cache (cold New Game first battle)"
+      "--newgame-report battle-stage diagnostic covers only a zero selection cache (cold New Game first battle); since 589062c a first battle with a nonzero cache omits the diagnostic family with an explicit log line",
+      "589062c omission path not exercised live; no dedicated test"
     ],
     "roar_coverage_restore": {
       "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v1a",
@@ -3501,6 +3502,114 @@
       "party_in_battle": "Ari HP 14 at hist-v4a last battle end (82848) = 14 at restore-v4a first battle (4979)",
       "run_status": "restore-check FAIL code 90 at its first battle: report-mode battle-stage UI diagnostic requires a zero incoming selection cache (src/battle_session.mm:606; recovered for the cold New Game first battle only); ordinary Restore runs (restore-v4a, roar-v3a) fight these battles; field reports complete; slot/restore-route/payload/rest/transitions PASS",
       "operator": "Haiku (claude-haiku-4-5); audit by Opus"
+    },
+    "final_589062c": {
+      "note": "Supersedes code_head/binaries_sha256/strict_route/restore/tests as the final runtime evidence; the 62a468a entries are retained as supporting evidence. 589062c changes only --newgame-report battle-stage diagnostics (src/battle_session.mm); with no report the diagnostic path is empty before and after.",
+      "runtime_head": "589062c4e0ac49af5df889a328a33ba74d5d2664 (clean tree; every run source.diff empty)",
+      "tools_head": "87bac3c",
+      "binaries_sha256": {
+        "release": "91e0fbc1099c17efd1462099bafe54a95f0ff685aac09413c2e404cc56858b1e",
+        "debug": "af938070c85ac79df4861ae008412be8a6d5d2ce820ede7038f61420125a469a",
+        "asan_ubsan": "b4b9ca73fbaf7e16fe6e4357b7f90b5704104c87bccfb6c8a991fb7bce99e3a7",
+        "pinned_release_copy": "local/research/texture-to-battle-v1/claude-review-v2/bin/okage-native-release-589062c"
+      },
+      "tests": {
+        "dir": "local/research/texture-to-battle-v1/claude-review-v2/final-tests-589062c",
+        "ctest": "Release, Debug, ASan+UBSan: 134/134 each, no skips",
+        "python": "1421 run, 95 skipped, OK"
+      },
+      "strict_route": {
+        "candidates_record": "local/research/texture-to-battle-v1/claude-final-hist-v5-candidates.json",
+        "candidates_record_sha256": "1ca271881bfb2096cbf594c63cca5fc76b816ff0948a22633fbaf7c96dd0725d",
+        "rejected_prelude_diverged_2394": [
+          "claude-final-hist-v5a",
+          "claude-final-hist-v5b",
+          "claude-final-hist-v5c"
+        ],
+        "selected": "local/research/texture-to-battle-v1/claude-final-hist-v5d",
+        "manifest_sha256": "53c68e91d699dca8daccc481524f9430760e2e5f6d312c5ec3814d0fc4b0c6f1",
+        "route_result_sha256": "b72e13c81a152334b84b8a566819c55c3e80d780e2c3d858610a1bbcf969040f",
+        "result": "strict-full exit 0; 8/8 stages PASS",
+        "prefix_compare": {
+          "vs_claude_strict_v21c": "IDENTICAL_AND_FULLY_ACCOUNTED, first divergence none",
+          "vs_claude_strict_v19a": "IDENTICAL_AND_FULLY_ACCOUNTED, first divergence none",
+          "files": "local/research/texture-to-battle-v1/claude-review-v2/compare/hist-v5d-vs-claude-strict-{v21c,v19a}-prefix.json",
+          "scope": "input journal + 115 requested status rows over 1..56846; not per-frame state or media"
+        },
+        "battles": [
+          {
+            "formation": 4,
+            "contact": 68815,
+            "victory_return": 71221
+          },
+          {
+            "formation": 9,
+            "contact": 72016,
+            "victory_return": 73912
+          },
+          {
+            "formation": 4,
+            "contact": 74894,
+            "victory_return": 77287
+          },
+          {
+            "formation": 5,
+            "rear": 1,
+            "contact": 79323,
+            "victory_return": 81718
+          }
+        ],
+        "save": {
+          "slot": "bkmo2.dat",
+          "before": "dda3ee0c0a745c20e3c7ba3de2710bd5fb3b5a0202eb2379bc65205818df725f",
+          "after": "2f86e136b369b84376503b534cb6cffebfcc40d9b371bf77efea13361d5e1068",
+          "size": 3460,
+          "constructed": 82975,
+          "retired": 83378,
+          "control_after": 83603
+        }
+      },
+      "restores": {
+        "claude-final-restore-v5a": {
+          "manifest_sha256": "1991f1a633946de192f22d7c77d3c60ce10205d54106f9c874574aae8f622975",
+          "restore_check_sha256": "d140afe1bcdc7fdb21a82e3cee847caa0d84ffc2cfec0b7287a53f791acfa421",
+          "result": "PASS exit 0",
+          "battles": [
+            "formation 4 5031->6862"
+          ]
+        },
+        "claude-final-restore-roar-v5a": {
+          "manifest_sha256": "30e5be78667d085e6414b07c868a87ae870ced1faad328deaf6f5dfa7991f1fe",
+          "restore_check_sha256": "9757ae8a262f97ecd3ace2f58b0ae8ba9f7fe76e6d7b3fe12a6c6d919d844172",
+          "result": "PASS exit 0 (rest, transitions, encounter, roar-encounters)",
+          "battles": [
+            "formations 6,7,11,4,6 won with Rest trips",
+            "phase-8 roar contact 28092 formation 5 message 100005; victory return 30903; field restored 31120"
+          ]
+        },
+        "claude-final-restore-audit-v5a": {
+          "manifest_sha256": "5bd304f2e0e73787fb1ae0372cbcb021e684cbe8a28c72f28658d72c5a7cc55b",
+          "restore_check_sha256": "e649839bb73e8168e09aad719456055a2844763f44b0c9dce7837bea7c60c2de",
+          "result": "PASS exit 0 (--newgame-report, --rest-first)",
+          "battles": [
+            "formation 6 5723->7042"
+          ],
+          "restore_audit": {
+            "file": "local/research/texture-to-battle-v1/claude-final-restore-audit-v5a/restore-audit.json",
+            "sha256": "99a510584f9c1c0327b529f49a0c30496641947385ec3249b7bef9a25c17019c",
+            "pass": true,
+            "field": "74/1 saved=queued=activated",
+            "pose": "HOME2B STG entrance 1",
+            "bindings": "7 models, 74 handles, 20 XTA, actors hero+stun, no differences",
+            "operator": "haiku (claude-haiku-4-5); output re-verified by Opus"
+          }
+        }
+      },
+      "payload": "all restores: 3448 bytes equal except 0x520 playtime (98 -> 101)",
+      "texture_sampling": "51/51 prepared-frame captures across the four final runs shared_gs true",
+      "music_variant": "not opened in any 589062c run; live evidence remains claude-final-restore-roar-v1a/-v2b on 62a468a (music code unchanged)",
+      "omission_path_589062c": "not exercised live (no 'Native battle stage diagnostics omitted' line in any v5 run); predicate identical to construct_ui guard; no dedicated test",
+      "review_4": "scope 5f1dfd2..24014bc; finding: report-mode first battle after nonzero selection cache stops on UI diagnostic guard (restore-audit-v1a 5664) -> fixed 589062c; full report not retained"
     }
   }
 }

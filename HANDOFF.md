@@ -4,28 +4,29 @@ pushed). Start with the
 
 the results are:
 - The unchanged historical prefix's inputs and the 115 requested status rows are
-- Four natural Chapter 2 battles are won.
-- A new bedroom Save is written (`f94fa5a2…`). Another process restores it cold
-  and play continues.
-- The Restore audit (`claude-final-restore-audit-v1a`) checks three things:
+- Four natural Chapter 2 battles are won (formations 4, 9, 4 and rear 5).
+- A new bedroom Save is written (`2f86e136…`). Three other processes restore it
+  cold and play continues.
+- The Restore audit (`claude-final-restore-audit-v5a`) checks three things:
   - the saved field is the one loaded;
   - the restored pose equals the scene's STG entrance record;
   - the Restore load binds the same content as an ordinary reload of HOME2B in
 
-  Party HP carries into battle.
-- A second Restore process ran the music variant live (`variant=1`, three
-- `claude-final-restore-roar-v3a` passed under one harness command: Restore,
+- `claude-final-restore-roar-v5a` passed under one harness command: Restore,
+- On the earlier `62a468a` binary (`b7f59d77…`, retained as supporting
 - A supplemental dev-route rerun (`claude-final-dev-v2b`) passed through a new
   Save.
 
 Open limits:
-- Candidate selection remains host-load dependent (17 rejected candidates are
+- Candidate selection remains host-load dependent (20 rejected candidates are
   retained).
 - The phase-8 roar timing is static recovery, with no original observation.
   is covered by tests only.
 - Restore pose and bindings are verified natively, not against an original
   Restore observation.
 - No Session-level message-window test exists.
+- The `589062c` diagnostic-omission path has not run live and has no dedicated
+  test (report mode only).
 
 ## Submitted: six-package assignment "demonstrated" (not accepted)
 
