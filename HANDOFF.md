@@ -26,7 +26,6 @@ Open limits:
   Restore observation.
 - No Session-level message-window test exists.
 - The `589062c` diagnostic-omission path has not run live and has no dedicated
-  test (report mode only).
 
 ## Submitted: six-package assignment "demonstrated" (not accepted)
 

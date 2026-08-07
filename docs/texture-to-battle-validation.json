@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-08-02T15:00:00Z",
+  "overnight_cutoff": "2026-08-06T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,11 +3244,11 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-02.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-06.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-02.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-02.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-06.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-06.txt",
     "branch": "work/texture-to-battle-v1",
     "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2, 89dfab3, 87bac3c",
     "commits": {
@@ -3412,7 +3412,8 @@
     "independent_review": {
       "review_1": "a71c75f..f8cd645: 1 blocker + majors, all fixed in a1f90b3",
       "review_2": "read-only review of a1f90b3, a5ea4dd, 62a468a and the final route evidence; rebuilt git archive 62a468a to b7f59d77 exactly; no new code blocker; review-1 findings 1-4 and 6 fixed (5, 7, 8 partly); final-run binary/tool/stage/prefix-input pins consistent; both prefix comparisons reproduced; minors fixed in b1b3e31 (compare.py main guard, restore-check records the slot hash); native_runtime.mm:1340 battle-capture guard kept (throw-only; reads live dialogue state, cannot silently change state); evidence majors: music variant had no live run (since addressed by claude-final-restore-roar-v1a), roar phase-8 not live-exercised after a5ea4dd (since addressed by claude-final-restore-roar-v3a and -v2d), no Session-level message-window test, prefix status equality is 115 requested rows (none inside the prelude)",
-      "review_3": "read-only review of 62a468a..56b7c60, all final runs and docs: no blocker; no false-pass path in tool changes (they remove false-fails only); pinned tool copies, run binaries and roar-coverage hashes verified; -v3a clean phase-8 evidence, -v2d acceptable supplement with disclosures; fixed in 5f1dfd2 (cursor guard, roar-victory rule, --rest-every usage, docstring/guard/comment); docs reconciled (v2d count/disclosures, Down counts, Restore scope, music variant in v2b, pinned candidates command); open: no Session-level phase-8/manager_message_live test, in_field_control cannot detect a modal message"
+      "review_3": "read-only review of 62a468a..56b7c60, all final runs and docs: no blocker; no false-pass path in tool changes (they remove false-fails only); pinned tool copies, run binaries and roar-coverage hashes verified; -v3a clean phase-8 evidence, -v2d acceptable supplement with disclosures; fixed in 5f1dfd2 (cursor guard, roar-victory rule, --rest-every usage, docstring/guard/comment); docs reconciled (v2d count/disclosures, Down counts, Restore scope, music variant in v2b, pinned candidates command); open: no Session-level phase-8/manager_message_live test, in_field_control cannot detect a modal message",
+      "review_5": "589062c + v5 evidence + docs 6e72d27: no blocker; 1 docs major (capture vs report) fixed; minors disclosed"
     },
     "audit": {
       "process_56987": "absent at review start; nothing killed",
@@ -3430,8 +3431,8 @@
       "in_field_control cannot detect a modal message (harness)",
       "Restore pose/resource bindings verified natively (STG record; content-identical to an ordinary reload), not against an original Restore observation",
       "roar answer branch 1 (Stan pre-emptive) not exercised live; unit/owned tests only",
-      "--newgame-report battle-stage diagnostic covers only a zero selection cache (cold New Game first battle); since 589062c a first battle with a nonzero cache omits the diagnostic family with an explicit log line",
-      "589062c omission path not exercised live; no dedicated test"
+      "--capture first-battle stage/UI diagnostic covers only a zero selection cache (cold New Game first battle); since 589062c a first battle with a nonzero cache omits the family with an explicit log line",
+      "589062c omission path (any --capture run) not exercised live; no dedicated test; --ui-update-diagnostic ungated"
     ],
     "roar_coverage_restore": {
       "run": "local/research/texture-to-battle-v1/claude-final-restore-roar-v1a",
@@ -3504,7 +3505,7 @@
       "operator": "Haiku (claude-haiku-4-5); audit by Opus"
     },
     "final_589062c": {
-      "note": "Supersedes code_head/binaries_sha256/strict_route/restore/tests as the final runtime evidence; the 62a468a entries are retained as supporting evidence. 589062c changes only --newgame-report battle-stage diagnostics (src/battle_session.mm); with no report the diagnostic path is empty before and after.",
+      "note": "Supersedes code_head/binaries_sha256/strict_route/restore/tests as the final runtime evidence; the 62a468a entries are retained as supporting evidence. 589062c changes only the first battle's stage/UI diagnostic family, enabled by --capture (native_runtime.mm 4478/4649), not by --newgame-report. Its check equals the construct_ui guard predicate; first battles that completed on 62a468a had a zero cache and later battles clear the path (native_runtime.mm 2670), so every completed 62a468a run executes the same code on 589062c (review 5).",
       "runtime_head": "589062c4e0ac49af5df889a328a33ba74d5d2664 (clean tree; every run source.diff empty)",
       "tools_head": "87bac3c",
       "binaries_sha256": {
@@ -3608,8 +3609,29 @@
       "payload": "all restores: 3448 bytes equal except 0x520 playtime (98 -> 101)",
       "texture_sampling": "51/51 prepared-frame captures across the four final runs shared_gs true",
       "music_variant": "not opened in any 589062c run; live evidence remains claude-final-restore-roar-v1a/-v2b on 62a468a (music code unchanged)",
-      "omission_path_589062c": "not exercised live (no 'Native battle stage diagnostics omitted' line in any v5 run); predicate identical to construct_ui guard; no dedicated test",
-      "review_4": "scope 5f1dfd2..24014bc; finding: report-mode first battle after nonzero selection cache stops on UI diagnostic guard (restore-audit-v1a 5664) -> fixed 589062c; full report not retained"
+      "omission_path_589062c": "not exercised live (no 'Native battle stage diagnostics omitted' line in any v5 run); can fire in any --capture run; predicate duplicated at battle_session.mm 604-610/1452-1462; no dedicated test (left out to keep the final binary fixed); --ui-update-diagnostic remains ungated (no route tool uses it)",
+      "review_4": "scope 5f1dfd2..24014bc; finding: report-mode first battle after nonzero selection cache stops on UI diagnostic guard (restore-audit-v1a 5664) -> fixed 589062c; full report not retained",
+      "host_load": "v5 candidates (07:33-07:59Z) overlapped final-tests-589062c Python/Release/Debug CTest; restores (08:00-08:54Z) overlapped ASan/UBSan CTest",
+      "restore_check_options": {
+        "note": "restore-check.json does not record argv; options inferred from the stages present and from the run plan",
+        "claude-final-restore-v5a": "default",
+        "claude-final-restore-roar-v5a": "--until-roar 40 --rest-every 2 (rest + roar-encounters stages; Rests every two battles)",
+        "claude-final-restore-audit-v5a": "--rest-first with a --newgame-report prepared run (rest stage; manifest newgame_report true)"
+      },
+      "review_5": {
+        "agent": "general-purpose (Opus), read-only, ",
+        "verdict": "no blocker",
+        "verified": "Release rebuild of git archive 589062c = 91e0fbc1; all manifest artifacts re-hashed 0 mismatches; tapes byte-identical to v21c/v4a; compare.py rerun byte-identical plus negative control; restore_audit rerun identical; save chain; no guard lines; 135 native_route tests OK",
+        "findings": {
+          "major_1": "diagnostics enabled by --capture, not --newgame-report; docs corrected, carry-over argument restated",
+          "minor_2": "omission path untested/duplicated predicate: disclosed, not changed (final binary kept fixed)",
+          "minor_3": "--ui-update-diagnostic ungated: disclosed",
+          "minor_4": "v5 host-load overlap: disclosed",
+          "minor_5": "restore-check argv not recorded: options recorded here as inferred",
+          "minor_6": "gate 6 recorded after this review",
+          "minor_7": "gate 4 formation 10 on 62a468a: carry-over argument per major_1"
+        }
+      }
     }
   }
 }
