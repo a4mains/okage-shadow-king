@@ -220,11 +220,12 @@ def main(argv=None):
     if a.cmd == 'strict-full':
         if (run / nr.strict_full.RESULT).exists():
             refuse([f'{nr.strict_full.RESULT} already exists; one strict route per run'], run)
-        return nr.strict_full.run_route(c, run, m, a.target_save, a.tag, prefix_mode=a.prefix_mode)
-    return run_single(nr, c, run, m, a)
+        return nr.strict_full.run_route(c, run, m, a.target_save, a.tag, prefix_mode=a.prefix_mode, argv=argv)
+    return run_single(nr, c, run, m, a, argv)
 
-def run_single(nr, c, run, m, a):
-    """One stage (or restore-check) with its own RUN/<cmd>-result.json."""
+def run_single(nr, c, run, m, a, argv):
+    """One stage (or restore-check) with its own RUN/<cmd>-result.json, which
+    records the exact argv and, for restore-check, the parsed options."""
     outcome = nr.outcome
     result = run / ('restore-check.json' if a.cmd == 'restore-check' else a.cmd + '-result.json')
     if result.exists():
@@ -258,8 +259,12 @@ def run_single(nr, c, run, m, a):
                               a.expect_save_sha256, record, a.until_roar, a.rest_every, a.rest_first)
     except outcome.StageFailure as e:
         failure = e
-    code = outcome.write_result(result, a.cmd, stages, failure, {'manifest_sha256': m['_sha256'], 'stage': stage,
-                                                                  **({'prefix_mode': 'dev'} if a.cmd == 'dev-route' else {})})
+    extra = {'manifest_sha256': m['_sha256'], 'stage': stage, 'argv': list(argv),
+             **({'prefix_mode': 'dev'} if a.cmd == 'dev-route' else {})}
+    if a.cmd == 'restore-check':
+        extra['options'] = {k: getattr(a, k) for k in ('slot_file', 'slot_rights', 'expect_save_sha256',
+                                                       'until_roar', 'rest_every', 'rest_first')}
+    code = outcome.write_result(result, a.cmd, stages, failure, extra)
     print(a.cmd, 'exit', code, failure.record() if failure else 'PASS', flush=True)
     return code
 

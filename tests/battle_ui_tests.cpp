@@ -463,6 +463,18 @@ int main(int argc,char** argv) {
         character(3,3,13,80,9);character(6,3,16,100,7);
         okage::set_event_variable(vars,5,4,1);party.refresh(vars,4);
         require(vars[0x5c4+3*0x50+0x26]==9&&vars[0x5c4+6*0x50+0x26]==7,"demo must preserve skipped slots");
+        {
+            okage::UiPartySelection initial;
+            require(okage::first_battle_zero_selection(0,initial),"owned initial cache is zero");
+            require(!okage::first_battle_zero_selection(1,initial),"nonzero 0x81ac selection");
+            require(!okage::first_battle_zero_selection(-1,initial),"negative 0x81ac selection");
+            require(!okage::first_battle_zero_selection(0,party),"refreshed counts/rows are not the zero cache");
+            std::vector<std::uint8_t> none(0x1000);okage::initialize_game_variables(none);
+            for(unsigned slot=0;slot<8;++slot)put(none,0x570+slot*4,0xffffffff);
+            okage::UiPartySelection empty;empty.refresh(none,3);
+            require(empty.counts()==std::array<std::uint32_t,8>{},"no-member refresh has zero counts");
+            require(!okage::first_battle_zero_selection(0,empty),"-1 rows with zero counts are not the zero cache");
+        }
         std::cout<<"battle UI data/party tests passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

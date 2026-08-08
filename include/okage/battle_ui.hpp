@@ -28,4 +28,5 @@ private:
     std::array<std::uint32_t,8> counts_{};
     std::array<std::array<std::int32_t,8>,8> rows_{};
 };
+bool first_battle_zero_selection(std::int32_t selected,const UiPartySelection& party);
 }

@@ -6,6 +6,7 @@ import json
 import contextlib
 import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -707,3 +708,68 @@ class RoarWheelTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class ResultArgvTests(unittest.TestCase):
+    """restore-check.json and every single-stage result record the exact
+    command line, so options such as --until-roar or --rest-first are not
+    inferred from the stages present (review 5, minor 5)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.run = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_restore_check_records_argv_and_options(self):
+        from native_route import cli
+        argv = ['restore-check', str(self.run), '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
+                '--expect-save-sha256', 'ab' * 32, '--until-roar', '40', '--rest-every', '2']
+        a = cli.parse(argv)
+        seen = {}
+
+        def fake_main(c, run, m, slot_file, slot_rights, expect, record, until_roar, rest_every, rest_first):
+            seen.update(until_roar=until_roar, rest_every=rest_every, rest_first=rest_first)
+            record('slot', {'slot_file': slot_file})
+
+        nr = types.SimpleNamespace(restore_check=types.SimpleNamespace(main=fake_main), outcome=outcome)
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = cli.run_single(nr, object(), self.run, {'_sha256': 'x'}, a, argv)
+        r = json.loads((self.run / 'restore-check.json').read_text())
+        self.assertEqual((code, r['status']), (0, 'PASS'))
+        self.assertEqual(r['argv'], argv)
+        self.assertEqual(r['options'], {'slot_file': 'bkmo2.dat', 'slot_rights': 2, 'expect_save_sha256': 'ab' * 32,
+                                        'until_roar': 40, 'rest_every': 2, 'rest_first': False})
+        self.assertEqual(seen, {'until_roar': 40, 'rest_every': 2, 'rest_first': False})
+
+    def test_failed_restore_check_still_records_argv(self):
+        from native_route import cli
+        argv = ['restore-check', str(self.run), '--slot-file', 'bkmo2.dat', '--slot-rights', '2',
+                '--expect-save-sha256', 'ab' * 32, '--rest-first']
+        a = cli.parse(argv)
+
+        def fake_main(*args):
+            raise outcome.StageFailure('restore-check', 'slot hash mismatch')
+
+        nr = types.SimpleNamespace(restore_check=types.SimpleNamespace(main=fake_main), outcome=outcome)
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = cli.run_single(nr, object(), self.run, {'_sha256': 'x'}, a, argv)
+        r = json.loads((self.run / 'restore-check.json').read_text())
+        self.assertNotEqual(code, 0)
+        self.assertEqual((r['status'], r['argv'], r['options']['rest_first']), ('FAIL', argv, True))
+
+    def test_strict_full_records_argv(self):
+        patches = [mock.patch.object(strict_full.route, 'main', lambda *a, **k: None),
+                   mock.patch.object(strict_full.battle, 'fight_if_needed', lambda *a: {'victory': 1}),
+                   mock.patch.object(strict_full.home, 'main', lambda *a: {'house': 1}),
+                   mock.patch.object(strict_full.home_inside, 'main', lambda *a: None)]
+        for p in patches:
+            p.start()
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                strict_full.run_route(object(), self.run, {'_sha256': 'x'}, 'bkmo2.dat', argv=['strict-full', 'R'])
+        finally:
+            for p in patches:
+                p.stop()
+        r = json.loads((self.run / 'route-result.json').read_text())
+        self.assertEqual(r['argv'], ['strict-full', 'R'])

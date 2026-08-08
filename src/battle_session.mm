@@ -543,12 +543,8 @@ struct BattleSession::Impl {
     void construct_ui(BattleUiContext context,unsigned frame,const fs::path& stage_report) {
         saved_model_range=false;stage_mask&=~0x18000000u;camera_mask&=~0x18000000u;
         const int selected=std::bit_cast<std::int32_t>(word(root.bytes,0x81ac));
-        if(!stage_report.empty()) {
-            if(selected||std::any_of(context.party.counts().begin(),context.party.counts().end(),[](auto n){return n!=0;}))
-                throw std::runtime_error("UI diagnostic requires the first-battle zero selection cache");
-            for(const auto& row:context.party.rows())if(std::any_of(row.begin(),row.end(),[](auto n){return n!=0;}))
-                throw std::runtime_error("UI diagnostic requires zero incoming selection rows");
-        }
+        if(!stage_report.empty()&&!first_battle_zero_selection(selected,context.party))
+            throw std::runtime_error("UI diagnostic requires the first-battle zero selection cache");
         window_owner=std::make_shared<UiTextureOwner>(UiTextureOwner{atlas});
         ui=std::make_unique<BattleInterface>(context.shared,*ui_definitions,window_owner,word(root.bytes,0x1c),[&](unsigned type){
             if(type==2)context.shared.hud.initialize_type2(*ui_resources[0],*hud_definitions,context.tables,
@@ -1334,12 +1330,9 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     const auto& screen=projection.frame().ordinary;
     const auto prepared=active?impl_->renderer->prepare(view,field_clip_projection(screen),nullptr,rotation,
         screen.clip_far,p,&projection.frame(),1,false):impl_->renderer->prepare_empty(projection.frame());
-    if(!stage_report.empty()&&!impl_->stage_committed&&!impl_->stage_diagnostics_omitted) {
-        const int selected=std::bit_cast<std::int32_t>(word(impl_->root.bytes,0x81ac));
-        const auto counts=context.party.counts();
-        bool zero=!selected&&std::all_of(counts.begin(),counts.end(),[](auto n){return n==0;});
-        for(const auto& row:context.party.rows())zero=zero&&std::all_of(row.begin(),row.end(),[](auto n){return n==0;});
-        if(!zero) {
+    if((!stage_report.empty()||!ui_update_report.empty())&&!impl_->stage_committed&&!impl_->stage_diagnostics_omitted) {
+        const auto selected=std::bit_cast<std::int32_t>(word(impl_->root.bytes,0x81ac));
+        if(!first_battle_zero_selection(selected,context.party)) {
             impl_->stage_diagnostics_omitted=true;
             std::cout<<"Native battle stage diagnostics omitted frame="<<frame
                      <<": incoming selection cache is not the first-battle zero cache\n";
@@ -1362,7 +1355,7 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
         write_ui_draw_diagnostic(out,*impl_->ui_draw,frame,104376,127,"actual-session-first-resource-after-callbacks");
         if(!out)throw std::runtime_error("Cannot write actual battle draw report");
     }
-    if(!active)impl_->inspect_ui_updates(context,frame,ui_update_report);
+    if(!active)impl_->inspect_ui_updates(context,frame,impl_->stage_diagnostics_omitted?no_report:ui_update_report);
     auto frame_ui_geometry=std::move(impl_->ui_geometry);
     const auto frame_window_owner=impl_->window_owner;
     const auto frame_atlas=impl_->atlas;

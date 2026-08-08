@@ -12,7 +12,7 @@ from .outcome import StageFailure, need, run_stage, write_result
 RESULT = 'route-result.json'
 
 def run_route(c, run, manifest, target_save, tag='strict', result_name=RESULT, entrypoint='strict-full',
-              prefix_mode='historical'):
+              prefix_mode='historical', argv=None):
     stages = []
 
     def record(name, evidence):
@@ -30,6 +30,7 @@ def run_route(c, run, manifest, target_save, tag='strict', result_name=RESULT, e
     except StageFailure as e:
         failure = e
     code = write_result(run / result_name, entrypoint, stages, failure,
-                        {'target_save': target_save, 'prefix_mode': prefix_mode, 'manifest_sha256': manifest.get('_sha256')})
+                        {'target_save': target_save, 'prefix_mode': prefix_mode, 'manifest_sha256': manifest.get('_sha256'),
+                         **({'argv': list(argv)} if argv is not None else {})})
     print(entrypoint, 'exit', code, failure.record() if failure else 'PASS', flush=True)
     return code
