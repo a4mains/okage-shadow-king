@@ -448,6 +448,21 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*16});return 0;
         }
+        if(command=="xcl-triggers"&&argc==3) {
+            const auto map=okage::read_xcl(read(argv[2]));
+            for(std::size_t c=0;c<map.chunks.size();++c)for(std::size_t i=0;i<map.chunks[c].polygons.size();++i) {
+                const auto& poly=map.chunks[c].polygons[i];const unsigned m=poly.words[1];
+                if(!(m&0x83))continue;
+                std::cout<<"{\"chunk\":"<<c<<",\"polygon\":"<<i<<",\"material\":"<<m<<",\"kind\":"<<(m&0x83)
+                         <<",\"event\":"<<((m>>8)&0x3f)<<",\"vertices\":[";
+                for(unsigned j=0;j<poly.vertex_count();++j) {
+                    const auto& v=map.chunks[c].vertices.at(poly.words[5+j]);
+                    std::cout<<(j?",":"")<<'['<<v[0]<<','<<v[1]<<','<<v[2]<<']';
+                }
+                std::cout<<"]}\n";
+            }
+            return 0;
+        }
         if(command=="xcl-probe"&&argc==5) {
             const auto map=okage::read_xcl(read(argv[2]));const auto queries=read(argv[3]);
             if(queries.size()%28)throw std::runtime_error("XCL query fixture extent");
