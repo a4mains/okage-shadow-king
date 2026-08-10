@@ -448,6 +448,21 @@ int main(int argc, char** argv) {
             }
             write(argv[3],{reinterpret_cast<const std::uint8_t*>(output.data()),output.size()*16});return 0;
         }
+        if(command=="xcl-polygons"&&argc==3) {
+            const auto map=okage::read_xcl(read(argv[2]));
+            for(std::size_t c=0;c<map.chunks.size();++c)for(std::size_t i=0;i<map.chunks[c].polygons.size();++i) {
+                const auto& poly=map.chunks[c].polygons[i];
+                std::cout<<"{\"chunk\":"<<c<<",\"polygon\":"<<i<<",\"material\":"<<poly.words[1]
+                         <<",\"normal\":["<<std::bit_cast<std::int16_t>(poly.words[3])<<','<<std::bit_cast<std::int16_t>(poly.words[2])
+                         <<','<<std::bit_cast<std::int16_t>(poly.words[4])<<"],\"flags\":"<<poly.words[0]<<",\"vertices\":[";
+                for(unsigned j=0;j<poly.vertex_count();++j) {
+                    const auto& v=map.chunks[c].vertices.at(poly.words[5+j]);
+                    std::cout<<(j?",":"")<<'['<<v[0]<<','<<v[1]<<','<<v[2]<<']';
+                }
+                std::cout<<"]}\n";
+            }
+            return 0;
+        }
         if(command=="xcl-triggers"&&argc==3) {
             const auto map=okage::read_xcl(read(argv[2]));
             for(std::size_t c=0;c<map.chunks.size();++c)for(std::size_t i=0;i<map.chunks[c].polygons.size();++i) {

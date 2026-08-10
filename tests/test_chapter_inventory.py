@@ -116,15 +116,18 @@ class XmtTests(unittest.TestCase):
                 word(0x43, 1, 15),                        # scene 15 does not exist: rejected
                 word(0x4c), 99999,                        # unknown message: rejected
                 word(0x47, 0, 1), 0x00090001,             # bank 9: rejected
+                word(0x62, 0, 12), 0,                     # Save request
+                word(0x62, 0, 3), 0,                      # unrecovered mode: not listed
                 0]
         scan = ci.scan_xmt(xmt([0, 12], code), self.scenes, {21020})
         kinds = [(h['kind'], h.get('scene') or h.get('message') or h.get('value')) for h in scan['candidates']]
-        self.assertEqual(kinds, [('if', 61), ('set', 11), ('message', 21020), ('scene_request', 14)])
+        self.assertEqual(kinds, [('if', 61), ('set', 11), ('message', 21020), ('scene_request', 14),
+                                 ('save_request', 0)])
         self.assertTrue(all(h['label'] == 'candidate' for h in scan['candidates']))
         iff = scan['candidates'][0]
         self.assertEqual((iff['bank'], iff['index'], iff['mode'], iff['false_target']),
                          (4, 10, '==', iff['pc'] + 16))
-        self.assertEqual([h['entry_hint'] for h in scan['candidates']], [0, 1, 1, 1])
+        self.assertEqual([h['entry_hint'] for h in scan['candidates']], [0, 1, 1, 1, 1])
 
     def test_rejects_bad_entry_table(self):
         with self.assertRaises(ValueError):

@@ -29,6 +29,8 @@ from pathlib import Path
 
 SAVE_HEADER = 12          # the native Save contract: '!crc', length 0xd78, checksum
 PAYLOAD_SIZE = 0xd78
+FIELD_MODE_REQUESTS = {7: 'battle_transition_request', 10: 'rest_request', 12: 'save_request',
+                       14: 'chapter_request'}
 CONTROL = re.compile(rb'\b(SET|ADD|CMP)\((-?\d+)/(-?\d+)/(-?\d+)\)')
 
 def u32(data, at):
@@ -217,8 +219,9 @@ def scan_xmt(data, scenes, message_ids):
                 hit = {'kind': 'if', 'bank': selector >> 16, 'index': selector & 0xffff,
                        'mode': ['', '==', '!=', '>', '<', '>=', '<='][a], 'value': s32(data, pc + 8),
                        'false_target': pc + 4 + (b >> 2) * 4 - 4}
-        elif op == 0x62 and pc + 8 <= len(data):
-            hit = {'kind': 'chapter_request', 'a': a, 'value': s32(data, pc + 4)}
+        elif op == 0x62 and b in FIELD_MODE_REQUESTS and pc + 8 <= len(data):
+            # 0x131338 field mode requests (src/field.cpp case 0x62): B selects the mode.
+            hit = {'kind': FIELD_MODE_REQUESTS[b], 'mode': b, 'a': a, 'value': s32(data, pc + 4)}
         if hit:
             hit.update(pc=pc, entry_hint=owning_entry(entries, pc), label='candidate')
             hits.append(hit)
