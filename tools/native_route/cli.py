@@ -26,7 +26,7 @@ PACKAGE = 'native_route'
 REFUSED = 10
 USAGE = 64
 RUN_SCOPED = ('launch', 'verify', 'send', 'strict-full', 'route', 'dev-route', 'battle', 'home', 'home-inside',
-              'restore-route', 'restore-check')
+              'restore-route', 'restore-check', 'madril')
 
 class Parser(argparse.ArgumentParser):
     def error(self, message):  # never exit 2: 2 means prelude-diverged
@@ -88,7 +88,7 @@ def import_package():
     import importlib
     for name in ('outcome', 'savefmt', 'pins', 'pilot', 'battle', 'encounter', 'navigate', 'route', 'home',
                  'home_inside', 'strict_full', 'restore_route', 'restore_check', 'session_driver',
-                 'candidates', 'compare', 'dev_route'):
+                 'candidates', 'compare', 'dev_route', 'field_path', 'madril_plan', 'madril'):
         importlib.import_module(PACKAGE + '.' + name)
     for name, mod in list(sys.modules.items()):
         if name == PACKAGE or name.startswith(PACKAGE + '.'):
@@ -147,8 +147,12 @@ def build_parser():
                                 'at the actual bedroom activation (documented deviation, needs pinned dev tapes)')
         if name == 'home':
             p.add_argument('--from-gate', action='store_true')
-        if name in ('restore-route', 'restore-check'):
+        if name in ('restore-route', 'restore-check', 'madril'):
             p.add_argument('--slot-rights', type=int, required=True)
+        if name == 'madril':
+            p.add_argument('--slot-file', required=True)
+            p.add_argument('--expect-save-sha256', required=True)
+            p.add_argument('--no-rest', action='store_true', help='skip the bedroom Rest before leaving')
         if name == 'restore-check':
             p.add_argument('--slot-file', required=True)
             p.add_argument('--expect-save-sha256', required=True,
@@ -237,7 +241,7 @@ def run_single(nr, c, run, m, a, argv):
 
     stage = {'route': 'route-prefix', 'dev-route': 'route-dev-prefix', 'battle': 'battle', 'home': 'home',
              'home-inside': 'home-inside',
-             'restore-route': 'restore-route', 'restore-check': 'restore-check'}[a.cmd]
+             'restore-route': 'restore-route', 'restore-check': 'restore-check', 'madril': 'madril'}[a.cmd]
     failure = None
     try:
         if a.cmd == 'route':
@@ -254,6 +258,9 @@ def run_single(nr, c, run, m, a, argv):
             outcome.run_stage('home-inside', nr.home_inside.main, c, run, m, a.target_save, a.tag, record)
         elif a.cmd == 'restore-route':
             record('restore-route', outcome.run_stage('restore-route', nr.restore_route.main, c, run, m, a.slot_rights))
+        elif a.cmd == 'madril':
+            outcome.run_stage('madril-arrival', nr.madril.main, c, run, m, a.slot_file, a.slot_rights,
+                              a.expect_save_sha256, record, not a.no_rest)
         elif a.cmd == 'restore-check':
             outcome.run_stage('restore-check', nr.restore_check.main, c, run, m, a.slot_file, a.slot_rights,
                               a.expect_save_sha256, record, a.until_roar, a.rest_every, a.rest_first)

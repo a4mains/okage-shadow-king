@@ -27,6 +27,12 @@ CODES = {
     'restore-route': 80,
     'restore-check': 90,
     'roar-encounters': 95,
+    'madril-road': 100,
+    'madril-trigger': 101,
+    'madril-arrival': 102,
+    'madril-message': 103,
+    'madril-state': 104,
+    'madril-control': 105,
     'usage': 64,
     'internal': 99,
 }
