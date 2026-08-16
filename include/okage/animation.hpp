@@ -54,6 +54,8 @@ public:
     std::uint32_t pc() const { return pc_; }
     std::uint32_t script_state() const { return (std::uint32_t(wait_)<<16)|flags_; }
     bool scale_channels() const { return scale_channels_; }
+    // Opt-in diagnostic: called with (pc, opcode) before each executed script word.
+    void set_trace_callback(std::function<void(std::uint32_t,unsigned)> callback){trace_=std::move(callback);}
     void set_texture_callback(std::function<void(std::size_t,std::size_t)> callback) {
         texture_callback_=std::move(callback);
     }
@@ -78,6 +80,7 @@ private:
     bool scale_channels_=false;
     std::function<void(std::size_t,std::size_t)> texture_callback_;
     Service service_;
+    std::function<void(std::uint32_t,unsigned)> trace_;
     Animation* channel_target_=nullptr;
     std::uint32_t word(std::size_t offset) const;
     float number(std::size_t offset) const;

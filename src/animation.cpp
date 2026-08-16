@@ -75,7 +75,7 @@ Animation::Animation(Animation&& other) noexcept
      channel_count_(other.channel_count_),pool_base_(other.pool_base_),
      pc_(other.pc_),flags_(other.flags_),wait_(other.wait_),
      scale_channels_(other.scale_channels_),texture_callback_(std::move(other.texture_callback_)),
-     service_(std::move(other.service_)),channel_target_(other.channel_target_) {
+     service_(std::move(other.service_)),trace_(std::move(other.trace_)),channel_target_(other.channel_target_) {
     if(channel_target_==&other)channel_target_=this;
     other.channel_count_=0;other.pool_base_=0;other.channel_target_=nullptr;
     other.flags_=1;other.wait_=0;other.pc_=0;
@@ -165,6 +165,7 @@ void Animation::run() {
         const auto w=word(pc_), op=w&255, a=(w>>8)&0xfff;
         const auto b=std::bit_cast<std::int32_t>(w)>>20;
         const auto p=pc_+4;
+        if (trace_) trace_(pc_,op);
         if (op==0) { flags_&=~0x100; pc_=resume_pc; return; } // Retail stores PC only on yield.
         if (op==1) { pc_=relative(p); continue; }
         if (op==2) { wait_=static_cast<std::uint16_t>(b); pc_=p; return; }

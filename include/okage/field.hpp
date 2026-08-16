@@ -105,6 +105,8 @@ struct PlayerMovement {
 struct OpeningFieldTestAccess;
 class OpeningField {
 public:
+    // Opt-in diagnostic over the field event script (Animation::set_trace_callback).
+    void set_event_trace(std::function<void(std::uint32_t,unsigned)> trace){script_.set_trace_callback(std::move(trace));}
     OpeningField(Bytes script,std::function<void(int)> start_dialogue,
                  std::function<bool(int)> wait_dialogue,std::span<const ActorBinding> actors={},bool diagnostic=true,
                  bool defer_actor_setup=false);

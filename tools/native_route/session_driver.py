@@ -40,12 +40,14 @@ def native_command(run, manifest):
            '--battle-live', r + '/battle-live.jsonl', '--headless-control', r + '/control']
     if manifest.get('rng_sites'):
         cmd[cmd.index('--headless-control'):cmd.index('--headless-control')] = ['--rng-sites', r + '/rng-sites.jsonl']
+    if manifest.get('event_trace'):
+        cmd[cmd.index('--headless-control'):cmd.index('--headless-control')] = ['--event-trace', r + '/event-trace.jsonl']
     if manifest['newgame_report']:
         cmd[cmd.index('--battle-live'):cmd.index('--battle-live')] = ['--newgame-report', r + '/report']
     return cmd
 
 def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=False, rng_sites=False,
-            min_free_gib=200, source_repo=None, label=None):
+            min_free_gib=200, source_repo=None, label=None, event_trace=False):
     run = Path(run).resolve()
     if run.exists() or run.is_symlink():
         raise pins.PinError(['refusing existing run directory ' + str(run)])
@@ -125,7 +127,8 @@ def prepare(run, binary, stage, prepared, saves, prelude_ticks, newgame_report=F
          'dev_tapes': present,
          'prelude_tape_entries': {k: len(v) for k, v in prelude.items()},
          'game_data_stage': stage_ident, 'python': pins.python_identity(),
-         'newgame_report': bool(newgame_report), 'rng_sites': bool(rng_sites), 'min_free_gib': min_free_gib,
+         'newgame_report': bool(newgame_report), 'rng_sites': bool(rng_sites), 'event_trace': bool(event_trace),
+         'min_free_gib': min_free_gib,
          'policy': 'prepared requests unchanged; later lines only via commands.in, journaled; '
                    'only pad steps and read-only observations; no state/seed/timing/outcome injection'}
     m['native_command'] = native_command(run, m)

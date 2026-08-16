@@ -113,6 +113,8 @@ def build_parser():
                        help='enable --newgame-report (40-66 GB per run); off by default')
         p.add_argument('--rng-sites', action='store_true',
                        help='pass --rng-sites RUN/rng-sites.jsonl (per-frame RNG draws by placement site; needs a binary with that option)')
+        p.add_argument('--event-trace', action='store_true',
+                       help='pass --event-trace RUN/event-trace.jsonl (first execution of each field-script pc/opcode; needs a binary with that option)')
         p.add_argument('--min-free-gib', type=int, default=200)
         p.add_argument('--source-repo', help='checkout that built the binary (read-only git HEAD and diff recorded)')
 
@@ -167,7 +169,8 @@ def build_parser():
 
 def prepare_kwargs(a):
     return dict(binary=a.binary, stage=a.stage, prepared=a.prepared, saves=a.saves, prelude_ticks=a.prelude_ticks,
-                newgame_report=a.newgame_report, rng_sites=a.rng_sites, min_free_gib=a.min_free_gib, source_repo=a.source_repo)
+                newgame_report=a.newgame_report, rng_sites=a.rng_sites, min_free_gib=a.min_free_gib, source_repo=a.source_repo,
+                event_trace=a.event_trace)
 
 def parse(argv):
     ap = build_parser()

@@ -92,6 +92,16 @@ class PrepareTest(PinFixture):
         self.assertTrue(m['newgame_report'])
         self.assertIn('--newgame-report', m['native_command'])
 
+    def test_event_trace_is_opt_in(self):
+        m = json.loads((self.prepare('r3') / 'manifest.json').read_text())
+        self.assertFalse(m['event_trace'])
+        self.assertNotIn('--event-trace', m['native_command'])
+        run = self.prepare('r4', '--event-trace')
+        m = json.loads((run / 'manifest.json').read_text())
+        self.assertTrue(m['event_trace'])
+        i = m['native_command'].index('--event-trace')
+        self.assertEqual(m['native_command'][i + 1], str(run) + '/event-trace.jsonl')
+
     def test_prepare_refusals(self):
         run = self.prepare()
         self.assertEqual(cli(support.CLI, *self.prep_args(run)).returncode, 10)  # existing run

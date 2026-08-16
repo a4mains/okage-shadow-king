@@ -884,6 +884,10 @@ struct Session {
     std::string battle_report_base;
     std::ostream* battle_live_trace=nullptr;
     std::ostream* rng_sites_trace=nullptr;
+    // Opt-in --event-trace: first execution of each (field script, pc, opcode)
+    // with frame and scene. Read-only; one JSON line per new key.
+    std::ostream* event_trace=nullptr;
+    std::set<std::tuple<std::uint32_t,std::uint32_t,unsigned>> event_trace_seen;
     std::array<unsigned,4> rng_site_counts{};
     unsigned message_pass_frame=0;
     okage::FieldMessageWindows::PassDraws message_pass{};
@@ -984,6 +988,15 @@ struct Session {
             if(released && request==0 && !close_release_frame)close_release_frame=frame;
             return released;
         },actor_bindings,diagnostic,title_modeled(okage::ResourceStage::FieldWorldLoading));
+        if(event_trace) {
+            std::uint32_t fnv=2166136261u;for(auto byte:script){fnv^=byte;fnv*=16777619u;}
+            const auto bytes=std::uint32_t(script.size());
+            field->set_event_trace([this,fnv,bytes](std::uint32_t pc,unsigned op) {
+                if(!event_trace_seen.emplace(fnv,pc,op).second)return;
+                *event_trace<<"{\"frame\":"<<frame<<",\"scene\":"<<current_scene<<",\"script_fnv1a\":"<<fnv
+                            <<",\"script_bytes\":"<<bytes<<",\"pc\":"<<pc<<",\"op\":"<<op<<"}\n"<<std::flush;
+            });
+        }
         bind_field_services();
     }
     // Opcode4c handler 130550 and phase8 both construct 11f570(manager,
@@ -3885,8 +3898,8 @@ int main(int argc,const char** argv) {
         fs::path fontDirectory=coldStart?fs::path{}:fs::path(argv[1]),messagePath=coldStart?fs::path{}:fs::path(argv[2]);
         unsigned frames=0,uiFrames=0,previewAt=0,renderFrom=0,renderUntil=0;DirectionReplay directions,buttons,titleScript,nameScript;bool hasButtons=false;std::vector<unsigned> presses,captureFrames;fs::path output,map,event,musicSequence,musicBank,soundDirectory,effectData,effectTextures,battleInput;std::vector<std::pair<int,fs::path>> actors;std::string playerName="Ari";
         std::optional<fs::path> performancePath,inputJournalPath,pauseCapturePath,headlessControlPath;
-        fs::path uiUpdateReport,battleLivePath,loadObservationPath,rngSitesPath;
-        std::ofstream rngSitesTrace;
+        fs::path uiUpdateReport,battleLivePath,loadObservationPath,rngSitesPath,eventTracePath;
+        std::ofstream rngSitesTrace,eventTrace;
         bool deferredBattleReadback=false;
         std::optional<bool> cooperativeReplay;
         std::optional<unsigned> replayDisplayFrom;
@@ -3998,6 +4011,10 @@ int main(int argc,const char** argv) {
             else if(arg=="--effect-data")effectData=argv[i];
             else if(arg=="--effect-textures")effectTextures=argv[i];
             else if(arg=="--battle-input")battleInput=argv[i];
+            else if(arg=="--event-trace") {
+                if(!eventTracePath.empty()||!argv[i][0])throw std::runtime_error("Event trace requires one nonempty fresh path");
+                eventTracePath=argv[i];
+            }
             else if(arg=="--rng-sites") {
                 if(!rngSitesPath.empty()||!argv[i][0])throw std::runtime_error("RNG-sites diagnostic requires one nonempty fresh path");
                 rngSitesPath=argv[i];
@@ -4074,6 +4091,14 @@ int main(int argc,const char** argv) {
             loadObservationTrace.open(loadObservationPath);
             loadObservationTrace<<"{\"schema\":\"okage-native-loader-observation-v1\",\"capacity_per_battle\":8192,\"capacity_per_field_return\":65536,\"scope\":\"opt-in native host events; may perturb scheduling; worker events have no guessed simulation tick; no original timing equivalence\"}\n";
             if(!loadObservationTrace)throw std::runtime_error("Cannot create native loader observation");
+        }
+        if(!eventTracePath.empty()) {
+            if(fs::exists(eventTracePath)||fs::is_symlink(eventTracePath)||
+                (!output.empty()&&okage::native_capture_family_contains(output,eventTracePath)))
+                throw std::runtime_error("Event trace refuses an existing or aliased output");
+            eventTrace.open(eventTracePath);
+            eventTrace<<"{\"schema\":\"okage-native-event-trace-v1\",\"scope\":\"first execution of each (field event script FNV-1a, pc, opcode); scene is the Session's current scene when executed; ops run inside OpeningField construction are not traced\"}\n";
+            if(!eventTrace)throw std::runtime_error("Cannot create event trace");
         }
         if(!rngSitesPath.empty()) {
             if(fs::exists(rngSitesPath)||fs::is_symlink(rngSitesPath)||
@@ -4180,6 +4205,7 @@ int main(int argc,const char** argv) {
             session.battle_ui_update_report=uiUpdateReport;
             session.battle_live_trace=battleLivePath.empty()?nullptr:&battleLiveTrace;
             session.rng_sites_trace=rngSitesPath.empty()?nullptr:&rngSitesTrace;
+            session.event_trace=eventTracePath.empty()?nullptr:&eventTrace;
             session.load_observation_trace=loadObservationPath.empty()?nullptr:&loadObservationTrace;
             if(!output.empty())session.battle_construction_report=output.string()+".battle-construction.json";
             if(!output.empty())session.battle_report_base=output.string();
@@ -4342,6 +4368,7 @@ int main(int argc,const char** argv) {
         app->session->input_journal=inputJournal.get();
         app->session->battle_input=battleInput;
         app->session->battle_ui_update_report=uiUpdateReport;
+        app->session->event_trace=eventTracePath.empty()?nullptr:&eventTrace;
         if(!output.empty())app->session->battle_construction_report=output.string()+".battle-construction.json";
         if(!output.empty())app->session->battle_report_base=output.string();
         if(!output.empty())app->session->battle_stage_report=output.string()+".battle-stage.json";

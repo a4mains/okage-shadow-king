@@ -96,6 +96,21 @@ int main() {
             require(camera.channel_outputs().size()==3);
             require(model.value(0)[1]==.75f);
             require(model.channel_outputs()[0][1]==.75f);
+            {
+                // Opt-in trace: (pc, opcode) before each executed word, kept
+                // across a move; no trace without a callback.
+                auto traced=fixture();put(traced,32,0x00100002);put(traced,36,0);
+                std::vector<std::pair<std::uint32_t,unsigned>> seen;
+                okage::Animation first(traced,1);
+                first.set_trace_callback([&](std::uint32_t pc,unsigned op){seen.emplace_back(pc,op);});
+                first.start(0);
+                require(seen==std::vector<std::pair<std::uint32_t,unsigned>>{{32,2}});
+                okage::Animation moved(std::move(first));
+                for(unsigned i=0;i<4&&seen.size()<2;++i)moved.tick();
+                require(seen.size()==2&&seen[1]==std::pair<std::uint32_t,unsigned>{36,0});
+                okage::Animation untraced(traced,1);untraced.start(0);
+                require(seen.size()==2);
+            }
             okage::Animation standalone(3),bad_event(script,1);
             bad_event.set_channel_target(&standalone);
             rejects([&]{bad_event.start(0);});
