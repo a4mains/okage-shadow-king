@@ -3,9 +3,10 @@
 Input is the JSONL from `okage-assets xcl-polygons MAP/a.xcl` (owned data).
 Floor polygons (normal Y below -threshold; Y grows downward) are sampled on an
 XZ grid; each cell keeps the floor heights found there. Neighbouring cells are
-connected when a floor surface continues within `step` height. Cells whose
-body column (from `body_low` to `body_high` units above the floor) meets a
-wall polygon's footprint within `clearance` are blocked. A* over the grid gives
+connected when a floor surface continues within `step` height and the move
+does not cross a wall polygon's XZ footprint whose vertical extent meets the
+body column (from `body_low` to `body_high` units above the floor). Cells
+within `clearance` (about the hero's radius) of such a wall are blocked. A* over the grid gives
 a path that is simplified to waypoints for ordinary walking
 (home.walk_points / Ctl.walk_to).
 
@@ -47,6 +48,15 @@ def plane_y(vs, x, z):
         return None
     return ay - (nx * (x - ax) + nz * (z - az)) / ny
 
+def segments_cross(ax, az, bx, bz, cx, cz, dx, dz):
+    def orient(px, pz, qx, qz, rx, rz):
+        return (qx - px) * (rz - pz) - (qz - pz) * (rx - px)
+    d1 = orient(cx, cz, dx, dz, ax, az)
+    d2 = orient(cx, cz, dx, dz, bx, bz)
+    d3 = orient(ax, az, bx, bz, cx, cz)
+    d4 = orient(ax, az, bx, bz, dx, dz)
+    return (d1 * d2 < 0) and (d3 * d4 < 0)
+
 def seg_dist(px, pz, ax, az, bx, bz):
     vx, vz = bx - ax, bz - az
     L = vx * vx + vz * vz
@@ -55,7 +65,7 @@ def seg_dist(px, pz, ax, az, bx, bz):
 
 class Grid:
     def __init__(self, polygons, goal_event=None, cell=1.0, threshold=8190, step=1.5,
-                 body_low=0.4, body_high=3.0, clearance=0.3, trigger_cost=6.0):
+                 body_low=0.4, body_high=3.0, clearance=0.6, trigger_cost=6.0):
         self.cell = cell
         self.step = step
         self.floors = defaultdict(list)      # (i, k) -> [y, ...] (Y grows downward)
@@ -79,10 +89,18 @@ class Grid:
                                 self.events[(i, k, round(y, 1))] = event
             elif abs(ny) < threshold:
                 walls.append(vs)
+        self.body = (body_low, body_high)
+        self.walls = defaultdict(list)
         for vs in walls:
             ys = [v[1] for v in vs]
             top, bottom = min(ys), max(ys)
             edges = [(vs[a], vs[(a + 1) % len(vs)]) for a in range(len(vs))]
+            for a, b in edges:
+                if abs(a[0] - b[0]) + abs(a[2] - b[2]) < 1e-6:
+                    continue
+                seg = (a[0], a[2], b[0], b[2], top, bottom)
+                for cell_ in self._cells([a, b], 1.0):
+                    self.walls[cell_].append(seg)
             for i, k in self._cells(vs, clearance):
                 ys_here = self.floors.get((i, k))
                 if not ys_here:
@@ -102,12 +120,35 @@ class Grid:
             for k in range(math.floor((min(zs) - pad) / c), math.ceil((max(zs) + pad) / c) + 1):
                 yield i, k
 
-    def node(self, x, z, y=None):
-        i, k = round(x / self.cell), round(z / self.cell)
+    def node(self, x, z, y=None, search=2):
+        """The open cell at (x, z), else the nearest open cell within `search` cells."""
+        i0, k0 = round(x / self.cell), round(z / self.cell)
+        for r in range(search + 1):
+            ring = sorted(((di, dk) for di in range(-r, r + 1) for dk in range(-r, r + 1)
+                           if max(abs(di), abs(dk)) == r), key=lambda d: math.hypot(*d))
+            for di, dk in ring:
+                found = self._node_at(i0 + di, k0 + dk, y)
+                if found is not None:
+                    return found
+        return None
+
+    def _node_at(self, i, k, y=None):
         ys = [y_ for y_ in self.floors.get((i, k), []) if (i, k, round(y_, 1)) not in self.blocked]
         if not ys:
             return None
         return (i, k, min(ys, key=lambda y_: abs(y_ - y)) if y is not None else max(ys))
+
+    def crosses_wall(self, i, k, y, i2, k2):
+        c = self.cell
+        ax, az, bx, bz = i * c, k * c, i2 * c, k2 * c
+        low, high = self.body
+        for cell_ in {(i, k), (i2, k2)}:
+            for wx0, wz0, wx1, wz1, top, bottom in self.walls.get(cell_, ()):
+                if not (bottom >= y - high and top <= y - low):
+                    continue
+                if segments_cross(ax, az, bx, bz, wx0, wz0, wx1, wz1):
+                    return True
+        return False
 
     def neighbours(self, n):
         i, k, y = n
@@ -117,7 +158,8 @@ class Grid:
                     continue
                 for y2 in self.floors.get((i + di, k + dk), ()):
                     m = (i + di, k + dk, round(y2, 1))
-                    if abs(y2 - y) <= self.step and m not in self.blocked:
+                    if (abs(y2 - y) <= self.step and m not in self.blocked
+                            and not self.crosses_wall(i, k, y, i + di, k + dk)):
                         cost = math.hypot(di, dk) * self.cell
                         yield (i + di, k + dk, y2), cost * (self.trigger_cost if m in self.events else 1.0)
 

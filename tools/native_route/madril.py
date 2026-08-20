@@ -41,10 +41,37 @@ def guard_lines(text):
     return [l for l in text.splitlines()
             if any(w in l for w in GUARD_WORDS) and not l.startswith('{') and 'guard_pending_opcode' not in l]
 
-def walk_road(c, run, record):
-    s = home.walk_points(c, run, madril_plan.WAYPOINTS, 1, max_events=80)
-    need(s['scene'] == 1 and s['hero_position'] is not None, 'madril-road',
-         'left scene 1 or lost field control on the road', status=s)
+def walk_road(c, run, record, max_misses=3, max_events=80):
+    """home.walk_points with a stall stop: after `max_misses` consecutive
+    waypoints not reached within tolerance the stage fails where it stands
+    (c2p-madril-v1a kept walking into a rock for 500 ticks per waypoint)."""
+    points = madril_plan.WAYPOINTS
+    s = c.status()
+    need(s['hero_position'] is not None, 'madril-road', 'no field control at walk start', status=s)
+    i = min(range(len(points)), key=lambda i: (points[i][0] - s['hero_position'][0]) ** 2
+            + (points[i][1] - s['hero_position'][2]) ** 2)
+    misses = events = 0
+    while i < len(points):
+        x, z = points[i]
+        s = c.walk_to(x, z, tol=3, max_ticks=500, stop=lambda s: s['event_running'] or s['scene'] != 1)
+        if battle.fight_if_needed(c, run):
+            continue
+        s = c.status()
+        if s['event_running']:
+            events += 1
+            need(events <= max_events, 'madril-road', 'field events kept interrupting the walk', status=s)
+            c.note('field event while walking', s)
+            c.advance(lambda s: not s['event_running'], confirm_gap=60)
+            continue
+        need(s['scene'] == 1 and s['hero_position'] is not None, 'madril-road',
+             'left scene 1 or lost field control on the road', status=s, waypoint=i)
+        if navigate.near(s, (x, z), 3.5):
+            misses = 0
+        else:
+            misses += 1
+            need(misses < max_misses, 'madril-road', 'walk stalled: consecutive waypoints not reached',
+                 status=s, waypoint=i, target=(x, z))
+        i += 1
     tx, tz = madril_plan.TRIGGER
     s = navigate.navigate(c, run, (tx, tz), tol=3, budget=1500)
     need(navigate.near(s, (tx, tz), 4), 'madril-road', 'event-32 trigger not reached', status=s)

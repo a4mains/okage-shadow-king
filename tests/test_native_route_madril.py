@@ -161,3 +161,46 @@ class MainTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class WalkRoadTests(unittest.TestCase):
+    class Walker:
+        def __init__(self, reach):
+            self.reach = reach
+            self.pos = (0.0, 0.0)
+            self.walks = 0
+
+        def status(self):
+            return status(1, scene=1, pos=(self.pos[0], 0.0, self.pos[1]))
+
+        def walk_to(self, x, z, tol=1.0, max_ticks=0, stop=None):
+            self.walks += 1
+            if self.reach(x, z):
+                self.pos = (x, z)
+            return self.status()
+
+        def note(self, *a):
+            pass
+
+    def run_walk(self, reach, points):
+        c = self.Walker(reach)
+        stages = []
+        with mock.patch.object(madril.madril_plan, 'WAYPOINTS', points), \
+                mock.patch.object(madril.battle, 'fight_if_needed', lambda *a: False), \
+                mock.patch.object(madril.navigate, 'navigate', lambda c, run, t, **k: c.walk_to(*t)):
+            madril.walk_road(c, None, lambda n, e: stages.append(n))
+        return c, stages
+
+    def test_reaches_trigger(self):
+        c, stages = self.run_walk(lambda x, z: True, [(0, 0), (10, 0), (20, 0)])
+        self.assertEqual(stages, ['road'])
+
+    def test_stall_fails_after_three_misses(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            self.run_walk(lambda x, z: x < 15, [(0, 0), (10, 0), (20, 0), (30, 0), (40, 0), (50, 0)])
+        self.assertEqual(e.exception.stage, 'madril-road')
+        self.assertIn('stalled', e.exception.reason)
+
+    def test_isolated_miss_is_tolerated_but_trigger_must_be_reached(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            self.run_walk(lambda x, z: x != 10 and x < 25, [(0, 0), (10, 0), (20, 0)])
+        self.assertIn('trigger', e.exception.reason)
