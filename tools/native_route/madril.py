@@ -48,10 +48,16 @@ def walk_road(c, run, record, max_misses=3, max_events=80):
     points = madril_plan.WAYPOINTS
     s = c.status()
     need(s['hero_position'] is not None, 'madril-road', 'no field control at walk start', status=s)
-    i = min(range(len(points)), key=lambda i: (points[i][0] - s['hero_position'][0]) ** 2
+    walkable = [i for i, p in enumerate(points) if p[0] != 'confirm']
+    i = min(walkable, key=lambda i: (points[i][0] - s['hero_position'][0]) ** 2
             + (points[i][1] - s['hero_position'][2]) ** 2)
     misses = events = 0
+    handled = []
     while i < len(points):
+        if points[i][0] == 'confirm':
+            handled.append(confirm_event(c, run, len(handled), points[i][1:]))
+            i += 1
+            continue
         x, z = points[i]
         s = c.walk_to(x, z, tol=3, max_ticks=500, stop=lambda s: s['event_running'] or s['scene'] != 1)
         if battle.fight_if_needed(c, run):
@@ -61,7 +67,9 @@ def walk_road(c, run, record, max_misses=3, max_events=80):
             events += 1
             need(events <= max_events, 'madril-road', 'field events kept interrupting the walk', status=s)
             c.note('field event while walking', s)
-            c.advance(lambda s: not s['event_running'], confirm_gap=60)
+            after = c.event_dialogue('madril-road')
+            need(not after['event_running'], 'madril-road', 'field event did not finish', status=after)
+            handled.append(record_event(c, run, len(handled), s, after))
             continue
         need(s['scene'] == 1 and s['hero_position'] is not None, 'madril-road',
              'left scene 1 or lost field control on the road', status=s, waypoint=i)
@@ -75,8 +83,34 @@ def walk_road(c, run, record, max_misses=3, max_events=80):
     tx, tz = madril_plan.TRIGGER
     s = navigate.navigate(c, run, (tx, tz), tol=3, budget=1500)
     need(navigate.near(s, (tx, tz), 4), 'madril-road', 'event-32 trigger not reached', status=s)
-    record('road', {'at_trigger': s, 'waypoints': len(madril_plan.WAYPOINTS), 'crossed_plan': madril_plan.CROSSED})
+    record('road', {'at_trigger': s, 'waypoints': len(madril_plan.WAYPOINTS), 'crossed_plan': madril_plan.CROSSED,
+                    'field_events': handled})
     return s
+
+def record_event(c, run, n, before, after):
+    """Variables after a field event met on the road (the route card erratum:
+    the bridge NPC's message 20201 writes objective 60 before Madril)."""
+    name = f'road-event-{n}'
+    c.send(f'capture {name}')
+    path = Path(run) / 'control' / f'{name}.png.variables.bin'
+    state = progress(path.read_bytes()) if path.is_file() else None
+    return {'started': before, 'finished': after, 'message': after.get('message'), 'variables': str(path),
+            'state': state}
+
+def confirm_event(c, run, n, toward):
+    """Face `toward` with a short ordinary press, Confirm, and run the event's
+    dialogue (madril_plan: the bridge-end NPC blocks the road until spoken to)."""
+    s = c.status()
+    hx, hz = s['hero_position'][0], s['hero_position'][2]
+    c.step(4, c.pick(s['camera_yaw'], toward[0] - hx, toward[1] - hz))
+    c.step(2, 0)
+    c.step(1, CONFIRM)
+    c.step(30, 0)
+    started = c.status()
+    need(started['event_running'], 'madril-road', 'Confirm started no event', status=started, toward=toward)
+    after = c.event_dialogue('madril-road')
+    need(not after['event_running'], 'madril-road', 'field event did not finish', status=after)
+    return record_event(c, run, n, started, after)
 
 def confirm_trigger(c, run, start):
     """Confirm on the trigger polygons (kind 0x80) until the field requests scene 14."""
@@ -92,9 +126,10 @@ def confirm_trigger(c, run, start):
             c.step(10, 0)
         s = c.status()
         if s['event_running']:
-            c.advance(lambda s: not s['event_running'] or s['scene'] == SCENE, confirm_gap=40, max_ticks=4000)
-            if TRANSITION in c.log_since(start) or c.status()['scene'] == SCENE:
-                return attempt
+            for _ in range(400):
+                if TRANSITION in c.log_since(start) or c.status()['scene'] == SCENE:
+                    return attempt
+                c.step(10, 0)
         # Re-centre on the trigger before the next Confirm.
         navigate.navigate(c, run, madril_plan.TRIGGER, tol=2, budget=300)
     need(False, 'madril-trigger', 'Confirm on the event-32 trigger did not request scene 14',

@@ -674,6 +674,14 @@ class RoarWheelTests(unittest.TestCase):
 
     PAGES = ['text', 'qc', 'qc', 'qc', 'text', 'text']
 
+    def test_event_dialogue_takes_default_cc_rows(self):
+        from native_route import pilot
+        m = self.Model(['text', 'qc', 'text', 'qc', 'qc', 'text'])
+        m.status = lambda: {'event_running': m.roar_active(), 'scene': 1, 'frame': m.frame}
+        pilot.Ctl.event_dialogue(m, 'madril-road')
+        self.assertEqual(m.rows, [0, 0, 0])
+        self.assertFalse(m.roar_active())
+
     def test_roar_arms_each_wheel_and_takes_the_default_rows(self):
         from native_route import pilot
         m = self.Model(self.PAGES)
@@ -696,7 +704,8 @@ class RoarWheelTests(unittest.TestCase):
         m.step = step
         with self.assertRaises(outcome.StageFailure) as e:
             pilot.Ctl.roar(m)
-        self.assertIn('moved the roar wheel cursor', e.exception.reason)
+        self.assertIn('moved the dialogue cursor', e.exception.reason)
+        self.assertEqual(e.exception.stage, 'roar-encounters')
 
     def test_confirm_alone_never_passes_a_wheel(self):
         # The pre-fix pilot.roar (claude-final-restore-roar-v2d 72880..81152, Confirm only).

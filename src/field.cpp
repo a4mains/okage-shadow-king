@@ -974,13 +974,19 @@ Animation::ServiceResult OpeningField::service(unsigned op,unsigned a,std::int32
                 script_.set_channel_target(channels);
             }
             group_=b;return {pc+4};
-        case 9:
-            // 0x1b5830 -> 0x1bb608 waits for the selected object's motion
-            // context to clear running bit0x100, not for a guessed duration.
-            if(auto* object=actor(b);object&&!(object->animation().script_state()&0x100)) {
+        case 9: {
+            const Animation* motion=nullptr;
+            if(auto* object=actor(b))motion=&object->animation();
+            else if(map_scene_) {
+                const auto instance=b>=0?std::optional<int>(b):
+                    (resolve_instance_alias?resolve_instance_alias(b):std::nullopt);
+                if(instance)motion=map_scene_->channel_group(*instance);
+            }
+            if(motion&&!(motion->script_state()&0x100)) {
                 pending_opcode=0;return {pc+4};
             }
             return pending();
+        }
         case 0x4b:
             if(b<0) {
                 // 0x130670 resolves the alias once; 0x1b9720 stores that

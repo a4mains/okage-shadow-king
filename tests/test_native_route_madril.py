@@ -204,3 +204,19 @@ class WalkRoadTests(unittest.TestCase):
         with self.assertRaises(outcome.StageFailure) as e:
             self.run_walk(lambda x, z: x != 10 and x < 25, [(0, 0), (10, 0), (20, 0)])
         self.assertIn('trigger', e.exception.reason)
+
+class ConfirmMarkerTests(unittest.TestCase):
+    def test_confirm_marker_requires_an_event(self):
+        class C(WalkRoadTests.Walker):
+            def __init__(self):
+                super().__init__(lambda x, z: True)
+                self.events = 0
+            def step(self, n, mask=0):
+                pass
+            pick = staticmethod(lambda yaw, dx, dz, exclude=(): 0x1000)
+        c = C()
+        with mock.patch.object(madril.madril_plan, 'WAYPOINTS', [(0, 0), ('confirm', 0, -5), (10, 0)]), \
+                mock.patch.object(madril.battle, 'fight_if_needed', lambda *a: False):
+            with self.assertRaises(outcome.StageFailure) as e:
+                madril.walk_road(c, None, lambda n, ev: None)
+        self.assertIn('Confirm started no event', e.exception.reason)

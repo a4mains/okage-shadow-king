@@ -1,5 +1,10 @@
 #include "okage/field.hpp"
 #include "okage/event.hpp"
+#include "okage/map_objects.hpp"
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <unistd.h>
 #include <bit>
 #include <cfenv>
 #include <iostream>
@@ -306,6 +311,26 @@ int main(){try {
     map_event.tick();require(map_event.pc()==0xbe8&&!(door.animation().script_state()&0x100));
     map_event.tick();require(map_event.pc()==0xbec&&map_event.pending_opcode==0x36);
     require(map_event.collision_bodies().empty());
+    {
+        const auto dir=std::filesystem::temp_directory_path()/("okage-op9-"+std::to_string(::getpid()));
+        std::filesystem::create_directories(dir);
+        std::vector<std::uint8_t> xmp(64+80+148);
+        auto put=[&](unsigned at,std::uint32_t v){for(unsigned i=0;i<4;++i)xmp.at(at+i)=v>>(8*i);};
+        put(8,64);put(12,1);put(40,144);put(44,1);
+        for(unsigned i=0;i<3;++i)put(64+(12+i)*4,0x3f800000);
+        std::memcpy(xmp.data()+144,"m.xmd",6);put(144+28,0); // definition flags 0: unanimated
+        {std::ofstream out(dir/"a.xmp",std::ios::binary);out.write(reinterpret_cast<const char*>(xmp.data()),xmp.size());}
+        okage::MapObjects scene(dir/"a.xmp");
+        require(scene.bindings().empty()&&scene.channel_group(0)&&!(scene.channel_group(0)->script_state()&0x100));
+        word(0xbe4,0x00000009);word(0xbe8,0x00500009);word(0xbec,0xff800236);
+        okage::OpeningField static_wait(b,[](int){},[](int){return true;});
+        static_wait.bind_map_scene(scene);
+        for(unsigned i=0;i<320&&static_wait.pc()<0xbe8;++i)static_wait.tick();
+        require(static_wait.pc()==0xbe8&&static_wait.pending_opcode==9); // instance 0 released; 5 has no object
+        for(unsigned i=0;i<4;++i)static_wait.tick();
+        require(static_wait.pc()==0xbe8);
+        std::filesystem::remove_all(dir);
+    }
     word(0xbe4,0xfda0023c);word(0xbe8,0xfda0013c);word(0xbec,0xff800236);
     okage::OpeningField missing_color(b,[](int){},[](int){return true;});
     for(unsigned i=0;i<180;++i)missing_color.tick();
