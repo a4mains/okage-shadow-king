@@ -16,7 +16,11 @@ remains the proof. Automatic floor-event polygons (material kind 0x81) are
 walkable but cost `trigger_cost` times more unless they carry the goal event;
 most authored automatic events test variables and do nothing. Every event a
 plan crosses is reported (`crossed`) so it can be checked against the scripts.
-Confirm-only triggers (0x80) cost nothing extra.
+Confirm-only triggers (0x80) cost nothing extra. Floor whose upper material
+(material >> 14, the terrain class the field adds to its battle stage,
+OpeningField::default_battle_stage) is nonzero costs `offroad_cost` times
+more: the authored roads are class 0, and c2p-madril-v1a/v1b stalled on class-1
+ground against obstacles the XCL alone does not show.
 """
 import heapq
 import json
@@ -65,12 +69,14 @@ def seg_dist(px, pz, ax, az, bx, bz):
 
 class Grid:
     def __init__(self, polygons, goal_event=None, cell=1.0, threshold=8190, step=1.5,
-                 body_low=0.4, body_high=3.0, clearance=0.6, trigger_cost=6.0):
+                 body_low=0.4, body_high=3.0, clearance=0.6, trigger_cost=6.0, offroad_cost=4.0):
         self.cell = cell
         self.step = step
         self.floors = defaultdict(list)      # (i, k) -> [y, ...] (Y grows downward)
         self.events = {}
         self.trigger_cost = trigger_cost
+        self.offroad = set()
+        self.offroad_cost = offroad_cost
         self.blocked = set()                 # (i, k, rounded y)
         walls = []
         for p in polygons:
@@ -85,6 +91,8 @@ class Grid:
                         y = plane_y(vs, x, z)
                         if y is not None:
                             self.floors[(i, k)].append(y)
+                            if p['material'] >> 14:
+                                self.offroad.add((i, k, round(y, 1)))
                             if auto:
                                 self.events[(i, k, round(y, 1))] = event
             elif abs(ny) < threshold:
@@ -161,7 +169,9 @@ class Grid:
                     if (abs(y2 - y) <= self.step and m not in self.blocked
                             and not self.crosses_wall(i, k, y, i + di, k + dk)):
                         cost = math.hypot(di, dk) * self.cell
-                        yield (i + di, k + dk, y2), cost * (self.trigger_cost if m in self.events else 1.0)
+                        cost *= self.trigger_cost if m in self.events else 1.0
+                        cost *= self.offroad_cost if m in self.offroad else 1.0
+                        yield (i + di, k + dk, y2), cost
 
     def path(self, start, goal, start_y=None, goal_y=None):
         s, g = self.node(*start, start_y), self.node(*goal, goal_y)
