@@ -18,8 +18,12 @@ ROAD_LEG (from c2p-madril-v1b, rev 2) = the static plan's first 78 points (walke
 by v1b to (105, -124)), then the Sonnet operator's validated live trail from
 v1b (explore-journal.jsonl): down off the ledge at (128, -119) on lower ground,
 over the rope bridge, the Confirm at the bridge-end NPC (FIELD message 20201,
-three CC menus, objective 10 -> 60) and on to the trigger. A ('confirm', x, z)
-entry presses Confirm facing (x, z) and runs the event's dialogue.
+three CC menus, objective 10 -> 60) and on to the trigger. A ('confirm', x, z,
+times, objective) entry talks `times` times facing (x, z), running each
+event's dialogue, then requires bank-4 objective `objective`. Message 20201
+branches on \\o[FFF(486/1/487/1)]: the first talk sets b1[486], the second
+b1[487], and only the third plays the CC menus and the objective write
+(c2p-madril-v1c talked once and stayed blocked).
 """
 from . import home
 
@@ -42,7 +46,7 @@ ROAD_LEG = [
     (46, -79), (54, -79), (60, -79), (65, -84), (70, -89), (75, -94),
     (80, -99), (85, -104), (90, -109), (95, -114), (100, -119), (105, -124),
     (112, -130), (116.6, -133.7), (124.4, -136.5), (131.3, -132.1), (138, -131), (148.6, -129),
-    (164.4, -144.5), (169.8, -161.5), (178.8, -176.5), (180.8, -197.7), (181.5, -222.3), ('confirm', 181.6, -230.0),
+    (164.4, -144.5), (169.8, -161.5), (178.8, -176.5), (180.8, -197.7), (181.5, -222.3), ('confirm', 181.6, -230.0, 3, 60),
     (180, -221.2), (188.8, -242.3), (190.2, -275.8), (189.4, -317.8), (191.5, -357.5), (190.5, -400.3),
     (176.6, -417.2), (157.4, -437.2), (148, -445.5), (129.9, -466.9), (109.9, -486.6), (89.6, -507),
     (73.6, -521), (71.1, -532.5), (69.4, -550.3), (61.8, -568), (60, -571.6), (60.1, -600.6),

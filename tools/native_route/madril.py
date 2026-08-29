@@ -55,7 +55,12 @@ def walk_road(c, run, record, max_misses=3, max_events=80):
     handled = []
     while i < len(points):
         if points[i][0] == 'confirm':
-            handled.append(confirm_event(c, run, len(handled), points[i][1:]))
+            _, fx, fz, times, objective = points[i]
+            for _ in range(times):
+                handled.append(confirm_event(c, run, len(handled), (fx, fz)))
+            state = handled[-1]['state']
+            need(state is not None and state['objective'] == objective, 'madril-road',
+                 'talking did not reach the expected objective', expected=objective, state=state)
             i += 1
             continue
         x, z = points[i]

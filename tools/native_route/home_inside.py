@@ -149,7 +149,7 @@ def save_inputs(c, tag):
     c.note('moved', moved)
     return after, moved
 
-def verify_save(run, manifest, target, before, log_segment, after, moved, alive):
+def verify_save(run, manifest, target, before, log_segment, after, moved, alive, scene=BEDROOM_SCENE):
     """Return (evidence, reasons). Success iff reasons is empty."""
     run = Path(run)
     reasons = []
@@ -198,8 +198,8 @@ def verify_save(run, manifest, target, before, log_segment, after, moved, alive)
         reasons.append('native process not alive after the Save')
     evidence['after'] = after
     evidence['moved'] = moved
-    if not (after and in_field_control(after, BEDROOM_SCENE)):
-        reasons.append('not back in bedroom field control after the Save')
+    if not (after and in_field_control(after, scene)):
+        reasons.append(f'not back in scene {scene} field control after the Save')
     if not hero_moved(after, moved):
         reasons.append('ordinary Right step did not move the hero after the Save')
     return evidence, reasons

@@ -215,7 +215,7 @@ class ConfirmMarkerTests(unittest.TestCase):
                 pass
             pick = staticmethod(lambda yaw, dx, dz, exclude=(): 0x1000)
         c = C()
-        with mock.patch.object(madril.madril_plan, 'WAYPOINTS', [(0, 0), ('confirm', 0, -5), (10, 0)]), \
+        with mock.patch.object(madril.madril_plan, 'WAYPOINTS', [(0, 0), ('confirm', 0, -5, 3, 60), (10, 0)]), \
                 mock.patch.object(madril.battle, 'fight_if_needed', lambda *a: False):
             with self.assertRaises(outcome.StageFailure) as e:
                 madril.walk_road(c, None, lambda n, ev: None)
