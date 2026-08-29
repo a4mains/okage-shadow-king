@@ -13,6 +13,7 @@ command whose waypoints came from such a trail.
   explore.py RUN view NAME
   explore.py RUN walk X Z [--tol 3] [--max-ticks 600]   # fights any battle met
   explore.py RUN step TICKS DIR                          # DIR: up/down/left/right/ul/ur/dl/dr (screen)
+  explore.py RUN wait TICKS                              # no input for TICKS frames
   explore.py RUN confirm                                 # one Confirm press, then 30 idle ticks
   explore.py RUN advance [--max-ticks 4000]              # Confirm until no event runs
   explore.py RUN fight                                   # fight an active battle to victory
@@ -55,6 +56,8 @@ def main(argv=None):
     p = sub.add_parser('step')
     p.add_argument('ticks', type=int)
     p.add_argument('dir', choices=sorted(DIRS))
+    p = sub.add_parser('wait')
+    p.add_argument('ticks', type=int)
     p = sub.add_parser('advance')
     p.add_argument('--max-ticks', type=int, default=4000)
     a = ap.parse_args(argv)
@@ -76,6 +79,8 @@ def main(argv=None):
     elif a.cmd == 'step':
         c.step(a.ticks, DIRS[a.dir])
         c.step(1, 0)
+    elif a.cmd == 'wait':
+        c.step(a.ticks, 0)
     elif a.cmd == 'confirm':
         c.step(2, 0)
         c.step(1, pilot.CONFIRM)
