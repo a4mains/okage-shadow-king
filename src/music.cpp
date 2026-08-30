@@ -136,6 +136,9 @@ MusicResourceNames music_resource_names(int id) {
         // sequence SNT_FPC.XSQ through 0x12d378, sharing SNT_FNM0/1 banks.
         case 24:return {"SNT_FNM","SNT_FNM0","SNT_FPC"};
         case 2:return {"CTY_TNB","CTY_TNB0",""};
+        // USA ELF table0x1fb530 entry3 (Madril, scene 14); row class0 like
+        // entry7, with CTY_MDL0.XV and CTY_MDL1.XV on the disc.
+        case 3:return {"CTY_MDL","CTY_MDL0",""};
         case 10:return {"FLD_NMA","FLD_NMA0",""};
         // Entry26 uses row27's SNT_DPC.XSQ as its companion, sharing DNM banks.
         case 26:return {"SNT_DNM","SNT_DNM0","SNT_DPC"};

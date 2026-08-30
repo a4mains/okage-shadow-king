@@ -15,6 +15,12 @@ from prepare_assets import ELF_HASH
 from verify_event import write_exact
 
 RESOURCES = {
+    # Madril (scene 14 field music 3); class 0 like 7, both banks on disc.
+    3: ('CTY_MDL', {
+        'CTY_MDL.XSQ': 'e30a37efdfaf215376e5bee5bb20467639869ced7cb47531fdab722de7857cc2',
+        'CTY_MDL0.XV': '818a4ce9680c4b79cffa4e11973d0af6ee5980c2e4f2c9ab71e48b1a7990b529',
+        'CTY_MDL1.XV': '19dc1c8a13fa7e4ed72a1ac46490e98d475c6bf4c3021175a8eef810f90f6f35',
+    }),
     7: ('CTY_MGT', {
         'CTY_MGT.XSQ': 'b345dce7a96352521014b7b421b3a3fd67f62455818a9ee785def86d1d76759a',
         'CTY_MGT0.XV': 'def66a022062d542522413ed748f3b6d6df359b82af401f93baa242eaf96a430',
@@ -71,7 +77,7 @@ RESOURCES = {
         'EVS_MPS0.XV': 'cd6b32d56e0a60d3e8732e4b132c512aaf04b8ea24067691aa33d9f85a1adada',
     }),
 }
-RESOURCE_CLASSES = {7: '0', 24: '2', 26: '2'}
+RESOURCE_CLASSES = {3: '0', 7: '0', 24: '2', 26: '2'}
 ALTERNATE_SEQUENCES = {24: 'SNT_FPC', 26: 'SNT_DPC'}
 
 def address_bytes(elf, segments, at, size):

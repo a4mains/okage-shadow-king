@@ -140,6 +140,12 @@ int main(){try{
     for(int id:{20,23,25,27,30,32,33,34})rejects([&]{router.select(id);});
     rejects([&]{router.install(2,10,loader(10));});rejects([&]{okage::music_resource_names(52);});
     {
+        const auto names=okage::music_resource_names(3);
+        require(std::string(names.sequence)=="CTY_MDL"&&std::string(names.primary_bank)=="CTY_MDL0"&&
+                std::string(names.alternate).empty(),"Music3 (Madril) class0 row mapping");
+        rejects([&]{okage::music_resource_names(5);});
+    }
+    {
         const auto names=okage::music_resource_names(7);
         require(std::string(names.sequence)=="CTY_MGT"&&std::string(names.primary_bank)=="CTY_MGT0"&&
                 std::string(names.alternate).empty(),"Music7 class0 row mapping");
