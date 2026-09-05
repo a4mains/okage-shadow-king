@@ -213,6 +213,10 @@ class ConfirmMarkerTests(unittest.TestCase):
                 self.events = 0
             def step(self, n, mask=0):
                 pass
+            def roar_active(self):
+                return False
+            def observe(self):
+                return {'battle': False}
             pick = staticmethod(lambda yaw, dx, dz, exclude=(): 0x1000)
         c = C()
         with mock.patch.object(madril.madril_plan, 'WAYPOINTS', [(0, 0), ('confirm', 0, -5, 3, 60), (10, 0)]), \
@@ -220,3 +224,39 @@ class ConfirmMarkerTests(unittest.TestCase):
             with self.assertRaises(outcome.StageFailure) as e:
                 madril.walk_road(c, None, lambda n, ev: None)
         self.assertIn('Confirm started no event', e.exception.reason)
+
+class ConfirmEventContactTests(unittest.TestCase):
+    def test_roar_before_the_talk_is_fought_first(self):
+        class C:
+            def __init__(self):
+                self.roar, self.event, self.fought, self.confirms = True, False, 0, 0
+            def status(self):
+                return status(1, scene=1, event=self.event)
+            def roar_active(self):
+                return self.roar
+            def observe(self):
+                return {'battle': False}
+            def step(self, n, mask=0):
+                from native_route.pilot import CONFIRM
+                if mask & CONFIRM:
+                    self.confirms += 1
+                    if not self.roar:
+                        self.event = True
+            def event_dialogue(self, stage):
+                self.event = False
+                return status(2, scene=1)
+            def send(self, *cmds):
+                return []
+            pick = staticmethod(lambda yaw, dx, dz, exclude=(): 0x1000)
+        c = C()
+
+        def fight(ctl, run):
+            if ctl.roar:
+                ctl.roar = False
+                ctl.fought += 1
+                return {'won': True}
+            return None
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(madril.battle, 'fight_if_needed', fight):
+            r = madril.confirm_event(c, d, 0, (0, -5))
+        self.assertEqual((c.fought, c.confirms), (1, 1))
+        self.assertTrue(r['started']['event_running'])

@@ -105,14 +105,22 @@ def record_event(c, run, n, before, after):
 def confirm_event(c, run, n, toward):
     """Face `toward` with a short ordinary press, Confirm, and run the event's
     dialogue (madril_plan: the bridge-end NPC blocks the road until spoken to)."""
-    s = c.status()
-    hx, hz = s['hero_position'][0], s['hero_position'][2]
-    c.step(4, c.pick(s['camera_yaw'], toward[0] - hx, toward[1] - hz))
-    c.step(2, 0)
-    c.step(1, CONFIRM)
-    c.step(30, 0)
-    started = c.status()
-    need(started['event_running'], 'madril-road', 'Confirm started no event', status=started, toward=toward)
+    for attempt in range(3):
+        while battle.fight_if_needed(c, run):
+            pass
+        s = c.status()
+        hx, hz = s['hero_position'][0], s['hero_position'][2]
+        c.step(4, c.pick(s['camera_yaw'], toward[0] - hx, toward[1] - hz))
+        c.step(2, 0)
+        c.step(1, CONFIRM)
+        c.step(30, 0)
+        started = c.status()
+        if started['event_running'] and not c.roar_active() and not c.observe()['battle']:
+            break
+        if not (c.roar_active() or c.observe()['battle']):
+            break
+    need(started['event_running'] and not c.roar_active(), 'madril-road', 'Confirm started no event',
+         status=started, toward=toward)
     after = c.event_dialogue('madril-road')
     need(not after['event_running'], 'madril-road', 'field event did not finish', status=after)
     return record_event(c, run, n, started, after)
