@@ -4,7 +4,7 @@
  "source_commit": "e6467f1",
  "base_commit": "e709f21",
  "play": {
-  "revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+  "revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout was not run from this isolated worktree)"
  },

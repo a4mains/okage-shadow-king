@@ -185,7 +185,7 @@
   "MalformedFixtures.test_zero_dimension"
  ],
  "oracle_binary_sha256": "50b34dbf1ce031b8465171cd424f58dbf45945f643129f30ed6db9b4b4e2affe",
- "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+ "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
  "results": {
   "code_tables_preserved": true,
   "compare": {
@@ -247,7 +247,7 @@
  "scope": "PSM1 (PSMCT24) host-to-local transfer and raw XIM support; native compared with unchanged retail 1ce940/1cf008/1cba48 under the Play research backend. Partial final pixels are Play behaviour, not hardware proof. No Session/texture_handles wiring.",
  "sources_sha256": {
   "CMakeLists.txt": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
-  "HANDOFF.md": "ab055d0db3e1407a92f4e9516b47c3f345b3154d912c8a6e6ec1ad6b62312515",
+  "HANDOFF.md": "9f76584ef0361c5b45c641b512ccb544177016e04c0e5aabff731d973011015e",
   "include/okage/texture_memory.hpp": "7e00e740ef22c9f70b5f487442b752cac3abbc76c5a9eea18d1f4b23158e1723",
   "include/okage/texture_transfer.hpp": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f",
   "src/assets.cpp": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819",
@@ -258,7 +258,7 @@
   "tests/texture_psm1_tests.cpp": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2",
   "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
   "tests/xim_raw_tests.cpp": "30eea728849d36149446495aea50e93033e6f60eaa8c1d81f7fd769663dfc4a7",
-  "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+  "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
   "tools/texture_transfer_cases_v2.py": "a467ee3893d0b2297a02ec190703874f3bae3f4913901a8b8a07cc39bd08464c",
   "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
   "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",

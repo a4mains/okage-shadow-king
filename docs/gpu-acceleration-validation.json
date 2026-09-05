@@ -131,7 +131,7 @@
     "reference": "local/research/material-texture-ownership-v1/address-corpus-v1/play-addresses-v1.bin",
     "reference_sha256": "6c6c7e468d988ca9d5abb27897d965eb49761d1edcd5a8de2ec8585b2e2c124e",
     "comparison_manifest_sha256": "29a9bb19aa5181c91d38bc307055a757ebf4c8f8aff43d62bff2c9727b1b7061",
-    "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+    "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
     "scope": "synthetic pinned-indexor reference; historical reference log empty; validation/source/binary bindings retained"
   },
   "correctness": {

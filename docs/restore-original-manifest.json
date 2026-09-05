@@ -3,7 +3,7 @@
  "scope": "Independent original-execution reference of the cold-boot Retire Restore route continued past the 0x124548 entry through Restore construction, the scan of an isolated empty research memory card, the ready empty-slot UI, one ordinary Cancel, window death, manager unlink, resource retirement, wrapper cleanup and free, the mode request back to the title and the return of the second 0x12c350(selector 1).",
  "oracle_source_commit": "6d11b07",
  "play": {
-  "revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+  "revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
   "ref": "refs/heads/master",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout is outside the isolated worktree)"

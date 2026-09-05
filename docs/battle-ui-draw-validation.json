@@ -92,7 +92,7 @@
     "tools/ui_projection_check.cpp": "ed5312e5891bf82f42d9a56f507e22d0a543454cc79feb0db14ccd652a89d7bf",
     "tools/ui_owned_draw.mm": "164e3bd9f742bc9ace34e820536b30ef457ec25b7ffc2370bf95b6915140dd34",
     "tools/compare_ui_draw.py": "237387120701d44daa2c806da087c2faa8589563f49d002b0b9c92c1f9073af2",
-    "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+    "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
     "tools/play-oracle/reference_ui_layout.hpp": "c1ffdc71f5d950935953f9f2d419ef108ee3d23bcb9b9a333477665f1048f043",
     "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
     "CMakeLists.txt": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c"
@@ -223,7 +223,7 @@
     "local/worktrees/ui-projection-oracle-v1/local/play-build/CMakeCache.txt": "248d36f789c58b75b6e62d500d8e7a4476f5bd4d629f905588c8f4ec20198820"
   },
   "source_backend": {
-    "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+    "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
     "vulkan": true,
     "capture_filter_corrections": false,
     "moltenvk": "1.4.2",

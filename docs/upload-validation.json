@@ -737,7 +737,7 @@
  },
  "head_commit": "6ec02d817970aabadf277cf207118d831fe12735",
  "original_comparison": "7/7 cases byte- and definedness-exact (touched byte sets equal, values equal, descriptor placement equal) between native and unchanged retail 1cba48/1cd928 under Play DMAC/GIF; negative control (fixture-negative.txt) detects a 1-byte difference. Research-backend evidence, not physical PS2 proof. Allocator state is synthetic per case.",
- "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+ "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
  "residual": [
   "Snapshot identities are per-lineage; a by-value copy forks counters; moved-from memory is not a valid snapshot source",
   "failed allocate() moves search cursors without advancing ownership_epoch (documented)",
@@ -772,7 +772,7 @@
   "tests/texture_snapshot_tests.cpp": "b481a1bc1d305ef1b21c1c52c20e0f3647a2f3060c66ab9e9b4550a7a5cff551",
   "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
   "tests/xim_raw_tests.cpp": "30eea728849d36149446495aea50e93033e6f60eaa8c1d81f7fd769663dfc4a7",
-  "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+  "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
   "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
   "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",
   "tools/xim_inventory.cpp": "5d6f9e84783b41970745d42ddb69502c0faa39b4b02e558fa4e2bef8586f315c"

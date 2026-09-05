@@ -813,7 +813,7 @@ public:
         std::ostringstream out;
         out<<"{\"schema\":\"okage-texture-transfer-v2\",\"input_sha256\":\""<<hash(input)
            <<"\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
-           <<"\"play_revision\":\"eb63062bd2b9693fcafdc9f52150e1a98b934201\",\"fills\":[0,255],"
+           <<"\"play_revision\":\"83700b2c31e593bc94e845b4b31b797be84dda59\",\"fills\":[0,255],"
            <<"\"payload_rule\":\"pattern0: v=(k*167+seed*29+5)&255; 1: 0x00; 2: 0xff; 3: k odd 0x0f else 0xf0\","
            <<"\"preload_rule\":\"run A: P(a)=(a*131+seed*17+11)&255 on [pre_lo,pre_lo+pre_len); run B: ~P(a)\","
            <<"\"mask_rule\":\"nibble written iff run A and run B agree on all 4 bits; known bit0=low nibble, bit1=high nibble; sub-nibble disagreement is counted in anomalies\","
@@ -933,7 +933,7 @@ public:
         std::ostringstream out;
         out<<"{\"schema\":\"okage-texture-transfer-v1\",\"input_sha256\":\""<<hash(input)
            <<"\",\"elf_sha256\":\"2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5\","
-           <<"\"play_revision\":\"eb63062bd2b9693fcafdc9f52150e1a98b934201\",\"sentinel\":"<<unsigned(sentinel)
+           <<"\"play_revision\":\"83700b2c31e593bc94e845b4b31b797be84dda59\",\"sentinel\":"<<unsigned(sentinel)
            <<",\"payload_rule\":\"v=(k*167+case*29)%250+1; v>=165?v+1:v (never 0 or sentinel)\","
            <<"\"scope\":\"Unchanged retail 1ce940/1cf008/1cba48/1cd928 under Play EE DMAC/GIF with a CGSHandler sink; synthetic allocator state; Play GS transfer semantics, not hardware proof\",\"cases\":[\n";
         for(uint32 i=0;i<word(2);++i){

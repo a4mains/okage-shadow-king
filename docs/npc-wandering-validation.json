@@ -258,11 +258,11 @@
   },
   "source_sha256": {
     "include/okage/enemy.hpp": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45",
-    "include/okage/field.hpp": "f03eb5f7257e3b158d4e4eddcb74464fa0f0add0e4c3200ff6111c2c0007ed8f",
+    "include/okage/field.hpp": "e5a3c41f43ce192ec4af05bd282bb7830e7b9a8fcf26409b31ce71d167dd8cc8",
     "src/enemy.cpp": "1bc7fe3a61c31f6e4024d7d2e915bcfca73aff7f24acf33850ac7a54f3255588",
-    "src/field.cpp": "4736dd65ea921665624e350fa8d727411ae4747c368e66598030cae0af4435ec",
-    "src/native_runtime.mm": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a",
-    "tests/field_tests.cpp": "e1642c657ecb3ddb8341b61349bd573d66ded2d414fd9f289cb663b29760d67c",
+    "src/field.cpp": "2898fe1b88d7ec7600bba3fa004390a6c85461f660f492e1022f53d3d65343aa",
+    "src/native_runtime.mm": "5f179551350952b510b6d3c2bca533fbd9fe76b285d877d1ebd2be3cb2f19325",
+    "tests/field_tests.cpp": "7ac5d7edf614e009c393a9ae2505ed06a3d2ed6220a043a1011782babd4d2237",
     "tools/play-oracle/boot.cpp": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
     "tools/play-oracle/reference_wander.hpp": "7692fafb879e07e9aa1c6b8bbde482074dc0ae18ed35058c8d1b24e4aacdce8c",
     "tools/verify_wander.py": "ca7a4cfd74e2a02b6dc79406f6b659dfb337a847997ea42185fa6692b12bbf66",
@@ -1293,6 +1293,6 @@
       "log": "local/research/tenel-office-v1/primary-oracle-cli-tests-v1.log"
     }
   },
-  "research_play_commit": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+  "research_play_commit": "83700b2c31e593bc94e845b4b31b797be84dda59",
   "fff_source_commit": "fc0df3c"
 }

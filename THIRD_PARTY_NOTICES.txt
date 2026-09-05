@@ -1,6 +1,6 @@
 Initial native SPU decoder work in src/audio.cpp was adapted from Play!
 Source/iop/Iop_SpuBase.cpp, revision
-eb63062bd2b9693fcafdc9f52150e1a98b934201.
+83700b2c31e593bc94e845b4b31b797be84dda59.
 The final decoder changes predictor history and rounding as documented in
 HANDOFF.md. The native library does not link Play! or execute guest
 CPU instructions. This notice preserves attribution for the initial work.

@@ -92,7 +92,7 @@
   "path": "build/handle-oracle-bin/okage-pose-oracle",
   "sha256": "614e05fb833f12c3affb366bec0c64983a43bdf44c7258a2ee13d8f29f6faf4f"
  },
- "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+ "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
  "retained_failures": [
   "first native-vs-original run: 14 of 19 scenarios differed only because the native tool printed null for failed handle results where retail returns -1, and 3 scripts exceeded tool limits (reserve 4097, xim levels 0); tool fixed, traces unchanged",
   "review finding: unbounded probe, bind/retire mutation before validation, copyable owner (fixed)",
@@ -169,7 +169,7 @@
   "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
   "tests/texture_handles_tests.cpp": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f",
   "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
-  "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+  "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
   "tools/texture_handle_trace.cpp": "923218afb55b46fcf87794e9dc3aaebddc8124404a1b59866a3dbcbe27778bb2",
   "tools/texture_handle_trace_diff.py": "c058594e2128404107b6ea645cf57e20c1c0f140e2b33ab0d15b1949e50aac7d",
   "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad"

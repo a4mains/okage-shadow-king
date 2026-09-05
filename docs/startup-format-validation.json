@@ -90,7 +90,7 @@
   ],
   "run": "build/startup-oracle/okage-oracle/okage-pose-oracle texture-transfer local/extracted/SCUS_971.29 run1/input.bin run1/transfer.json (executed twice, serially; outputs byte-identical)"
  },
- "play_revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+ "play_revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
  "reference_nature": "Play research backend executing the unchanged retail routines; not physical PS2 proof",
  "results": {
   "cases_by_psm": {
@@ -139,7 +139,7 @@
   "tests/test_texture_transfer_compare.py": "a39345b8b4c147764fdce70f6af7b3f4b5b3fe560d2efffa464a378328e2e4fc",
   "tests/texture_format_tests.cpp": "e2e48ecc18b063b7fa1c919764efcba9abeb6aa7d47fdd6a1d095c922ce44674",
   "tests/texture_transfer_tests.cpp": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825",
-  "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+  "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
   "tools/texture_transfer_cases_v2.py": "a467ee3893d0b2297a02ec190703874f3bae3f4913901a8b8a07cc39bd08464c",
   "tools/texture_transfer_compare.cpp": "84a45941b976a4ba0c8f3c0a50cf36d8a0411f299e0cbc51ad65287d9bafb9ad",
   "tools/texture_transfer_fixture.py": "d1cf9976216a32a8ec83f099c491dd4f855de2eff490110f162942990c6327a8",

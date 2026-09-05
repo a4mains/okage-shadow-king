@@ -106,7 +106,7 @@ runtime image/CLUT uploads or shared-memory sampling.
 **Executed validation:**10,559 original allocator operation rows (1681mixed,
 18bounds,4109record exhaustion,4751all13formats) match descriptors/live/available/
 refs/full occupancy hashes/all64cursors in Release,Debug,ASan.356,160 PSM0/19
-addresses/build match pinned Play indexoreb63062bd2b9693fcafdc9f52150e1a98b934201.
+addresses/build match pinned Play indexor83700b2c31e593bc94e845b4b31b797be84dda59.
 Two affected CTests/build pass (78533/74525/26776 terminal0);548Python pass
 (35982 terminal0). Cross-build62836 terminal0; report
 `local/research/material-texture-ownership-v1/cross-build-v1/comparison.json`

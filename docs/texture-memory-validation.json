@@ -40,7 +40,7 @@
     ],
     "cases_per_build": 356160,
     "different_bytes": 0,
-    "reference": "Playeb63062bd2b9693fcafdc9f52150e1a98b934201 CGsPixelFormats indexor",
+    "reference": "Play83700b2c31e593bc94e845b4b31b797be84dda59 CGsPixelFormats indexor",
     "physical_hardware_proof": false
   },
   "lucan": {
@@ -122,7 +122,7 @@
     "src/gs_texture_address.cpp": "86dcfd43b05d56945b54faf7e36972dda1053f8f5c50ceb0905a60a4ffcd761c",
     "tests/gs_texture_address_tests.cpp": "1bbfe10d2ffc7c9b04000a4b446f04cf4b253bb983312f857c18d1e5ec2ba121",
     "tools/gs_texture_address_corpus.cpp": "906ea2e9f8a463f67a195a16af57b58fb389a08ad21e766dac52fb34a1e2efc1",
-    "tools/play-oracle/main.cpp": "d9e1f12dc56a3af7093d6c4e621da1855ca0c2c3965b2f72db5219705caeebb1",
+    "tools/play-oracle/main.cpp": "e2a353f92c18a81ad1d8724b220886b7de6c0350c8e6d0c1e25c0f231ae5c78c",
     "local/extracted/SCUS_971.29": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
     "local/research/material-texture-ownership-v1/python-tests-final-v1.log": "9ce34c40c876ec3ffef3e18b6df14f2f7c065043f6be0a2930ede04b758e3106",
     "local/research/material-texture-ownership-v1/native-release-tests-final-v1.log": "f0de443ca997b8fb745cc8ce77dd835fa38010055053382fe32fa9b7faa87c33",

@@ -4,7 +4,7 @@
  "oracle_source_commit": "b9fede5",
  "base_commit": "5badd42",
  "play": {
-  "revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+  "revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
   "path": "references/Play (main checkout, ignored)",
   "tree_cleanliness": "not verified (git on the Play checkout was not run from the isolated worktree)"
  },
@@ -29,7 +29,7 @@
   "tools/title_capture.sh": "fc1b78471472e2d1df44e71e5079c694dc1140f74ea93fa80ce20cb009a04e65",
   "tools/title_original_extract.py": "3b297913b99fe37d4f5021935bdbb92a9fc397146823d7abcc41fee1fdadaeac",
   "tools/title_compare.py": "9e8d471fb83dab30e61f3f330cf61ffefe926322c6d415e305426a97dd6494d3",
-  "tools/title_make_manifest.py": "85e4ff5ba89d804a92b7090682583de22d7e8e7c0c0aef3e52b05250ef9ef8ff",
+  "tools/title_make_manifest.py": "f654c5856351deca099575944ade45765bba2a3da966a1ee440bdf0bee6cf9e8",
   "tests/test_title_compare.py": "d56d5c24f271cb35456c7b1cdfcebf92ff0eb87d744ecbc5bd43bab01977e960"
  },
  "inputs": {

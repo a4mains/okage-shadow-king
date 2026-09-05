@@ -3,7 +3,7 @@
  "scope": "Restore-cancel LIGHT original reference: the full route and checkpoint set of docs/restore-original-manifest.json, observed with only the light breakpoint set between retire-successor-entry and cancel-death (no rand(), card, UI placement/layout or probe breakpoints); draws in that window are derived by LCG stepping between observed rand states (labels not observed).",
  "oracle_source_commit": "9818c30",
  "play": {
-  "revision": "eb63062bd2b9693fcafdc9f52150e1a98b934201",
+  "revision": "83700b2c31e593bc94e845b4b31b797be84dda59",
   "ref": "refs/heads/master"
  },
  "oracle": {
@@ -35,7 +35,7 @@
   },
   "full_reference_manifest": {
    "path": "docs/restore-original-manifest.json",
-   "sha256": "4825c4381c0b7d76fbb35058975be99051052aba8cdda011543bc52e1fea397a",
+   "sha256": "7e38f76eb8d85e01e6b40f4954a0c26de82e364e0f472816fde8c510abbb07bc",
    "bytes": 95229
   },
   "minimal_control": "local/research/restore-original-v1/runs/control-minimal-fill00"
