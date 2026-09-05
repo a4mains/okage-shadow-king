@@ -1879,6 +1879,12 @@ struct Session {
         if(!music||!effects_loaded)throw std::runtime_error("Return requires persistent music/effect owners");
         //Phase12 loads both score slots but defers primary playback until commit.
         if(!f.ordinary)music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
+        if(!f.objects||!f.renderer)
+            throw std::runtime_error("Field commit without world objects scene="+std::to_string(current_scene)+
+                " objects="+std::to_string(bool(f.objects))+" renderer="+std::to_string(bool(f.renderer))+
+                " actors="+std::to_string(f.actors.size())+" bindings="+std::to_string(f.bindings.size())+
+                " prefix_modeled="+std::to_string(f.prefix_modeled)+" ordinary="+std::to_string(f.ordinary)+
+                " pending="+std::to_string(f.jobs.pending()));
         map_objects=std::move(f.objects);actor_objects=std::move(f.actors);actor_bindings=std::move(f.bindings);
         observed_npcs=f.definition.npcs;
         renderer=std::move(f.renderer);bind_scene_instances();create_field(f.script,false);bind_audio_services();
