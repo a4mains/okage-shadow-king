@@ -1,4 +1,5 @@
 #include "okage/field.hpp"
+#include "okage/effect.hpp"
 #include "okage/event.hpp"
 #include "okage/map_objects.hpp"
 #include <cstring>
@@ -1610,7 +1611,19 @@ int main(){try {
     for(unsigned i=0;i<3;++i){light_word(32+i*20,i==0?1:i==1?0x40:0x41);
         for(unsigned c=0;c<4;++c)light_word(36+i*20+c*4,std::bit_cast<std::uint32_t>(c==3?1.f:float(c+1)));}
     auto tint=okage::field_effect_tint(lighting);require(tint[0]<tint[1]&&tint[1]<tint[2]&&tint[2]==1&&tint[3]==1);
-    light_word(12,2);rejects([&]{okage::field_effect_tint(lighting);});
+    light_word(12,2);
+    tint=okage::field_effect_tint(lighting);
+    require(tint==okage::effect_light_tint({1,2,3,1},{.25f,.25f,.25f,1},{1,2,3,1}));
+    light_word(12,3);light_word(32+20,0x41); // record1 base -> ambient: no base record
+    tint=okage::field_effect_tint(lighting);
+    require(tint==okage::effect_light_tint({1,1,1,1},{1,2,3,1},{1,2,3,1}));
+    {
+        std::vector<std::uint8_t> dark(32+3*20);
+        auto put=[&](unsigned at,std::uint32_t v){for(unsigned j=0;j<4;++j)dark.at(at+j)=v>>(j*8);};
+        put(0,0x475453);put(8,32);put(12,3);put(32,1);put(52,0x40);put(72,0x41); // all-zero colors
+        rejects([&]{okage::field_effect_tint(dark);});
+    }
+    light_word(32+20,0x40);
     light_word(52,0x45);tint=okage::field_effect_tint(lighting);require(tint[2]==1);
     light_word(36,0x7fc00000);rejects([&]{okage::field_effect_tint(lighting);});
     // Independent ordered light setters: direction W is forced0, opcode45

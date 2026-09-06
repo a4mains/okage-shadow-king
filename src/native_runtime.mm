@@ -97,6 +97,8 @@ struct FieldReturnLoad {
     unsigned phase=0x12,ui_stage=0,complete=0;
     std::atomic<unsigned> counter{0};
     bool resumed=false,world_queued=false,world_prepared=false;
+    // Set while the main-thread world commit runs; left set if it throws.
+    bool commit_failed=false;
     bool ordinary=false;
     bool saved_pose=false;
     unsigned entrance=0;
@@ -1709,6 +1711,7 @@ struct Session {
     void service_field_return_loader() {
         if(!field_return)return;
         auto& f=*field_return;
+        if(f.commit_failed)return;
         try {f.jobs.check();} catch(...) {
             if(f.prefix_modeled)startup_textures->mark_unmodeled("host field metadata preparation failed before its source-order continuation");
             throw;
@@ -1876,6 +1879,11 @@ struct Session {
             return;
         }
         if(f.world_prepared)return;
+        struct CommitScope {
+            bool& failed; bool done=false;
+            explicit CommitScope(bool& f):failed(f){failed=true;}
+            ~CommitScope(){if(done)failed=false;}
+        } commit_scope{f.commit_failed};
         if(!music||!effects_loaded)throw std::runtime_error("Return requires persistent music/effect owners");
         //Phase12 loads both score slots but defers primary playback until commit.
         if(!f.ordinary)music->enter(f.definition.music,f.definition.secondary_music,[this](int id){return read_music_resource(id);},true);
@@ -1948,7 +1956,7 @@ struct Session {
         } else field->prepare(f.definition,f.stage,f.collision);
         f.prepared_field=std::move(field);f.objects=std::move(map_objects);f.actors=std::move(actor_objects);
         f.bindings=std::move(actor_bindings);f.renderer=std::move(renderer);
-        f.world_prepared=true;f.complete=1;
+        f.world_prepared=true;f.complete=1;commit_scope.done=true;
         std::cout<<"Native "<<(f.ordinary?"ordinary":"return")<<" loader complete frame="<<frame<<'\n';
     }
     bool tick_field_return(std::uint32_t pressed,okage::ExplorationInput input) {

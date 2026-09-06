@@ -330,7 +330,8 @@ struct SceneClearColor {
     std::optional<std::array<std::uint8_t,3>> stage_rgb;
     void load_stage(Bytes);
 };
-// Reviewed STG light0/base/ambient records for ordinary effect tint.
+// Ordinary effect tint (0x1020e0) from the stage light state: 0x1b8028
+// defaults plus the ordered STG light0/base/ambient setters.
 Float4 field_effect_tint(Bytes stg);
 Float4 field_projection(Bytes stg,float* far_clip=nullptr);
 // STG0x46 overrides the default camera-relative sky translation factors.

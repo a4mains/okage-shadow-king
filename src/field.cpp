@@ -1533,22 +1533,8 @@ FieldOrdinaryLighting field_ordinary_lighting(Bytes stg) {
     return result;
 }
 Float4 field_effect_tint(Bytes stg) {
-    if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
-    const auto begin=get(stg,8),count=get(stg,12);
-    if(begin<32||count>4096||std::uint64_t(begin)+std::uint64_t(count)*20>stg.size())throw std::runtime_error("STG lighting bounds");
-    std::optional<Float4> base,ambient,light;
-    Rounding rounding;
-    for(unsigned i=0;i<count;++i) {
-        const auto at=begin+i*20,kind=get(stg,at);
-        if(kind!=1&&kind!=0x40&&kind!=0x41&&kind!=0x45)continue;
-        Float4 v;for(unsigned k=0;k<4;++k){v[k]=std::bit_cast<float>(get(stg,at+4+k*4));if(!std::isfinite(v[k]))throw std::runtime_error("Invalid STG lighting");}
-        if(kind==1)light=v;
-        else if(kind==0x40)base=v;
-        else if(kind==0x41)ambient=v;
-        else {base=v;for(unsigned k=0;k<3;++k)v[k]*=.25f;ambient=v;}
-    }
-    if(!base||!ambient||!light)throw std::runtime_error("Effect lighting requires explicit STG colors");
-    return effect_light_tint(*base,*ambient,*light);
+    const auto lighting=field_ordinary_lighting(stg);
+    return effect_light_tint(lighting.base,lighting.colors[3],lighting.colors[0]);
 }
 Float4 field_sky_follow(Bytes stg) {
     if(get(stg,0)!=0x475453)throw std::runtime_error("Invalid STG magic");
