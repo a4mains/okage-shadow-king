@@ -231,6 +231,28 @@ void program_checks() {
         check(job.elements[0].rendered[3][3]==f12/.4f,"colour12");
     }
     {
+        TowardZero z;
+        auto d=single({element(1,31,36,{},{1,1,1,1},{1,1,1,.8f},{},{0,1,1,.5f})});d.flags=0x8000;
+        okage::MapEffect job(d,{0,0,0,1},{},{1,1,1,1},sizes,random,okage::EffectStart::FirstFrame);
+        const auto start=calls;
+        std::vector<float> times,alphas;std::vector<unsigned> draws;
+        for(unsigned k=0;k<7;++k) {
+            const auto c0=calls;job.tick(random);
+            times.push_back(job.elements[0].interval[2]);alphas.push_back(job.elements[0].rendered[3][3]);
+            draws.push_back(calls-c0);
+        }
+        check(!(job.flags&0x100),"colour36 template loops");
+        unsigned wrap=0;for(unsigned k=1;k<times.size();++k)if(times[k]<times[k-1]){wrap=k;break;}
+        check(wrap>0,"colour36 loop wraps");
+        for(unsigned k=0;k<times.size();++k)check(draws[k]==(k==wrap?1u:0u),"colour36 draws only at the wrap");
+        volatile float t0=times[0];volatile float a0=.8f*(1.f-t0/.5f);
+        check(alphas[0]==(t0<.5f?float(a0):.8f*0.f),"colour36 authored window before the wrap");
+        volatile float w=float(words[(start+0)%words.size()]%80)*.01f;volatile float window=w+.2f;
+        check(job.elements[0].interval[3]==window,"colour36 drawn window");
+        volatile float tw=times[wrap];volatile float aw=.8f*(1.f-tw/window);
+        check(alphas[wrap]==(tw<window?float(aw):.8f*0.f),"colour36 alpha after the wrap");
+    }
+    {
         //Time9 (0x1061fc): t'=frac(W*t) feeds scale3 (t*XYZ).
         const auto job=run(single({element(1,31,tim(9)|scl(3),{},{2,3,4,1},{1,1,1,1},{},{0,1,1,3})}),1);
         check(job.elements[0].rendered[2]==okage::Float4({.75f*2.f,.75f*3.f,.75f*4.f,1}),"time9");

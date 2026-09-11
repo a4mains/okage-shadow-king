@@ -1604,6 +1604,9 @@ void MapEffect::tick(const std::function<std::uint32_t()>& random,bool clock_ena
             if(t!=0&&t!=1){alpha=1;if(t>tail)alpha=1.0f-(t-tail)/(1.0f-tail);else if(t<head)alpha=t/head;alpha*=e.color[3];}
             c[3]=alpha;break;
         }
+        case 36:
+            if(t<e.interval[2])e.interval[3]=float(random()%80)*.01f+.2f;
+            c[3]=t<e.interval[3]?e.color[3]*(1.f-t/e.interval[3]):e.color[3]*0.f;break;
         default:unsupported("Unrecovered map effect color program",program&63);
         }
         e.interval[2]=t;
