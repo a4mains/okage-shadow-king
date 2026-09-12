@@ -26,7 +26,7 @@ PACKAGE = 'native_route'
 REFUSED = 10
 USAGE = 64
 RUN_SCOPED = ('launch', 'verify', 'send', 'strict-full', 'route', 'dev-route', 'battle', 'home', 'home-inside',
-              'restore-route', 'restore-check', 'madril')
+              'restore-route', 'restore-check', 'madril', 'restore-madril')
 
 class Parser(argparse.ArgumentParser):
     def error(self, message):  # never exit 2: 2 means prelude-diverged
@@ -88,7 +88,7 @@ def import_package():
     import importlib
     for name in ('outcome', 'savefmt', 'pins', 'pilot', 'battle', 'encounter', 'navigate', 'route', 'home',
                  'home_inside', 'strict_full', 'restore_route', 'restore_check', 'session_driver',
-                 'candidates', 'compare', 'dev_route', 'field_path', 'madril_plan', 'madril'):
+                 'candidates', 'compare', 'dev_route', 'field_path', 'madril_plan', 'madril', 'madril_save', 'restore_madril'):
         importlib.import_module(PACKAGE + '.' + name)
     for name, mod in list(sys.modules.items()):
         if name == PACKAGE or name.startswith(PACKAGE + '.'):
@@ -149,12 +149,16 @@ def build_parser():
                                 'at the actual bedroom activation (documented deviation, needs pinned dev tapes)')
         if name == 'home':
             p.add_argument('--from-gate', action='store_true')
-        if name in ('restore-route', 'restore-check', 'madril'):
+        if name in ('restore-route', 'restore-check', 'madril', 'restore-madril'):
             p.add_argument('--slot-rights', type=int, required=True)
         if name == 'madril':
             p.add_argument('--slot-file', required=True)
             p.add_argument('--expect-save-sha256', required=True)
             p.add_argument('--no-rest', action='store_true', help='skip the bedroom Rest before leaving')
+            p.add_argument('--save-target', help='after the endpoint, Save at the Madril hotel into this slot file')
+        if name == 'restore-madril':
+            p.add_argument('--slot-file', required=True)
+            p.add_argument('--expect-save-sha256', required=True)
         if name == 'restore-check':
             p.add_argument('--slot-file', required=True)
             p.add_argument('--expect-save-sha256', required=True,
@@ -244,7 +248,8 @@ def run_single(nr, c, run, m, a, argv):
 
     stage = {'route': 'route-prefix', 'dev-route': 'route-dev-prefix', 'battle': 'battle', 'home': 'home',
              'home-inside': 'home-inside',
-             'restore-route': 'restore-route', 'restore-check': 'restore-check', 'madril': 'madril'}[a.cmd]
+             'restore-route': 'restore-route', 'restore-check': 'restore-check', 'madril': 'madril',
+             'restore-madril': 'restore-madril'}[a.cmd]
     failure = None
     try:
         if a.cmd == 'route':
@@ -264,6 +269,11 @@ def run_single(nr, c, run, m, a, argv):
         elif a.cmd == 'madril':
             outcome.run_stage('madril-arrival', nr.madril.main, c, run, m, a.slot_file, a.slot_rights,
                               a.expect_save_sha256, record, not a.no_rest)
+            if a.save_target:
+                outcome.run_stage('save', nr.madril_save.main, c, run, m, a.save_target, record)
+        elif a.cmd == 'restore-madril':
+            outcome.run_stage('restore-check', nr.restore_madril.main, c, run, m, a.slot_file, a.slot_rights,
+                              a.expect_save_sha256, record)
         elif a.cmd == 'restore-check':
             outcome.run_stage('restore-check', nr.restore_check.main, c, run, m, a.slot_file, a.slot_rights,
                               a.expect_save_sha256, record, a.until_roar, a.rest_every, a.rest_first)
@@ -271,8 +281,8 @@ def run_single(nr, c, run, m, a, argv):
         failure = e
     extra = {'manifest_sha256': m['_sha256'], 'stage': stage, 'argv': list(argv),
              **({'prefix_mode': 'dev'} if a.cmd == 'dev-route' else {})}
-    if a.cmd == 'restore-check':
-        extra['options'] = {k: getattr(a, k) for k in ('slot_file', 'slot_rights', 'expect_save_sha256',
+    if a.cmd in ('restore-check', 'restore-madril'):
+        extra['options'] = {k: getattr(a, k, None) for k in ('slot_file', 'slot_rights', 'expect_save_sha256',
                                                        'until_roar', 'rest_every', 'rest_first')}
     code = outcome.write_result(result, a.cmd, stages, failure, extra)
     print(a.cmd, 'exit', code, failure.record() if failure else 'PASS', flush=True)

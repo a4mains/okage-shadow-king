@@ -260,3 +260,72 @@ class ConfirmEventContactTests(unittest.TestCase):
             r = madril.confirm_event(c, d, 0, (0, -5))
         self.assertEqual((c.fought, c.confirms), (1, 1))
         self.assertTrue(r['started']['event_running'])
+
+class HotelSaveTests(unittest.TestCase):
+    """madril_save / restore_madril postconditions: each negative must fail."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.run = Path(self.tmp.name)
+        (self.run / 'saves').mkdir()
+        (self.run / 'control').mkdir()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    class Menu:
+        def __init__(self, cursor):
+            self.cursor = cursor
+        def step(self, n, mask=0):
+            pass
+        def send(self, *cmds):
+            return []
+        def observe(self):
+            return {'choice': self.cursor, 'battle': False}
+        def status(self):
+            return status(1, scene=107)
+
+    def test_hotel_menu_cursor_must_be_on_save(self):
+        from native_route import madril_save
+        with self.assertRaises(outcome.StageFailure) as e:
+            madril_save.save_inputs(self.Menu(1), 'x')
+        self.assertIn('not on Save', e.exception.reason)
+        after, moved = madril_save.save_inputs(self.Menu(2), 'x')
+        self.assertEqual(after['scene'], 107)
+
+    def run_save(self, reasons, payload_state):
+        from native_route import madril_save
+        payload = variables(scene=107, objective=11, flag125=1, **payload_state)[:0xd78]
+        (self.run / 'saves' / 'bkmo2.dat').write_bytes(b'!crc' + bytes(8) + payload)
+        stages = []
+        with mock.patch.object(madril_save, 'to_hotel', lambda c, run: status(1, scene=107)), \
+                mock.patch.object(madril_save, 'save_inputs', lambda c, tag: (status(2, scene=107), status(3, scene=107))), \
+                mock.patch.object(madril_save.home_inside, 'verify_save', lambda *a, **k: ({'sha256': 'x'}, reasons)), \
+                mock.patch.object(madril_save.savefmt, 'payload', lambda data: data[12:]):
+            madril_save.main(Ctl([status(1)]), self.run, {}, 'bkmo2.dat', lambda n, e: stages.append(n))
+        return stages
+
+    def test_save_passes_with_boundary_state(self):
+        self.assertEqual(self.run_save([], {}), ['hotel', 'save'])
+
+    def test_failed_save_postconditions_fail(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            self.run_save(['target save unchanged from its pinned initial hash'], {})
+        self.assertEqual(e.exception.stage, 'save')
+
+    def test_wrong_saved_state_fails(self):
+        with self.assertRaises(outcome.StageFailure) as e:
+            self.run_save([], {'story': 8})
+        self.assertIn('boundary state', e.exception.reason)
+
+    def test_restore_madril_requires_the_hotel_state(self):
+        from native_route import restore_madril
+        (self.run / 'control' / 'restored-field.png.variables.bin').write_bytes(
+            variables(scene=107, objective=61, flag125=1))
+        with mock.patch.object(restore_madril.restore_check, 'check_slot', lambda *a: b''), \
+                mock.patch.object(restore_madril.restore_check, 'payload_differences', lambda *a: []), \
+                mock.patch.object(restore_madril.restore_route, 'main', lambda *a: {}):
+            with self.assertRaises(outcome.StageFailure) as e:
+                restore_madril.main(Ctl([status(1, scene=107)]), self.run, {}, 'bkmo2.dat', 2, 'ab' * 32,
+                                    lambda n, ev: None)
+        self.assertIn('hotel Save state', e.exception.reason)

@@ -33,6 +33,7 @@ CODES = {
     'madril-message': 103,
     'madril-state': 104,
     'madril-control': 105,
+    'hotel': 106,
     'usage': 64,
     'internal': 99,
 }
