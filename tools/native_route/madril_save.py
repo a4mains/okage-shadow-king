@@ -59,18 +59,36 @@ def save_inputs(c, tag):
     c.step(1, 0)
     c.step(1, CONFIRM)
     c.step(40, 0)
-    c.step(1, CONFIRM)          # to the menu
-    c.step(40, 0)
+    o = c.observe()
+    for _ in range(12):
+        if o['message'] == 30125 and o['text_progress'] >= 1:
+            break
+        c.step(1, CONFIRM)
+        c.step(40, 0)
+        o = c.observe()
+    need(o['message'] == 30125 and o['text_progress'] >= 1, 'save', 'innkeeper menu page not reached', observe=o)
+    c.step(20, 0)
     c.send(f'view {tag}-menu')
-    for _ in range(3):
+    # First Down arms the CC menu without moving; later Downs move one row.
+    for _ in range(5):
+        if o['choice'] == 2:
+            break
         c.step(1, DOWN)
         c.step(20, 0)
-    o = c.observe()
+        o = c.observe()
     need(o['choice'] == 2, 'save', 'hotel menu cursor not on Save (row 2)', observe=o)
+    start = c.log_offset()
     c.step(1, CONFIRM)
     c.step(40, 0)
-    c.step(1, CONFIRM)
-    c.step(90, 0)
+    # Turn the text until the Save screen exists (its construction log line);
+    # never press ahead of it.
+    for _ in range(8):
+        if 'Native field Save constructed' in c.log_since(start):
+            break
+        c.step(1, CONFIRM)
+        c.step(40, 0)
+    need('Native field Save constructed' in c.log_since(start), 'save', 'hotel Save screen never constructed')
+    c.step(60, 0)
     c.send(f'view {tag}-slots')
     c.step(1, CONFIRM)
     c.step(60, 0)
@@ -80,7 +98,11 @@ def save_inputs(c, tag):
     c.send(f'view {tag}-replace-yes')
     c.step(1, CONFIRM)          # "Saving completed."
     c.step(120, 0)
-    c.step(1, CONFIRM)
+    for _ in range(6):
+        if 'Native field Save retired' in c.log_since(start):
+            break
+        c.step(1, CONFIRM)
+        c.step(60, 0)
     c.step(400, 0)
     after = c.status()
     c.send(f'capture {tag}-after-save', f'view {tag}-after-save-view')

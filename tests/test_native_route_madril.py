@@ -274,24 +274,65 @@ class HotelSaveTests(unittest.TestCase):
         self.tmp.cleanup()
 
     class Menu:
-        def __init__(self, cursor):
-            self.cursor = cursor
+        """Greeting page 0 turns on the Nth Confirm; then a CC menu (rows 0..2)
+        that arms on the first Down; `stuck` keeps the cursor from moving."""
+        def __init__(self, confirms_to_menu=1, stuck=False):
+            self.page, self.needed, self.armed, self.cursor, self.stuck = 0, confirms_to_menu, False, 0, stuck
+            self.confirms = 0
         def step(self, n, mask=0):
-            pass
+            from native_route.pilot import CONFIRM, DOWN
+            if self.page == 0 and mask & CONFIRM:
+                self.confirms += 1
+                if self.confirms > self.needed:
+                    self.page = 1
+            elif self.page == 1 and mask & DOWN:
+                if self.armed and not self.stuck:
+                    self.cursor = min(self.cursor + 1, 2)
+                self.armed = True
+            if self.page == 1 and mask & CONFIRM and self.cursor == 2 and self.armed:
+                self.thanks += 1
+                if self.thanks == 2:
+                    self.log += 'Native field Save constructed frame=1\n'
+                if self.thanks == 5:
+                    self.log += 'Native field Save retired frame=2\n'
+        thanks = 0
+        log = ''
+        def log_offset(self):
+            return len(self.log)
+        def log_since(self, offset):
+            return self.log[offset:]
         def send(self, *cmds):
             return []
         def observe(self):
-            return {'choice': self.cursor, 'battle': False}
+            return {'message': 30125, 'text_progress': self.page, 'choice': self.cursor, 'battle': False}
         def status(self):
             return status(1, scene=107)
+
+    def test_hotel_menu_waits_for_the_menu_page_and_reaches_save(self):
+        from native_route import madril_save
+        m = self.Menu(confirms_to_menu=3)       # slow greeting (c2p-final-v2a)
+        after, moved = madril_save.save_inputs(m, 'x')
+        self.assertEqual((m.page, after['scene']), (1, 107))
 
     def test_hotel_menu_cursor_must_be_on_save(self):
         from native_route import madril_save
         with self.assertRaises(outcome.StageFailure) as e:
-            madril_save.save_inputs(self.Menu(1), 'x')
+            madril_save.save_inputs(self.Menu(stuck=True), 'x')
         self.assertIn('not on Save', e.exception.reason)
-        after, moved = madril_save.save_inputs(self.Menu(2), 'x')
-        self.assertEqual(after['scene'], 107)
+
+    def test_save_screen_must_be_constructed(self):
+        from native_route import madril_save
+        m = self.Menu()
+        m.step = (lambda orig: (lambda n, mask=0: (orig(n, mask), setattr(m, 'log', ''))))(m.step)
+        with self.assertRaises(outcome.StageFailure) as e:
+            madril_save.save_inputs(m, 'x')
+        self.assertIn('never constructed', e.exception.reason)
+
+    def test_menu_page_must_be_reached(self):
+        from native_route import madril_save
+        with self.assertRaises(outcome.StageFailure) as e:
+            madril_save.save_inputs(self.Menu(confirms_to_menu=99), 'x')
+        self.assertIn('menu page not reached', e.exception.reason)
 
     def run_save(self, reasons, payload_state):
         from native_route import madril_save
