@@ -57,7 +57,7 @@ def main():
             'build': 'ninja -C build/startup-oracle okage-startup-oracle',
             'cmake_build_type': cv('CMAKE_BUILD_TYPE'), 'cxx_compiler': cv('CMAKE_CXX_COMPILER'),
             'osx_architectures': cv('CMAKE_OSX_ARCHITECTURES'), 'osx_sysroot': cv('CMAKE_OSX_SYSROOT'),
-            'cxx_version': 'Apple clang version 17.0.0 (clang-1700.3.19.1), target arm64-apple-darwin25.0.0',
+            'cxx_version': 'Apple clang version 21.0.0 (clang-2100.3.34.2), target arm64-apple-darwin26.0.0',
         },
         'tracked_sources_sha256': {p: fsha(os.path.join(wt, p)) for p in (
             'tools/play-oracle/startup.cpp', 'tools/play-oracle/CMakeLists.txt', 'tools/play-oracle/Attach.cmake',

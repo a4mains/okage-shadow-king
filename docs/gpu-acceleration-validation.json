@@ -30,9 +30,9 @@
     "cpu_cores": 16,
     "gpu_cores": 40,
     "ram_bytes": 137438953472,
-    "os": "macOS26.6 build25G77",
-    "sdk": "26.6",
-    "compiler": "Apple clang17.0.0 clang-1700.3.19.1",
+    "os": "macOS27.0.1 build26A434",
+    "sdk": "27.0",
+    "compiler": "Apple clang21.0.0 clang-2100.3.34.2",
     "cpu_baseline_threads": 1,
     "metal_threadgroup": 256,
     "metal_execution_width": 32,
@@ -42,25 +42,25 @@
     "release": [
       {
         "directory": "./build/gpu-address-release",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
         "file": "./src/gs_texture_address.cpp",
         "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
       },
       {
         "directory": "./build/gpu-address-release",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
         "file": "./src/texture_address_batch.cpp",
         "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
       },
       {
         "directory": "./build/gpu-address-release",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -O3 -DNDEBUG -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -O3 -DNDEBUG -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
         "file": "./src/texture_address_batch_metal.mm",
         "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
       },
       {
         "directory": "./build/gpu-address-release",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
         "file": "./tools/gpu_address_benchmark.cpp",
         "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
       }
@@ -68,25 +68,25 @@
     "debug": [
       {
         "directory": "./build/gpu-address-debug",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
         "file": "./src/gs_texture_address.cpp",
         "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
       },
       {
         "directory": "./build/gpu-address-debug",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
         "file": "./src/texture_address_batch.cpp",
         "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
       },
       {
         "directory": "./build/gpu-address-debug",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
         "file": "./src/texture_address_batch_metal.mm",
         "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
       },
       {
         "directory": "./build/gpu-address-debug",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
         "file": "./tools/gpu_address_benchmark.cpp",
         "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
       }
@@ -94,25 +94,25 @@
     "sanitize": [
       {
         "directory": "./build/gpu-address-sanitize",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o -c ./src/gs_texture_address.cpp",
         "file": "./src/gs_texture_address.cpp",
         "output": "CMakeFiles/okage_gs_texture_address.dir/src/gs_texture_address.cpp.o"
       },
       {
         "directory": "./build/gpu-address-sanitize",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -Wall -Wextra -Wpedantic -o CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o -c ./src/texture_address_batch.cpp",
         "file": "./src/texture_address_batch.cpp",
         "output": "CMakeFiles/okage_texture_address_batch.dir/src/texture_address_batch.cpp.o"
       },
       {
         "directory": "./build/gpu-address-sanitize",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -x objective-c++ -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++2a -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -fobjc-arc -Wall -Wextra -o CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o -c ./src/texture_address_batch_metal.mm",
         "file": "./src/texture_address_batch_metal.mm",
         "output": "CMakeFiles/okage_texture_address_batch_metal.dir/src/texture_address_batch_metal.mm.o"
       },
       {
         "directory": "./build/gpu-address-sanitize",
-        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
+        "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I./include -fsanitize=address,undefined -fno-omit-frame-pointer -g -std=c++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o -c ./tools/gpu_address_benchmark.cpp",
         "file": "./tools/gpu_address_benchmark.cpp",
         "output": "CMakeFiles/okage-gpu-address-benchmark.dir/tools/gpu_address_benchmark.cpp.o"
       }
