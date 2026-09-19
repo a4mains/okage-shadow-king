@@ -25,6 +25,8 @@ class ReadRunTests(unittest.TestCase):
                 'Native battle stage has no collision member stage=1',
                 'Native victory return queued scene=1 frame=90',
                 'Native field Rest recovered party frame=95',
+                'Native field Save constructed frame=96',
+                'Native field Save retired frame=97',
                 'Battle music variant ownership is unrecovered: 1',
                 '{"guard_pending_opcode":0}',
             ]) + '\n')
@@ -36,6 +38,7 @@ class ReadRunTests(unittest.TestCase):
         self.assertEqual(dict(ev['status_messages']), {1: {21020}})
         self.assertEqual(ev['encounters'], [{'frame': 40, 'formation': 4, 'phase': 11, 'rear': 0}])
         self.assertEqual((ev['stages'], ev['victories'], ev['services']['rest']), ([1], [90], [95]))
+        self.assertEqual((ev['services']['save_menu'], ev['services']['save_written']), ([96], [97]))
         self.assertEqual(ev['guards'], ['Battle music variant ownership is unrecovered: 1'])
         self.assertEqual(ev['trace'][0]['op'], 76)
         self.assertTrue(ev['event_trace'])

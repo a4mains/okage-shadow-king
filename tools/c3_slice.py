@@ -39,7 +39,8 @@ SERVICES = {
     'title': re.compile(r'Native title constructed frame=(\d+)'),
     'restore_menu': re.compile(r'Native Restore constructed frame=(\d+)'),
     'rest': re.compile(r'Native field Rest recovered party frame=(\d+)'),
-    'save_menu': re.compile(r'Native [Ss]ave[^\n]*constructed[^\n]*frame=(\d+)'),
+    'save_menu': re.compile(r'Native (?:field )?Save constructed frame=(\d+)'),
+    'save_written': re.compile(r'Native (?:field )?Save retired frame=(\d+)'),
     'battle_results': re.compile(r'Native results constructed frame=(\d+)'),
 }
 GUARD_WORDS = ('unrecovered', 'Unrecovered', 'unsupported', 'Unsupported', 'error', 'Error', 'exception', 'Refusing')
