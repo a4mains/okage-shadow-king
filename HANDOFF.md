@@ -1,4 +1,14 @@
-## CURRENT: texture-to-Chapter-2 completion review v2
+## CURRENT: Chapter 2 progression to Madril, with Save and Restore
+
+- **Route:** from a cold native Restore of the accepted Chapter 2 save, ordinary
+  objective 11, b1[125] = 1).
+- **Save:** it saves at the Madril hotel (`db31fe7a…`).
+- **Restore:** a fresh process restores that Save, continues play and passes the
+  Restore audit.
+- **Build:** runtime `b7b71d4` (Release `85c07b69…`), data stage v20.
+- **Recovered on the way:** field opcode 9 object waits, music 3, the effect-tint
+
+## PREVIOUS: texture-to-Chapter-2 completion review v2
 
 pushed). Start with the
 

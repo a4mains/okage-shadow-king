@@ -1,0 +1,153 @@
+{
+  "schema": "okage.chapter2-progression.validation.v1",
+  "status": "endpoint, Save and cold Restore demonstrated on the final runtime; review and final-commit suites recorded below",
+  "goal": "CHAPTER2_PROGRESSION_GOAL_PROMPT.txt",
+  "branch": "work/chapter2-progression-v1",
+  "base": "44630d0 (runtime 589062c)",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "route_card": "the Madril route card (endpoint fixed ddf5bac; erratum 6fd50f7)",
+  "runtime": {
+    "commit": "b7b71d4",
+    "release_binary_sha256": "85c07b69ea3a40dd5408a4f047cb40c4f4d8f2a010a257f3f8ee6f1e0f93f84a",
+    "pinned_copy": "local/research/chapter2-progression-v1/bin/okage-native-release-b7b71d4",
+    "rebuilt_identical_at": "a5d476b"
+  },
+  "stage": {
+    "path": "local/game-data-stage-v20",
+    "manifest_sha256": "32f4494af920c95e7374a313175dcf49db92f72bab459b6ac3e8f913ebcd6996",
+    "base": "v19 181c0d0b5100b9ff87c721c8a17b60ac09b26cd195d75d5569eb464038c55e0e",
+    "adds": "SNDDATA/BGM/CTY_MDL{.XSQ,0.XV,1.XV}",
+    "builder": "local/research/chapter2-progression-v1/make_stage_v20.py",
+    "builder_sha256": "3cfdded6e90238fad2b08bd44ca876aafe104fa28ffe6fa74e55de681db8a3a8",
+    "music_import": "local/research/chapter2-progression-v1/music-3-import.json",
+    "music_import_sha256": "575df2eb98a11cdb3a697f8f4f68438c42dbee1ff9209b5307abf1fa5335e9bf"
+  },
+  "entry_save": {
+    "file": "local/research/chapter2-progression-v1/inputs/saves/bkmo2.dat",
+    "sha256": "2f86e136b369b84376503b534cb6cffebfcc40d9b371bf77efea13361d5e1068",
+    "state": {
+      "story": 7,
+      "scene": 74,
+      "entrance": 1,
+      "objective": 10,
+      "b1_125": 0
+    }
+  },
+  "final_route": {
+    "run": "local/research/chapter2-progression-v1/c2p-final-v2b",
+    "tools": "ddcf87e",
+    "manifest_sha256": "64b9549c548df876f4075344ca7cfe99cc6e6814b24eb437322d50d20547d547",
+    "result_sha256": "9c46c6d5e27ebd39a46b94e80a50915e48aa8cbb51874ed47c755e6fd2dfbef7",
+    "command": "python3 RUN/tools/native_route/cli.py madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 2f86e136... --save-target bkmo2.dat",
+    "launch": "python3 WORK/tools/native_route/cli.py launch-new --run RUN --binary R/bin/okage-native-release-b7b71d4 --stage WORK/local/game-data-stage-v20 --prepared texture-to-battle-v1/claude-dev-prepared-v1 --saves R/inputs/saves --prelude-ticks 808 --rng-sites --event-trace --source-repo WORK",
+    "result": "PASS exit 0; 12 stages",
+    "bridge_objective_by_talk": [
+      10,
+      10,
+      60
+    ],
+    "natural_battles": {
+      "formations": [
+        3,
+        6,
+        5,
+        6,
+        2
+      ],
+      "victories": 5
+    },
+    "arrival": "scene 14 entrance 1 queued frame 22308",
+    "message_21020_frames": [
+      22760,
+      23112
+    ],
+    "endpoint_state": {
+      "story": 7,
+      "scene_word": 14,
+      "objective": 11,
+      "b1_125": 1
+    },
+    "save": {
+      "slot": "bkmo2.dat",
+      "sha256": "db31fe7a698b01e8f291e70d129f28c83f733943b1a64700778d861b97965bb1",
+      "size": 3460,
+      "constructed": 23979,
+      "retired": 24396,
+      "saved_state": {
+        "story": 7,
+        "scene_word": 107,
+        "objective": 11,
+        "b1_125": 1
+      }
+    },
+    "event_trace_rows": 552
+  },
+  "cold_restore": {
+    "run": "local/research/chapter2-progression-v1/c2p-final-restore-v2b",
+    "tools": "435d073 (native_route identical to ddcf87e)",
+    "manifest_sha256": "4cf20700786c7375fb74409a17c088f0d4ba63249439af029aaa477cc499dfe9",
+    "result_sha256": "cf7f04b8f1e119f0d8fcf660a3c94f212f0de1027afbc395fb899abcf6df19ff",
+    "command": "python3 RUN/tools/native_route/cli.py restore-madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 db31fe7a...",
+    "result": "PASS exit 0; slot, restore-route, payload, transitions",
+    "payload": "3448 bytes equal except 0x520 playtime",
+    "restored": "scene 107 entrance 0",
+    "continued_play": [
+      "scene 14 entrance 10 (hotel exit)",
+      "scene 107 entrance 0 (re-entry)"
+    ],
+    "restore_audit": {
+      "file": "local/research/chapter2-progression-v1/c2p-final-restore-v2b/restore-audit.json",
+      "sha256": "e03eb944842340aaae2467b6851064fb0abf2fb7b8250ce20ffa0bd1b04de677",
+      "pass": true,
+      "bindings": "8 models, 83 handles, 22 XTA, no differences"
+    }
+  },
+  "c3_slice": {
+    "file": "local/research/chapter2-progression-v1/inventory/c3-slice-v2b.json",
+    "sha256": "884db99f05d2941890c67f33ce1dc8bbc8888fbb559e0a51ca3dac63abfe1baf",
+    "inventory": "local/research/chapter2-progression-v1/inventory/all-scenes-v3.json",
+    "inventory_sha256": "ba9c292ac85b478f7a8d2e06e40f1a6382db808782d065f4bb88a9668f01e7b5",
+    "rows": 46,
+    "implemented": 46,
+    "guard_lines": 0,
+    "scenes": [
+      74,
+      73,
+      70,
+      1,
+      14,
+      107
+    ]
+  },
+  "recovered": {
+    "6fd50f7": "field opcode 9 object-index resolution (0x1bb608)",
+    "6df87c1": "music 3 cty_mdl (0x1fb530 entry 3)",
+    "f379d3c": "effect tint from 0x1b8028 light defaults (0x1020e0); failed commit non-reentrant",
+    "0a1c2f5": "guard: commit without world objects",
+    "b7b71d4": "map effect colour program 36 (0x10a544)"
+  },
+  "runs_retained": [
+    "c2p-madril-v1a..v1i",
+    "c2p-madril-v1e-asan",
+    "c2p-final-v2a",
+    "c2p-final-v2b",
+    "c2p-final-restore-v2b"
+  ],
+  "tests": {
+    "a5d476b": {
+      "dir": "local/research/chapter2-progression-v1/final-tests-a5d476b",
+      "ctest_release": "134/134",
+      "ctest_debug": "134/134",
+      "ctest_asan_ubsan": "see summary.log",
+      "python": "1464 run, 95 skipped, OK"
+    },
+    "final_commit_python": "local/research/chapter2-progression-v1/final-tests-435d073"
+  },
+  "limits": [
+    "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",
+    "road leg past the ledge is an operator-validated trail plus static plan; encounters unsteered",
+    "hotel Save takes default menu rows and file 3; inn Rest/party change and non-default bridge answers unexercised",
+    "failed-commit re-entry fix has no Session-level test",
+    "story 8 / objective 12 beyond this goal"
+  ]
+}
