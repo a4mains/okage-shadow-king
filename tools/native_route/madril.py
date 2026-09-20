@@ -27,7 +27,8 @@ MESSAGE = 21020
 OBJECTIVE_AFTER = 11
 STORY = 7
 TRANSITION = f'queued scene={SCENE} entrance={ENTRANCE}'
-GUARD_WORDS = ('unrecovered', 'Unrecovered', 'guard', 'error', 'Error', 'exception', 'Refusing')
+GUARD_WORDS = ('unrecovered', 'Unrecovered', 'unsupported', 'Unsupported', 'unreviewed', 'Unreviewed', 'guard',
+               'error', 'Error', 'exception', 'Refusing')
 
 def progress(variables):
     """Story byte, bank-4 words 0/10, bit flag b1[125] (src/event.cpp banks)."""

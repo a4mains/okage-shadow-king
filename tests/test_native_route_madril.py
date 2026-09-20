@@ -75,6 +75,8 @@ class ProgressTests(unittest.TestCase):
     def test_guard_lines_ignore_status_json(self):
         log = '{"guard_pending_opcode":0}\nHeadless ready frame=3\nBattle music variant ownership is unrecovered: 1\n'
         self.assertEqual(madril.guard_lines(log), ['Battle music variant ownership is unrecovered: 1'])
+        self.assertEqual(madril.guard_lines('Unsupported map effect primitive\nUnreviewed music resource ID 3\n'),
+                         ['Unsupported map effect primitive', 'Unreviewed music resource ID 3'])
 
 class MessageTests(unittest.TestCase):
     def test_requires_the_arrival_message(self):
