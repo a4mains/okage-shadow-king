@@ -32,7 +32,8 @@ class ReadRunTests(unittest.TestCase):
             ]) + '\n')
             (run / 'event-trace.jsonl').write_text('{"schema":"x"}\n{"frame":5,"scene":14,"script_fnv1a":7,'
                                                      '"script_bytes":9,"pc":40,"op":76}\n')
-            (run / 'manifest.json').write_text(json.dumps({'event_trace': True}))
+            (run / 'manifest.json').write_text(json.dumps({'event_trace': True, 'source_binary': '/x/okage-native',
+                                                           'artifacts': {'okage-native': 'ab' * 32}}))
             ev = c3_slice.read_run(run)
         self.assertEqual(list(ev['scenes']), [1])
         self.assertEqual(dict(ev['status_messages']), {1: {21020}})
@@ -42,6 +43,7 @@ class ReadRunTests(unittest.TestCase):
         self.assertEqual(ev['guards'], ['Battle music variant ownership is unrecovered: 1'])
         self.assertEqual(ev['trace'][0]['op'], 76)
         self.assertTrue(ev['event_trace'])
+        self.assertEqual(ev['binary_sha256'], 'ab' * 32)
 
     def test_fnv1a_matches_the_native_hash(self):
         # 32-bit FNV-1a reference vectors.
