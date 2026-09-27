@@ -80,7 +80,7 @@
         "b1_125": 1
       }
     },
-    "event_trace_rows": 552
+    "event_trace_rows": 551
   },
   "cold_restore": {
     "run": "local/research/chapter2-progression-v1/c2p-final-restore-v2b",
@@ -103,21 +103,32 @@
     }
   },
   "c3_slice": {
-    "file": "local/research/chapter2-progression-v1/inventory/c3-slice-v2b.json",
-    "sha256": "884db99f05d2941890c67f33ce1dc8bbc8888fbb559e0a51ca3dac63abfe1baf",
+    "file": "local/research/chapter2-progression-v1/inventory/c3-slice-final.json",
+    "sha256": "7a29f4fbdbcf21a5cb14760517b764835ec94de539cd2bc4f219390755fa5a21",
     "inventory": "local/research/chapter2-progression-v1/inventory/all-scenes-v3.json",
     "inventory_sha256": "ba9c292ac85b478f7a8d2e06e40f1a6382db808782d065f4bb88a9668f01e7b5",
-    "rows": 46,
-    "implemented": 46,
+    "runs": [
+      "c2p-final-v2b",
+      "c2p-final-restore-v2b"
+    ],
+    "rows": 307,
+    "implemented": 307,
     "guard_lines": 0,
-    "scenes": [
-      74,
-      73,
-      70,
-      1,
-      14,
-      107
-    ]
+    "categories": {
+      "field": 6,
+      "asset": 18,
+      "entrance": 8,
+      "event_script": 6,
+      "message": 4,
+      "menu": 3,
+      "music": 9,
+      "effect": 8,
+      "model": 233,
+      "formation": 4,
+      "battle_stage": 2,
+      "service": 6
+    },
+    "event_trace_unique_rows_route": 551
   },
   "recovered": {
     "6fd50f7": "field opcode 9 object-index resolution (0x1bb608)",
@@ -146,8 +157,51 @@
   "limits": [
     "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",
     "road leg past the ledge is an operator-validated trail plus static plan; encounters unsteered",
-    "hotel Save takes default menu rows and file 3; inn Rest/party change and non-default bridge answers unexercised",
     "failed-commit re-entry fix has no Session-level test",
-    "story 8 / objective 12 beyond this goal"
-  ]
+    "story 8 / objective 12 beyond this goal",
+    "strict historical prefix not re-run on the final binary (12 candidates + 2 sealed-binary controls diverged at the host-load prelude point)",
+    "bridge CC menus take default rows; innkeeper Save row and overwrite Yes are chosen; inn Rest/party change and non-default bridge answers unexercised"
+  ],
+  "baseline_regressions": {
+    "restore_check": {
+      "run": "local/research/chapter2-progression-v1/c2p-baseline-restore-v1a",
+      "result": "PASS (slot, restore-route, payload, transitions, encounter)",
+      "restore_check_sha256": "9238e2743451985a5df049131568aeb01937be66b06a3779094807117b38abaf",
+      "save": "2f86e136 (texture-to-battle hist-v5d)"
+    },
+    "strict_historical": {
+      "searches": [
+        {
+          "record": "local/research/chapter2-progression-v1/c2p-baseline-hist-v1-candidates.json",
+          "sha256": "db2f1c1bd4f93d9778f09f203ee81d3b972c783f836e53ac61e213d7b3f6ce0c",
+          "candidates": 4,
+          "outcome": "exhausted: all prelude-diverged 2394"
+        },
+        {
+          "record": "local/research/chapter2-progression-v1/c2p-baseline-hist-v2-candidates.json",
+          "sha256": "49ded72295e98aba4c3382b196b94d1539e9f40668d409b3cb1d55d8e694bbab",
+          "candidates": 8,
+          "outcome": "exhausted: all prelude-diverged 2394"
+        }
+      ],
+      "control": {
+        "record": "local/research/chapter2-progression-v1/c2p-control-oldbin-hist-candidates.json",
+        "sha256": "59e9024251b6a6d97c35d695f005b7fdda9ce9a73ec3ff2cef049b042dbe01ca",
+        "binary": "589062c 91e0fbc1",
+        "stage": "v19",
+        "candidates": 2,
+        "outcome": "exhausted: all prelude-diverged 2394"
+      },
+      "conclusion": "host-load prelude divergence also hits the sealed previous binary now; the unchanged historical prefix was not re-run on the final binary"
+    },
+    "ctest_route_tests": "Release and Debug 134/134 on 85c07b69 runtime include rng..newgame route regressions",
+    "change_analysis": "only field opcode 9's unbound non-negative index resolution can alter a previously passing path; all other runtime changes are diagnostic, opt-in, or replace throwing paths"
+  },
+  "independent_review": {
+    "review_1": {
+      "scope": "44630d0..0bd2e33 + evidence",
+      "verdict": "no blocker in runtime/tools/evidence; completion gaps (ASan pending, baseline regressions, C3 categories) and minors",
+      "dispositions": "C3 categories + binary hash 2f27bb7; guard words 9c33d4a; review corrections; baseline regressions recorded here; ASan recorded in tests; UI-update gating test, op9 silent wait and colour-36 test strength disclosed as limits"
+    }
+  }
 }
