@@ -1,6 +1,6 @@
 {
   "schema": "okage.chapter2-progression.validation.v1",
-  "status": "endpoint, Save and cold Restore demonstrated on the final runtime; review and final-commit suites recorded below",
+  "status": "complete: route-card endpoint, hotel Save and cold Restore with continued play demonstrated on the final runtime; tests, review and baseline regressions recorded",
   "goal": "CHAPTER2_PROGRESSION_GOAL_PROMPT.txt",
   "branch": "work/chapter2-progression-v1",
   "base": "44630d0 (runtime 589062c)",
@@ -145,14 +145,23 @@
     "c2p-final-restore-v2b"
   ],
   "tests": {
-    "a5d476b": {
+    "runtime_a5d476b": {
       "dir": "local/research/chapter2-progression-v1/final-tests-a5d476b",
+      "binaries": {
+        "release": "85c07b69 (== run binary)",
+        "debug": "b7793c7b",
+        "asan_ubsan": "e6cbc68c"
+      },
       "ctest_release": "134/134",
       "ctest_debug": "134/134",
-      "ctest_asan_ubsan": "see summary.log",
+      "ctest_asan_ubsan": "134/134 (3056.8 s)",
       "python": "1464 run, 95 skipped, OK"
     },
-    "final_commit_python": "local/research/chapter2-progression-v1/final-tests-435d073"
+    "python_final_0dd36c4": {
+      "dir": "local/research/chapter2-progression-v1/final-tests-0dd36c4",
+      "result": "1467 run, 95 skipped, OK"
+    },
+    "note": "runtime sources unchanged after b7b71d4; later commits change tools/tests/docs only"
   },
   "limits": [
     "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",
