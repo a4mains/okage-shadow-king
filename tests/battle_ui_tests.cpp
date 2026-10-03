@@ -474,6 +474,13 @@ int main(int argc,char** argv) {
             okage::UiPartySelection empty;empty.refresh(none,3);
             require(empty.counts()==std::array<std::uint32_t,8>{},"no-member refresh has zero counts");
             require(!okage::first_battle_zero_selection(0,empty),"-1 rows with zero counts are not the zero cache");
+            using okage::first_battle_diagnostics_omitted;
+            require(first_battle_diagnostics_omitted(false,true,false,0,party),"ui-update alone is gated on a nonzero cache");
+            require(first_battle_diagnostics_omitted(true,false,false,0,party),"stage family is gated on a nonzero cache");
+            require(first_battle_diagnostics_omitted(false,true,false,5,initial),"nonzero 0x81ac gates ui-update");
+            require(!first_battle_diagnostics_omitted(false,false,false,5,party),"no diagnostic requested");
+            require(!first_battle_diagnostics_omitted(true,true,true,5,party),"decided before the stage commit only");
+            require(!first_battle_diagnostics_omitted(true,true,false,0,initial),"zero cache keeps the diagnostics");
         }
         std::cout<<"battle UI data/party tests passed\n";
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}

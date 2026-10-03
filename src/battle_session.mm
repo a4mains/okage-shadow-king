@@ -1330,13 +1330,13 @@ void BattleSession::tick(RetiringSceneEffects* retiring,FieldProjection& project
     const auto& screen=projection.frame().ordinary;
     const auto prepared=active?impl_->renderer->prepare(view,field_clip_projection(screen),nullptr,rotation,
         screen.clip_far,p,&projection.frame(),1,false):impl_->renderer->prepare_empty(projection.frame());
-    if((!stage_report.empty()||!ui_update_report.empty())&&!impl_->stage_committed&&!impl_->stage_diagnostics_omitted) {
-        const auto selected=std::bit_cast<std::int32_t>(word(impl_->root.bytes,0x81ac));
-        if(!first_battle_zero_selection(selected,context.party)) {
-            impl_->stage_diagnostics_omitted=true;
-            std::cout<<"Native battle stage diagnostics omitted frame="<<frame
-                     <<": incoming selection cache is not the first-battle zero cache\n";
-        }
+    if(!impl_->stage_diagnostics_omitted&&first_battle_diagnostics_omitted(!stage_report.empty(),!ui_update_report.empty(),
+            impl_->stage_committed,std::bit_cast<std::int32_t>(word(impl_->root.bytes,0x81ac)),context.party)) {
+        impl_->stage_diagnostics_omitted=true;
+        std::cout<<"Native battle stage diagnostics omitted frame="<<frame
+                 <<": incoming selection cache is not the first-battle zero cache ("
+                 <<(stage_report.empty()?"":"stage report")<<(!stage_report.empty()&&!ui_update_report.empty()?", ":"")
+                 <<(ui_update_report.empty()?"":"ui-update diagnostic")<<")\n";
     }
     const fs::path no_report;
     const fs::path& diagnostics=impl_->stage_diagnostics_omitted?no_report:stage_report;

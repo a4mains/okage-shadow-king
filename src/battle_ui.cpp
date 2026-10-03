@@ -81,4 +81,8 @@ bool first_battle_zero_selection(std::int32_t selected,const UiPartySelection& p
     for(const auto& row:party.rows())if(std::any_of(row.begin(),row.end(),[](auto n){return n!=0;}))return false;
     return true;
 }
+bool first_battle_diagnostics_omitted(bool stage_requested,bool ui_update_requested,bool stage_committed,
+                                      std::int32_t selected,const UiPartySelection& party) {
+    return (stage_requested||ui_update_requested)&&!stage_committed&&!first_battle_zero_selection(selected,party);
+}
 }

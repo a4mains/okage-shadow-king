@@ -29,4 +29,6 @@ private:
     std::array<std::array<std::int32_t,8>,8> rows_{};
 };
 bool first_battle_zero_selection(std::int32_t selected,const UiPartySelection& party);
+bool first_battle_diagnostics_omitted(bool stage_requested,bool ui_update_requested,bool stage_committed,
+                                      std::int32_t selected,const UiPartySelection& party);
 }
