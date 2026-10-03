@@ -1,6 +1,6 @@
 {
   "schema": "okage.chapter2-progression.validation.v1",
-  "status": "complete: route-card endpoint, hotel Save and cold Restore with continued play demonstrated on the final runtime; tests, review and baseline regressions recorded",
+  "status": "complete: all completion criteria evidenced on the final build (see tests.final_commit_798d5e2 and baseline_regressions)",
   "goal": "CHAPTER2_PROGRESSION_GOAL_PROMPT.txt",
   "branch": "work/chapter2-progression-v1",
   "base": "44630d0 (runtime 589062c)",
@@ -161,14 +161,35 @@
       "dir": "local/research/chapter2-progression-v1/final-tests-0dd36c4",
       "result": "1467 run, 95 skipped, OK"
     },
-    "note": "runtime sources unchanged after b7b71d4; later commits change tools/tests/docs only"
+    "note": "runtime sources unchanged after b7b71d4; later commits change tools/tests/docs only",
+    "final_commit_798d5e2": {
+      "dir": "local/research/chapter2-progression-v1/final-tests-798d5e2-full",
+      "head": "798d5e25eaef52b7c1166763e8099f1e175535f5",
+      "binaries": {
+        "release": "85c07b69",
+        "debug": "b7793c7b",
+        "asan_ubsan": "e6cbc68c"
+      },
+      "ctest_asan_ubsan": "134/134 (3130.5 s)",
+      "ctest_release": "134/134",
+      "ctest_debug": "134/134",
+      "python": "1467 run, 95 skipped, OK",
+      "python_skips": {
+        "comparator binary not built (OKAGE_TRANSFER_COMPARE)": 65,
+        "Handle handle-trace tool not built (OKAGE_HANDLE_TRACE)": 14,
+        "OKAGE_NATIVE or staged root absent": 13,
+        "lifecycle evidence or trace binary missing": 2,
+        "OKAGE_NATIVE, replay input or staged root absent": 1
+      },
+      "skip_explanation": "all environment-gated research fixtures (optional comparator/trace tools or env-pointed native binaries/stages not configured for the Python runner); the native paths they exercise are covered by CTest in all three builds",
+      "later_commits": "docs only (git diff 798d5e2..HEAD touches docs/ only)"
+    }
   },
   "limits": [
     "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",
     "road leg past the ledge is an operator-validated trail plus static plan; encounters unsteered",
     "failed-commit re-entry fix has no Session-level test",
     "story 8 / objective 12 beyond this goal",
-    "strict historical prefix not re-run on the final binary (12 candidates + 2 sealed-binary controls diverged at the host-load prelude point)",
     "bridge CC menus take default rows; innkeeper Save row and overwrite Yes are chosen; inn Rest/party change and non-default bridge answers unexercised"
   ],
   "baseline_regressions": {
@@ -191,6 +212,13 @@
           "sha256": "49ded72295e98aba4c3382b196b94d1539e9f40668d409b3cb1d55d8e694bbab",
           "candidates": 8,
           "outcome": "exhausted: all prelude-diverged 2394"
+        },
+        {
+          "record": "local/research/chapter2-progression-v1/c2p-baseline-hist-v3-candidates.json",
+          "sha256": "09ac63befad6fdbf844591ff18c928c7eb533661db2e79293219200fff2347d4",
+          "candidates": 4,
+          "outcome": "selected c2p-baseline-hist-v3d (v3a..c prelude-diverged 2394)",
+          "host": "ran while the final-commit ASan+UBSan CTest loaded the host"
         }
       ],
       "control": {
@@ -201,7 +229,41 @@
         "candidates": 2,
         "outcome": "exhausted: all prelude-diverged 2394"
       },
-      "conclusion": "host-load prelude divergence also hits the sealed previous binary now; the unchanged historical prefix was not re-run on the final binary"
+      "conclusion": "the unchanged historical prefix and the previous milestone's strict route pass on the final binary (hist-v3d); earlier exhausted searches and the sealed-binary control show the 2394 divergence is host load",
+      "selected": {
+        "run": "local/research/chapter2-progression-v1/c2p-baseline-hist-v3d",
+        "binary": "85c07b69",
+        "route_result_sha256": "d231cf30bc58157fbac6e2ddcfb84cb965bd890b76eb161ba472761508e1ef28",
+        "result": "strict-full exit 0; route-prefix, route-walk, route-rosalyn, encounter, battle, home, home-inside, save all PASS",
+        "battles": {
+          "formations": [
+            4,
+            4,
+            5,
+            4
+          ],
+          "victories": 4
+        },
+        "save": {
+          "sha256": "1badf265860da8bb418c5644fec78599eca7af2a551d0c73113b42e01a17d1f2",
+          "constructed": 83972,
+          "retired": 84375
+        },
+        "prefix_compare": {
+          "vs_claude_strict_v21c": {
+            "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
+            "first_divergence": null,
+            "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v21c.json",
+            "sha256": "9786297d0b7884b120f28eb8e90199c8c5c02f0a0f0a01f088c6c8c867f79e72"
+          },
+          "vs_claude_strict_v19a": {
+            "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
+            "first_divergence": null,
+            "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v19a.json",
+            "sha256": "27f8c3b6c7bc00589ae6ccc23754536a2468ce6dbbd9dbc9c365bf4eeb0e0c73"
+          }
+        }
+      }
     },
     "ctest_route_tests": "Release and Debug 134/134 on 85c07b69 runtime include rng..newgame route regressions",
     "change_analysis": "only field opcode 9's unbound non-negative index resolution can alter a previously passing path; all other runtime changes are diagnostic, opt-in, or replace throwing paths"
