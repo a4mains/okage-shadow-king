@@ -1031,12 +1031,8 @@ struct BattleSession::Impl {
                     if(handle>=effects.size())throw std::runtime_error("Battle effect rotation handle outside pool");
                     if(effects[handle])effects[handle]->rotation=value;
                 };
-                //Native sound banks expose no per-voice handle for12df80's
-                //return value, so the 0x1f looping voice and its12de90 stop stay guarded.
-                services.strike.sound_handle=[](int)->std::uint32_t{
-                    throw std::runtime_error("Battle157448 voice0x1f12df80 handle ownership is unrecovered");};
-                services.strike.sound_stop=[](std::uint32_t){
-                    throw std::runtime_error("Battle1573b8 voice stop12de90 ownership is unrecovered");};
+                services.strike.sound_handle=context.strike_sound_handle;
+                services.strike.sound_stop=context.strike_sound_stop;
                 BattleCommandActionResult result;
                 try {result=battle_command_action_update(root,roster.entities(),services);}
                 catch(...) {phase=word(root.bytes,0x24);throw;}

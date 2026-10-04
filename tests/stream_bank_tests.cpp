@@ -146,5 +146,20 @@ int main(){try{
         okage::SampleVoice loop(prepared,0x8000,0x8026);loop.parameters(4096,127,127);
         for(unsigned i=0;i<1000;++i)loop.tick();require(!loop.ended()&&loop.loop_count>1);
     }
+    {
+        okage::StreamPlayer pool(loop_bank);
+        const auto a=pool.play(0,1,128),b=pool.play(0,1,128),c=pool.play_signed(0,1,100);
+        require(a==255&&b==254&&c==253&&pool.active()==3);
+        pool.stop_voice(b);require(pool.active()==2);
+        require(pool.play(0,1,128)==254);              // released id is the free head
+        pool.stop_voice(7);require(pool.active()==3);  // inactive id: no-op
+        pool.stop();require(pool.active()==0);
+        require(pool.play(0,1,128)==255);
+        pool.stop();
+        okage::StreamPlayer finished(bank);
+        const auto f1=finished.play(0,1,128),f2=finished.play(0,1,128);require(f1==255&&f2==254);
+        std::vector<std::int32_t> drain(400);finished.mix(drain);require(finished.active()==0);
+        require(finished.play(0,1,128)==255);          // finished: newest (254) released first
+    }
     std::cout<<"RXWS records, finite/looping playback, bounds and malformed input passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

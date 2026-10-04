@@ -68,6 +68,9 @@ struct BattleUiContext {
     //1248d8 publishes the persistent game command, distinct from mode selection.
     std::function<void(std::array<std::uint32_t,3>)> game_command;
     std::function<void(GameModeSelection)> request_mode;
+    //12df80 returns 175398's request id; 12de90 -> 1756b0 stops that id.
+    std::function<std::uint32_t(int)> strike_sound_handle;
+    std::function<void(std::uint32_t)> strike_sound_stop;
 };
 class BattleFrameCompletion {
     struct State;

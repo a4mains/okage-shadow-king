@@ -2736,6 +2736,16 @@ struct Session {
                      if(title_modeled(okage::ResourceStage::BattleActive)||title_modeled(okage::ResourceStage::BattleRootRetired))
                          startup_textures->note_mode_request(selection[0],selection[1],selection[2]);
                      std::cout<<"Native battle wrapper requested mode="<<selection[0]<<" frame="<<frame<<'\n';
+                 },[this](int id)->std::uint32_t{
+                     if(id<0||unsigned(id)>=okage::sound_cue_volumes.size())
+                         throw std::runtime_error("Battle voice handle outside recovered12df80 table scope: "+std::to_string(id));
+                     auto found=sound_banks.find(0);
+                     if(found==sound_banks.end())throw std::runtime_error("Battle voice handle requires the owned ALL bank");
+                     return found->second->play_signed(id,okage::sound_cue_speed(unsigned(id)),okage::sound_cue_volumes[unsigned(id)]);
+                 },[this](std::uint32_t id){
+                     auto found=sound_banks.find(0);
+                     if(found==sound_banks.end())throw std::runtime_error("Battle voice stop requires the owned ALL bank");
+                     if(id<256)found->second->stop_voice(id);
                  }},
                 frame,battle_stage_report,battle_ui_update_report,deferred_battle_readback);
                 pad_repeat.delay=battle_pad.controls[0].delay;

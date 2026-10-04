@@ -98,21 +98,43 @@ std::vector<std::uint8_t> prepare_stream_sample(Bytes blocks,std::optional<std::
     (void)decode_spu_sample(result);
     return result;
 }
-void StreamPlayer::play(int index,float speed,unsigned volume){
-    start(stream_tone(bank_,index,speed,volume));
+StreamPlayer::StreamPlayer(StreamBank bank):bank_(std::move(bank)){
+    free_.reserve(256);
+    for(unsigned id=0;id<256;++id)free_.push_back(id);
 }
-void StreamPlayer::play_signed(int index,float speed,int volume){
-    start(stream_tone_signed(bank_,index,speed,volume));
+unsigned StreamPlayer::play(int index,float speed,unsigned volume){
+    return start(stream_tone(bank_,index,speed,volume));
 }
-void StreamPlayer::start(const StreamTone& tone){
+unsigned StreamPlayer::play_signed(int index,float speed,int volume){
+    return start(stream_tone_signed(bank_,index,speed,volume));
+}
+void StreamPlayer::release_ended(){
+    for(std::size_t i=voices_.size();i-->0;)if(voices_[i]->voice.ended()) {
+        free_.push_back(voices_[i]->id);voices_.erase(voices_.begin()+std::ptrdiff_t(i));
+    }
+}
+unsigned StreamPlayer::start(const StreamTone& tone){
     auto sample=prepare_stream_sample(Bytes(bank_.bytes).subspan(tone.offset,tone.size),tone.loop_offset);
-    std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
+    release_ended();
     if(voices_.size()>=48)throw std::runtime_error("RXWS shared voice allocation not recovered");
-    voices_.push_back(std::make_unique<Playing>(std::move(sample),tone));
+    if(free_.empty())throw std::runtime_error("RXWS stream request pool exhausted (175398 returns -1)");
+    auto playing=std::make_unique<Playing>(std::move(sample),tone);
+    playing->id=free_.back();free_.pop_back();
+    const auto id=playing->id;
+    voices_.push_back(std::move(playing));
+    return id;
+}
+void StreamPlayer::stop_voice(unsigned id){
+    for(std::size_t i=voices_.size();i-->0;)if(voices_[i]->id==id) {
+        free_.push_back(id);voices_.erase(voices_.begin()+std::ptrdiff_t(i));return;
+    }
+}
+void StreamPlayer::stop(){
+    while(!voices_.empty()){free_.push_back(voices_.back()->id);voices_.pop_back();}
 }
 void StreamPlayer::mix(std::span<std::int32_t> stereo){
     if(stereo.size()%2)throw std::runtime_error("RXWS stereo output extent");
     for(std::size_t i=0;i<stereo.size();i+=2)for(auto& voice:voices_){const auto v=voice->voice.tick();stereo[i]+=v[0];stereo[i+1]+=v[1];}
-    std::erase_if(voices_,[](const auto& v){return v->voice.ended();});
+    release_ended();
 }
 }
