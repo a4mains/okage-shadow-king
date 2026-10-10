@@ -2,11 +2,13 @@
 
 - **Route:** from a cold native Restore of the accepted Chapter 2 save, ordinary
   objective 11, b1[125] = 1).
-- **Save:** it saves at the Madril hotel (`db31fe7a…`).
+- **Save:** it saves at the Madril hotel (`20e93544…`, run `c2p-final-v4a`).
 - **Restore:** a fresh process restores that Save, continues play and passes the
   Restore audit.
-- **Build:** runtime `b7b71d4` (Release `85c07b69…`), data stage v20.
+- **Build:** runtime `7fec371` (Release `5a0a128f…`, pinned at
 - **Recovered on the way:** field opcode 9 object waits, music 3, the effect-tint
+  by `c2p-final-v3a`.
+- **Open approximations:** see the progression doc's Limits.
 
 ## PREVIOUS: texture-to-Chapter-2 completion review v2
 

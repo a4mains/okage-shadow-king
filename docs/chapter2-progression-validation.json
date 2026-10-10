@@ -1,16 +1,16 @@
 {
   "schema": "okage.chapter2-progression.validation.v1",
-  "status": "complete: all completion criteria evidenced on the final build (see tests.final_commit_798d5e2 and baseline_regressions)",
+  "status": "final evidence on runtime 7fec371 (5a0a128f); final-commit suites in tests.final_commit",
   "goal": "CHAPTER2_PROGRESSION_GOAL_PROMPT.txt",
   "branch": "work/chapter2-progression-v1",
   "base": "44630d0 (runtime 589062c)",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "route_card": "the Madril route card (endpoint fixed ddf5bac; erratum 6fd50f7)",
   "runtime": {
-    "commit": "b7b71d4",
-    "release_binary_sha256": "85c07b69ea3a40dd5408a4f047cb40c4f4d8f2a010a257f3f8ee6f1e0f93f84a",
-    "pinned_copy": "local/research/chapter2-progression-v1/bin/okage-native-release-b7b71d4",
-    "rebuilt_identical_at": "a5d476b"
+    "commit": "7fec371",
+    "release_binary_sha256": "5a0a128fe964e0e7367b7ef1934962393a820a42ed4122f755fa7e97911e0306",
+    "pinned_copy": "local/research/chapter2-progression-v1/bin/okage-native-release-7fec371",
+    "later_source_changes": "3af97f0 comments and C++ tests only; Release app binary rebuilt bit-identical (5a0a128f)"
   },
   "stage": {
     "path": "local/game-data-stage-v20",
@@ -34,32 +34,36 @@
     }
   },
   "final_route": {
-    "run": "local/research/chapter2-progression-v1/c2p-final-v2b",
-    "tools": "ddcf87e",
-    "manifest_sha256": "64b9549c548df876f4075344ca7cfe99cc6e6814b24eb437322d50d20547d547",
-    "result_sha256": "9c46c6d5e27ebd39a46b94e80a50915e48aa8cbb51874ed47c755e6fd2dfbef7",
-    "command": "python3 RUN/tools/native_route/cli.py madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 2f86e136... --save-target bkmo2.dat",
-    "launch": "python3 WORK/tools/native_route/cli.py launch-new --run RUN --binary R/bin/okage-native-release-b7b71d4 --stage WORK/local/game-data-stage-v20 --prepared texture-to-battle-v1/claude-dev-prepared-v1 --saves R/inputs/saves --prelude-ticks 808 --rng-sites --event-trace --source-repo WORK",
-    "result": "PASS exit 0; 12 stages",
+    "run": "local/research/chapter2-progression-v1/c2p-final-v4a",
+    "tools": "7fec371",
+    "manifest_sha256": "903c1eb3645d1bff92b50048c8edd8121e4118054b3445608903b8054e443095",
+    "result_sha256": "a0eb7327d13b33e5b9a5c412274a893121d019327203e4d9091dab988b57e9dc",
+    "source_diff_bytes": 0,
+    "launch": "python3 WORK/tools/native_route/cli.py launch-new --run RUN --binary R/bin/okage-native-release-7fec371 --stage WORK/local/game-data-stage-v20 --prepared T/claude-dev-prepared-v1 --saves R/inputs/saves --prelude-ticks 808 --rng-sites --event-trace --source-repo WORK",
+    "command": "python3 RUN/tools/native_route/cli.py madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 2f86e136b369b84376503b534cb6cffebfcc40d9b371bf77efea13361d5e1068 --save-target bkmo2.dat",
+    "result": "PASS exit 0; 12 stages: slot, restore-route, payload, rest, transitions, road, arrival, message, state, control, hotel, save",
     "bridge_objective_by_talk": [
       10,
       10,
       60
     ],
+    "road_waypoints": 186,
     "natural_battles": {
       "formations": [
-        3,
-        6,
-        5,
-        6,
-        2
+        2,
+        8,
+        10,
+        11,
+        2,
+        9
       ],
-      "victories": 5
+      "victories": 6,
+      "note": "formation 8 is the one that stopped v3a at the voice-0x1f guard; native runs keep no per-cue record, so secondary 355's voice itself is not shown to have run"
     },
-    "arrival": "scene 14 entrance 1 queued frame 22308",
+    "arrival": "scene 14 entrance 1 queued frame 27567 (one Confirm on event 32)",
     "message_21020_frames": [
-      22760,
-      23112
+      28019,
+      28371
     ],
     "endpoint_state": {
       "story": 7,
@@ -69,10 +73,10 @@
     },
     "save": {
       "slot": "bkmo2.dat",
-      "sha256": "db31fe7a698b01e8f291e70d129f28c83f733943b1a64700778d861b97965bb1",
+      "sha256": "20e93544d285ad2bf54ede0967c9460022ed6792289bdb1344466d8b101920be",
       "size": 3460,
-      "constructed": 23979,
-      "retired": 24396,
+      "constructed": 29238,
+      "retired": 29655,
       "saved_state": {
         "story": 7,
         "scene_word": 107,
@@ -80,39 +84,50 @@
         "b1_125": 1
       }
     },
-    "event_trace_rows": 551
+    "event_trace_rows": 551,
+    "guard_or_error_lines": 0,
+    "operator": "haiku (claude-haiku-4-5)"
   },
   "cold_restore": {
-    "run": "local/research/chapter2-progression-v1/c2p-final-restore-v2b",
-    "tools": "435d073 (native_route identical to ddcf87e)",
-    "manifest_sha256": "4cf20700786c7375fb74409a17c088f0d4ba63249439af029aaa477cc499dfe9",
-    "result_sha256": "cf7f04b8f1e119f0d8fcf660a3c94f212f0de1027afbc395fb899abcf6df19ff",
-    "command": "python3 RUN/tools/native_route/cli.py restore-madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 db31fe7a...",
+    "run": "local/research/chapter2-progression-v1/c2p-final-restore-v4a",
+    "tools": "7fec371",
+    "manifest_sha256": "702ce0b0a5cb42387ce64b3865b1eeb4cc705fd84716061bf4cb38b772b808b8",
+    "result_sha256": "75e57d96495a15edfc7731f4874b1980023486b895ba21e98329d3a6e3e250fb",
+    "launch": "as final_route plus --newgame-report, --saves R/c2p-final-v4a/saves",
+    "command": "python3 RUN/tools/native_route/cli.py restore-madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 20e93544d285ad2bf54ede0967c9460022ed6792289bdb1344466d8b101920be",
     "result": "PASS exit 0; slot, restore-route, payload, transitions",
-    "payload": "3448 bytes equal except 0x520 playtime",
-    "restored": "scene 107 entrance 0",
+    "payload": "3448 bytes equal except 0x520 playtime (54 -> 57)",
+    "restored": "scene 107 entrance 0 frame 1545; state story 7, objective 11, b1[125] 1, scene word 107",
     "continued_play": [
-      "scene 14 entrance 10 (hotel exit)",
-      "scene 107 entrance 0 (re-entry)"
+      "moved in scene 107 (frame 1566)",
+      "scene 14 entrance 10, hotel exit (frame 1676)",
+      "scene 107 entrance 0, re-entry (frame 1826)"
     ],
     "restore_audit": {
-      "file": "local/research/chapter2-progression-v1/c2p-final-restore-v2b/restore-audit.json",
-      "sha256": "e03eb944842340aaae2467b6851064fb0abf2fb7b8250ce20ffa0bd1b04de677",
+      "file": "local/research/chapter2-progression-v1/c2p-final-restore-v4a/restore-audit.json",
+      "sha256": "1b756b0685dbef76ee619c3cbd6b32fbf79a39012feedaba7f293b86f2be9e4d",
       "pass": true,
-      "bindings": "8 models, 83 handles, 22 XTA, no differences"
-    }
+      "command": "python3 -I tools/native_route/restore_audit.py RUN --stage WORK/local/game-data-stage-v20 --save RUN/saves/bkmo2.dat --report RUN/report --json RUN/restore-audit.json",
+      "checks": {
+        "field": "saved = queued = activated = 107/0",
+        "pose": "GYAD1A a.stg entrance 0 exact",
+        "bindings": "8 models, 83 handles, 22 XTA, actors deva/hero/sind/stun; restore cycle 1 vs ordinary cycle 3, no differences"
+      }
+    },
+    "operator": "haiku (claude-haiku-4-5)"
   },
   "c3_slice": {
-    "file": "local/research/chapter2-progression-v1/inventory/c3-slice-final.json",
-    "sha256": "7a29f4fbdbcf21a5cb14760517b764835ec94de539cd2bc4f219390755fa5a21",
+    "file": "local/research/chapter2-progression-v1/inventory/c3-slice-final-v4a.json",
+    "sha256": "f4d5280df27f733aa3b4f584288fb5604313f88c4c1200281fd94ba47fcc6dd7",
     "inventory": "local/research/chapter2-progression-v1/inventory/all-scenes-v3.json",
     "inventory_sha256": "ba9c292ac85b478f7a8d2e06e40f1a6382db808782d065f4bb88a9668f01e7b5",
+    "command": "python3 tools/c3_slice.py --inventory E/inventory/all-scenes-v3.json --stage local/game-data-stage-v20 --decoded local/xpf-decoded --scene 74 --scene 73 --scene 70 --scene 1 --scene 14 --scene 107 --run E/c2p-final-v4a --run E/c2p-final-restore-v4a --output E/inventory/c3-slice-final-v4a.json",
     "runs": [
-      "c2p-final-v2b",
-      "c2p-final-restore-v2b"
+      "c2p-final-v4a",
+      "c2p-final-restore-v4a"
     ],
-    "rows": 307,
-    "implemented": 307,
+    "rows": 308,
+    "implemented": 308,
     "guard_lines": 0,
     "categories": {
       "field": 6,
@@ -124,79 +139,67 @@
       "music": 9,
       "effect": 8,
       "model": 233,
-      "formation": 4,
+      "formation": 5,
       "battle_stage": 2,
       "service": 6
     },
-    "event_trace_unique_rows_route": 551
+    "formations": "2, 8, 9, 10, 11 (phase 11, rear 0)",
+    "compared": "no row has an original-game comparison on this route"
   },
   "recovered": {
     "6fd50f7": "field opcode 9 object-index resolution (0x1bb608)",
     "6df87c1": "music 3 cty_mdl (0x1fb530 entry 3)",
     "f379d3c": "effect tint from 0x1b8028 light defaults (0x1020e0); failed commit non-reentrant",
     "0a1c2f5": "guard: commit without world objects",
-    "b7b71d4": "map effect colour program 36 (0x10a544)"
+    "b7b71d4": "map effect colour program 36 (0x10a544)",
+    "7fec371": "battle voice 0x1f handle/stop: StreamPlayer request pool (175a80/175398/1756b0/1756c0/175b50); per-bank approximation of the global pool, hold byte and stop release tail unmodelled"
   },
   "runs_retained": [
     "c2p-madril-v1a..v1i",
     "c2p-madril-v1e-asan",
     "c2p-final-v2a",
     "c2p-final-v2b",
-    "c2p-final-restore-v2b"
+    "c2p-final-restore-v2b",
+    "c2p-final-v3a (FAIL: voice 0x1f guard)",
+    "c2p-final-v4a",
+    "c2p-final-restore-v4a",
+    "c2p-baseline-restore-v1a",
+    "c2p-baseline-restore-v2a",
+    "c2p-baseline-hist-v1a..d, v2a..h, v3a..d, v4a",
+    "c2p-control-oldbin-hista..b"
   ],
   "tests": {
-    "runtime_a5d476b": {
-      "dir": "local/research/chapter2-progression-v1/final-tests-a5d476b",
-      "binaries": {
-        "release": "85c07b69 (== run binary)",
-        "debug": "b7793c7b",
-        "asan_ubsan": "e6cbc68c"
-      },
-      "ctest_release": "134/134",
-      "ctest_debug": "134/134",
-      "ctest_asan_ubsan": "134/134 (3056.8 s)",
-      "python": "1464 run, 95 skipped, OK"
-    },
-    "python_final_0dd36c4": {
-      "dir": "local/research/chapter2-progression-v1/final-tests-0dd36c4",
-      "result": "1467 run, 95 skipped, OK"
-    },
-    "note": "runtime sources unchanged after b7b71d4; later commits change tools/tests/docs only",
-    "final_commit_798d5e2": {
-      "dir": "local/research/chapter2-progression-v1/final-tests-798d5e2-full",
-      "head": "798d5e25eaef52b7c1166763e8099f1e175535f5",
-      "binaries": {
-        "release": "85c07b69",
-        "debug": "b7793c7b",
-        "asan_ubsan": "e6cbc68c"
-      },
-      "ctest_asan_ubsan": "134/134 (3130.5 s)",
-      "ctest_release": "134/134",
-      "ctest_debug": "134/134",
-      "python": "1467 run, 95 skipped, OK",
-      "python_skips": {
-        "comparator binary not built (OKAGE_TRANSFER_COMPARE)": 65,
-        "Handle handle-trace tool not built (OKAGE_HANDLE_TRACE)": 14,
-        "OKAGE_NATIVE or staged root absent": 13,
-        "lifecycle evidence or trace binary missing": 2,
-        "OKAGE_NATIVE, replay input or staged root absent": 1
-      },
-      "skip_explanation": "all environment-gated research fixtures (optional comparator/trace tools or env-pointed native binaries/stages not configured for the Python runner); the native paths they exercise are covered by CTest in all three builds",
-      "later_commits": "docs only (git diff 798d5e2..HEAD touches docs/ only)"
-    }
+    "final_commit": "PENDING"
   },
   "limits": [
     "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",
     "road leg past the ledge is an operator-validated trail plus static plan; encounters unsteered",
     "failed-commit re-entry fix has no Session-level test",
     "story 8 / objective 12 beyond this goal",
-    "bridge CC menus take default rows; innkeeper Save row and overwrite Yes are chosen; inn Rest/party change and non-default bridge answers unexercised"
+    "bridge CC menus take default rows; innkeeper Save row and overwrite Yes are chosen; inn Rest/party change and non-default bridge answers unexercised",
+    "battle voice 0x1f: unit-tested pool; c2p-final-v4a fought formation 8 without a guard, but no per-cue record shows secondary 355's voice ran",
+    "StreamPlayer request pool is per bank; the original 175a80 pool is global (ids and stale-handle reach differ outside the ALL bank); 175b50 hold byte and 1756b0 release tail unmodelled",
+    "first-battle diagnostic gate: helper unit-tested; the session latch and log text have no session-level test",
+    "field opcode 9 on an index with no object waits without a log line (same convention as case 7)",
+    "colour program 36 formula checked against the disassembly, not an original observation"
   ],
   "baseline_regressions": {
     "restore_check": {
-      "run": "local/research/chapter2-progression-v1/c2p-baseline-restore-v1a",
-      "result": "PASS (slot, restore-route, payload, transitions, encounter)",
-      "restore_check_sha256": "9238e2743451985a5df049131568aeb01937be66b06a3779094807117b38abaf",
+      "run": "local/research/chapter2-progression-v1/c2p-baseline-restore-v2a",
+      "binary": "5a0a128f",
+      "result": "PASS (slot, restore-route, payload, transitions, encounter); payload differs only at 0x520 playtime 98 -> 101; one natural encounter and victory return (frame 6862)",
+      "restore_check_sha256": "cc51a0355517e04393eecbf1408e0f4a45b1390f9407647f8a124c5c7cb1f26c",
+      "manifest_sha256": "910b45d5d636bbacc242c4702df353a91b6cffff5c7f2df5edc3103657e3812a",
+      "argv": [
+        "restore-check",
+        "RUN",
+        "--slot-file",
+        "bkmo2.dat",
+        "--slot-rights",
+        "2",
+        "--expect-save-sha256",
+        "2f86e136b369b84376503b534cb6cffebfcc40d9b371bf77efea13361d5e1068"
+      ],
       "save": "2f86e136 (texture-to-battle hist-v5d)"
     },
     "strict_historical": {
@@ -219,6 +222,14 @@
           "candidates": 4,
           "outcome": "selected c2p-baseline-hist-v3d (v3a..c prelude-diverged 2394)",
           "host": "ran while the final-commit ASan+UBSan CTest loaded the host"
+        },
+        {
+          "record": "local/research/chapter2-progression-v1/c2p-baseline-hist-v4-candidates.json",
+          "sha256": "8fe38fcc458e10ebb10cd3f0551fe14a31ea4ee4c81c02018c195a0241fda99b",
+          "binary": "5a0a128f",
+          "max": 8,
+          "candidates": 1,
+          "outcome": "v4a selected (first candidate; host loaded by the final-suite builds and ASan+UBSan CTest)"
         }
       ],
       "control": {
@@ -229,50 +240,274 @@
         "candidates": 2,
         "outcome": "exhausted: all prelude-diverged 2394"
       },
-      "conclusion": "the unchanged historical prefix and the previous milestone's strict route pass on the final binary (hist-v3d); earlier exhausted searches and the sealed-binary control show the 2394 divergence is host load",
+      "conclusion": "the unchanged historical prefix and the previous milestone's strict route pass on the final binary 5a0a128f (hist-v4a, prefix identical to v21c and v19a); earlier searches v1/v2 and the sealed-binary control diverged at the documented host-load-dependent frame-2394 prelude; all candidates retained",
       "selected": {
-        "run": "local/research/chapter2-progression-v1/c2p-baseline-hist-v3d",
-        "binary": "85c07b69",
-        "route_result_sha256": "d231cf30bc58157fbac6e2ddcfb84cb965bd890b76eb161ba472761508e1ef28",
+        "run": "local/research/chapter2-progression-v1/c2p-baseline-hist-v4a",
+        "binary": "5a0a128f",
+        "source_diff_bytes": 0,
+        "manifest_sha256": "0113e321c5a2f130c10ea5ca286b99be79c809c2df78d5f7043e29f344dd12c2",
+        "route_result_sha256": "b31953ee3ca12ea3112c514391d2803bc8a5b8cf1f9291956e0d9599b2eca53a",
         "result": "strict-full exit 0; route-prefix, route-walk, route-rosalyn, encounter, battle, home, home-inside, save all PASS",
-        "battles": {
-          "formations": [
-            4,
-            4,
-            5,
-            4
-          ],
-          "victories": 4
-        },
-        "save": {
-          "sha256": "1badf265860da8bb418c5644fec78599eca7af2a551d0c73113b42e01a17d1f2",
-          "constructed": 83972,
-          "retired": 84375
-        },
-        "prefix_compare": {
+        "formations": [
+          6,
+          6,
+          3
+        ],
+        "save_sha256": "dc45eca027ad6e76e54383681200ea4fa68867473032dc380ddfbe50a6f93e99",
+        "compare": {
           "vs_claude_strict_v21c": {
+            "file": "local/research/chapter2-progression-v1/compare-baseline-v4-vs-v21c.json",
+            "sha256": "bcdc90e3ac6be568eb41f1420ac940e40171745c95bcf4e8e6cfa375d2b0e978",
             "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
             "first_divergence": null,
-            "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v21c.json",
-            "sha256": "9786297d0b7884b120f28eb8e90199c8c5c02f0a0f0a01f088c6c8c867f79e72"
+            "window": "frames 1..56846"
           },
           "vs_claude_strict_v19a": {
+            "file": "local/research/chapter2-progression-v1/compare-baseline-v4-vs-v19a.json",
+            "sha256": "68bc8c19f0979ff411ef28c341fe79d11794322ecf1e54707255bb64f2d079f4",
             "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
             "first_divergence": null,
-            "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v19a.json",
-            "sha256": "27f8c3b6c7bc00589ae6ccc23754536a2468ce6dbbd9dbc9c365bf4eeb0e0c73"
-          }
-        }
+            "window": "frames 1..56846"
+          },
+          "scope": "input-journal records and headless status rows only; not per-frame state, image or audio"
+        },
+        "command": "python3 WORK/tools/native_route/cli.py candidates --parent R --prefix c2p-baseline-hist-v4 --max 8 --target-save bkmo2.dat --binary R/bin/okage-native-release-7fec371 --stage WORK/local/game-data-stage-v20 --prepared T/navigation-pulse-historical-release-v1 --saves T/navigation-pulse-historical-release-v1/saves --prelude-ticks 21644 --rng-sites --source-repo WORK"
       }
     },
-    "ctest_route_tests": "Release and Debug 134/134 on 85c07b69 runtime include rng..newgame route regressions",
-    "change_analysis": "only field opcode 9's unbound non-negative index resolution can alter a previously passing path; all other runtime changes are diagnostic, opt-in, or replace throwing paths"
+    "ctest_route_tests": "rng..newgame route regressions are part of CTest in all three builds (tests.final_commit)",
+    "change_analysis": "only field opcode 9's unbound non-negative index resolution can alter a previously passing path; all other runtime changes are diagnostic, opt-in, or replace throwing paths; 7fec371 replaces a guard (battle voice 0x1f) and returns ids from StreamPlayer::play, which existing callers ignore; hist-v4a exercises the earlier route on it"
   },
   "independent_review": {
     "review_1": {
       "scope": "44630d0..0bd2e33 + evidence",
       "verdict": "no blocker in runtime/tools/evidence; completion gaps (ASan pending, baseline regressions, C3 categories) and minors",
       "dispositions": "C3 categories + binary hash 2f27bb7; guard words 9c33d4a; review corrections; baseline regressions recorded here; ASan recorded in tests; UI-update gating test, op9 silent wait and colour-36 test strength disclosed as limits"
+    },
+    "review_2": {
+      "agent": "general-purpose (Opus default), read-only",
+      "scope": "375755c..7fec371 (5ff41e7 gate helper, 7fec371 voice pool) against the 175a80/175398/1756b0/1756c0/175b50/12de90/12df80 decompilations",
+      "verdict": "approve with minor fixes; no blocker; id order, release order, inactive-id no-op, byte-compare filter and stale-handle semantics match the ELF",
+      "dispositions": {
+        "1_global_pool": "disclosed as per-bank approximation (header, lambda comment, battle doc) 3af97f0",
+        "2_hold_byte": "comment: not modelled, 0 verified for 12df80 only, 3af97f0",
+        "3_stop_release_tail": "comment and doc: unrecovered, cut at once, 3af97f0",
+        "4_unreachable_exhaustion_guard": "marked an invariant; 48-voice guard tested, 3af97f0",
+        "5_weak_stop_test": "strengthened; mutant erasing back() fails at the new assertion, 3af97f0",
+        "6_no_live_green": "c2p-final-v4a fought formation 8 with no guard; voice itself not provable (no per-cue record) - in limits",
+        "7_tail_call_wording": "corrected 3af97f0",
+        "8_recovered_under_guarded": "moved to its own section 3af97f0",
+        "9_stale_texture_to_battle_ledger": "annotated 3af97f0",
+        "10_session_use_untested": "accepted; in limits"
+      }
     }
+  },
+  "fixes_first": {
+    "1_shared_predicate": {
+      "commit": "86cd35a",
+      "what": "first_battle_zero_selection() replaces the two copies in battle_session.mm",
+      "test": "battle_ui_tests: zero cache, nonzero 0x81ac, refreshed tables, -1 rows with zero counts"
+    },
+    "2_ui_update_gate": {
+      "commits": [
+        "86cd35a",
+        "5ff41e7"
+      ],
+      "what": "--ui-update-diagnostic omitted with the stage family on a nonzero first-battle cache (explicit 'diagnostics omitted ... (stage report, ui-update diagnostic)' line, no throw); 5ff41e7 moves the gate into the tested helper first_battle_diagnostics_omitted()",
+      "test": "battle_ui_tests (helper truth table); the session's latch and log text have no session-level test"
+    },
+    "3_restore_check_argv": {
+      "commit": "86cd35a",
+      "what": "restore-check.json and every single-stage result record argv; restore-check adds parsed options",
+      "test": "Python tests red without the cli/strict_full change",
+      "live": "local/research/chapter2-progression-v1/c2p-baseline-restore-v2a/restore-check.json records argv"
+    },
+    "behaviour_outside_diagnostics": "unchanged"
+  },
+  "superseded_b7b71d4": {
+    "runtime": {
+      "commit": "b7b71d4",
+      "release_binary_sha256": "85c07b69ea3a40dd5408a4f047cb40c4f4d8f2a010a257f3f8ee6f1e0f93f84a",
+      "pinned_copy": "local/research/chapter2-progression-v1/bin/okage-native-release-b7b71d4",
+      "rebuilt_identical_at": "a5d476b"
+    },
+    "final_route": {
+      "run": "local/research/chapter2-progression-v1/c2p-final-v2b",
+      "tools": "ddcf87e",
+      "manifest_sha256": "64b9549c548df876f4075344ca7cfe99cc6e6814b24eb437322d50d20547d547",
+      "result_sha256": "9c46c6d5e27ebd39a46b94e80a50915e48aa8cbb51874ed47c755e6fd2dfbef7",
+      "command": "python3 RUN/tools/native_route/cli.py madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 2f86e136... --save-target bkmo2.dat",
+      "launch": "python3 WORK/tools/native_route/cli.py launch-new --run RUN --binary R/bin/okage-native-release-b7b71d4 --stage WORK/local/game-data-stage-v20 --prepared texture-to-battle-v1/claude-dev-prepared-v1 --saves R/inputs/saves --prelude-ticks 808 --rng-sites --event-trace --source-repo WORK",
+      "result": "PASS exit 0; 12 stages",
+      "bridge_objective_by_talk": [
+        10,
+        10,
+        60
+      ],
+      "natural_battles": {
+        "formations": [
+          3,
+          6,
+          5,
+          6,
+          2
+        ],
+        "victories": 5
+      },
+      "arrival": "scene 14 entrance 1 queued frame 22308",
+      "message_21020_frames": [
+        22760,
+        23112
+      ],
+      "endpoint_state": {
+        "story": 7,
+        "scene_word": 14,
+        "objective": 11,
+        "b1_125": 1
+      },
+      "save": {
+        "slot": "bkmo2.dat",
+        "sha256": "db31fe7a698b01e8f291e70d129f28c83f733943b1a64700778d861b97965bb1",
+        "size": 3460,
+        "constructed": 23979,
+        "retired": 24396,
+        "saved_state": {
+          "story": 7,
+          "scene_word": 107,
+          "objective": 11,
+          "b1_125": 1
+        }
+      },
+      "event_trace_rows": 551
+    },
+    "cold_restore": {
+      "run": "local/research/chapter2-progression-v1/c2p-final-restore-v2b",
+      "tools": "435d073 (native_route identical to ddcf87e)",
+      "manifest_sha256": "4cf20700786c7375fb74409a17c088f0d4ba63249439af029aaa477cc499dfe9",
+      "result_sha256": "cf7f04b8f1e119f0d8fcf660a3c94f212f0de1027afbc395fb899abcf6df19ff",
+      "command": "python3 RUN/tools/native_route/cli.py restore-madril RUN --slot-file bkmo2.dat --slot-rights 2 --expect-save-sha256 db31fe7a...",
+      "result": "PASS exit 0; slot, restore-route, payload, transitions",
+      "payload": "3448 bytes equal except 0x520 playtime",
+      "restored": "scene 107 entrance 0",
+      "continued_play": [
+        "scene 14 entrance 10 (hotel exit)",
+        "scene 107 entrance 0 (re-entry)"
+      ],
+      "restore_audit": {
+        "file": "local/research/chapter2-progression-v1/c2p-final-restore-v2b/restore-audit.json",
+        "sha256": "e03eb944842340aaae2467b6851064fb0abf2fb7b8250ce20ffa0bd1b04de677",
+        "pass": true,
+        "bindings": "8 models, 83 handles, 22 XTA, no differences"
+      }
+    },
+    "c3_slice": {
+      "file": "local/research/chapter2-progression-v1/inventory/c3-slice-final.json",
+      "sha256": "7a29f4fbdbcf21a5cb14760517b764835ec94de539cd2bc4f219390755fa5a21",
+      "inventory": "local/research/chapter2-progression-v1/inventory/all-scenes-v3.json",
+      "inventory_sha256": "ba9c292ac85b478f7a8d2e06e40f1a6382db808782d065f4bb88a9668f01e7b5",
+      "runs": [
+        "c2p-final-v2b",
+        "c2p-final-restore-v2b"
+      ],
+      "rows": 307,
+      "implemented": 307,
+      "guard_lines": 0,
+      "categories": {
+        "field": 6,
+        "asset": 18,
+        "entrance": 8,
+        "event_script": 6,
+        "message": 4,
+        "menu": 3,
+        "music": 9,
+        "effect": 8,
+        "model": 233,
+        "formation": 4,
+        "battle_stage": 2,
+        "service": 6
+      },
+      "event_trace_unique_rows_route": 551
+    },
+    "baseline_selected_hist_v3d": {
+      "run": "local/research/chapter2-progression-v1/c2p-baseline-hist-v3d",
+      "binary": "85c07b69",
+      "route_result_sha256": "d231cf30bc58157fbac6e2ddcfb84cb965bd890b76eb161ba472761508e1ef28",
+      "result": "strict-full exit 0; route-prefix, route-walk, route-rosalyn, encounter, battle, home, home-inside, save all PASS",
+      "battles": {
+        "formations": [
+          4,
+          4,
+          5,
+          4
+        ],
+        "victories": 4
+      },
+      "save": {
+        "sha256": "1badf265860da8bb418c5644fec78599eca7af2a551d0c73113b42e01a17d1f2",
+        "constructed": 83972,
+        "retired": 84375
+      },
+      "prefix_compare": {
+        "vs_claude_strict_v21c": {
+          "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
+          "first_divergence": null,
+          "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v21c.json",
+          "sha256": "9786297d0b7884b120f28eb8e90199c8c5c02f0a0f0a01f088c6c8c867f79e72"
+        },
+        "vs_claude_strict_v19a": {
+          "verdict": "IDENTICAL_AND_FULLY_ACCOUNTED",
+          "first_divergence": null,
+          "file": "local/research/chapter2-progression-v1/compare-baseline-v3-vs-v19a.json",
+          "sha256": "27f8c3b6c7bc00589ae6ccc23754536a2468ce6dbbd9dbc9c365bf4eeb0e0c73"
+        }
+      }
+    },
+    "baseline_restore_check_v1a": {
+      "run": "local/research/chapter2-progression-v1/c2p-baseline-restore-v1a",
+      "result": "PASS (slot, restore-route, payload, transitions, encounter)",
+      "restore_check_sha256": "9238e2743451985a5df049131568aeb01937be66b06a3779094807117b38abaf",
+      "save": "2f86e136 (texture-to-battle hist-v5d)"
+    },
+    "tests": {
+      "runtime_a5d476b": {
+        "dir": "local/research/chapter2-progression-v1/final-tests-a5d476b",
+        "binaries": {
+          "release": "85c07b69 (== run binary)",
+          "debug": "b7793c7b",
+          "asan_ubsan": "e6cbc68c"
+        },
+        "ctest_release": "134/134",
+        "ctest_debug": "134/134",
+        "ctest_asan_ubsan": "134/134 (3056.8 s)",
+        "python": "1464 run, 95 skipped, OK"
+      },
+      "python_final_0dd36c4": {
+        "dir": "local/research/chapter2-progression-v1/final-tests-0dd36c4",
+        "result": "1467 run, 95 skipped, OK"
+      },
+      "note": "runtime sources unchanged after b7b71d4; later commits change tools/tests/docs only",
+      "final_commit_798d5e2": {
+        "dir": "local/research/chapter2-progression-v1/final-tests-798d5e2-full",
+        "head": "798d5e25eaef52b7c1166763e8099f1e175535f5",
+        "binaries": {
+          "release": "85c07b69",
+          "debug": "b7793c7b",
+          "asan_ubsan": "e6cbc68c"
+        },
+        "ctest_asan_ubsan": "134/134 (3130.5 s)",
+        "ctest_release": "134/134",
+        "ctest_debug": "134/134",
+        "python": "1467 run, 95 skipped, OK",
+        "python_skips": {
+          "comparator binary not built (OKAGE_TRANSFER_COMPARE)": 65,
+          "Handle handle-trace tool not built (OKAGE_HANDLE_TRACE)": 14,
+          "OKAGE_NATIVE or staged root absent": 13,
+          "lifecycle evidence or trace binary missing": 2,
+          "OKAGE_NATIVE, replay input or staged root absent": 1
+        },
+        "skip_explanation": "all environment-gated research fixtures (optional comparator/trace tools or env-pointed native binaries/stages not configured for the Python runner); the native paths they exercise are covered by CTest in all three builds",
+        "later_commits": "docs only (git diff 798d5e2..HEAD touches docs/ only)"
+      }
+    },
+    "why_superseded": "c2p-final-v3a on 5ff41e7 (9ccf8d99) met battle formation 8 and stopped at the guard 'Battle157448 voice0x1f12df80 handle ownership is unrecovered' (frame 11323). v2b had met no battle that used voice 0x1f. Recovered in 7fec371; all final evidence re-run on its binary."
   }
 }
