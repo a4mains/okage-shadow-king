@@ -160,6 +160,17 @@ int main(){try{
         const auto f1=finished.play(0,1,128),f2=finished.play(0,1,128);require(f1==255&&f2==254);
         std::vector<std::int32_t> drain(400);finished.mix(drain);require(finished.active()==0);
         require(finished.play(0,1,128)==255);          // finished: newest (254) released first
+        okage::StreamPlayer which(loop_bank);
+        which.play(0,1,128);which.play(0,1,128);which.play(0,1,128);
+        which.stop_voice(254);which.stop();
+        const auto w1=which.play(0,1,128),w2=which.play(0,1,128),w3=which.play(0,1,128),w4=which.play(0,1,128);
+        require(w1==255&&w2==253&&w3==254&&w4==252);
+        which.stop();
+        // The 48-voice guard is reached before the 256-record pool can empty.
+        okage::StreamPlayer full(loop_bank);
+        for(int i=0;i<48;++i)full.play(0,1,128);
+        rejects([&]{full.play(0,1,128);});
+        require(full.active()==48);
     }
     std::cout<<"RXWS records, finite/looping playback, bounds and malformed input passed\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

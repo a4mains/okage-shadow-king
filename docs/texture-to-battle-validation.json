@@ -18,8 +18,8 @@
     },
     "include/okage/animation.hpp": {
       "path": "include/okage/animation.hpp",
-      "bytes": 4845,
-      "sha256": "5b55997654d2b788fbe13a83ffcda53cafd99565bcfc6990767fa7465095d032"
+      "bytes": 5097,
+      "sha256": "dc576834a7c71e92f5ced6ed0cde22becbe32d0dfcf299ab7194cbf8d5d33461"
     },
     "include/okage/assets.hpp": {
       "path": "include/okage/assets.hpp",
@@ -153,8 +153,8 @@
     },
     "include/okage/battle_ui.hpp": {
       "path": "include/okage/battle_ui.hpp",
-      "bytes": 1001,
-      "sha256": "368c5c5c471527bbf51c267ffe9e23d5c541464477edf5ac5e797c9e307390db"
+      "bytes": 1286,
+      "sha256": "5e18ef6ae0cbf0812109dfa66704c07cd046a9f4228739ce58037eb560f2db94"
     },
     "include/okage/battle_ui_command_data.hpp": {
       "path": "include/okage/battle_ui_command_data.hpp",
@@ -223,8 +223,8 @@
     },
     "include/okage/field.hpp": {
       "path": "include/okage/field.hpp",
-      "bytes": 17741,
-      "sha256": "f03eb5f7257e3b158d4e4eddcb74464fa0f0add0e4c3200ff6111c2c0007ed8f"
+      "bytes": 18014,
+      "sha256": "6f57cd1b10e71c28d883300b9882ac7999462b1e947a3eaa65677c86a293adb2"
     },
     "include/okage/field_navigation.hpp": {
       "path": "include/okage/field_navigation.hpp",
@@ -498,8 +498,8 @@
     },
     "include/okage/stream_bank.hpp": {
       "path": "include/okage/stream_bank.hpp",
-      "bytes": 2004,
-      "sha256": "f47ace833fae276e0414d270e168794a83495d405bb0160a38ddfe052f46f600"
+      "bytes": 2382,
+      "sha256": "4722c372a563db62616097a5ced31d001f51fbcff33b1370bc73501fb97b6a1c"
     },
     "include/okage/text.hpp": {
       "path": "include/okage/text.hpp",
@@ -603,8 +603,8 @@
     },
     "src/animation.cpp": {
       "path": "src/animation.cpp",
-      "bytes": 19675,
-      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81"
+      "bytes": 19743,
+      "sha256": "889a1c289faa17ed40b5ec673e3fce65e78777a9a034c78741a6b8df9d8cdb77"
     },
     "src/assets.cpp": {
       "path": "src/assets.cpp",
@@ -613,8 +613,8 @@
     },
     "src/assets_main.cpp": {
       "path": "src/assets_main.cpp",
-      "bytes": 153385,
-      "sha256": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b"
+      "bytes": 155201,
+      "sha256": "b7c085b5be7a13eed6dfb5f974733f1340c49541cd6d944160455142936c2377"
     },
     "src/audio.cpp": {
       "path": "src/audio.cpp",
@@ -778,13 +778,13 @@
     },
     "src/battle_session.hpp": {
       "path": "src/battle_session.hpp",
-      "bytes": 5319,
-      "sha256": "18daa0266e593b82fc0fc8f3ed523722da251c440692cb7f7447fd90ac63e399"
+      "bytes": 5510,
+      "sha256": "46da839c2e792a28dc7809f5b75718df5c14ceef54466f1ee24394e0c6ca301c"
     },
     "src/battle_session.mm": {
       "path": "src/battle_session.mm",
-      "bytes": 108392,
-      "sha256": "27b93dda51202f9e74f303b7a96ac7bc7e40e8d9c3689ae7f39999b2069e163c"
+      "bytes": 107710,
+      "sha256": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3"
     },
     "src/battle_state.cpp": {
       "path": "src/battle_state.cpp",
@@ -793,8 +793,8 @@
     },
     "src/battle_ui.cpp": {
       "path": "src/battle_ui.cpp",
-      "bytes": 3811,
-      "sha256": "3453e5dcc20550ee9cd75584d4557e64adb869f55e61eeaa6e5d14bf17cbfcba"
+      "bytes": 4483,
+      "sha256": "89359f09fcb410aad58c195fb4427c1ff9654b5ba1104e1d29d6018fa0af1399"
     },
     "src/battle_ui_command_data.cpp": {
       "path": "src/battle_ui_command_data.cpp",
@@ -878,8 +878,8 @@
     },
     "src/effect.cpp": {
       "path": "src/effect.cpp",
-      "bytes": 96896,
-      "sha256": "03ce1531804a8b40776cd909e1d03305659ede967b56b390a1ebf3f4d421dd4f"
+      "bytes": 97075,
+      "sha256": "272e93a659ac1ce51bf844222913caf703a007cf50c934acdffbdd89c5c4c281"
     },
     "src/effect_geometry.cpp": {
       "path": "src/effect_geometry.cpp",
@@ -898,8 +898,8 @@
     },
     "src/field.cpp": {
       "path": "src/field.cpp",
-      "bytes": 94773,
-      "sha256": "4736dd65ea921665624e350fa8d727411ae4747c368e66598030cae0af4435ec"
+      "bytes": 94138,
+      "sha256": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc"
     },
     "src/field_navigation.cpp": {
       "path": "src/field_navigation.cpp",
@@ -1048,8 +1048,8 @@
     },
     "src/music.cpp": {
       "path": "src/music.cpp",
-      "bytes": 14646,
-      "sha256": "03bdb8c0ff40b42cf0e749dc4edc12595d058b129ae25321f425585e85ff6a16"
+      "bytes": 14836,
+      "sha256": "f677a139440f3d77a7e8194652abe6049fb984525f7d950c21b8e16f9444d37a"
     },
     "src/name_entry.cpp": {
       "path": "src/name_entry.cpp",
@@ -1078,8 +1078,8 @@
     },
     "src/native_runtime.mm": {
       "path": "src/native_runtime.mm",
-      "bytes": 305003,
-      "sha256": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a"
+      "bytes": 308740,
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5"
     },
     "src/navigation_mask.cpp": {
       "path": "src/navigation_mask.cpp",
@@ -1253,8 +1253,8 @@
     },
     "src/stream_bank.cpp": {
       "path": "src/stream_bank.cpp",
-      "bytes": 6478,
-      "sha256": "42d5db8e350f276ca4ae32e158239835fef5231ef787a668e8ea0db875670be0"
+      "bytes": 7467,
+      "sha256": "0586146d8fe5b6538b10e33cc6efce852eae743c69c0a583df789bf26e4054dc"
     },
     "src/text.cpp": {
       "path": "src/text.cpp",
@@ -1950,8 +1950,8 @@
       },
       "src/native_runtime.mm": {
         "path": "src/native_runtime.mm",
-        "bytes": 305003,
-        "sha256": "96d916c3ceee629576368a270a0aac12152caf3e81b7cefbf82061b81ca7975a"
+        "bytes": 308740,
+        "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5"
       },
       "src/startup_textures.cpp": {
         "path": "src/startup_textures.cpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-08-06T15:00:00Z",
+  "overnight_cutoff": "2026-10-10T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,11 +3244,11 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-06.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-10.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-08-06.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-08-06.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-10.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-10-10.txt",
     "branch": "work/texture-to-battle-v1",
     "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2, 89dfab3, 87bac3c",
     "commits": {
@@ -3610,6 +3610,7 @@
       "texture_sampling": "51/51 prepared-frame captures across the four final runs shared_gs true",
       "music_variant": "not opened in any 589062c run; live evidence remains claude-final-restore-roar-v1a/-v2b on 62a468a (music code unchanged)",
       "omission_path_589062c": "not exercised live (no 'Native battle stage diagnostics omitted' line in any v5 run); can fire in any --capture run; predicate duplicated at battle_session.mm 604-610/1452-1462; no dedicated test (left out to keep the final binary fixed); --ui-update-diagnostic remains ungated (no route tool uses it)",
+      "omission_path_update": "superseded by chapter2-progression-v1: the predicate is now first_battle_diagnostics_omitted (battle_ui.cpp, 5ff41e7) with a battle_ui_tests unit test, used by both the stage report and the --ui-update-diagnostic gate (the latter gate already existed at 375755c; 5ff41e7 is a refactor plus test). See chapter2-progression-validation.json",
       "review_4": "scope 5f1dfd2..24014bc; finding: report-mode first battle after nonzero selection cache stops on UI diagnostic guard (restore-audit-v1a 5664) -> fixed 589062c; full report not retained",
       "host_load": "v5 candidates (07:33-07:59Z) overlapped final-tests-589062c Python/Release/Debug CTest; restores (08:00-08:54Z) overlapped ASan/UBSan CTest",
       "restore_check_options": {

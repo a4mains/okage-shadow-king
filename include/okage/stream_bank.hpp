@@ -54,7 +54,6 @@ private:
     StreamBank bank_;
     // Active requests oldest-to-newest (the source list's head is the newest).
     std::vector<std::unique_ptr<Playing>> voices_;
-    // 0x175a80: 256 request records, ids pushed 0..255; back() is the head.
     std::vector<unsigned> free_;
     unsigned start(const StreamTone&);
     void release_ended();

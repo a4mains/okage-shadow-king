@@ -124,6 +124,8 @@ unsigned StreamPlayer::start(const StreamTone& tone){
     voices_.push_back(std::move(playing));
     return id;
 }
+//1756b0 also calls the bank's stop callback ((rec[1]+0x10)(rec[0x13],0));
+//its release tail is unrecovered, so the voice is cut at once (as stop()).
 void StreamPlayer::stop_voice(unsigned id){
     for(std::size_t i=voices_.size();i-->0;)if(voices_[i]->id==id) {
         free_.push_back(id);voices_.erase(voices_.begin()+std::ptrdiff_t(i));return;
