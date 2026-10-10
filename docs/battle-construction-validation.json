@@ -1,19 +1,19 @@
 {
   "schema": "okage-battle-construction-validation-v1",
-  "date": "2022-05-01",
+  "date": "2026-10-10",
   "implementation_revision": "c62e931364c53a702f915e1fdb4e28e35775b97b",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "scope": "Partial actual native battle construction/loading through UI, stage and camera resource preparation; explicit party-constructor failure. No successful loading completion or combat.",
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
-      "bytes": 41580
+      "sha256": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
+      "bytes": 49350
     },
     {
       "path": "include/okage/battle_data.hpp",
-      "sha256": "01b89a4e14f5481f0cd5b6f14c97ed280da5daaecdcd9b69abe39e72b8f0d9f2",
-      "bytes": 1493
+      "sha256": "7ea1a25fb783ea05069e5a09b6ecb600b4a2011f38d4a38abf76d9e46d5e1a88",
+      "bytes": 1494
     },
     {
       "path": "include/okage/battle_entry.hpp",
@@ -27,8 +27,8 @@
     },
     {
       "path": "include/okage/field.hpp",
-      "sha256": "e63220e763f86872f9b447846bda8b63db1353c891b919e68476ca22711e8b6f",
-      "bytes": 14577
+      "sha256": "6f57cd1b10e71c28d883300b9882ac7999462b1e947a3eaa65677c86a293adb2",
+      "bytes": 18014
     },
     {
       "path": "include/okage/game_mode.hpp",
@@ -47,18 +47,18 @@
     },
     {
       "path": "src/assets.cpp",
-      "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26",
-      "bytes": 14408
+      "sha256": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819",
+      "bytes": 14653
     },
     {
       "path": "src/assets_main.cpp",
-      "sha256": "51a71f1a523dc54558e3c038ced7d0f17f8c473b50643c4803c2f5ad18d6c42b",
-      "bytes": 153385
+      "sha256": "b7c085b5be7a13eed6dfb5f974733f1340c49541cd6d944160455142936c2377",
+      "bytes": 155201
     },
     {
       "path": "src/battle_data.cpp",
-      "sha256": "2aa375d8b5e271f16f3894336dee9237e0b8b13d258ee508962ebfea7b54c92d",
-      "bytes": 6439
+      "sha256": "8f314f8c05ddc7278bf403d46b54adca1870309a2187c69c09ade7b67ede714b",
+      "bytes": 6578
     },
     {
       "path": "src/battle_entry.cpp",
@@ -67,13 +67,13 @@
     },
     {
       "path": "src/battle_session.hpp",
-      "sha256": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f",
-      "bytes": 5179
+      "sha256": "46da839c2e792a28dc7809f5b75718df5c14ceef54466f1ee24394e0c6ca301c",
+      "bytes": 5510
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
-      "bytes": 98646
+      "sha256": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3",
+      "bytes": 107710
     },
     {
       "path": "src/battle_state.cpp",
@@ -82,8 +82,8 @@
     },
     {
       "path": "src/field.cpp",
-      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
-      "bytes": 87859
+      "sha256": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc",
+      "bytes": 94138
     },
     {
       "path": "src/game_mode.cpp",
@@ -97,8 +97,8 @@
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
-      "bytes": 275496
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
+      "bytes": 308740
     },
     {
       "path": "src/ruw.cpp",
@@ -112,8 +112,8 @@
     },
     {
       "path": "tests/battle_data_tests.cpp",
-      "sha256": "6eb2e4715019dc541434c7985063495353cee1af56ea6f256502434eda88b2e7",
-      "bytes": 10677
+      "sha256": "e1b5a4da9e32b2f662f95966fcfcd49c5edc38c2bfa5f3d1b6f82232b2b11b81",
+      "bytes": 16856
     },
     {
       "path": "tests/battle_entry_tests.cpp",
@@ -127,8 +127,8 @@
     },
     {
       "path": "tests/field_tests.cpp",
-      "sha256": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
-      "bytes": 98989
+      "sha256": "8a40c52a8eaa59725e01978ba8981a0aa704e9e5c17f7cabcc325e03c7aab1c2",
+      "bytes": 113380
     },
     {
       "path": "tests/game_mode_tests.cpp",
@@ -147,13 +147,13 @@
     },
     {
       "path": "tests/test_import_battle_resources.py",
-      "sha256": "5835d979d397090e56cd4e54b8c216b9c44d60643583a8c285d1117bcaa5ae13",
-      "bytes": 11143
+      "sha256": "977a5ca4a904dd67f5dcf6f93c48339b951e1fead48f83fa79c5d7129d26d2f9",
+      "bytes": 11499
     },
     {
       "path": "tools/import_battle_resources.py",
-      "sha256": "f3bd4ea05b724928540eeec4864c503440e731119666d4a1dbc167f49068c9db",
-      "bytes": 9572
+      "sha256": "2b13fc6545a2e4e45171f89ba6bc06fdbbae99b177b4b5447543e86316652ae0",
+      "bytes": 9973
     }
   ],
   "runs": {
@@ -761,13 +761,13 @@
     "sources": [
       {
         "path": "include/okage/game_state.hpp",
-        "sha256": "647dd78f1b0a515806fc59dfad4a8c30184a404ff3d7f221f5fc642ac7738812",
-        "bytes": 3326
+        "sha256": "e757e9ba53523bab024a4cd78a12e6ed8fcec511017d13c5df8eeb8c1130b2b6",
+        "bytes": 3606
       },
       {
         "path": "src/game_state.cpp",
-        "sha256": "5b264de91d1d8f095b40fdbc2c7d61ca3a69b51eabf62872e11350a27e9e20e5",
-        "bytes": 12957
+        "sha256": "53a0a214d00c91e684284696312849334fc26522769bce074aa4adb48cc545c0",
+        "bytes": 13105
       },
       {
         "path": "tests/game_state_tests.cpp",

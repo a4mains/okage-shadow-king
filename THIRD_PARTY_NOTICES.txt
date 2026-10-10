@@ -32,7 +32,7 @@ DAMAGE.
 Native voice signal processing is independently expressed from documented and
 compared numerical behavior. The mathematical Gaussian construction in
 src/voice.cpp is credited to Near, nocash and Ryphecha by PCSX2's pinned
-interpolate_table.h (revision 779d5c4339cd83004bc561cdb28bd5bf75b0f371).
+interpolate_table.h (revision a9bd239ff971debe318c29e5a6895e6eb7d799e4).
 No extracted coefficient table or PCSX2 source is compiled into the native app.
 tools/build_voice_reference.py extracts pinned GPL-licensed PCSX2 DSP kernels
 into ignored local research files for differential testing. Its generated

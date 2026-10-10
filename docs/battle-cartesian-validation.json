@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-cartesian-validation-v1",
-  "date": "2023-07-15",
+  "date": "2026-10-10",
   "source_revision": "2e19dbf4e09d5fa144e0496b32e20fd94cb5408a",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "scope": "Selected source, input, build, native/reference trace, image, audio and review evidence. Large unlisted binary diagnostic histories remain retained; no fidelity or full-playthrough pass. Preview live files are deliberately not pinned.",
@@ -33,17 +33,17 @@
     }
   ],
   "source_hashes": {
-    "include/okage/battle_actor.hpp": "600c9484aebee6c815097f39ffa2674a4bd54f78b41340f46385a1dc6f45a90e",
-    "include/okage/battle_hit.hpp": "ecd770aa0d77334e61da91f8588fda7b492df56adf5e352a158862274804b9cf",
-    "include/okage/effect.hpp": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
-    "src/battle_actor_update.cpp": "2b165d1c0c02d675bb52f829984eae077af9c1a265ea01155ea912f178efff96",
-    "src/battle_hit.cpp": "f52936bdde8b64638a9f8ab79bbe045049cd7d8b14eafa2823a9510be5695c82",
-    "src/battle_session.mm": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
-    "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
-    "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
-    "tests/battle_actor_update_tests.cpp": "d47e051df275e6a147d993f200f1e240daf4a1e8cd395464302aea819b69a4d3",
-    "tests/battle_hit_tests.cpp": "c959b2c3df7a25e7fccdf472caad41333ea7c88aadfc9a457708c4108e0c9c35",
-    "tests/effect_tests.cpp": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
+    "include/okage/battle_actor.hpp": "66047e1e94056048ea273ea0b632594bec7a544dfff677e58709d96d4542d48a",
+    "include/okage/battle_hit.hpp": "5e5ed619778b981a97bb926fdf2910b723a92e95ef01a403669da6550b9cd161",
+    "include/okage/effect.hpp": "947da752346883ebb4cbf6da0bb190b270c099f8d102c9ba65e0216fce1f6ba9",
+    "src/battle_actor_update.cpp": "c373b2935cec1c85abecb0411845301c1dffeeb871a9db87fd85b865b016f579",
+    "src/battle_hit.cpp": "cec2306043bcc876ba0039a52e8668809e1e63b770cb65c3e8c7851feb604786",
+    "src/battle_session.mm": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3",
+    "src/native_runtime.mm": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
+    "src/effect.cpp": "272e93a659ac1ce51bf844222913caf703a007cf50c934acdffbdd89c5c4c281",
+    "tests/battle_actor_update_tests.cpp": "60230aed336ca87b79d9e1a8f6f27ad30359fb8f0da22116019cf158d7a2b90d",
+    "tests/battle_hit_tests.cpp": "48775db94fbcfdc996f804105872abeb9bb629b7be39b11d2af0b787fc6df95d",
+    "tests/effect_tests.cpp": "4e576022b7b4b904cb94a9b5e38b6f873e9059135e850f680c98b55cbfdf35cc"
   },
   "artifacts": {
     "local/demos/battle-enemy-strike-105815-v1/command.json": "e69d68c34583d0f788e25b8e25f8d04e37b2011f29077b11f46b2d98fa3490dd",

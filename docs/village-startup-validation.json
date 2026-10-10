@@ -1,7 +1,7 @@
 {
   "scope": "Bounded village resource, static billboard and smoke comparisons; unchanged north-gate/boys route. Native village startup remains blocked on opcode0x5f. No village image, whole-scene fidelity or full playability established.",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
-  "updated": "2021-05-02",
+  "updated": "2026-10-09",
   "original_village_runs": [
     {
       "command": [

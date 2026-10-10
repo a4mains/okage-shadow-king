@@ -1,6 +1,6 @@
 {
   "scope": "Handoff checkpoint for road return, partial event-music integration and next explicit renderer failure. Not a full-game or whole-timeline fidelity claim.",
-  "date": "2021-07-03",
+  "date": "2026-10-09",
   "base_commit": "0f6110f",
   "runtime_changes_uncommitted_at_refresh": [
     "include/okage/music.hpp",

@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-targeting-validation-v1",
-  "date": "2023-07-15",
+  "date": "2026-10-10",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_success": {
     "source_revision": "5b66d27385531565868e94bc18a42a06a17cb826",
@@ -36,7 +36,7 @@
     "2098ed8_followup_ctests_per_build": 2,
     "python_tests": 381,
     "action_graph_ctests_per_build": 3,
-    "owned_action_data_fixture_smoke_all_builds": true,
+    "owned_action_data_worker_smoke_all_builds": true,
     "full_new_debug_sanitizer_gameplay_replay": false,
     "approach_ctests_per_build": 11,
     "approach_python_tests": 400,
@@ -77,14 +77,14 @@
     "target-checks-v2: app built; wrapper used wrong executable path; corrected to .app/Contents/MacOS",
     "original-target-25-v1: one-vblank physical confirm never consumed",
     "native-attack-105395-v1: reached unimplemented menu4 after real fade; source default now implemented",
-    "battle-action-data harness: synthetic XDB fixture string length corrected; initial Python failure retained",
+    "battle-action-data worker: synthetic XDB fixture string length corrected; initial Python failure retained",
     "earlier category comparison and filter booted-context-v3..v7 failures remain unresolved",
     "export-v16: duplicate destination parsed as address, Ghidra SCRIPT ERROR despite exit0; corrected fresh export verifies requested files",
     "original-strike-60-v1: copied oracle lacked pinned MoltenVK; abort -6 before execution; v2 records library hash and completes",
     "native-strike-105455-v1: unrecovered real phase2 strike154ea8 at105418; all missing observations retained",
     "native-strike-hit-105575-v1: queued damage guard at105537, target5/damage10 differs from original target4/damage9",
     "damage-consumer-review-v1: rejected category0/0x3a switch fallthrough interpretation; corrected v2 checks actual branches",
-    "physical damage initial sanitizer detect_leaks=1 run rejected on macOS; leak-disabled ASan+UBSan passed",
+    "physical damage worker initial sanitizer detect_leaks=1 rejected on macOS; leak-disabled ASan+UBSan passed",
     "strike-hit-queue-observations-v1 omitted native schema; v2 parses both hex layouts explicitly",
     "damage-consumer-review-v2: wrong number-effect sign and premature surviving-hit return; primary v3 checked159d60 and common159e00 impact path",
     "hit-v2 runner missing rewritten button path before startup",
@@ -4899,7 +4899,7 @@
     "all_exit_codes": 0,
     "native_route_advanced": false,
     "source_and_evidence_sha256": {
-      "include/okage/battle_actor.hpp": "30ab2ae2a0e3834cecf648b8a4244c4390dd9efa7d5eafa810b710922ce207ce",
+      "include/okage/battle_actor.hpp": "66047e1e94056048ea273ea0b632594bec7a544dfff677e58709d96d4542d48a",
       "include/okage/battle_state.hpp": "d1e61caaadc24117a755433a7863eddce7eb29f8c1359f64379b6396afadac98",
       "src/battle_entity_update.cpp": "88e1c0857cf294b65543fb25439a614d91117658ec5778d45b2dc5aec091a019",
       "tests/battle_entity_update_tests.cpp": "473bce94c72e158f5ca292b5d4f43f150c1895251f2a26a76b3cbef1e6e59752",
@@ -5006,13 +5006,13 @@
   "approach_artifacts": [
     {
       "path": "include/okage/animation.hpp",
-      "sha256": "a4ae5965e0495f2542e6f76e2924f9935e06331186a7cec5d138ef181deb24a6",
-      "bytes": 3112
+      "sha256": "dc576834a7c71e92f5ced6ed0cde22becbe32d0dfcf299ab7194cbf8d5d33461",
+      "bytes": 5097
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "30ab2ae2a0e3834cecf648b8a4244c4390dd9efa7d5eafa810b710922ce207ce",
-      "bytes": 4063,
+      "sha256": "66047e1e94056048ea273ea0b632594bec7a544dfff677e58709d96d4542d48a",
+      "bytes": 6133,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
@@ -6130,58 +6130,58 @@
     },
     {
       "path": "src/animation.cpp",
-      "sha256": "e67a77640136cfec2df9975ea66810d4b0708fe70ebba50757fd3deb05dfc386",
-      "bytes": 13211
+      "sha256": "889a1c289faa17ed40b5ec673e3fce65e78777a9a034c78741a6b8df9d8cdb77",
+      "bytes": 19743
     },
     {
       "path": "src/battle_actor_update.cpp",
-      "sha256": "003f192ec77073e0c78f88d1f2b9d98cea587554aa4f96c57dcc60c1e5477cc5",
-      "bytes": 40998,
+      "sha256": "c373b2935cec1c85abecb0411845301c1dffeeb871a9db87fd85b865b016f579",
+      "bytes": 66314,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
     {
       "path": "src/battle_roster_update.cpp",
-      "sha256": "ba34a6e004c821ac3dceccd0ba8b0a8457a9768554a84f1d06f1a8d70e38325e",
-      "bytes": 18665,
+      "sha256": "b2b51e814f803facca919c28436c15183f295a1dad1eb7afa05d61ea3f7f0439",
+      "bytes": 20723,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "0abb49e4bf493ab46cd30a1a199539efdd0f7725eb0070a0cb659edc5086edb5",
-      "bytes": 71398,
+      "sha256": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3",
+      "bytes": 107710,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/animation_tests.cpp",
-      "sha256": "84514e532bac598c03804720ea69232e3baa94d57104681a3dbc849eed7b4ee1",
-      "bytes": 7761
+      "sha256": "100551d8ae37239996d520deadb0e4b11de7a76af35222b6020dc9a974bf74f6",
+      "bytes": 20204
     },
     {
       "path": "tests/battle_actor_update_tests.cpp",
-      "sha256": "b1a4c8061713c20740f345d8895a08c8dfdfa039a5b7e1303735a1abbda875af",
-      "bytes": 50517,
+      "sha256": "60230aed336ca87b79d9e1a8f6f27ad30359fb8f0da22116019cf158d7a2b90d",
+      "bytes": 109928,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/battle_roster_update_tests.cpp",
-      "sha256": "b76ad534b94897419458b50784040d429a627b118e33ed53feb57625f66dc459",
-      "bytes": 29149,
+      "sha256": "8ce4820744c332a86d8caab94d302195e0cf94abd1e204b50df5b4f0046b4f6b",
+      "bytes": 39985,
       "git_revision": "c314e4badfab31b2afaa6ba626a68fb07a2f92bc",
       "verification": "historical Git object, not current worktree"
     },
     {
       "path": "tests/test_compare_battle_live.py",
-      "sha256": "74376af0d83d2afafea61ec57b8e1a9a4c12144e335c5c81f9574ef41e03b2d7",
-      "bytes": 17686
+      "sha256": "f74f1a42b740bbf8fd7191dc7c77c8b86c0b2ab33a8099371fef1295f3dfd206",
+      "bytes": 23378
     },
     {
       "path": "tools/compare_battle_live.py",
-      "sha256": "0f232a7a953bf112f4916a2ca75ccd29c3b83716fcb4a46a2813870cdb48f61a",
-      "bytes": 20241
+      "sha256": "7a5353f71fc7031684dc503c26c481ac93c442c75acaa7ec20e6b9b81eb39ad8",
+      "bytes": 23893
     }
   ],
   "strike_comparison_v2": {

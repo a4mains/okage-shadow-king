@@ -1,5 +1,5 @@
 {
-  "date": "2020-11-21",
+  "date": "2026-10-08",
   "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "native_binary_sha256": "4799203393f95b0a0695496008c3bbe5c79a2b92ad6fdbd07e2243f744a908ca",
   "xpf": {
@@ -24,7 +24,7 @@
     "limits": "All dimensions/formats compared to original accessors; image preview color checks are not in-game GS fidelity tests."
   },
   "source_sha256": {
-    "src/assets.cpp": "a1b2fc3bdddbbed0e623466a76d56646bfb1392eb51f8eeb4131326b750421e3",
+    "src/assets.cpp": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819",
     "include/okage/assets.hpp": "75285f482e81a139c5871b3ca9d64f35acbe47deff966b8b4b636826cd310e7f",
     "tools/verify_xpf.py": "4a544555116061e49cbe36dc4d3ec5f8d6844c6e67b8f3189afbd3ebc4c59364",
     "tools/verify_xim.py": "88cfb276828c221a15406fda7de70b43792d284cb8d76aac915de4219caabb31"

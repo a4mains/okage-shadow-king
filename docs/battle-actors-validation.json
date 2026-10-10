@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-actors-validation-v1",
-  "date": "2022-05-21",
+  "date": "2026-10-10",
   "implementation_revision": "17ef891f1ba64febf47fb5021877854816adfa41",
   "tooling_revision": "c980e9680ef91360154eb050323fd663cf250770",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
@@ -8,8 +8,8 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
-      "bytes": 41580
+      "sha256": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
+      "bytes": 49350
     },
     {
       "path": "include/okage/actor.hpp",
@@ -18,13 +18,13 @@
     },
     {
       "path": "include/okage/animation.hpp",
-      "sha256": "5b55997654d2b788fbe13a83ffcda53cafd99565bcfc6990767fa7465095d032",
-      "bytes": 4845
+      "sha256": "dc576834a7c71e92f5ced6ed0cde22becbe32d0dfcf299ab7194cbf8d5d33461",
+      "bytes": 5097
     },
     {
       "path": "include/okage/battle_actor.hpp",
-      "sha256": "600c9484aebee6c815097f39ffa2674a4bd54f78b41340f46385a1dc6f45a90e",
-      "bytes": 4729
+      "sha256": "66047e1e94056048ea273ea0b632594bec7a544dfff677e58709d96d4542d48a",
+      "bytes": 6133
     },
     {
       "path": "include/okage/battle_actor_math.hpp",
@@ -43,8 +43,8 @@
     },
     {
       "path": "src/animation.cpp",
-      "sha256": "fc74b3843dad1098f946d49365ed3f447e9a8527068d7d45e052095e75d89d81",
-      "bytes": 19675
+      "sha256": "889a1c289faa17ed40b5ec673e3fce65e78777a9a034c78741a6b8df9d8cdb77",
+      "bytes": 19743
     },
     {
       "path": "src/battle_actor.cpp",
@@ -63,23 +63,23 @@
     },
     {
       "path": "src/battle_session.hpp",
-      "sha256": "99bc0091e65ee5bd4158cee00bb7082ad8cedae25a026221cedf94f095d4fa6f",
-      "bytes": 5179
+      "sha256": "46da839c2e792a28dc7809f5b75718df5c14ceef54466f1ee24394e0c6ca301c",
+      "bytes": 5510
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "a39b598257cc89e8802a92504896dc19fae0eb4c661e7f3d54ad44422e9a7498",
-      "bytes": 98646
+      "sha256": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3",
+      "bytes": 107710
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
-      "bytes": 275496
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
+      "bytes": 308740
     },
     {
       "path": "tests/animation_tests.cpp",
-      "sha256": "008989d3b51bdb2256368dffc0e660ad9741e3730bc42097667fb08699decddc",
-      "bytes": 19280
+      "sha256": "100551d8ae37239996d520deadb0e4b11de7a76af35222b6020dc9a974bf74f6",
+      "bytes": 20204
     },
     {
       "path": "tests/battle_actor_math_tests.cpp",

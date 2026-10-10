@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-stage-validation-v1",
-  "date": "2022-06-09",
+  "date": "2026-10-10",
   "implementation_revision": "83873f4d48a5857d42c28b32df50eaf06b6f9dca",
   "stage_revision": "4b1cf803c5be2f9951deaf6ba825d091540decad",
   "observer_revision": "25bb4e446f8658c4e8aaf8c2718c4a1348240461",
@@ -10,13 +10,13 @@
   "sources": [
     {
       "path": "CMakeLists.txt",
-      "sha256": "9453d8e26fc9054785b69984b4b9b04e4801fd4b063739c46fab72eb2b27a8df",
-      "bytes": 11168
+      "sha256": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c",
+      "bytes": 49350
     },
     {
       "path": "include/okage/stage_data.hpp",
-      "sha256": "bd9e4e4200a6a7fd0005a6b97967e93c254569881c7f03f6f0368ccbdcd8f178",
-      "bytes": 1450
+      "sha256": "d4303dbc1ece140da2dcd2a23b8554d8409d79fdfa908a09479dec6de90951ed",
+      "bytes": 1495
     },
     {
       "path": "include/okage/stage_settings.hpp",
@@ -25,18 +25,18 @@
     },
     {
       "path": "include/okage/field_projection.hpp",
-      "sha256": "c7aa0f6016fb919abade8e88f94cee2f235d97d86403c2e39ef1090b73a04c38",
-      "bytes": 1690
+      "sha256": "3b4f5d099c6d072bc7b168dbf0c394ccde668fa6bcf1c01abb4755df964ec32b",
+      "bytes": 1880
     },
     {
       "path": "include/okage/scene_renderer.hpp",
-      "sha256": "c554050906637773a9668c9e67c9b382dd78f800d68c49cb2af7b806792a9cd3",
-      "bytes": 1485
+      "sha256": "7704ae8bbb92ca8b3033e2dcef2d607abfab5d805eddf5bdcda46316b722ae3a",
+      "bytes": 5716
     },
     {
       "path": "src/stage_data.cpp",
-      "sha256": "d4e08f16ca7a9206b1fec3fbd0c8a67ea804a98f0032d87de5c4107d7e6a5b2b",
-      "bytes": 4595
+      "sha256": "d26b099c00e35d60d9b33583cec14f7406b94ca4a0c710384471a86b1d858489",
+      "bytes": 4567
     },
     {
       "path": "src/stage_settings.cpp",
@@ -45,33 +45,33 @@
     },
     {
       "path": "src/field_projection.cpp",
-      "sha256": "275cbba637b68517c73d52b6f0201b73a3494c2081121527ed972f904df8e2b1",
-      "bytes": 7342
+      "sha256": "4970771aadc0ec683a2f3431519ab1241f8a9ef69bf1f26df447213b5c5bb428",
+      "bytes": 8165
     },
     {
       "path": "src/scene_renderer.mm",
-      "sha256": "b763aacb61b874ed94f3fc7eaba1714775b6abd73fcae53f602166b4e93b3d29",
-      "bytes": 44143
+      "sha256": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d",
+      "bytes": 88706
     },
     {
       "path": "src/battle_session.hpp",
-      "sha256": "0e23cc58dc0125815866688d0a8165202205dc32bb299343faefc7dab5b88250",
-      "bytes": 1330
+      "sha256": "46da839c2e792a28dc7809f5b75718df5c14ceef54466f1ee24394e0c6ca301c",
+      "bytes": 5510
     },
     {
       "path": "src/battle_session.mm",
-      "sha256": "5dd4c819c8232f59360fe01d36a16ca8f95bfa3070fda98605db75c2378df4e1",
-      "bytes": 19491
+      "sha256": "c390a2dec41d2fd18b56b87bd6782162686e45cd38eaa2021bc5a5fd9bfcf7e3",
+      "bytes": 107710
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "bc781b838e15370dfdda198eba712088d38a34b8fc2efe950ac6183c625d1d7f",
-      "bytes": 100761
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
+      "bytes": 308740
     },
     {
       "path": "tools/play-oracle/boot.cpp",
-      "sha256": "3e498f500ad6becf08f9bf95cee99837cb8510d8e31cb7ed294f35e90b3e9256",
-      "bytes": 39608
+      "sha256": "9e62c706358c38d578fb213cc6a955eaf253f1ec79e880add9f86defa1ae1736",
+      "bytes": 60571
     },
     {
       "path": "tools/play-oracle/reference_battle_stage.hpp",
@@ -85,13 +85,13 @@
     },
     {
       "path": "tests/stage_data_tests.cpp",
-      "sha256": "5133a257d6efea159eca85a7fee3ff199e7ba5015de179fd55ad986efc39bbb1",
-      "bytes": 5502
+      "sha256": "1b683f2887999a55f4d32c7cad1201a5dfa884dc7353a77496866a9593e633bc",
+      "bytes": 6290
     },
     {
       "path": "tests/stage_settings_tests.cpp",
-      "sha256": "a958e2e9df9ff4601a56dcd47b9f8b2581c7f495b8245a3f6004332069cdcc32",
-      "bytes": 10574
+      "sha256": "90b18e02c8e05a2029c8787111d8b619bd59630d71cb736873a925287597b103",
+      "bytes": 11185
     },
     {
       "path": "tests/test_verify_battle_stage.py",

@@ -1,6 +1,6 @@
 {
   "schema": "okage-battle-callbacks-validation-v1",
-  "checkpoint_date": "2022-10-29",
+  "checkpoint_date": "2026-10-10",
   "runtime_source_revision": "1e3eb38a96a97b468d7aa99bf21efecd72545401",
   "helper_test_checkpoint_revision": "7bf2761055c8a56f7e66253df0f96bf2f82af71a",
   "scope": "First eligible native parent and child callback traversal. Runtime stops before resource layout, actor submission and framebuffer filter rendering. Strict retained UI comparison fails; no whole-original-traversal, temporal, layout, raster, audio or playable-battle parity claim.",

@@ -75,9 +75,9 @@
     "source_revision": "b24fdaa",
     "source_sha256": {
       "include/okage/ordinary_lighting.hpp": "2216b57bc6c69de5743c1609b3ad6ac4f48c46b53840354aa59c6056e385fe11",
-      "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+      "src/field.cpp": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc",
       "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
-      "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+      "src/scene_renderer.mm": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d",
       "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
       "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
       "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"
@@ -687,7 +687,7 @@
     }
   ],
   "schema_version": 1,
-  "updated": "2021-11-01",
+  "updated": "2026-10-09",
   "verified_file_sha256": {
     "build/model-sanitize/okage-assets": "0bbc457becd0d421f809a543e7fd44ef0344e8ebd841f730b89bcd0accca10aa",
     "build/native-release/okage-assets": "6de48b433d2170afb4cb1dc3ca64d5213edc621b998cc58a08cbca1a85060b1e",
@@ -817,9 +817,9 @@
     "local/research/stan-orders-pair-v3/commands.txt": "9794fa45e6818e1a2494ad951127e1e9fd92053154fcf53b30525c92c6f7c184",
     "local/research/stan-orders-pair-v3/interval.json": "0bbf4c014bd12025a80748173f69fe08c50a39c7c72f1be41e8ce7b909835d98",
     "local/research/stan-orders-pair-v3/summary.json": "b715ab98889d76475f95e9ab911c6d739b651df7c5804141069ab809ae112b75",
-    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "src/field.cpp": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc",
     "src/ordinary_lighting.cpp": "4a8f34f2e7053578f18b20efd1f983b0eb9897161f98b857a3345b2cb235fb89",
-    "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+    "src/scene_renderer.mm": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d",
     "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
     "tests/ordinary_lighting_tests.cpp": "05857c4e255121913967d0703f94196fda7a07d11048d2e318e81f3f9cc06603",
     "tools/verify_ordinary_lighting.py": "236940b9d576f703e3aa3a819d2e6494c17b69e976f3b30062dd98d5b144dd91"

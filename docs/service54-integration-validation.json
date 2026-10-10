@@ -1,15 +1,15 @@
 {
-  "date": "2021-10-16",
+  "date": "2026-10-09",
   "base_revision": "913d6bbddbcde41d94da0f2ba7f429388008796b",
   "retail_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
   "scope": "Reached service54 native integration and progression through69455; bounded original static semantics and retained helper corpora, failed full-interval original comparisons, native cross-build consistency. No full-game or original raster/audio equivalence.",
   "source_sha256": {
-    "include/okage/effect.hpp": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
-    "include/okage/field.hpp": "e63220e763f86872f9b447846bda8b63db1353c891b919e68476ca22711e8b6f",
-    "src/field.cpp": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+    "include/okage/effect.hpp": "947da752346883ebb4cbf6da0bb190b270c099f8d102c9ba65e0216fce1f6ba9",
+    "include/okage/field.hpp": "6f57cd1b10e71c28d883300b9882ac7999462b1e947a3eaa65677c86a293adb2",
+    "src/field.cpp": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc",
     "src/field_shadows.cpp": "1b339436ae785f0bd9f8489aa6a84bf2503370009f3f7f863e90cd874fd496ec",
     "tests/field_raster_tests.cpp": "0a381e0dc832e00ae7c5aa02c600cd0f3dcc45e7bc290cedcdc2289c2ca3c66e",
-    "tests/field_tests.cpp": "fc04449ec4d9aa0076717fd55710f3923d042a6f570b69db2af654b80b010e32",
+    "tests/field_tests.cpp": "8a40c52a8eaa59725e01978ba8981a0aa704e9e5c17f7cabcc325e03c7aab1c2",
     "tests/test_interval_observations.py": "d999616d4172a5316e0ab7cd1a4c216d9c73c8042da1ec7595c826336af07aa5",
     "tools/diagnose_home1b_interval.py": "3545056cfda730fa4f02f1d51c648e2e3536e5335696a61cbb63ce30d1aedd8b",
     "tools/summarize_interval_report.py": "c6a8aa745de7e92751334c70a71881c7bf98fd34299b4aa9e1e779e163083e0c"
