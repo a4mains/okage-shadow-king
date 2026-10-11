@@ -2,7 +2,7 @@ Attempt and document G0, the bounded GPU compute acceleration proof of concept i
 
 START AND CURRENT STATE
 
-Read AGENTS.md and the current section of HANDOFF.md. Inspect git status, available workers and running jobs before edits. The planning baseline was c12804b on 2026-01-03; use the actual current revision and preserve later work. GOAL_PROMPT.txt describes the larger full-port goal and its constraints, not permission to expand this bounded experiment into that whole objective.
+Read AGENTS.md and the current section of HANDOFF.md. Inspect git status, available workers and running jobs before edits. The planning baseline was c12804b on 2026-10-11; use the actual current revision and preserve later work. GOAL_PROMPT.txt describes the larger full-port goal and its constraints, not permission to expand this bounded experiment into that whole objective.
 
 This is a native decompilation/source-port project. Metal ALREADY renders scenes, UI, shadows, battle capture and filters. The missing demonstration here is additional GPU COMPUTE with measured benefit; device enumeration or another rendering demo is insufficient. The host observed during planning was an M3 Max (16 CPU cores, 40 GPU cores, 128 GB RAM), macOS 27.0.1. Recheck hardware, OS and SDK; do not assume Metal 4-only features are needed.
 

@@ -1,6 +1,6 @@
 {
   "schema": "okage-cold-chest-save-validation-v1",
-  "date": "2024-07-21",
+  "date": "2026-10-11",
   "runtime_revision": "258448d",
   "headless_verifier_revision": "862679b",
   "goal_complete": false,
@@ -10,18 +10,18 @@
   "source_files": [
     {
       "path": "src/native_runtime.mm",
-      "bytes": 275496,
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
+      "bytes": 308740,
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5"
     },
     {
       "path": "src/field.cpp",
-      "bytes": 87859,
-      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16"
+      "bytes": 94138,
+      "sha256": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc"
     },
     {
       "path": "include/okage/headless_control.hpp",
-      "bytes": 2432,
-      "sha256": "7b3b587df36799d817599d91158e098d9461b1777a900b97c5c597776e7310fc"
+      "bytes": 2621,
+      "sha256": "8e34f756271200a93776697627f719d4e85a4119df6504fcd5d4d14702ed5ead"
     },
     {
       "path": "tools/verify_headless_control.py",

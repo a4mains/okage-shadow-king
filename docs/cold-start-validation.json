@@ -1,6 +1,6 @@
 {
   "schema": "okage-native-cold-start-validation-v1",
-  "date": "2024-05-19",
+  "date": "2026-10-11",
   "runtime_revision": "9c63435",
   "comparison_revision": "b1f5a82",
   "source_elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
@@ -987,8 +987,8 @@
   "tools": [
     {
       "path": "tools/stage_game_data.py",
-      "sha256": "854be1c79b7d3098013ea74c976e90e78e1935ee224efc618496a25715c7884c",
-      "bytes": 7813
+      "sha256": "2530c69593a0fb4d32da68727a8588641631064eb4e6e46472eb6ef12a2ba2d5",
+      "bytes": 8136
     },
     {
       "path": "tools/compare_cold_start.py",

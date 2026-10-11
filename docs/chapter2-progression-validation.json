@@ -1,6 +1,6 @@
 {
   "schema": "okage.chapter2-progression.validation.v1",
-  "status": "final evidence on runtime 7fec371 (5a0a128f); final-commit suites in tests.final_commit",
+  "status": "complete on runtime 7fec371 (5a0a128f): route, Save, cold Restore, C3 slice, baselines, review 2 and final-commit suites at 181d143",
   "goal": "CHAPTER2_PROGRESSION_GOAL_PROMPT.txt",
   "branch": "work/chapter2-progression-v1",
   "base": "44630d0 (runtime 589062c)",
@@ -169,7 +169,34 @@
     "c2p-control-oldbin-hista..b"
   ],
   "tests": {
-    "final_commit": "PENDING"
+    "final_commit_181d143": {
+      "dir": "local/research/chapter2-progression-v1/final-tests-181d143",
+      "head": "181d143e526424b1ac517a6f743b4c506f0370fc",
+      "dirty": 0,
+      "command": "final-tests-181d143/run.sh: cmake --build build/c2p-{sanitize,release,debug}; ctest --test-dir build/c2p-{sanitize,release,debug} --output-on-failure; python3 -m unittest discover -s tests -v",
+      "binaries": {
+        "release": "5a0a128fe964e0e7367b7ef1934962393a820a42ed4122f755fa7e97911e0306 (== run binary)",
+        "debug": "712e1e06c0cd1845633dc2e366be95e43e1fb40e79952496b031e0086fe4c664",
+        "asan_ubsan": "c886e9643d46b291ac5ee00fe85b99046e1c0fa84d357b940bd28766a9d9f4e2"
+      },
+      "ctest_release": "134/134 (191.7 s)",
+      "ctest_debug": "134/134",
+      "ctest_asan_ubsan": "134/134 (3051.4 s)",
+      "python": "1467 run, 95 skipped, OK",
+      "python_skips": {
+        "comparator binary not built (OKAGE_TRANSFER_COMPARE)": 65,
+        "Handle handle-trace tool not built (OKAGE_HANDLE_TRACE)": 14,
+        "OKAGE_NATIVE or staged root absent": 13,
+        "lifecycle evidence or trace binary missing": 2,
+        "OKAGE_NATIVE, replay input or staged root absent": 1
+      },
+      "skip_explanation": "all environment-gated research fixtures (optional comparator/trace tools or env-pointed native binaries/stages not configured for the Python runner); native paths covered by CTest in all three builds",
+      "later_commits": "docs only (the results commit)"
+    },
+    "stopped": {
+      "final-tests-5ff41e7-full": "superseded by 7fec371, stopped in ASan CTest",
+      "final-tests-7fec371": "superseded by 3af97f0 (C++ tests), stopped in ASan CTest"
+    }
   },
   "limits": [
     "post-prefix route native-to-native only; no original observation of the road past the prefix, Madril or the hotel",

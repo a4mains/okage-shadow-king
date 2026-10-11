@@ -1,6 +1,6 @@
 {
   "schema": "okage-native-map-home-v1",
-  "date": "2024-08-18",
+  "date": "2026-10-11",
   "objective_complete": false,
   "runtime_commit": "ffb9d77",
   "runtime_sha256": "db88d3a9ad1999f924914c1f0b86a845a561f73ea0c56fc8ccc2ec910ab81b3f",
@@ -1162,14 +1162,14 @@
     },
     {
       "path": "src/native_runtime.mm",
-      "bytes": 275496,
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "bytes": 308740,
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
       "scope": "whole immutable file"
     },
     {
       "path": "src/field.cpp",
-      "bytes": 87859,
-      "sha256": "0f68316880347b4167f2c62657d24a8443098a6e2acbf09be23721d70bb42d16",
+      "bytes": 94138,
+      "sha256": "aa4a69826eb0bf29b00e699416a8124d53f0ca438c20128f750dd57759f2bcbc",
       "scope": "whole immutable file"
     },
     {

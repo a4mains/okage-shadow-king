@@ -1,6 +1,6 @@
 {
   "schema": "okage-native-restore-validation-v1",
-  "date": "2024-06-14",
+  "date": "2026-10-11",
   "runtime_revision": "54d6480",
   "goal_complete": false,
   "scope": "Cold startup to empty Restore and cancel; source-framed storage only. No ordinary gameplay save or restored field yet.",
