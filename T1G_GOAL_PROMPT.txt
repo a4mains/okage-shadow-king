@@ -1,6 +1,6 @@
 /goal Implement fixes-first T1g in /Users/user/src/okage/okage-shadow-king. Read AGENTS.md first; the latter defines the detailed contract. Read HANDOFF.md. Baseline d1fcb05 verifies title retirement through 124548 entry. Implement the next milestone.
 
-Use Opus 4.5 for shared lifetime/RNG integration. Delegate bounded source, observer/comparator, input plumbing and review work; Sonnet 4.5 suits mechanical checks. Specify ownership/acceptance, isolate edits/builds, serialize Play and review worker evidence.
+Use Opus 5.5 for shared lifetime/RNG integration. Delegate bounded source, observer/comparator, input plumbing and review work; Sonnet 5.5 suits mechanical checks. Specify ownership/acceptance, isolate edits/builds, serialize Play and review worker evidence.
 
 Fix acceptance first. tools/retire_route_compare.py accepts common missing records as IDENTICAL. Require source-derived expected active intervals, legitimate inactive gaps and route events; reject incomplete coverage, including common interior/tail omission. Its TIMING-DIFFERENT means anchors differ, not that timing explains every payload difference. Correct the causal overclaim and add shifted-anchor-plus-corruption controls. Recheck retained pairs; preserve captures, differences and failures.
 

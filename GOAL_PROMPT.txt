@@ -42,7 +42,7 @@ explicitly unmodeled. World/cache-on/XTA/actors/battle, saved-field Restore,
 snapshots/sampling and tick37297 remain later. G0 is accepted hardware proof
 only, performance unmeasured. The full-port goal continues after bounded T1i.
 
-Updated 2026-01-03. **G0 concluded by explicit user acceptance of verified GPU
+Updated 2026-10-12. **G0 concluded by explicit user acceptance of verified GPU
 hardware computation.** Another agent is building a separate project on this Mac;
 the user waived a clean performance baseline and asked to move on. Actual Metal
 PSM0/19 address computation matches all356160 retained reference queries, changed

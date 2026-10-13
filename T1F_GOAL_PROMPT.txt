@@ -1,6 +1,6 @@
 /goal Implement fixes-first T1f in /Users/user/src/okage/okage-shadow-king. Read AGENTS.md first; that file defines the detailed acceptance contract. Also read HANDOFF.md. Baseline 962cf6f verifies T1e only through the first cold title constructor return, before 1296f8. Implement the next bounded milestone.
 
-Use Opus 4.5 for source/lifetime integration if available. Delegate independent source recovery, observer/comparator work, input plumbing and review; Sonnet 4.5 suits mechanically verifiable tasks. Give exact ownership and acceptance checks, isolate edits/builds, serialize Play runs and review worker evidence.
+Use Opus 5.5 for source/lifetime integration if available. Delegate independent source recovery, observer/comparator work, input plumbing and review; Sonnet 5.5 suits mechanically verifiable tasks. Give exact ownership and acceptance checks, isolate edits/builds, serialize Play runs and review worker evidence.
 
 Fix acceptance first: title_regression_align accepts frames absent on both sides and reports 602 logo frames although only 600 have records. Require complete expected coverage or a source-justified, explicitly reported absence policy. Add common-interior/common-tail and asymmetric omission negatives; recheck all retained pairs without changing captures. Pin the staged manifest and validate consumed asset hashes for new runs. Distinguish current audits from historical run-time provenance.
 

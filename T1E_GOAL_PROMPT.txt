@@ -1,4 +1,4 @@
-/goal Implement fixes-first T1e in /Users/user/src/okage/okage-shadow-king. Recommended lead: Opus 4.5; delegate bounded format tests/tooling to Sonnet 4.5. Read AGENTS.md (detailed assignment) and current HANDOFF.md. T1d at 7a93d87 verifies the pre-scheduler prefix; later history is not proved.
+/goal Implement fixes-first T1e in /Users/user/src/okage/okage-shadow-king. Recommended lead: Opus 5.5; delegate bounded format tests/tooling to Sonnet 5.5. Read AGENTS.md (detailed assignment) and current HANDOFF.md. T1d at 7a93d87 verifies the pre-scheduler prefix; later history is not proved.
 
 First fix the reproduced out-of-bounds read: EffectTemplatePreparation reads cache_owners[e.shape] before validating e.shape (src/effect_geometry.cpp:218). Move validation before indexing. Test shape 66 and UINT32_MAX, ordinary/range-expanded requests, observation on/off, with sanitizers and explicit partial-failure semantics. Reproducer: local/research/rng-followup-review-v1. Preserve T1d's verified startup output.
 

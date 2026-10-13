@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2025-01-25",
+  "updated": "2026-10-12",
   "status": "complete_user_accepted_hardware_compute_only",
   "goal_complete": true,
   "verdict": {
@@ -358,7 +358,7 @@
     "local/research/gpu-address-poc-v1/write-checkpoint-manifest.py": "eecb4ee2cb126387d6690c737c12a9a3e8065fadb6d9ac31238699268a4a0ca4"
   },
   "acceptance": {
-    "utc": "2025-01-25T05:25:04.451968+00:00",
+    "utc": "2026-10-12T05:25:04.396217+00:00",
     "instruction": "sorry, another agent is working on another project and building things such that you can't get a baseline and that's OK: move on because you have proved the concept of using the GPU hardware and that's good enough for now",
     "accepted": "actual Metal compute execution with exact CPU/reference agreement",
     "waived": [
