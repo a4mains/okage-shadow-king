@@ -86,7 +86,7 @@
     },
     "event_trace_rows": 551,
     "guard_or_error_lines": 0,
-    "operator": "haiku (claude-haiku-4-5)"
+    "operator": "haiku (claude-haiku-5-5)"
   },
   "cold_restore": {
     "run": "local/research/chapter2-progression-v1/c2p-final-restore-v4a",
@@ -114,7 +114,7 @@
         "bindings": "8 models, 83 handles, 22 XTA, actors deva/hero/sind/stun; restore cycle 1 vs ordinary cycle 3, no differences"
       }
     },
-    "operator": "haiku (claude-haiku-4-5)"
+    "operator": "haiku (claude-haiku-5-5)"
   },
   "c3_slice": {
     "file": "local/research/chapter2-progression-v1/inventory/c3-slice-final-v4a.json",

@@ -401,7 +401,7 @@
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-07-12T06:43:44.057386+00:00",
+   "audited_at": "2026-10-13T06:43:44.104522+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -417,13 +417,13 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
-  "src/startup_textures.cpp": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+  "include/okage/startup_textures.hpp": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1",
+  "src/startup_textures.cpp": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838",
   "include/okage/texture_handles.hpp": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
   "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
-  "include/okage/scene_renderer.hpp": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b",
-  "src/scene_renderer.mm": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
-  "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+  "include/okage/scene_renderer.hpp": "7704ae8bbb92ca8b3033e2dcef2d607abfab5d805eddf5bdcda46316b722ae3a",
+  "src/scene_renderer.mm": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d",
+  "src/native_runtime.mm": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
   "src/title_session.hpp": "eb0559173236f5bf5d33ae659ea2a0a4adf270d62cb7c536db301f4b8ec4b0f2",
   "src/title_session.mm": "52cf641c373dd4a8ad44cc365c1d9f9eacaa6682d434329fc15d34bac6d085cd",
   "src/title.cpp": "224491253d4fa53eebfaa20d0b5a45607942dd822c7d7202464772a5f56d386a",
@@ -431,7 +431,7 @@
   "src/input_log.cpp": "71119acd32a21a03924fe5ed6444a07e00815e8acb738065a9f5bd5a00a5dd70",
   "include/okage/startup_inputs.hpp": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
   "src/startup_inputs.cpp": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
-  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+  "CMakeLists.txt": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b",
   "tools/title_regression_align.py": "c563ce58f07726b6aae8ec2d29bd7c62f35f5afe1e55f2718abd1d3ca32ddf7a",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tools/retire_title_contract.py": "d06411c28433591fbe67790092566eb6b47ca3ed4e4ef78f13e30d141de05951",
@@ -444,7 +444,7 @@
   "tools/retire_validation_run.sh": "e4c9db46f2f6598530fdf3b9af04a6c61379f1169020bc3bba75f13457a5be76",
   "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
   "tools/rng_cold_start_regression.sh": "547205a196af6ce82b4860364c93f8049d2c0695af455ae5861ab5c1d3ff42a1",
-  "tests/startup_textures_tests.cpp": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
+  "tests/startup_textures_tests.cpp": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21",
   "tests/test_title_regression_align.py": "5947cedbdb5d9136850fdf03f303b8ad75697085ee875e88f24ae5d9b0b77a13",
   "tests/test_retire_input_provenance.py": "ef1fd1230e110b66f753f642e10c22764e1fe05572054554287419e05a4d9789",
   "tests/test_retire_title_contract.py": "12e800da66af17592d9ea172c0112517f39ab349455e3ab78eaffcd380295a8e",
@@ -457,7 +457,7 @@
   "tests/data/retire-routes/restore-scripted/title-pad.txt": "dbc1be12cadd0fb16653609c0366b3de9c88d0e9d6c1b1dd5a3b442be430abcc",
   "tests/data/retire-routes/newgame-scripted/title-pad.txt": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689",
   "docs/retire-title-contract.json": "c36e62493f65eb6f360c2217bba530f36fa7a30d5222756cc74793e0fe305970",
-  "docs/retire-title-original-manifest.json": "e65fcc05cb97adbc284d0b8bf248bdfacc2fa3098700cf5fa3939a276569bd17"
+  "docs/retire-title-original-manifest.json": "6ebec0967fdf914fbd347090dc695133618a737c627993ebb88c216f5d669df0"
  },
  "evidence": [
   {

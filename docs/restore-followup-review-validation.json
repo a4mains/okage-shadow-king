@@ -1,17 +1,17 @@
 {
   "schema": "okage.restore.followup-review.v1",
-  "date": "2025-08-24",
+  "date": "2026-10-13",
   "reviewed_commit": "b4fb39af33328f1af8135b0acd28701f1cdf4b26",
   "scope": "Read-only runtime/source/evidence review, current documentation corrections and fresh-agent Newgame assignment. No runtime/tool change or new build. No original VM run.",
   "original_manifest_hash_audit": [
     {
       "path": "include/okage/startup_textures.hpp",
-      "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
+      "sha256": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1",
       "matches": true
     },
     {
       "path": "src/startup_textures.cpp",
-      "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+      "sha256": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838",
       "matches": true
     },
     {
@@ -26,7 +26,7 @@
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
       "matches": true
     },
     {
@@ -56,12 +56,12 @@
     },
     {
       "path": "include/okage/effect.hpp",
-      "sha256": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
+      "sha256": "947da752346883ebb4cbf6da0bb190b270c099f8d102c9ba65e0216fce1f6ba9",
       "matches": true
     },
     {
       "path": "src/effect.cpp",
-      "sha256": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+      "sha256": "272e93a659ac1ce51bf844222913caf703a007cf50c934acdffbdd89c5c4c281",
       "matches": true
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "path": "CMakeLists.txt",
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+      "sha256": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b",
       "matches": true
     },
     {
@@ -141,7 +141,7 @@
     },
     {
       "path": "tests/startup_textures_tests.cpp",
-      "sha256": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
+      "sha256": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21",
       "matches": true
     },
     {
@@ -181,7 +181,7 @@
     },
     {
       "path": "docs/restore-original-manifest.json",
-      "sha256": "8028ef913841e847e40c1c03b5a9e7ed8c9b536537cfbb3d974c6f02c8c448b0",
+      "sha256": "7e38f76eb8d85e01e6b40f4954a0c26de82e364e0f472816fde8c510abbb07bc",
       "matches": true
     },
     {
@@ -256,7 +256,7 @@
     },
     {
       "path": "docs/restore-light-manifest.json",
-      "sha256": "8cf1a47a9d5b4840c7d99fcafc7b09ed3012f393e05bc186c2eefd1a8a01cb8b",
+      "sha256": "c771dd1b67b0438044c5ca537d616b350e2368d9d95f09b09a5b08e5f47804f8",
       "matches": true
     },
     {
@@ -969,7 +969,7 @@
     {
       "path": "docs/restore-light-manifest.json",
       "bytes": 72108,
-      "sha256": "8cf1a47a9d5b4840c7d99fcafc7b09ed3012f393e05bc186c2eefd1a8a01cb8b"
+      "sha256": "c771dd1b67b0438044c5ca537d616b350e2368d9d95f09b09a5b08e5f47804f8"
     }
   ],
   "commands": [

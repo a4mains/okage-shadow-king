@@ -1,6 +1,6 @@
 {
   "schema": "okage.retire.followup-review.v1",
-  "date": "2025-07-17",
+  "date": "2026-10-13",
   "reviewed_commit": "d1fcb051987f66ae2ebaa13a25525ef26c176f32",
   "scope": "Read-only runtime/tool review and Restore assignment; no runtime/tool edits, no new build, no original VM run. Existing pinned binaries reused.",
   "commands": [
@@ -311,12 +311,12 @@
   "original_manifest_hash_audit": [
     {
       "path": "include/okage/startup_textures.hpp",
-      "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
+      "sha256": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1",
       "matches": true
     },
     {
       "path": "src/startup_textures.cpp",
-      "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+      "sha256": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838",
       "matches": true
     },
     {
@@ -331,17 +331,17 @@
     },
     {
       "path": "include/okage/scene_renderer.hpp",
-      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b",
+      "sha256": "7704ae8bbb92ca8b3033e2dcef2d607abfab5d805eddf5bdcda46316b722ae3a",
       "matches": true
     },
     {
       "path": "src/scene_renderer.mm",
-      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9",
+      "sha256": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d",
       "matches": true
     },
     {
       "path": "src/native_runtime.mm",
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
       "matches": true
     },
     {
@@ -381,7 +381,7 @@
     },
     {
       "path": "CMakeLists.txt",
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+      "sha256": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b",
       "matches": true
     },
     {
@@ -446,7 +446,7 @@
     },
     {
       "path": "tests/startup_textures_tests.cpp",
-      "sha256": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
+      "sha256": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21",
       "matches": true
     },
     {
@@ -511,7 +511,7 @@
     },
     {
       "path": "docs/retire-title-original-manifest.json",
-      "sha256": "e65fcc05cb97adbc284d0b8bf248bdfacc2fa3098700cf5fa3939a276569bd17",
+      "sha256": "6ebec0967fdf914fbd347090dc695133618a737c627993ebb88c216f5d669df0",
       "matches": true
     },
     {

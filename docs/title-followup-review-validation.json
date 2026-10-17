@@ -1,6 +1,6 @@
 {
   "schema": "okage.title.followup-review.v1",
-  "review_date": "2025-06-08",
+  "review_date": "2026-10-13",
   "reviewed_commit": "962cf6fb201f2ea1f5f17665df31d78777def3f6",
   "scope": "Read-only implementation/evidence review and Retire handoff; no runtime/tool edits. Existing built executables reused, not rebuilt. Original execution was not rerun.",
   "commands": [
@@ -99,22 +99,22 @@
     {
       "path": "src/effect_geometry.cpp",
       "matches": true,
-      "sha256": "2db351b381f63f63fff68c503a10fc484fccd4be8bff59a91d0335d7b87fbe62"
+      "sha256": "1bdf181ed813584146db716cf92d2785f6423f77f986394925fbff781fc600d9"
     },
     {
       "path": "tests/effect_tests.cpp",
       "matches": true,
-      "sha256": "3aa9381232cd82fa1ec707059efba163378bc205c788f45efb28ba69be22959f"
+      "sha256": "4e576022b7b4b904cb94a9b5e38b6f873e9059135e850f680c98b55cbfdf35cc"
     },
     {
       "path": "include/okage/startup_textures.hpp",
       "matches": true,
-      "sha256": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68"
+      "sha256": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1"
     },
     {
       "path": "src/startup_textures.cpp",
       "matches": true,
-      "sha256": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a"
+      "sha256": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838"
     },
     {
       "path": "include/okage/texture_handles.hpp",
@@ -129,32 +129,32 @@
     {
       "path": "include/okage/texture_memory.hpp",
       "matches": true,
-      "sha256": "5b0ecc1363a6b4c971700bd49ed5a3eb862b80f2805632bb715bce64e3a14935"
+      "sha256": "7e00e740ef22c9f70b5f487442b752cac3abbc76c5a9eea18d1f4b23158e1723"
     },
     {
       "path": "src/texture_memory.cpp",
       "matches": true,
-      "sha256": "5cbedd953e524a1590898c7b8840407dc85afc2ca43b46a0db28e232b9cbf61a"
+      "sha256": "8fd6fc2dc056c9f9ebc7b7280e2f37d53d83aa8625b883191aff6d1bfb1ccc68"
     },
     {
       "path": "include/okage/texture_transfer.hpp",
       "matches": true,
-      "sha256": "b6977ca0976d198523fe2c81d44e156f78382ba7a14fb9d0f924b8328814f6f6"
+      "sha256": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f"
     },
     {
       "path": "src/texture_transfer.cpp",
       "matches": true,
-      "sha256": "fc26e019d04fa586c9e57fc96c39e63ad9ed309dddefb5a2a8e662c6a764d4e1"
+      "sha256": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646"
     },
     {
       "path": "src/assets.cpp",
       "matches": true,
-      "sha256": "9a4d91fc009f59a9a83c4f09010bb97619ed9a8444136937372a1349d03c3e26"
+      "sha256": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819"
     },
     {
       "path": "src/native_runtime.mm",
       "matches": true,
-      "sha256": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c"
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5"
     },
     {
       "path": "src/title_session.hpp",
@@ -169,17 +169,17 @@
     {
       "path": "src/scene_renderer.mm",
       "matches": true,
-      "sha256": "ae794eb77ce6acd3207accb0dc347520326a8079e5adebe56f1d8517333e61c9"
+      "sha256": "933de38a740623c4d28b3408db748a4ebf8f62bc9dac6100e18c4f1e5dae6d8d"
     },
     {
       "path": "include/okage/scene_renderer.hpp",
       "matches": true,
-      "sha256": "fe782caa94bc39f726856f9e3d1ea2816c9417db9e0fc85a795b9d51f01a271b"
+      "sha256": "7704ae8bbb92ca8b3033e2dcef2d607abfab5d805eddf5bdcda46316b722ae3a"
     },
     {
       "path": "CMakeLists.txt",
       "matches": true,
-      "sha256": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455"
+      "sha256": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b"
     },
     {
       "path": "tools/title_compare.py",
@@ -204,7 +204,7 @@
     {
       "path": "tests/startup_textures_tests.cpp",
       "matches": true,
-      "sha256": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375"
+      "sha256": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21"
     },
     {
       "path": "tests/texture_handles_tests.cpp",
@@ -234,12 +234,12 @@
     {
       "path": "docs/title-original-manifest.json",
       "matches": true,
-      "sha256": "ff8c9efd4f2ea7e00956eb812a160a51fcfca2a1065d174a859d01aa50fcb7f0"
+      "sha256": "16304a97e5945b72d2f84aa262765e465b5abf77dbf85a2f6264050bfa3974b2"
     },
     {
       "path": "docs/title-psm1-validation.json",
       "matches": true,
-      "sha256": "df03535d1c478fb96d7745410ffaccc5a7c05b586330938c547819acc6db04cb"
+      "sha256": "1d3933684059d02e785fd491ad1c0151fdbabe29b55e4b973bc3032b64c12d9a"
     },
     {
       "path": "docs/title-contract.json",

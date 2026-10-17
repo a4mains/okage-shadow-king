@@ -16,13 +16,13 @@
  "original_reference": {
   "manifest": {
    "path": "docs/newgame-original-manifest.json",
-   "sha256": "7e2f1e40020833c84f74b22745045bf69a111bb39d92d40408e084e1cf1ba24e",
+   "sha256": "a4dace836b54ee7019b8a0348518d17945b078471b2ff4370284b58087a8462a",
    "bytes": 125468
   },
   "analysis": "local/research/newgame-original-v1/analysis",
   "no_first_manifest": {
    "path": "docs/newgame-no-original-manifest.json",
-   "sha256": "663dab649301875ad0ee48832160700387a66c887a7beaca22619e48bae92ed4",
+   "sha256": "212aef1bde9d72ab7dff44bd1a86919df185fe87ffe614df0cfc6f30cabe916f",
    "bytes": 133106
   },
   "no_first_evidence": "local/research/newgame-no-original-v1"
@@ -547,6 +547,7 @@
  },
  "current_time_audit": {
   "stage": {
+   "audited_at": "2026-10-13T17:53:37.496113+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -562,9 +563,9 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
-  "src/startup_textures.cpp": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
-  "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+  "include/okage/startup_textures.hpp": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1",
+  "src/startup_textures.cpp": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838",
+  "src/native_runtime.mm": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
   "src/name_entry_session.hpp": "9985416ef511691dc2917df53fe029fd3fe85d8df3746f2ac5e2567419a0604b",
   "src/name_entry_session.mm": "4f9b9e34d1a842de8e953ed9819da55819b0fd515de8b79b5785813117d7ed31",
   "src/chapter_session.hpp": "31693cd3eee1a6ad45145ad02373a04e2dc7f9d76992330cf85e94d190451972",
@@ -577,7 +578,7 @@
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
   "include/okage/rng_site.hpp": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
   "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
-  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+  "CMakeLists.txt": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b",
   "tools/play-oracle/startup.cpp": "fe976ff087d9eaed54b557332064c39a95a437e188666e0c16c40b9a99c5ce8a",
   "tools/play-oracle/CMakeLists.txt": "634f37f30b8c1c8a4133f24253812add0995846ed062191855804443b184ffdc",
   "tools/newgame_capture.sh": "c0e5830158b6bc5e11f30e3d759e1cb03024421b642e08b6fc9af684276817c8",
@@ -590,10 +591,10 @@
   "tools/newgame_validation_manifest.py": "e623c96a7e7a6bb60f4ec0624e4902c9dac500e93cc8192f3c1f1a1f2c45739b",
   "tools/restore_validation_manifest.py": "0b64a4340d3d949b72ae2c52666ecdad9d6ac80b22579d5ef0fa4b6c2213641f",
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
-  "tests/startup_textures_tests.cpp": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
+  "tests/startup_textures_tests.cpp": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21",
   "tests/game_mode_tests.cpp": "2540d4af36325d5a8c961eddbaab9461a5a1c08d9bbf588853697f43075412fb",
   "tests/name_entry_tests.cpp": "e1b4139a6760d908b5736aabf3d27610e2397fb804986771740366903ac05680",
-  "tests/test_newgame_routes.py": "272f8a44947764e71f050633875d3b8ddee0f026bece87c18b9c56fe19298986",
+  "tests/test_newgame_routes.py": "2514a613b5ad25976586b9a442c12d9deceecd0800f33050853e969fef330d18",
   "tests/test_newgame_compare.py": "6d01387a8bda0ec8ca48ea1d831dcf1408e57730c241b7f8c54f50fa1593dd07",
   "tests/test_newgame_route_compare.py": "6fd99ae18d85a90babcd89009c38089a0bd639239dbb3ed1c87e432a1fadc0f5",
   "tests/data/newgame-routes/newgame-chapter/name-pad.txt": "12aa3a43d4225d254e56101b5bce050013818fc58414bd8aeb03cc6ef4999c31",
@@ -603,8 +604,8 @@
   "tests/data/newgame-routes/newgame-fixed/buttons.txt": "eef36e77aad4568cd3d6efc655783c63998c4608144fca0de960b23f76ccc363",
   "tests/data/newgame-routes/newgame-fixed/directions.txt": "56ae102a6c8393ff5e122f18d7de6896f9f2a14cb39e95607b07f7db235c2314",
   "tests/data/retire-routes/newgame-scripted/title-pad.txt": "ea45458de47c2f09596f75c410ca3a5d7ebe590aefe13cc2060d61e4c798a689",
-  "docs/newgame-original-manifest.json": "7e2f1e40020833c84f74b22745045bf69a111bb39d92d40408e084e1cf1ba24e",
-  "docs/restore-ownership-validation.json": "49a68cd9bc903a19e510085afaad39ae78986912df1def0ff78f83fd5568f2c9"
+  "docs/newgame-original-manifest.json": "a4dace836b54ee7019b8a0348518d17945b078471b2ff4370284b58087a8462a",
+  "docs/restore-ownership-validation.json": "a82e85cd1aa38d01941ca748571a72ca971fbf058499311527457d0447fee51a"
  },
  "evidence": [
   {
@@ -2809,7 +2810,7 @@
   "manifest": "NEWGAME_VALIDATION=local/research/newgame-validation-v1 python3 tools/newgame_validation_manifest.py final docs/newgame-validation.json"
  },
  "errata": {
-  "date": "2025-09-28",
+  "date": "2026-10-13",
   "by": "Field fixes-first (HANDOFF.md section 1)",
   "scope_was": "Newgame: the FIRST cold title's New Game branch on the persistent Session texture owner and RNG, from entry of 124548 (mode 9) through name-entry construction (wrapper-owned bm_if atlas), an actual name edit and Yes, manager death/unlink, the published command {14,1,0} and request {2,72,0}, resource/wrapper retirement and frees, Chapter 1 (CHP_01 image list, counter-240 fade request, actual fade completion, command clear and request), chapter retirement and frees, to the ENTRY of the second 133830 (command 0), before its body. Fixes first: the name-entry image-counter defect (reproduced, corrected), the mode-parent +0x4c write of 1246b0, and the Restore metadata. Provenance: every original RNG row is a hooked observation; every native lifecycle row is observed (none asserted). Not original image/audio parity, ordinary field/XTA/battle loading, saved-field Restore, shared-GS sampling, performance, tick37297, full T1 or the game.",
   "binaries_built_from_was": "4b44f27d9c81ebe1ffc11f85690d60ec175d07a1",

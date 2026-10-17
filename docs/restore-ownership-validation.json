@@ -555,7 +555,7 @@
  },
  "current_time_audit": {
   "stage": {
-   "audited_at": "2025-08-31T12:18:11.475359+00:00",
+   "audited_at": "2026-10-13T12:18:11.512768+00:00",
    "kind": "current-time-audit",
    "listed_files": 17668,
    "manifest_sha256": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
@@ -571,21 +571,21 @@
   "note": "re-hash of the stage when the evidence driver ran; it does not prove historical reads (see sessions.*.input_check_exit for run-time reads)"
  },
  "tracked_sources": {
-  "include/okage/startup_textures.hpp": "77b43bdc5f051de45d7323e0baeef49279bbdef5b74f3d4800bd3b9f75596a68",
-  "src/startup_textures.cpp": "f4fed3a79938ed16395c1d68ff0ffcb9f41a99da4934684924e11f3556b0ae4a",
+  "include/okage/startup_textures.hpp": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1",
+  "src/startup_textures.cpp": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838",
   "include/okage/texture_handles.hpp": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad",
   "src/texture_handles.cpp": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff",
-  "src/native_runtime.mm": "4addd0a978af0e78689dac05b10480b5b57c867798ceb7d54bedf2852cd7717c",
+  "src/native_runtime.mm": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5",
   "src/restore_session.hpp": "d523c713a503ff9c32a6ec766c6b807ba3f5f785e7fbc110d1baebdf3b915023",
   "src/restore_session.mm": "4c88974e89f549b216c5d09633d0c2c77addac05ed64fdd8f598b3c032107254",
   "src/ui_window_glyph.cpp": "edf5a75e9d4db9a17a5cc931e23b02c90fed5341eef129258e141b715529d0c2",
   "include/okage/rng_site.hpp": "c09a8a6aac1de1bd110d495c6794fb572404ca91e74340e5c60b43e4b91a674e",
   "include/okage/enemy.hpp": "648de686d24502735b7b10027859a82e0741cd8642d4bd236b7dda47d2637f45",
-  "include/okage/effect.hpp": "988bba1f5462abc1e32028dcb8bbfb81d5d0b0d4937d07148aceae89eb757fe1",
-  "src/effect.cpp": "287b08af795ba755605b0370e5d3001f4f3ff020cf4a6c04f83d6b9c0a121f36",
+  "include/okage/effect.hpp": "947da752346883ebb4cbf6da0bb190b270c099f8d102c9ba65e0216fce1f6ba9",
+  "src/effect.cpp": "272e93a659ac1ce51bf844222913caf703a007cf50c934acdffbdd89c5c4c281",
   "include/okage/startup_inputs.hpp": "6745df0d251cab5bccacc5bdcd1a4ce36013cf328359f07f62e82a54946e6713",
   "src/startup_inputs.cpp": "c3b57115baa59936158eea61f5ef3a50bebeb610ff037e237b395d4629876c6e",
-  "CMakeLists.txt": "f95308688ca722a86fa3052fd4fc74b20fa24defba68a2662ce4a57ff53cf455",
+  "CMakeLists.txt": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b",
   "tools/retire_route_compare.py": "2a7c93c864191a2f04d8f96dcccc012d09463987c0ba19480797eb757f365bca",
   "tools/retire_route_regression.sh": "8768890a9e091054229b07722e97607235e23697fc1b399eebb052b05366821a",
   "tools/restore_validation_run.sh": "6af34b6d21a36d0aa91e2ae632b90a716d210d8f95f507ef0732e08e56ac2299",
@@ -598,7 +598,7 @@
   "tools/retire_input_provenance.py": "4407407b806d49cba124058f370b480ccf708c327eb44d6cf2f603c3aa9d96d6",
   "tools/restore_io_timing_evidence.py": "01e8dd57d3cefa781215082c8673a155a183b3bddc0d1655f843eb7af5cea226",
   "tests/test_restore_io_timing_evidence.py": "8d664db2050cb757d0a3a22bff5663c9cceb62455bb0197393dc1035db25f29f",
-  "tests/startup_textures_tests.cpp": "63dbbe33bfc5e56afc954d7bcf005ab3bcb55e1c6402e56b785c6ee4ec00a375",
+  "tests/startup_textures_tests.cpp": "b694631fc04c344b0036e2b6c67ed7b88ce02c0155de90d9e54dbf37ae65ba21",
   "tests/test_retire_route_compare.py": "a4aa9fd734ac57e35a047433ad7b917175220674506cbb42a6a68c41ea8b70a7",
   "tests/test_restore_contract.py": "8426298fd995ebc83555b6252780ae699e5561c6a6ac4fda3e27ab9e9abf34cf",
   "tests/test_restore_compare.py": "adf7c650eca42bf34a43a8e8084811073501170c56d1677b98e4bf9a811d741d",
@@ -606,7 +606,7 @@
   "tests/data/restore-routes/restore-cancel/buttons.txt": "12a12f219f17735fd949617a97866a6daed6156d15173e6e445373f9daab7bd8",
   "tests/data/restore-routes/pending-cancel/buttons.txt": "186facc3c345e592ce73538c20c0c133245a9f8841d220d1a680a126dec7f778",
   "docs/restore-contract.json": "345e279a24189c07a1b8119d7c45e6ed5c58d8ec0ea05b48917914a31886d17c",
-  "docs/restore-original-manifest.json": "8028ef913841e847e40c1c03b5a9e7ed8c9b536537cfbb3d974c6f02c8c448b0"
+  "docs/restore-original-manifest.json": "7e38f76eb8d85e01e6b40f4954a0c26de82e364e0f472816fde8c510abbb07bc"
  },
  "evidence": [
   {
@@ -681,7 +681,7 @@
   },
   {
    "path": "docs/restore-light-manifest.json",
-   "sha256": "8cf1a47a9d5b4840c7d99fcafc7b09ed3012f393e05bc186c2eefd1a8a01cb8b",
+   "sha256": "c771dd1b67b0438044c5ca537d616b350e2368d9d95f09b09a5b08e5f47804f8",
    "bytes": 72108
   },
   {
@@ -1381,7 +1381,7 @@
   "manifest": "python3 tools/restore_validation_manifest.py docs/restore-ownership-validation.json"
  },
  "errata": {
-  "date": "2025-08-31",
+  "date": "2026-10-13",
   "by": "Newgame fixes-first (HANDOFF.md section 1)",
   "scope_was": "Restore: fixes-first route-comparator coverage/causality (F1/F2); the persistent Session texture owner from entry of 124548 (mode 10) through empty-card Restore, Cancel, manager/window/resource/wrapper retirement to the return of the second 12c350(selector=1). Resource history equal to the original at eight checkpoints; per-traversal/RNG parity unresolved (card readiness timing). Not image/audio parity, saved slots, loading, name entry, field/battle/XTA, sampling, tick37297, full T1 or the game.",
   "driver_was": "tools/restore_validation_run.sh final",

@@ -10,7 +10,7 @@
   by `c2p-final-v3a`.
 - **Open approximations:** see the progression doc's Limits.
 
-## PREVIOUS: texture-to-Chapter-2 completion review v2
+## PREVIOUS: texture-to-Chapter-2 completion review v2 (2026-10-17)
 
 pushed). Start with the
 
@@ -39,7 +39,7 @@ Open limits:
 - No Session-level message-window test exists.
 - The `589062c` diagnostic-omission path has not run live and has no dedicated
 
-## Submitted: six-package assignment "demonstrated" (not accepted)
+## Submitted 2026-10-15: six-package assignment "demonstrated" (not accepted)
 
 the ledger key `claude_completion_v1` in
 

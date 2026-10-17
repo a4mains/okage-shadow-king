@@ -8,8 +8,8 @@
   "source": {
     "CMakeLists.txt": {
       "path": "CMakeLists.txt",
-      "bytes": 49350,
-      "sha256": "d9023976eb4b98524effee11cb4bd8711e80b77fc31c564d8713782d7377307c"
+      "bytes": 49972,
+      "sha256": "8e12bb9bbff322be2e392a069c119171b7b6e2382aa824173b20499c960bf44b"
     },
     "include/okage/actor.hpp": {
       "path": "include/okage/actor.hpp",
@@ -2683,7 +2683,7 @@
     "sha256": "db5b5701a05d57459ac54d0b1bee54bed288d6ea46c605d8a0d59b530a2236e3",
     "bytes": 2057
   },
-  "overnight_cutoff": "2026-10-10T15:00:00Z",
+  "overnight_cutoff": "2026-10-14T15:00:00Z",
   "battle_source_audit": {
     "path": "local/research/texture-to-battle-v1/battle-resource-source-audit-v1/audit.txt",
     "sha256": "a5f21ca394ae1eb9caec70f2a0055e220d50969936935a2c49bcda3128ba731d",
@@ -3244,11 +3244,11 @@
       "newgame-routes fails (stage v13 lacks NAVI, pre-existing)",
       "post-prefix comparisons are native-to-native; no original capture for this route"
     ],
-    "review_status": "NOT ACCEPTED by the completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-10.txt); superseded by claude_review_v2. Recorded as submitted."
+    "review_status": "NOT ACCEPTED by the 2026-10-15 completion review (CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-15.txt); superseded by claude_review_v2. Recorded as submitted."
   },
   "claude_review_v2": {
     "schema": "okage.texture-to-battle.claude-review-v2",
-    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-10.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-10-10.txt",
+    "handoff": "CLAUDE_COMPLETION_REVIEW_HANDOFF_2026-10-15.txt; routing update CLAUDE_CONTINUATION_AGENT_ROUTING_2026-10-15.txt",
     "branch": "work/texture-to-battle-v1",
     "code_head": "62a468ac46a160a29268bfb87ee3eb2e398f70c6 (runtime); tools-only follow-ups b1b3e31, 249c557, fde197d, 98461e4, 201316e, a7ab562, 7d00e8c, b9ff32d, 56b7c60, 5f1dfd2, 89dfab3, 87bac3c",
     "commits": {
@@ -3620,7 +3620,7 @@
         "claude-final-restore-audit-v5a": "--rest-first with a --newgame-report prepared run (rest stage; manifest newgame_report true)"
       },
       "review_5": {
-        "agent": "general-purpose (Opus), read-only, ",
+        "agent": "general-purpose (Opus), read-only, 2026-10-17",
         "verdict": "no blocker",
         "verified": "Release rebuild of git archive 589062c = 91e0fbc1; all manifest artifacts re-hashed 0 mismatches; tapes byte-identical to v21c/v4a; compare.py rerun byte-identical plus negative control; restore_audit rerun identical; save chain; no guard lines; 135 native_route tests OK",
         "findings": {
