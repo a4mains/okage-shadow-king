@@ -1,0 +1,417 @@
+{
+  "schema": "okage.field.validation.v1",
+  "milestone": "Field",
+  "scope": "ordinary-field-loader-prefix-post-131e7c",
+  "base_commit": "8e20f515abf991690c5a88d0ddc1f505419c2959",
+  "tooling_commit": "9c0bcd0",
+  "elf_sha256": "2a90b6af1b5e0ab577e899113d7d35d97669a5c13aee2ae848312bd04669aaa5",
+  "stage_manifest_sha256_pinned": "1696227bf62b137522e12ea2f7529a0138f4ffeea449987901a140b6b57d7ad6",
+  "original_reference": {
+    "capture_dir": "local/research/field-prefix-original-v1",
+    "extracted_analysis_dir": "local/research/texture-to-battle-v1/original-analysis",
+    "reextracted_analysis_dir": "local/research/field-final-verification-v1/extracted-reference",
+    "manifest": {
+      "path": "docs/field-prefix-original-manifest.json",
+      "bytes": 9408,
+      "sha256": "289b467b8796f086f418deccd054918a4cf31c59fd3341459dddce456ac6e253"
+    }
+  },
+  "tracked_deliverables": [
+    {
+      "path": "include/okage/startup_textures.hpp",
+      "bytes": 23738,
+      "sha256": "4a8753406a549429978ddfbc23784602a425c3e9d6a6d12e2a5d4d6d1cdd28a1"
+    },
+    {
+      "path": "include/okage/texture_handles.hpp",
+      "bytes": 8520,
+      "sha256": "744c053dcc19226065deebc3e0615bece9750ee8ccf8a6be620942ed5d3e00ad"
+    },
+    {
+      "path": "include/okage/texture_transfer.hpp",
+      "bytes": 2847,
+      "sha256": "a39672772b71449dd8650135057b5f570d0ff2fcfd6e5ff3961eb487c1ef8f6f"
+    },
+    {
+      "path": "src/assets.cpp",
+      "bytes": 14653,
+      "sha256": "df9242f0d733df53fafbb402f2eeede52d89c64f963d8e6a4145316a7a47f819"
+    },
+    {
+      "path": "src/native_runtime.mm",
+      "bytes": 308740,
+      "sha256": "cc0dc03b6aed6708b1eb432f2cda16c181f35ff26810a2317d9816daf6458ce5"
+    },
+    {
+      "path": "src/startup_textures.cpp",
+      "bytes": 86651,
+      "sha256": "6e403d375fee5e7c8b2849dab499506c87cb4b277939b2c26357b9f1f27bf838"
+    },
+    {
+      "path": "src/texture_handles.cpp",
+      "bytes": 21665,
+      "sha256": "50c7ec948d9b691f1c1fe89577d1cd51d2e832f37dd5d2d064090955956e92ff"
+    },
+    {
+      "path": "src/texture_transfer.cpp",
+      "bytes": 12470,
+      "sha256": "07b68ee687d66d6a2a047071777a968bea935e8d2a521246f8d31815639ea646"
+    },
+    {
+      "path": "tests/texture_handles_tests.cpp",
+      "bytes": 30259,
+      "sha256": "aae30703bc14a718fb4a4ced96cedcdd4354e278ed3fec63f9f67dbb7a26029f"
+    },
+    {
+      "path": "tests/texture_psm1_tests.cpp",
+      "bytes": 17198,
+      "sha256": "d1f878f79cc51917caf91822ef45dc94a4e513e6bb7305c9fae6d657855397d2"
+    },
+    {
+      "path": "tests/texture_transfer_tests.cpp",
+      "bytes": 39487,
+      "sha256": "2a80af9913660f4c2debf0c4c1954297aebdcbe8fa97c7b98de13e5a17e9d825"
+    },
+    {
+      "path": "tests/xim_raw_tests.cpp",
+      "bytes": 12178,
+      "sha256": "30eea728849d36149446495aea50e93033e6f60eaa8c1d81f7fd769663dfc4a7"
+    },
+    {
+      "path": "tests/test_field_prefix_compare.py",
+      "bytes": 18827,
+      "sha256": "9a09d704f703b513c8bc11aff8930859a4164d77d5b780b696420f042f5f3317"
+    },
+    {
+      "path": "tools/field_prefix_compare.py",
+      "bytes": 30502,
+      "sha256": "a99b584b26d5697cce5f52c1269eb0be6d5a7be53e94c01b03ba239008e01e14"
+    },
+    {
+      "path": "tools/field_prefix_extract.py",
+      "bytes": 27607,
+      "sha256": "a697a2ca547b605d0541dbd8e3a2991ece26042089e778fe4f56c2056d3ac924"
+    },
+    {
+      "path": "docs/field-prefix-original-manifest.json",
+      "bytes": 9408,
+      "sha256": "289b467b8796f086f418deccd054918a4cf31c59fd3341459dddce456ac6e253"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 23234,
+      "sha256": "8cfce0f271006724f8dc55a76ba5e6a7afa0c0c6f5757e361d023e7525feaa50"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "build/field-release/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 3624256,
+      "sha256": "159b0313ac310be14aa9d21f13257a28251772834dc6fdc755b1068ce740f85e"
+    },
+    {
+      "path": "build/field-debug/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 12504368,
+      "sha256": "878a8814e649d47b646bf7e0d357f1748ef8a9c05573126c3bc33e65c2020ffc"
+    },
+    {
+      "path": "build/field-sanitize/okage-native.app/Contents/MacOS/okage-native",
+      "bytes": 38236080,
+      "sha256": "f0c374ddbfa409cfa7ed3c43605b028511a21a3b8dfd0cc13f033f168a454a48"
+    }
+  ],
+  "verification_artifacts": [
+    {
+      "path": "local/research/field-final-verification-v1/release/newgame-compare.json",
+      "bytes": 13032,
+      "sha256": "4d94bb70c363053d2ccc79837c28a5d2adaa04ce617ad01d4be03affb1b757dc"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/release/field-compare.json",
+      "bytes": 5274,
+      "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/release/reads-check.log",
+      "bytes": 39569,
+      "sha256": "5c922229cea89bc120f679f6281aa8a201de77e299230c2a0c7ea4c7213c868d"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/release/report/route.json",
+      "bytes": 579,
+      "sha256": "1b5983cc1fa17dc61acc12c2625825c181348b1785abbd4f443b41eb0487e3c4"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/release/report/field-route.json",
+      "bytes": 689,
+      "sha256": "a8dcfa3e5aabf14b0d59151846c403099a1433d4d37f42d56fe2b328946220a5"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/debug/newgame-compare.json",
+      "bytes": 13044,
+      "sha256": "e759067395f12c2640589a10ff3e789034827b226c574723740de09e26c7b66e"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/debug/field-compare.json",
+      "bytes": 5274,
+      "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/debug/reads-check.log",
+      "bytes": 39569,
+      "sha256": "5c922229cea89bc120f679f6281aa8a201de77e299230c2a0c7ea4c7213c868d"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/debug/report/route.json",
+      "bytes": 579,
+      "sha256": "3bdf317ae21762b51d5d82c51664374eebd66a595c727bc006993a89417d644e"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/debug/report/field-route.json",
+      "bytes": 689,
+      "sha256": "69a6b5e47b4652444374cd317ee880687e12ae45d4ac058e82ae292317774ce4"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/sanitize/newgame-compare.json",
+      "bytes": 13044,
+      "sha256": "e759067395f12c2640589a10ff3e789034827b226c574723740de09e26c7b66e"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/sanitize/field-compare.json",
+      "bytes": 5274,
+      "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/sanitize/reads-check.log",
+      "bytes": 39569,
+      "sha256": "a4be64572aa267268fb7e7421c0f468024b0b63ccd4784fdfa37688816dde890"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/sanitize/report/route.json",
+      "bytes": 579,
+      "sha256": "3bdf317ae21762b51d5d82c51664374eebd66a595c727bc006993a89417d644e"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/sanitize/report/field-route.json",
+      "bytes": 689,
+      "sha256": "69a6b5e47b4652444374cd317ee880687e12ae45d4ac058e82ae292317774ce4"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/extracted-reference/reference.json",
+      "bytes": 47498,
+      "sha256": "c5f0ba1f2d7e26d2985e8897e1134d4be1c617dd90a6365606546eb541ffff7f"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/extracted-reference/events-detail.jsonl",
+      "bytes": 251798,
+      "sha256": "b0fc5e48dd83639016773f9007f558ceb0a8853ed95373a7d57f2301ce5c52ec"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/extracted-vs-release.json",
+      "bytes": 5274,
+      "sha256": "2b2759a6dee084be64d3c8614644fd897e464d85faaabe1a5a13eeb7d6551823"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/ctest-release.log",
+      "bytes": 991,
+      "sha256": "a82dbeeefcd7ad392806545327ce34a08200a74d41d8a13115eb40baff5cdcf9"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/ctest-debug.log",
+      "bytes": 987,
+      "sha256": "1392ece70be14135c21586a7aa9e51e54e179f1a93567fa93fbf6b79e56a208f"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/ctest-sanitize.log",
+      "bytes": 993,
+      "sha256": "b27d66a051b512aa8e7edddc72d0739700fbadf155271bdf6bcaf510749f49ca"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/newgame-gates.log",
+      "bytes": 9325,
+      "sha256": "014b528792beb256f114adb635ec419dbd8befce9b5782139096b3eee3939fd3"
+    },
+    {
+      "path": "local/research/field-final-verification-v1/unittest-full.log",
+      "bytes": 178923,
+      "sha256": "248441e437c72c42962b570145065dbe594ae1ae9e7ac1d730bc56c0085a3e35"
+    },
+    {
+      "path": "local/research/texture-to-battle-v1/control-ram-audit.json",
+      "bytes": 125994,
+      "sha256": "fbb45f6a19c43ea1f3d206c549126c99f1d3783ba011c5638ea62079307d4a0b"
+    }
+  ],
+  "results": {
+    "checkpoints": {
+      "field-constructor-return": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "worker-entry": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "atlas-loaded": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "texenv-bound": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "texenv-loaded": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "ruw-loaded": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      },
+      "ui-prefix-published": {
+        "coverage_problems": [],
+        "missing_field_keys": [],
+        "lifecycle": null,
+        "rng": null,
+        "state": {},
+        "effects": null,
+        "session": null,
+        "field": {},
+        "vram": {
+          "known_mask_mismatch": 0,
+          "invalidated_mask_mismatch": 0,
+          "value_mismatch": 0,
+          "first": {}
+        },
+        "asserted_rows": 0
+      }
+    },
+    "payload_identical": true,
+    "status": "UNPROVEN",
+    "exit_code": 4,
+    "incomplete": [],
+    "asserted_rows": 0,
+    "whole_timeline_parity": false,
+    "reference_gate": {
+      "status": "UNPROVEN",
+      "problems": [
+        "control:ui-publish-post-block:ee_ram_equal",
+        "control:ui-publish-pre:ee_ram_equal"
+      ]
+    },
+    "limitations": [
+      "Only the seven field-prefix checkpoints are covered; later field, battle and Save/Restore are not proved.",
+      "Timing is a separate gate; differences never normalize payload.",
+      "Phase markers and documented diagnostic-only state/effect fields are excluded.",
+      "Undefined VRAM nibble values are not compared; both masks must still match exactly."
+    ],
+    "newgame_regression": {
+      "release": "IDENTICAL",
+      "debug": "IDENTICAL",
+      "sanitize": "IDENTICAL"
+    },
+    "input_provenance_non_stage_reads": {
+      "release": 0,
+      "debug": 0,
+      "sanitize": 0
+    },
+    "ctest_suites": {
+      "release": {
+        "passed": 8,
+        "failed": 0
+      },
+      "debug": {
+        "passed": 7,
+        "failed": 0
+      },
+      "sanitize": {
+        "passed": 7,
+        "failed": 0
+      }
+    },
+    "python_unittest_suite": {
+      "ran": 1251,
+      "failed": 0,
+      "skipped": 95,
+      "field_comparator_tests": 32
+    }
+  }
+}

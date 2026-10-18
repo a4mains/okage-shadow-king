@@ -1,4 +1,4 @@
-## CURRENT: Chapter 2 progression to Madril, with Save and Restore
+## CURRENT: Chapter 2 progression to Madril, with Save and Restore (2026-10-18)
 
 - **Route:** from a cold native Restore of the accepted Chapter 2 save, ordinary
   objective 11, b1[125] = 1).
